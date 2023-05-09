@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.example.stay.openMarket.common.mapper.CommonApiMapper">
+
+    <select id="getInfo" resultType="condoDto">
+        EXEC spOMK_ACCOMM_DETAIL ${num}, #{omk}
+    </select>
+
+    <select id="getroomType" resultType="toconDto">
+        EXEC spOMK_ROOMTYPE_LIST ${num}, #{omk}
+    </select>
+
+    <select id="getPhotoList" resultType="string">
+        EXEC spOMK_PHOTO_LIST ${num}
+    </select>
+
+    <select id="getStockList" resultType="stockDto">
+        EXEC spOMK_STOCK_LIST ${num}, #{omk}, #{date}
+    </select>
+
+    <select id="getMinPrice" resultType="int">
+        exec spOMK_MINIMUM_PRICE ${num}, #{date}
+    </select>
+
+    <select id="updateOmkId" resultType="int">
+        exec spOMK_ID_UPDATE ${num}, #{omk}, #{id}
+    </select>
+
+	<select id="getCancelInfo" resultType="CancelInfoDto">
+		SELECT
+			cn_flag AS strCnFlag,
+		    cn_Dcnt AS intCnDcnt,
+		    cn_per AS intCnPer
+		FROM tbl_cancel_info_row WITH(NOLOCK)
+		WHERE cid = ${num}
+	</select>
+
+
+</mapper>

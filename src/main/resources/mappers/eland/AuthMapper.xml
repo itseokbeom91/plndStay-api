@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.example.stay.openMarket.eland.mapper.AuthMapper">
+
+    <insert id="insertAccessToken">
+        INSERT INTO API_AUTHKEY
+            (api_flag, keyvalue, regdate)
+            VALUES('ELAND', #{token}, FORMAT(GETDATE(), 'yyyyMMddHHmmss'));
+    </insert>
+
+</mapper>

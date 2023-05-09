@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.example.stay.openMarket.coupang.mapper.LodgingsMapper">
+    <select id="getCoupangIdByconId" resultType="String">
+        SELECT coupang_id
+        FROM OMK_PRODUCT
+        WHERE CID = ${num}
+    </select>
+
+    <select id="getCreUpdRoomByConId" resultType="ToconDto">
+        SELECT
+            T.pyong_idx AS pyongIdx
+            , T.rateId
+            , T.travelItemId
+        FROM tocon T WITH(NOLOCK)
+            JOIN goods G WITH(NOLOCK) ON T.pyong_idx = G.pyong_idx
+        WHERE T.con_id = ${con_id}
+            AND G.good_date  >= CONVERT(date,GETDATE())
+            AND strIngYn = 'Y'
+            AND T.coupang_yn = 'Y'
+        GROUP BY T.pyong_idx, T.rateId, T.travelItemId
+    </select>
+
+    <select id="getRoomTypeByPyongIdx" resultType="ToconDto">
+        SELECT
+	        tocode
+	        , con_id AS conId
+	        , tocode_text AS tocodeText
+	        , pyong_idx AS pyongIdx
+	        , (pyongImg1 + '|' + pyongImg2 + '|' + pyongImg3) AS pyongImgs
+	        , standpeopleCnt
+	        , maxpeopleCnt
+	        , travelItemId
+	    FROM tocon WITH(NOLOCK)
+	    WHERE pyong_idx = ${pyong_idx}
+    </select>
+
+    <select id="getRateIdByConId" resultType="String">
+        SELECT
+             T.rateId
+        FROM tocon T WITH(NOLOCK)
+            --JOIN goods G WITH(NOLOCK) ON T.pyong_idx = G.pyong_idx
+        WHERE T.con_id = ${con_id}
+          --AND G.good_date  >= CONVERT(date,GETDATE())
+          --AND strIngYn = 'Y'
+          --AND T.coupang_yn = 'Y'
+        GROUP BY T.rateId
+    </select>
+</mapper>
