@@ -1,10 +1,13 @@
 package com.example.stay.accommodation.onda.controller;
 
 import com.example.stay.accommodation.onda.service.AccommService;
+import com.example.stay.common.util.Constants;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 @Controller
 @RequestMapping("/accomm/*")
@@ -17,8 +20,22 @@ public class AccommController {
      * 전체 숙소 목록 가져오기
      */
     @GetMapping("getAccommList")
-    public void getAccommList(){
-        accommService.getAccommListApi();
+    public void getAccommList(@RequestParam(value = "lastdate", required = false) String lastdate,
+                              @RequestParam(value = "status", required = false) String status){
+        String path = Constants.ondaPath + "properties";
+        if(lastdate != null){
+            path += "?lastdate=" + lastdate;
+
+            if(status != null){
+                path += "&status=" +  status;
+            }
+        }else{
+            if(status != null){
+                path += "?status=" +  status;
+            }
+        }
+
+        accommService.getAccommListApi(path);
     }
 
     /**
@@ -61,5 +78,26 @@ public class AccommController {
         accommService.getPackageDetail(property_id, roomtype_id, rateplan_id);
     }
 
+    /**
+     * ONDA에서 숙소정보 가져와서 있으면 PASS, 없으면 INSERT
+     */
+    @GetMapping("getAccommNInsert")
+    public void getAccommNInsert(@RequestParam(value = "lastdate", required = false) String lastdate,
+                                 @RequestParam(value = "status", required = false) String status){
+        String path = Constants.ondaPath + "properties";
+        if(lastdate != null){
+            path += "?lastdate=" + lastdate;
+
+            if(status != null){
+                path += "&status=" +  status;
+            }
+        }else{
+            if(status != null){
+                path += "?status=" +  status;
+            }
+        }
+
+        accommService.getAccommNInsert(path);
+    }
 
 }

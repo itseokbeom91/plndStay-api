@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.example.stay.accommodation.onda.mapper.AccomodationMapper">
+    <select id="selectCondoByConId">
+        SELECT
+            con_name AS strAcmName
+            , con_display AS strConDisplay
+        FROM condo
+        WHERE con_id = ${con_id}
+--         con_name = ${con_name}
+    </select>
+
+    <select id="selectCode" resultType="String">
+        SELECT
+            strCode
+        FROM HAPPYDAYS.dbo.CODE_SYSTEM
+        WHERE
+            strCateCode = 'CON_FLAG'
+            AND strUsageYn = 'Y'
+            AND strName = #{strName}
+    </select>
+
+    <insert id="getAccommNInsert">
+        EXEC ?? ${}, ${}
+    </insert>
+
+</mapper>
