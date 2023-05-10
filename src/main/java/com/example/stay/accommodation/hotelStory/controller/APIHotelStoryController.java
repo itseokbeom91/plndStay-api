@@ -39,7 +39,9 @@ public class APIHotelStoryController {
     @Autowired
     private HotelStoryMapper hotelStoryMapper;
 
-    private XmlUtility xmlUtility = new XmlUtility();
+//    private XmlUtility xmlUtility = new XmlUtility();
+    @Autowired
+    private XmlUtility xmlUtility;
 
     /**
      *
@@ -53,19 +55,13 @@ public class APIHotelStoryController {
         long APIStart = System.currentTimeMillis();
         System.out.println("API 호출 시작");
         // propertyList 불러오기
-        Document document = apiHotelstoryService.HotelStoryAPIList("propertyList",strAccommID,APIStart);
-        System.out.println(xmlUtility.parsingXml(document));
+        Document document = apiHotelstoryService.HotelStoryAPIList("propertyList",strAccommID);
+        //System.out.println(xmlUtility.parsingXml(document));
 
-        // xml 파싱
-//        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-//        DocumentBuilder documentBuilder = factory.newDocumentBuilder();
-//        Document document = documentBuilder.parse(new InputSource(new StringReader(requestPropertyList)));
 
-        // roomTypeLIst, ratePlanLIst 담을 string, map 생성
-//        String requestRoomTypeList = "";
+        // roomTypeListMap, ratePlanListMap 담을 map 생성
         Map<String, Map> roomTypeListMap = new HashMap<String, Map>();
 
-//        String requestRatePlanList = "";
         Map<String, Map> ratePlanListMap = new HashMap<String, Map>();
 
         // Property 반복 돌려서 strAccommID 없을때의 propertyId 값 가져와서 roomTypeLIst, ratePlanList 담기
@@ -81,12 +77,12 @@ public class APIHotelStoryController {
                 Element eElement = (Element) node;
 
                 // roomTypeList 불러오기
-                Document requestRoomTypeList = apiHotelstoryService.HotelStoryAPIList("roomTypeList",xmlUtility.getTagValue("PropertyId", eElement),j);
+                Document requestRoomTypeList = apiHotelstoryService.HotelStoryAPIList("roomTypeList",xmlUtility.getTagValue("PropertyId", eElement));
 
                 // RatePlanList 불러오기
                 long rpStart = System.currentTimeMillis();
                 //System.out.println("API 호출 시작");
-                Document requestRatePlanList = apiHotelstoryService.HotelStoryAPIList("RatePlanList",xmlUtility.getTagValue("PropertyId", eElement),rpStart);
+                Document requestRatePlanList = apiHotelstoryService.HotelStoryAPIList("RatePlanList",xmlUtility.getTagValue("PropertyId", eElement));
 
                 // 10개 단위 콘솔 출력
                 if(j%10 == 0){
@@ -95,7 +91,6 @@ public class APIHotelStoryController {
 
                 // roomTypeList 구하기
                 if(requestRoomTypeList != null){
-//                    Document doc = documentBuilder.parse(new InputSource(new StringReader(requestRoomTypeList)));
                     NodeList nList = requestRoomTypeList.getElementsByTagName("RoomType");
                     List list = new ArrayList<Object>();
                     for (int i = 0; i < nList.getLength(); i++) {
@@ -119,7 +114,6 @@ public class APIHotelStoryController {
 
                 // ratePlanList 구하기
                 if(requestRatePlanList != null){
-//                    Document doc = documentBuilder.parse(new InputSource(new StringReader(requestRatePlanList)));
                     NodeList nList = requestRatePlanList.getElementsByTagName("RatePlan");
 
                     for (int i = 0; i < nList.getLength(); i++) {
@@ -154,6 +148,7 @@ public class APIHotelStoryController {
 
         // 데이터 담을 변수
         StringBuilder sb = new StringBuilder();
+        String testSb = "";
 
         // Property 반복 돌리기
         NodeList propertyList = document.getElementsByTagName("Property");
@@ -172,16 +167,22 @@ public class APIHotelStoryController {
                 /**
                  * Image 구하기
                  */
-                sb.append("</br>");
-                sb.append(apiHotelstoryService.parsing(propertyElement,"Image",new String[]{"ImageUrl"}, new StringBuilder("<img width=\"150px;\" src=\""), new StringBuilder("\" >"), roomTypeListMap, ratePlanListMap));
+//                sb.append("</br>");
+//                sb.append(apiHotelstoryService.parsing(propertyElement,"Image",new String[]{"ImageUrl"}, new StringBuilder("<img width=\"150px;\" src=\""), new StringBuilder("\" >"), roomTypeListMap, ratePlanListMap));
 
+                //testSb += apiHotelstoryService.hotelStoryParsing(propertyElement,"Image",new String[]{"ImageUrl"}, roomTypeListMap, ratePlanListMap);
+
+                // condo 정보
+                testSb += apiHotelstoryService.hotelStoryParsing(propertyElement,"property",new String[]{}, roomTypeListMap, ratePlanListMap);
 
                 /**
                  * Description 구하기
                  */
-                sb.append("</br><textarea style=\"width=900px; height:700px;\">");
-                sb.append(apiHotelstoryService.parsing(propertyElement,"Description",new String[]{"RoomTypeId","RatePlanId","Text"}, new StringBuilder(""), new StringBuilder("\n"), roomTypeListMap, ratePlanListMap));
-                sb.append("</textarea><br><br><br><br>");
+//                sb.append("</br><textarea style=\"width=900px; height:700px;\">");
+//                sb.append(apiHotelstoryService.parsing(propertyElement,"Description",new String[]{"RoomTypeId","RatePlanId","Text"}, new StringBuilder(""), new StringBuilder("\n"), roomTypeListMap, ratePlanListMap));
+//                sb.append("</textarea><br><br><br><br>");
+
+                testSb += apiHotelstoryService.hotelStoryParsing(propertyElement,"Description",new String[]{"RoomTypeId","RatePlanId","Text"}, roomTypeListMap, ratePlanListMap);
 
             }
 
@@ -191,9 +192,11 @@ public class APIHotelStoryController {
 
         }
 
+        //System.out.println(testSb);
+
         HttpHeaders headers = new HttpHeaders();
         headers.add("Content-Type", "text/html; charset=UTF-8");
-        return new ResponseEntity<String>(sb.toString(), headers, HttpStatus.OK);
+        return new ResponseEntity<String>(testSb, headers, HttpStatus.OK);
     }
 
     @GetMapping("/testPhoto")

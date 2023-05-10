@@ -24,17 +24,17 @@ import java.util.Map;
 @Service
 public class APIHotelstoryService {
 
-    private XmlUtility xmlUtility = new XmlUtility();
+    @Autowired
+    private XmlUtility xmlUtility;
 
     /**
      * 호텔스토리 API 가져오기
      * @param type
      * @param strAccommID
-     * @param startTime
      * @return xml
      * @throws Exception
      */
-    public Document HotelStoryAPIList(String type, String strAccommID, long startTime) throws Exception{
+    public Document HotelStoryAPIList(String type, String strAccommID) throws Exception{
 
         // roomTypeList 인지 ratePlanList 인지 구분
         String requestType = "";
@@ -72,11 +72,13 @@ public class APIHotelstoryService {
         writer.close();
 
         // 코드실행시간 출력
+        /*
         long APIEnd = System.currentTimeMillis();
         if(type == "propertyList") {
             System.out.println("API 호출 완료시간 = "+(APIEnd-startTime)/1000.0);
             System.out.println("xml DOM 저장 시작");
         }
+        */
 
         // transformer 사용하기 위해 xml을 Document로 파싱
         DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
@@ -85,18 +87,14 @@ public class APIHotelstoryService {
         doc.getDocumentElement().normalize();
         conn.disconnect();
 
-        // xml
-//        TransformerFactory transformerFactory = TransformerFactory.newInstance();
-//        Transformer transformer = transformerFactory.newTransformer();
-//        StringWriter sw = new StringWriter();
-//        transformer.transform(new DOMSource(doc), new StreamResult(sw));
-
 
         // 코드실행시간 출력
+        /*
         if(type == "propertyList") {
             long xmlEnd = System.currentTimeMillis();
             System.out.println("xml DOM 저장 완료 = "+(xmlEnd-APIEnd)/1000.0);
         }
+        */
 
         return doc;
     }
@@ -163,6 +161,84 @@ public class APIHotelstoryService {
         }
 
         return sb;
+    }
+
+    public String hotelStoryParsing(Element tagElement, String tagList, String[] tagName, Map<String, Map> roomTypeMap, Map<String, Map> ratePlanMap){
+        String result = "";
+
+        try {
+            if(tagList.equals("property")){
+
+                result += "PropertyId = " + xmlUtility.getTagValue("PropertyId", tagElement) + "<br>";
+                result += "PropertyName = " + xmlUtility.getTagValue("PropertyName", tagElement) + "<br>";
+                result += "Address = " + xmlUtility.getTagValue("Address", tagElement) + "<br>";
+                result += "Latitude = " + xmlUtility.getTagValue("Latitude", tagElement) + "<br>";
+                result += "Longitude = " + xmlUtility.getTagValue("Longitude", tagElement) + "<br>";
+                result += "HomePageUrl = " + xmlUtility.getTagValue("HomePageUrl", tagElement) + "<br>";
+                result += "Phone = " + xmlUtility.getTagValue("Phone", tagElement) + "<br>";
+                result += "NumRooms = " + xmlUtility.getTagValue("NumRooms", tagElement) + "<br>";
+                result += "CheckInTime = " + xmlUtility.getTagValue("CheckInTime", tagElement) + "<br>";
+                result += "CheckOutTime = " + xmlUtility.getTagValue("CheckOutTime", tagElement) + "<br>";
+                result += "PropertyDescription = " + xmlUtility.getTagValue("PropertyDescription", tagElement) + "<br>";
+                result += "TrafficInformation = " + xmlUtility.getTagValue("TrafficInformation", tagElement) + "<br>";
+                result += "RoomInformation = " + xmlUtility.getTagValue("RoomInformation", tagElement) + "<br>";
+                result += "CheckInInstructions = " + xmlUtility.getTagValue("CheckInInstructions", tagElement) + "<br>";
+
+            }
+
+            NodeList nodeList = tagElement.getElementsByTagName(tagList);
+
+            // 데이터 담을 변수
+            for (int i = 0; i < nodeList.getLength(); i++) {
+
+                Node node = nodeList.item(i);
+
+                if(node.getNodeType() == Node.ELEMENT_NODE){
+                    Element element = (Element) node;
+
+
+                    if(tagList.equals("Image")){
+
+                        for(int j=0;j<tagName.length;j++){
+                            result += xmlUtility.getTagValue(tagName[j],element)+"<br>";
+                        }
+
+                    }else if(tagList.equals("Description")){
+                        result += "<br><br>";
+
+                        // roomTypeList 값 넣기
+                        if(xmlUtility.getTagValue("RoomTypeId", element) != null && roomTypeMap.containsKey(xmlUtility.getTagValue("RoomTypeId", element)) == true){
+                            for(int j=0;j<tagName.length;j++){
+                                result += tagName[j]+" = "+xmlUtility.getTagValue(tagName[j],element)+"<br>";
+                            }
+                            result += "RoomTypeName = "+roomTypeMap.get(xmlUtility.getTagValue("RoomTypeId",element)).get("RoomTypeName")+"<br>";
+                            result += "BedTypeCode = "+roomTypeMap.get(xmlUtility.getTagValue("RoomTypeId",element)).get("BedTypeCode")+"<br>";
+                            result += "MinPersons = "+roomTypeMap.get(xmlUtility.getTagValue("RoomTypeId",element)).get("MinPersons")+"<br>";
+                            result += "MaxPersons = "+roomTypeMap.get(xmlUtility.getTagValue("RoomTypeId",element)).get("MaxPersons")+"<br>";
+                        }
+
+                        if(xmlUtility.getTagValue("RoomTypeId", element) != null && ratePlanMap.containsKey(xmlUtility.getTagValue("RoomTypeId", element)) == true){
+                            result += "RatePlanName = "+ratePlanMap.get(xmlUtility.getTagValue("RoomTypeId",element)).get("RatePlanName")+"<br>";
+                            result += "BedTypeCode = "+ratePlanMap.get(xmlUtility.getTagValue("RoomTypeId",element)).get("BedTypeCode")+"<br>";
+                            result += "MealCode = "+ratePlanMap.get(xmlUtility.getTagValue("RoomTypeId",element)).get("MealCode")+"<br>";
+                            result += "SaleRate = "+ratePlanMap.get(xmlUtility.getTagValue("RoomTypeId",element)).get("SaleRate")+"<br>";
+                            result += "MinPersons = "+ratePlanMap.get(xmlUtility.getTagValue("RoomTypeId",element)).get("MinPersons")+"<br>";
+                            result += "MaxPersons = "+ratePlanMap.get(xmlUtility.getTagValue("RoomTypeId",element)).get("MaxPersons")+"<br>";
+//                        System.out.println(ratePlanMap.get(getTagValue("RoomTypeId",element)).get("RatePlanName"));
+                        }
+
+                    }
+                }
+            }
+
+            //result = result.replace("\n", "<br>");
+
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+
+
+        return result;
     }
 
 
