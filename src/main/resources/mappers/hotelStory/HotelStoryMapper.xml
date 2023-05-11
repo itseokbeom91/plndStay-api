@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.example.stay.accommodation.hotelStory.mapper.HotelStoryMapper">
+
+    <select id="testPhoto" resultType="string">
+        select concat('&lt;img width="150px;" stc="https://condo24.com/conphoto/', strFileName,'"&gt;') as photo from CONDO_PHOTO cd with(nolock)
+        left join CONTENTS_PHOTO ct with(nolock) on cd.intPhotoID = ct.intPhotoID
+        where cd.intCID = 20096
+    </select>
+
+</mapper>
