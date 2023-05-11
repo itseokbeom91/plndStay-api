@@ -55,7 +55,7 @@ public class APIHotelStoryController {
         long APIStart = System.currentTimeMillis();
         System.out.println("API 호출 시작");
         // propertyList 불러오기
-        Document document = apiHotelstoryService.HotelStoryAPIList("propertyList",strAccommID);
+        Document document = xmlUtility.HotelStoryAPIList("propertyList",strAccommID);
         //System.out.println(xmlUtility.parsingXml(document));
 
 
@@ -77,12 +77,13 @@ public class APIHotelStoryController {
                 Element eElement = (Element) node;
 
                 // roomTypeList 불러오기
-                Document requestRoomTypeList = apiHotelstoryService.HotelStoryAPIList("roomTypeList",xmlUtility.getTagValue("PropertyId", eElement));
+                Document requestRoomTypeList = xmlUtility.HotelStoryAPIList("roomTypeList",xmlUtility.getTagValue("PropertyId", eElement));
 
                 // RatePlanList 불러오기
                 long rpStart = System.currentTimeMillis();
                 //System.out.println("API 호출 시작");
-                Document requestRatePlanList = apiHotelstoryService.HotelStoryAPIList("RatePlanList",xmlUtility.getTagValue("PropertyId", eElement));
+                Document requestRatePlanList = xmlUtility.HotelStoryAPIList("RatePlanList",xmlUtility.getTagValue("PropertyId", eElement));
+                //System.out.println(xmlUtility.parsingXml(requestRatePlanList));
 
                 // 10개 단위 콘솔 출력
                 if(j%10 == 0){
@@ -124,7 +125,8 @@ public class APIHotelStoryController {
 
                             // roomTypeID 기준 value 값 담을 map
                             Map<String, Object> valMap = new HashMap<String, Object>();
-                            valMap.put("RatePlanName", xmlUtility.getTagValue("RoomTypeName", element));
+                            valMap.put("RatePlanId", xmlUtility.getTagValue("RatePlanId", element));
+                            valMap.put("RatePlanName", xmlUtility.getTagValue("RatePlanName", element));
                             valMap.put("BedTypeCode", xmlUtility.getTagValue("BedTypeCode", element));
                             valMap.put("MealCode", xmlUtility.getTagValue("MealCode", element));
                             valMap.put("SaleRate", xmlUtility.getTagValue("SaleRate", element));
@@ -182,7 +184,7 @@ public class APIHotelStoryController {
 //                sb.append(apiHotelstoryService.parsing(propertyElement,"Description",new String[]{"RoomTypeId","RatePlanId","Text"}, new StringBuilder(""), new StringBuilder("\n"), roomTypeListMap, ratePlanListMap));
 //                sb.append("</textarea><br><br><br><br>");
 
-                testSb += apiHotelstoryService.hotelStoryParsing(propertyElement,"Description",new String[]{"RoomTypeId","RatePlanId","Text"}, roomTypeListMap, ratePlanListMap);
+                testSb += apiHotelstoryService.hotelStoryParsing(propertyElement,"Description",new String[]{"RoomTypeId", "Text"}, roomTypeListMap, ratePlanListMap);
 
             }
 
@@ -197,21 +199,6 @@ public class APIHotelStoryController {
         HttpHeaders headers = new HttpHeaders();
         headers.add("Content-Type", "text/html; charset=UTF-8");
         return new ResponseEntity<String>(testSb, headers, HttpStatus.OK);
-    }
-
-    @GetMapping("/testPhoto")
-    public ResponseEntity<String>  testPhoto(){
-
-        List<String> testList = hotelStoryMapper.testPhoto();
-        System.out.println(testList);
-
-        StringBuilder sb = new StringBuilder();
-        sb.append(testList);
-
-        HttpHeaders headers = new HttpHeaders();
-        headers.add("Content-Type", "text/html; charset=UTF-8");
-        return new ResponseEntity<String>(sb.toString(), headers, HttpStatus.OK);
-
     }
 
 
