@@ -184,6 +184,7 @@ public class AccommService {
 //                JSONArray services = (JSONArray) tags.get("services");
 //                JSONArray attractions = (JSONArray) tags.get("attractions");
 
+                // test_CONDO_PHOTO, test_CONTENTS_PHOTO 테이블에 INSERT
                 JSONArray images = (JSONArray) jsonProperty.get("images");
                 for(int i=0; i<images.size(); i++){
                     JSONObject image = (JSONObject) images.get(i);
@@ -192,10 +193,9 @@ public class AccommService {
                     String str1000ImgUrl = image.get("1000px").toString();
                 }
 
-                /**
-                 * 환불 정책 DB정리 필요
-                 * property_refunds
-                 */
+                JSONObject refunds = (JSONObject) jsonProperty.get("property_refunds");
+                // tbl_cancel_info_row 테이블에 INSERT
+
 
 
 
