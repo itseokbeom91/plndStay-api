@@ -2,7 +2,9 @@ package com.example.stay.accommodation.onda.service;
 
 import com.example.stay.accommodation.onda.mapper.AccomodationMapper;
 import com.example.stay.common.util.Constants;
+import com.example.stay.common.util.UrlResourceDownloader;
 import com.example.stay.openMarket.common.dto.CondoDto;
+import com.example.stay.openMarket.common.dto.ContentsPhotoDto;
 import com.google.gson.JsonObject;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -14,7 +16,13 @@ import org.json.simple.parser.JSONParser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 @Service
@@ -107,8 +115,8 @@ public class AccommService {
         return accommList;
     }
 
-    public CondoDto getAccommDetailApi(String property_id){
-        CondoDto accommDetail = new CondoDto();
+    public JSONObject getAccommDetailApi(String property_id){
+        JSONObject jsonObject = new JSONObject();
         try{
             OkHttpClient client = new OkHttpClient();
 
@@ -127,85 +135,14 @@ public class AccommService {
                 System.out.println("responseBody : " + responseBody);
 
                 JSONParser jsonParser = new JSONParser();
-                JSONObject responseJson = (JSONObject) jsonParser.parse(responseBody);
-
-                JSONObject jsonProperty = (JSONObject) responseJson.get("property");
-
-                // dto에 담기
-                accommDetail.setStrAccommId(jsonProperty.get("id").toString());
-                accommDetail.setStrAcmName(jsonProperty.get("name").toString());
-
-                String strOndaStatus = jsonProperty.get("status").toString();
-
-                if(strOndaStatus.equals("disabled") || strOndaStatus.equals("deleted")){
-                    strOndaStatus = "N";
-                }else if(strOndaStatus.equals("enabled")){
-                    strOndaStatus = "Y";
-                }
-                accommDetail.setStrConDisplay(strOndaStatus);
-
-                JSONObject address = (JSONObject) jsonProperty.get("address");
-                accommDetail.setStrNation(address.get("country_code").toString());
-                accommDetail.setStrLoc(address.get("region").toString());
-                accommDetail.setStrCity(address.get("city").toString());
-                /**
-                 * db addr관련 컬럼 정리 필요
-                 */
-                accommDetail.setStrAddress(address.get("address1").toString());
-                accommDetail.setStrConAddrNew(address.get("address2").toString());
-                accommDetail.setStrZipCode(address.get("postal_code").toString());
-                JSONObject location = (JSONObject) address.get("location");
-                accommDetail.setDecLat(location.get("latitude").toString());
-                accommDetail.setDecLng(location.get("longitude").toString());
-
-                JSONArray classifications = (JSONArray) jsonProperty.get("classifications");
-                for(int i=0; i<classifications.size(); i++){
-                    // CODE_SYSTEM 테이블에서 strName과 일치하는 strCode 가져오기
-                    /**
-                     * classifications, tags, facilities, services, attractions
-                     *  값이 여러개면 어떻게 할건지 정리 필요
-                     */
-                    String code = accomodationMapper.selectCode(classifications.get(i).toString());
-                    accommDetail.setStrFlag(code);
-                }
-
-                accommDetail.setStrConTel(jsonProperty.get("phone").toString());
-                accommDetail.setStrConFax(jsonProperty.get("fax").toString());
-                accommDetail.setStrTimeIn(jsonProperty.get("checkin").toString());
-                accommDetail.setStrTimeOut(jsonProperty.get("checkout").toString());
-
-                JSONObject descriptions = (JSONObject) jsonProperty.get("descriptions");
-                accommDetail.setStrSummary(descriptions.get("property").toString());
-                accommDetail.setStrUsageNotice(descriptions.get("reservation").toString());
-
-                JSONObject tags = (JSONObject) jsonProperty.get("tags");
-//                JSONArray properties = (JSONArray) tags.get("properties");
-//                JSONArray facilities = (JSONArray) tags.get("facilities");
-//                JSONArray services = (JSONArray) tags.get("services");
-//                JSONArray attractions = (JSONArray) tags.get("attractions");
-
-                // test_CONDO_PHOTO, test_CONTENTS_PHOTO 테이블에 INSERT
-                JSONArray images = (JSONArray) jsonProperty.get("images");
-                for(int i=0; i<images.size(); i++){
-                    JSONObject image = (JSONObject) images.get(i);
-                    String str250ImgUrl = image.get("250px").toString();
-                    String str500ImgUrl = image.get("500px").toString();
-                    String str1000ImgUrl = image.get("1000px").toString();
-                }
-
-                JSONObject refunds = (JSONObject) jsonProperty.get("property_refunds");
-                // tbl_cancel_info_row 테이블에 INSERT
-
-
-
-
+                jsonObject = (JSONObject) jsonParser.parse(responseBody);
 
             }
         }catch (Exception e){
             e.printStackTrace();
             System.out.println("[onda API] 특정 숙소 상세정보 가져오기 실패");
         }
-        return accommDetail;
+        return jsonObject;
     }
 
     public void getRoomTypeListApi(String property_id){
@@ -388,13 +325,260 @@ public class AccommService {
                 ondaIdList.add(strOndaId);
             }
 
-//            CondoDto accommDetail = new CondoDto();
             for(String id : ondaIdList){
-                CondoDto accommDetail = getAccommDetailApi(id);
-//                accomodationMapper.getAccommNInsert(accommDetail);
+
+                JSONObject accommDetailJson = getAccommDetailApi(id);
+                System.out.println("accommDetailJson : " + accommDetailJson);
+
+                JSONObject jsonProperty = (JSONObject) accommDetailJson.get("property");
+
+                // dto에 담기
+                CondoDto accommDetail = new CondoDto();
+
+                String strAccommId = jsonProperty.get("id").toString();
+                accommDetail.setStrAccommId(strAccommId);
+                String strAccommName = jsonProperty.get("name").toString();
+                accommDetail.setStrAcmName(strAccommName);
+
+                String strOndaStatus = jsonProperty.get("status").toString();
+
+                if(strOndaStatus.equals("disabled") || strOndaStatus.equals("deleted")){
+                    strOndaStatus = "N";
+                }else if(strOndaStatus.equals("enabled")){
+                    strOndaStatus = "Y";
+                }
+                accommDetail.setStrConDisplay(strOndaStatus);
+
+                JSONObject address = (JSONObject) jsonProperty.get("address");
+                accommDetail.setStrNation(address.get("country_code").toString());
+                accommDetail.setStrLoc(address.get("region").toString());
+                accommDetail.setStrCity(address.get("city").toString());
+                /**
+                 * db addr관련 컬럼 정리 필요
+                 */
+                accommDetail.setStrAddress(address.get("address1").toString());
+                accommDetail.setStrConAddrNew(address.get("address2").toString());
+                accommDetail.setStrZipCode(address.get("postal_code").toString());
+                JSONObject location = (JSONObject) address.get("location");
+                accommDetail.setDecLat(location.get("latitude").toString());
+                accommDetail.setDecLng(location.get("longitude").toString());
 
 
-                System.out.println(accommDetail);
+
+                accommDetail.setStrConTel(jsonProperty.get("phone").toString());
+                accommDetail.setStrConFax(jsonProperty.get("fax").toString());
+                accommDetail.setStrTimeIn(jsonProperty.get("checkin").toString());
+                accommDetail.setStrTimeOut(jsonProperty.get("checkout").toString());
+
+                JSONObject descriptions = (JSONObject) jsonProperty.get("descriptions");
+                accommDetail.setStrSummary(descriptions.get("property").toString());
+                accommDetail.setStrUsageNotice(descriptions.get("reservation").toString());
+
+                /**
+                 * classifications, tags, facilities, services, attractions
+                 *  값이 여러개면 어떻게 할건지 정리 필요
+                 */
+//                JSONArray classifications = (JSONArray) jsonProperty.get("classifications");
+//                for(int i=0; i<classifications.size(); i++){
+                // CODE_SYSTEM 테이블에서 strName과 일치하는 strCode 가져오기
+
+//                    String code = accomodationMapper.selectCode(classifications.get(i).toString());
+//                    accommDetail.setStrFlag(code);
+//                }
+
+//                JSONObject tags = (JSONObject) jsonProperty.get("tags");
+//                JSONArray properties = (JSONArray) tags.get("properties");
+//                JSONArray facilities = (JSONArray) tags.get("facilities");
+//                JSONArray services = (JSONArray) tags.get("services");
+//                JSONArray attractions = (JSONArray) tags.get("attractions");
+
+
+
+                //------------------------------------------------------------------------------------------------------
+//                int accommInsertResult = accomodationMapper.getAccommNInsert(accommDetail);
+//                System.out.println("accommInsertResult : " + accommInsertResult);
+//                if(accommInsertResult == 200){
+//                    System.out.println("숙소 정보 INSERT 성공");
+//                }else{
+//                    System.out.println("숙소 정보 INSERT 성공");
+//                }
+
+
+
+
+                // 이미지------------------------------------------------------------------------------------------------
+
+                // test_CONTENTS_PHOTO, test_CONDO_PHOTO 테이블에 INSERT
+                JSONArray images = (JSONArray) jsonProperty.get("images");
+
+                for(int i=0; i<images.size(); i++){
+                    JSONObject image = (JSONObject) images.get(i);
+
+                    String str250Img = image.get("250px").toString();
+                    String str500Img = image.get("500px").toString();
+                    String str1000Img = image.get("1000px").toString();
+
+                    ContentsPhotoDto contentsPhotoDto = new ContentsPhotoDto();
+                    String strFilePath = "";
+                    /**
+                     * 임시로 하드코딩
+                     */
+                    int intCreatedSID = 50; // 이미지 생성한사람 50 : 손유정(employ테이블)
+                    int intModifiedSID = 50; // 이미지 수정한사람
+
+                    if(str250Img != null){
+                        String[] filePathArr = str250Img.split("/");
+                        String strFileName = "";
+                        for(int j=0; j< filePathArr.length; j++){
+                            if(j == (filePathArr.length - 1)){
+                                strFileName = filePathArr[j];
+                                System.out.println("strFileName : " + strFileName);
+
+                                contentsPhotoDto.setStrFileName(strFileName);
+
+//                                SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+//                                Date date = new Date();
+                            }
+                        }
+
+                        // 경로에 폴더 생성 -> 있으면 생성 안시킴
+                        Path directoryPath = Paths.get(Constants.ondaFileDir + strAccommId + "\\250\\");
+                        Files.createDirectories(directoryPath);
+
+                        // 파일 존재여부 체크
+                        strFilePath = Constants.ondaFileDir + strAccommId + "\\250\\" + strFileName;
+                        File file = new File(strFilePath);
+                        if(!file.exists()){
+                            // 이미지 저장
+                            UrlResourceDownloader downloader = new UrlResourceDownloader(strFilePath, str250Img);
+                            downloader.urlFileDownload();
+                        }
+
+                        contentsPhotoDto.setStrFilePath("/onda/" + strAccommId + "/250/");
+                        contentsPhotoDto.setIntCreatedSID(intCreatedSID);
+                        contentsPhotoDto.setIntModifiedSID(intModifiedSID);
+                        contentsPhotoDto.setStrSubject(strAccommName);
+
+                        int insertResult = accomodationMapper.insertAccommPhotoContents(contentsPhotoDto);
+                        if(insertResult == 0){
+                            System.out.println("INSERT CONTENTS_PHOTO FAIL");
+                        }
+                    }
+
+                    if(str500Img != null){
+                        String[] filePathArr = str500Img.split("/");
+                        String strFileName = "";
+                        for(int j=0; j< filePathArr.length; j++){
+                            if(j == (filePathArr.length - 1)){
+                                strFileName = filePathArr[j];
+                                System.out.println("strFileName : " + strFileName);
+
+                                contentsPhotoDto.setStrFileName(strFileName);
+
+//                                SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+//                                Date date = new Date();
+                            }
+                        }
+
+                        // 경로에 폴더 생성 -> 있으면 생성 안시킴
+                        Path directoryPath = Paths.get(Constants.ondaFileDir + strAccommId + "\\500\\");
+                        Files.createDirectories(directoryPath);
+
+                        // 파일 존재여부 체크
+                        strFilePath = Constants.ondaFileDir + strAccommId + "\\500\\" + strFileName;
+                        File file = new File(strFilePath);
+                        if(!file.exists()){
+                            // 이미지 저장
+                            UrlResourceDownloader downloader = new UrlResourceDownloader(strFilePath, str250Img);
+                            downloader.urlFileDownload();
+                        }
+
+                        contentsPhotoDto.setStrFilePath("/onda/" + strAccommId + "/500/");
+                        contentsPhotoDto.setIntCreatedSID(intCreatedSID);
+                        contentsPhotoDto.setIntModifiedSID(intModifiedSID);
+                        contentsPhotoDto.setStrSubject(strAccommName);
+
+                        int insertResult = accomodationMapper.insertAccommPhotoContents(contentsPhotoDto);
+                        if(insertResult == 0){
+                            System.out.println("INSERT CONTENTS_PHOTO FAIL");
+                        }
+                    }
+
+                    if(str1000Img != null){
+                        String[] filePathArr = str1000Img.split("/");
+                        String strFileName = "";
+                        for(int j=0; j< filePathArr.length; j++){
+                            if(j == (filePathArr.length - 1)){
+                                strFileName = filePathArr[j];
+                                System.out.println("strFileName : " + strFileName);
+
+                                contentsPhotoDto.setStrFileName(strFileName);
+
+                            }
+                        }
+
+                        // 경로에 폴더 생성 -> 있으면 생성 안시킴
+                        Path directoryPath = Paths.get(Constants.ondaFileDir + strAccommId + "\\1000\\");
+                        Files.createDirectories(directoryPath);
+
+                        // 파일 존재여부 체크
+                        strFilePath = Constants.ondaFileDir + strAccommId + "\\500\\" + strFileName;
+                        File file = new File(strFilePath);
+                        if(!file.exists()){
+                            // 이미지 저장
+                            UrlResourceDownloader downloader = new UrlResourceDownloader(strFilePath, str250Img);
+                            downloader.urlFileDownload();
+                        }
+
+                        contentsPhotoDto.setStrFilePath("/onda/" + strAccommId + "/1000/");
+                        contentsPhotoDto.setIntCreatedSID(intCreatedSID);
+                        contentsPhotoDto.setIntModifiedSID(intModifiedSID);
+                        contentsPhotoDto.setStrSubject(strAccommName);
+
+                        int insertResult = accomodationMapper.insertAccommPhotoContents(contentsPhotoDto);
+                        if(insertResult == 0){
+                            System.out.println("INSERT CONTENTS_PHOTO FAIL");
+                        }
+                    }
+
+
+
+
+
+
+                }
+
+
+
+                // 환불 취소규정 ----------------------------------------------------------------------------------------
+                JSONObject refunds = (JSONObject) jsonProperty.get("property_refunds");
+                // tbl_cancel_info_row 테이블에 INSERT
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
             }
 
 

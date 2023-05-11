@@ -14,6 +14,8 @@
     </select>
 
     <select id="selectCode" resultType="String">
+        USE HAPPYDAYS
+
         SELECT
             strCode
         FROM HAPPYDAYS.dbo.CODE_SYSTEM
@@ -25,6 +27,21 @@
 
     <insert id="getAccommNInsert">
         EXEC ?? ${}, ${}
+    </insert>
+
+    <insert id="insertAccommPhotoContents" parameterType="ContentsPhotoDto">
+        INSERT INTO test_CONTENTS_PHOTO(
+            strSubject, strFilePath, strFileName, intCreatedSID, dateCreated, intModifiedSID, dateModified
+        ) VALUES(
+            #{strSubject}, #{strFilePath}, #{strFileName}, ${intCreatedSID}, GETDATE(), ${intModifiedSID}, GETDATE()
+        )
+    </insert>
+
+    <insert id="insertAccommPhoto" parameterType="ContentsPhotoDto">
+        INSERT INTO test_CONDO_PHOTO
+        VALUES(
+            ${}, ${}, ${}
+        )
     </insert>
 
 </mapper>
