@@ -7,5 +7,7 @@ import java.util.List;
 @Repository
 public interface HotelStoryMapper {
 
-    List<String> testPhoto();
+
+    int insertAccomm(String strPropertyId, String strPropertyName, String strAddress, String strPhone, String strNumRooms, String strHomePageUrl, String strCheckInTime, String strCheckOutTime
+            , String strLongitude, String strLatitude, String strPropertyDescription, String strTrafficInformation, String strRoomInformation);
 }

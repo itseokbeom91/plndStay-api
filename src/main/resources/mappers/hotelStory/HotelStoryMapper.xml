@@ -5,10 +5,9 @@
 
 <mapper namespace="com.example.stay.accommodation.hotelStory.mapper.HotelStoryMapper">
 
-    <select id="testPhoto" resultType="string">
-        select concat('&lt;img width="150px;" stc="https://condo24.com/conphoto/', strFileName,'"&gt;') as photo from CONDO_PHOTO cd with(nolock)
-        left join CONTENTS_PHOTO ct with(nolock) on cd.intPhotoID = ct.intPhotoID
-        where cd.intCID = 20096
+    <select id="insertAccomm" resultType="int">
+        exec dbo.spGW_CONDO_REGIST_SUPPLIER 0, #{strPropertyId}, 'HS', #{strPropertyName}, '', #{strAddress}, '', #{strPhone}, '', #{strNumRooms}, '', '', #{strHomePageUrl}, #{strCheckInTime}, #{strCheckOutTime}
+                                , 'Y', #{strLongitude}, #{strLatitude}, '', '', '', #{strPropertyDescription}, #{strTrafficInformation}, #{strRoomInformation}, ''
     </select>
 
 </mapper>
