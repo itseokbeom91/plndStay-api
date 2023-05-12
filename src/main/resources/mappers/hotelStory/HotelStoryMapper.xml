@@ -5,9 +5,13 @@
 
 <mapper namespace="com.example.stay.accommodation.hotelStory.mapper.HotelStoryMapper">
 
-    <select id="insertAccomm" resultType="int">
+    <select id="insertAccomm" resultType="string">
         exec dbo.spGW_CONDO_REGIST_SUPPLIER 0, #{strPropertyId}, 'HS', #{strPropertyName}, '', #{strAddress}, '', #{strPhone}, '', #{strNumRooms}, '', '', #{strHomePageUrl}, #{strCheckInTime}, #{strCheckOutTime}
-                                , 'Y', #{strLongitude}, #{strLatitude}, '', '', '', #{strPropertyDescription}, #{strTrafficInformation}, #{strRoomInformation}, ''
+                                            , 'Y', #{strLongitude}, #{strLatitude}, '', '', '', #{strPropertyDescription}, #{strTrafficInformation}, #{strRoomInformation}, ''
+    </select>
+
+    <select id="insertRoomType" resultType="string">
+        exec dbo.spGW_ROOMTYPE_REGIST_SUPPLIER 0, #{strRoomTypeName}, #{intAID}, #{intSaleRate}, #{intMinPersons}, #{intMaxPersons}, #{strRatePlanId}, #{strRoomTypeId}, #{intStep}, #{strIngYn}, #{strText1}, #{strText2}, ''
     </select>
 
 </mapper>
