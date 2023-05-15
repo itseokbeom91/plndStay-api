@@ -18,9 +18,11 @@ public class ContentsPhotoDto {
     private int intModifiedSID;
 //    private String strDateModified; // dateModified
 
-    /**
-     * DB CONDO_PHOTO
-     */
-    private int intStep;
+    private String strCid;
+
+//    /**
+//     * DB CONDO_PHOTO
+//     */
+//    private int intStep;
 
 }

@@ -1,5 +1,6 @@
 package com.example.stay.accommodation.onda.mapper;
 
+import com.example.stay.openMarket.common.dto.CancelInfoDto;
 import com.example.stay.openMarket.common.dto.CondoDto;
 import com.example.stay.openMarket.common.dto.ContentsPhotoDto;
 import org.springframework.stereotype.Repository;
@@ -10,7 +11,9 @@ public interface AccomodationMapper {
 
     String selectCode(String con_flag);
 
-    int getAccommNInsert(CondoDto accommDetail);
+    String accommRegist(CondoDto accommDetail);
 
-    int insertAccommPhotoContents(ContentsPhotoDto contentsPhotoDto);
+    String accommPhotoContentsReg(ContentsPhotoDto contentsPhotoDto);
+
+    int cancelInfoReg(CancelInfoDto cancelInfoDto);
 }

@@ -30,7 +30,7 @@ public class UrlResourceDownloader {
             Files.copy(in, imagePath);
         }catch (Exception e){
             e.printStackTrace();
-            System.out.println("file download fail");
+            System.out.println("FILE DOWNLOAD FAIL");
         }
     }
 

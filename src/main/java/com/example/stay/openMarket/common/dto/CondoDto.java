@@ -56,12 +56,4 @@ public class CondoDto {
      */
     private int moneyCost; // goods의 stend_pri
     private String tocode; // tocon의 tocode
-
-    /**
-     * onda
-     */
-    private String str250Img;
-    private String str500Img;
-    private String str1000Img;
-
 }
