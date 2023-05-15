@@ -172,19 +172,21 @@ public class APIHotelStoryController {
 //                sb.append("</br>");
 //                sb.append(apiHotelstoryService.parsing(propertyElement,"Image",new String[]{"ImageUrl"}, new StringBuilder("<img width=\"150px;\" src=\""), new StringBuilder("\" >"), roomTypeListMap, ratePlanListMap));
 
-                //testSb += apiHotelstoryService.hotelStoryParsing(propertyElement,"Image",new String[]{"ImageUrl"}, roomTypeListMap, ratePlanListMap);
-
-                // condo 정보
-                testSb += apiHotelstoryService.hotelStoryParsing(propertyElement,"property",new String[]{}, roomTypeListMap, ratePlanListMap);
+                //testSb += apiHotelstoryService.hotelStoryParsing(propertyElement,"Image", roomTypeListMap, ratePlanListMap);
 
                 /**
-                 * Description 구하기
+                 * PropertyList 구하기
+                 */
+                testSb += apiHotelstoryService.hotelStoryParsing(propertyElement,"property", roomTypeListMap, ratePlanListMap);
+
+                /**
+                 * Description 구하기(roomType, ratePlan`)
                  */
 //                sb.append("</br><textarea style=\"width=900px; height:700px;\">");
 //                sb.append(apiHotelstoryService.parsing(propertyElement,"Description",new String[]{"RoomTypeId","RatePlanId","Text"}, new StringBuilder(""), new StringBuilder("\n"), roomTypeListMap, ratePlanListMap));
 //                sb.append("</textarea><br><br><br><br>");
 
-                testSb += apiHotelstoryService.hotelStoryParsing(propertyElement,"Description",new String[]{"RoomTypeId", "Text"}, roomTypeListMap, ratePlanListMap);
+                testSb += apiHotelstoryService.hotelStoryParsing(propertyElement,"Description", roomTypeListMap, ratePlanListMap);
 
             }
 
