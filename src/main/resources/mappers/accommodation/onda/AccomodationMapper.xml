@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.example.stay.accommodation.onda.mapper.AccomodationMapper">
+    <select id="selectCondoByConId">
+        SELECT
+            con_name AS strAcmName
+            , con_display AS strConDisplay
+        FROM condo
+        WHERE con_id = ${con_id}
+--         con_name = ${con_name}
+    </select>
+
+    <select id="selectCode" resultType="String">
+        USE HAPPYDAYS
+
+        SELECT
+            strCode
+        FROM HAPPYDAYS.dbo.CODE_SYSTEM
+        WHERE
+            strCateCode = 'CON_FLAG'
+            AND strUsageYn = 'Y'
+            AND strName = #{strName}
+    </select>
+
+    <select id="accommRegist" parameterType="CondoDto" resultType="String">
+        EXEC spGW_CONDO_REGIST_SUPPLIER 0, #{strAccommId}, #{strApiFlag}, #{strAcmName}, #{strZipCode}
+        , #{strAddress}, #{strConAddrNew}, #{strConTel}, #{strConFax}, '', '', #{strLoc}, '', #{strTimeIn}, #{strTimeOut}
+        , #{strConDisplay}, #{decLng}, #{decLat}, #{strUsageNotice}, #{strCity}, #{strNation}, #{strSummary}, '', '', ''
+    </select>
+
+    <select id="accommPhotoContentsReg" parameterType="ContentsPhotoDto" resultType="String">
+        EXEC spGW_CONTENTS_PHOTO_REGIST_TEST<![CDATA[0, #{strSubject}, #{strFilePath}, #{strFileName}, ${intCreatedSID}, ${intModifiedSID}, #{strCid}, '']]>
+    </select>
+
+    <insert id="cancelInfoReg" parameterType="CancelInfoDto">
+        INSERT INTO test_tbl_cancel_info_row(
+            cid, cname, cn_flag, cn_Dcnt, cn_per, regdate
+        )
+        VALUES(
+            <![CDATA[ ${intCid}, #{strCname}, #{strCnFlag}, ${intCnDcnt}, ${intCnPer}, GETDATE() ]]>
+        )
+    </insert>
+
+</mapper>

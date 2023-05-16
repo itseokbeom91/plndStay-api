@@ -18,12 +18,12 @@ public class CondoDto {
     private String strFlag; // con_flag
     private String strZipCode; // COALESCE(C.con_zip_new, C.con_zip)
     private String strAddress; // COALESCE(C.con_addr_new, C.con_addr1 +' '+ C.con_addr2)
-    private double decLat; // mapY
-    private double decLng; // mapX
-    private  String strLoc; // location
-    private  String strCity; // city
-    private  String strGugun; // gugun
-    private  String strPdtDtlInfo; // SSG_INFO
+    private String decLat; // mapY
+    private String decLng; // mapX
+    private String strLoc; // location
+    private String strCity; // city
+    private String strGugun; // gugun
+    private String strPdtDtlInfo; // SSG_INFO
     private String strSummary; // con_desc
     private String strFacilities; // con_toge
     private String strDescription; // con_sookbak
@@ -32,6 +32,13 @@ public class CondoDto {
     private String strLandNumberAdr; // CONCAT(C.con_addr1,' ',C.con_addr2) 지번주소
     private String strChainCode; // 숙소 체인점 분류
     private String strConAddrNew; // con_addr_new
+    private String strConDisplay; // con_display 노출여부
+    private String strApiFlag; // API_FLAG
+    private String strRegDate; // 생성일시
+    private String strAccommId; // accomm_id
+    private String strNation; // nation
+    private String strConTel; // con_tel
+    private String strConFax; // con_fax
 
     /**
      * SSGMapper
@@ -49,5 +56,4 @@ public class CondoDto {
      */
     private int moneyCost; // goods의 stend_pri
     private String tocode; // tocon의 tocode
-
 }

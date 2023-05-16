@@ -38,17 +38,17 @@ insert - SSG
 <input type="button" class="ssg_insert_btn" value="SSGBUTTON"><br><br>
 <br><br>
 
-<input type="text" id="cp_con_id"><br><br>
-<input type="button" id="create_lodgings" class="coupang_btn" value="숙박상품 생성">
-<input type="button" id="update_lodgings" class="coupang_btn" value="숙박상품 수정">
-<input type="button" id="creUpdRoom" class="coupang_btn" value="룸 생성/수정">
-<input type="button" id="get_lodgings" class="coupang_btn" value="숙박상품 정보 보기" onclick="location.href='/coupang/getLodgingInfo';">
-<input type="button" id="delete_lodging" class="coupang_btn" value="숙박상품 삭제" onclick="location.href='/coupang/deleteLodging';">
-<input type="button" id="update_Lodging_Rate" class="coupang_btn" value="숙박상품 요금 수정">
-<br><br>
+<%--<input type="text" id="cp_con_id"><br><br>--%>
+<%--<input type="button" id="create_lodgings" class="coupang_btn" value="숙박상품 생성">--%>
+<%--<input type="button" id="update_lodgings" class="coupang_btn" value="숙박상품 수정">--%>
+<%--<input type="button" id="creUpdRoom" class="coupang_btn" value="룸 생성/수정">--%>
+<%--<input type="button" id="get_lodgings" class="coupang_btn" value="숙박상품 정보 보기" onclick="location.href='/coupang/getLodgingInfo';">--%>
+<%--<input type="button" id="delete_lodging" class="coupang_btn" value="숙박상품 삭제" onclick="location.href='/coupang/deleteLodging';">--%>
+<%--<input type="button" id="update_Lodging_Rate" class="coupang_btn" value="숙박상품 요금 수정">--%>
+<%--<br><br>--%>
 
-<input type="button" id="requestToken" class="eland_btn" value="이랜드 토큰 발급">
-<input type="button" id="getOrder" class="eland_btn" value="이랜드 주문 가져오기">
+<%--<input type="button" id="requestToken" class="eland_btn" value="이랜드 토큰 발급">--%>
+<%--<input type="button" id="getOrder" class="eland_btn" value="이랜드 주문 가져오기">--%>
 
 </body>
 <script  src="http://code.jquery.com/jquery-latest.min.js"></script>
@@ -129,4 +129,7 @@ insert - SSG
     })
 
 </script>
+
+<a href="/accomm/onda/getAccommTotal?">[ONDA] 숙소 정보 불러오기</a>
+
 </html>
