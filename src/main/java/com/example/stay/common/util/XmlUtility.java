@@ -37,6 +37,8 @@ public class XmlUtility {
             requestType = "RequestRoomTypeList";
         }else if(type == "RatePlanList"){
             requestType = "RequestRatePlanList";
+        }else if(type == "CityList"){
+            requestType = "RequestProvinceCityList";
         }
 
         // API 호출 정보
