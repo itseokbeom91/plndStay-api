@@ -6,6 +6,7 @@ import com.example.stay.common.util.UrlResourceDownloader;
 import com.example.stay.openMarket.common.dto.CancelInfoDto;
 import com.example.stay.openMarket.common.dto.CondoDto;
 import com.example.stay.openMarket.common.dto.ContentsPhotoDto;
+import com.example.stay.openMarket.common.dto.ToconDto;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
@@ -97,7 +98,8 @@ public class AccommService {
 //                System.out.println("responseBody : " + responseBody);
 
                 JSONParser jsonParser = new JSONParser();
-                jsonObject = (JSONObject) jsonParser.parse(responseBody);
+                JSONObject responseJson = (JSONObject) jsonParser.parse(responseBody);
+                jsonObject = (JSONObject) responseJson.get("property");
 
             }
         }catch (Exception e){
@@ -135,24 +137,6 @@ public class AccommService {
                     JSONObject jsonObject = (JSONObject) roomtypeArray.get(i);
                     roomTypeList.add(jsonObject);
                 }
-//                JSONObject responseJson = (JSONObject) jsonParser.parse(responseBody);
-//
-//                JSONArray roomtypeArray = (JSONArray) responseJson.get("roomtypes");
-//
-//                List<JSONObject> roomTypeList = new ArrayList<>();
-//                for(int i=0; i<roomtypeArray.size(); i++){
-//                    JSONObject jsonObject = (JSONObject) roomtypeArray.get(i);
-//                    roomTypeList.add(jsonObject);
-//                    System.out.println(roomtypeArray);
-//                }
-//
-//                // dto에 담기
-//                for(JSONObject list : roomTypeList){
-////                    list.get("id").toString();
-//                    System.out.println(list.get("id").toString());
-//                }
-
-
 
             }
         }catch (Exception e){
@@ -182,32 +166,8 @@ public class AccommService {
                 System.out.println("responseBody : " + responseBody);
 
                 JSONParser jsonParser = new JSONParser();
-//                JSONObject responseJson = (JSONObject) jsonParser.parse(responseBody);
-                jsonObject = (JSONObject) jsonParser.parse(responseBody);
-
-//                JSONObject jsonRoomType = (JSONObject) responseJson.get("roomtype");
-//
-//                // dto에 담기
-//                JSONObject capacity = (JSONObject) jsonRoomType.get("capacity");
-//
-//                JSONObject tags = (JSONObject)jsonRoomType.get("tags");
-//                JSONArray roomtypes = (JSONArray) tags.get("roomtypes");
-//                JSONArray views = (JSONArray) tags.get("views");
-//                JSONArray amenities = (JSONArray) tags.get("amenities");
-//
-//                JSONObject details = (JSONObject) jsonRoomType.get("details");
-////                String room = details.get("room").toString(); // String으로 받든 int로 받든...
-//
-//                JSONObject bedtype = (JSONObject) jsonRoomType.get("bedtype");
-////                String room = details.get("single_beds").toString();
-//
-//                JSONArray images = (JSONArray) jsonRoomType.get("images");
-//                for(int i=0; i<images.size(); i++){
-//                    JSONObject image = (JSONObject) images.get(i);
-////                    String original = image.get("original").toString();
-//                }
-
-
+                JSONObject responseJson = (JSONObject) jsonParser.parse(responseBody);
+                jsonObject = (JSONObject) responseJson.get("roomtype");
 
             }
         }catch (Exception e){
@@ -287,9 +247,9 @@ public class AccommService {
 
                 jsonObject = (JSONObject) jsonParser.parse(responseBody);
 
-//                JSONObject responseJson = (JSONObject) jsonParser.parse(responseBody);
-//
-//                JSONObject rateplan = (JSONObject) responseJson.get("rateplan");
+                JSONObject responseJson = (JSONObject) jsonParser.parse(responseBody);
+
+                jsonObject = (JSONObject) responseJson.get("rateplan");
 //
 //                // dto에 담기
 //                JSONObject lengthOfStay = (JSONObject) responseJson.get("length_of_stay");
@@ -307,42 +267,37 @@ public class AccommService {
     }
 
     public void accommRegist(String path){
+        String strConId = "";
+        String strToconIdx = "";
+
+        // 전체 숙소 id, 해당 id별 숙소 상세정보 불러오기
+        List<JSONObject> accommList = getAccommListApi(path);
+
+        List<String> propertyIdList = new ArrayList<>();
+        for(JSONObject list : accommList){
+            String propertyId = list.get("id").toString();
+            propertyIdList.add(propertyId);
+            System.out.println("propertyId : " + propertyId);
+        }
+
+        // 숙소 정보 INSERT
         try{
-            // 전체 숙소 id, 해당 id별 숙소 상세정보 불러오기
-            List<JSONObject> accommList = getAccommListApi(path);
-
-            List<String> ondaIdList = new ArrayList<>();
-            for(JSONObject list : accommList){
-                String strOndaId = list.get("id").toString();
-                ondaIdList.add(strOndaId);
-                System.out.println("strOndaId : " + strOndaId);
-            }
-
-            for(String id : ondaIdList){
-
+            for(String id : propertyIdList){
                 JSONObject accommDetailJson = getAccommDetailApi(id);
                 System.out.println("accommDetailJson : " + accommDetailJson);
-
-                JSONObject jsonProperty = (JSONObject) accommDetailJson.get("property");
 
                 // dto에 담기
                 CondoDto accommDetail = new CondoDto();
 
-                String strAccommId = jsonProperty.get("id").toString();
+                String strAccommId = accommDetailJson.get("id").toString();
                 accommDetail.setStrAccommId(strAccommId);
-                String strAccommName = jsonProperty.get("name").toString();
+                String strAccommName = accommDetailJson.get("name").toString();
                 accommDetail.setStrAcmName(strAccommName);
 
-                String strOndaStatus = jsonProperty.get("status").toString();
+                String strAccommStatus = accommDetailJson.get("status").toString();
+                accommDetail.setStrConDisplay(getStatusYn(strAccommStatus));
 
-                if(strOndaStatus.equals("disabled") || strOndaStatus.equals("deleted")){
-                    strOndaStatus = "N";
-                }else if(strOndaStatus.equals("enabled")){
-                    strOndaStatus = "Y";
-                }
-                accommDetail.setStrConDisplay(strOndaStatus);
-
-                JSONObject address = (JSONObject) jsonProperty.get("address");
+                JSONObject address = (JSONObject) accommDetailJson.get("address");
                 accommDetail.setStrNation(address.get("country_code").toString());
                 accommDetail.setStrLoc(address.get("region").toString());
                 accommDetail.setStrCity(address.get("city").toString());
@@ -356,46 +311,80 @@ public class AccommService {
                 accommDetail.setDecLat(location.get("latitude").toString());
                 accommDetail.setDecLng(location.get("longitude").toString());
 
+                accommDetail.setStrConTel(accommDetailJson.get("phone").toString());
+                accommDetail.setStrConFax(accommDetailJson.get("fax").toString());
+                accommDetail.setStrTimeIn(accommDetailJson.get("checkin").toString());
+                accommDetail.setStrTimeOut(accommDetailJson.get("checkout").toString());
 
-
-                accommDetail.setStrConTel(jsonProperty.get("phone").toString());
-                accommDetail.setStrConFax(jsonProperty.get("fax").toString());
-                accommDetail.setStrTimeIn(jsonProperty.get("checkin").toString());
-                accommDetail.setStrTimeOut(jsonProperty.get("checkout").toString());
-
-                JSONObject descriptions = (JSONObject) jsonProperty.get("descriptions");
+                JSONObject descriptions = (JSONObject) accommDetailJson.get("descriptions");
                 accommDetail.setStrSummary(descriptions.get("property").toString());
                 accommDetail.setStrUsageNotice(descriptions.get("reservation").toString());
 
                 /**
-                 * classifications, tags, facilities, services, attractions
-                 *  값이 여러개면 어떻게 할건지 정리 필요
+                 * classifications
+                 * 현재 condo테이블의 con_flag -> int
+                 * 값이 호텔, 티켓 등 여러개일 가능성도 있음
+                 * -> 값을 어떻게 넣아햐는지
                  */
-//                JSONArray classifications = (JSONArray) jsonProperty.get("classifications");
+                JSONArray classifications = (JSONArray) accommDetailJson.get("classifications");
+//                List<String> classficationList = new ArrayList<>();
 //                for(int i=0; i<classifications.size(); i++){
-                // CODE_SYSTEM 테이블에서 strName과 일치하는 strCode 가져오기
-
-//                    String code = accomodationMapper.selectCode(classifications.get(i).toString());
+////                    String code = accomodationMapper.selectCode(classifications.get(i).toString());
+//                    classficationList.add(accomodationMapper.selectCode(classifications.get(i).toString());
+//                }
+//                for(classficationList){
 //                    accommDetail.setStrFlag(code);
 //                }
 
-//                JSONObject tags = (JSONObject) jsonProperty.get("tags");
-//                JSONArray properties = (JSONArray) tags.get("properties");
-//                JSONArray facilities = (JSONArray) tags.get("facilities");
-//                JSONArray services = (JSONArray) tags.get("services");
-//                JSONArray attractions = (JSONArray) tags.get("attractions");
+                // 어차피 다 태그니까 한 번에 몰아넣자 tags 컬럼에.
+                JSONObject tags = (JSONObject) accommDetailJson.get("tags");
+                JSONArray properties = (JSONArray) tags.get("properties") ;
+                JSONArray facilities = (JSONArray) tags.get("facilities");
+                JSONArray services = (JSONArray) tags.get("services");
+                JSONArray attractions = (JSONArray) tags.get("attractions");
 
+                List<String> tagList = new ArrayList<>();
+                if(properties != null){
+                    for(Object p : properties){
+                        tagList.add(p.toString());
+                    }
+                }
+                if(facilities != null){
+                    for(Object f : facilities){
+                        tagList.add(f.toString());
+                    }
+                }
+                if(services != null){
+                    for(Object s : services){
+                        tagList.add(s.toString());
+                    }
+                }
+                if(attractions != null){
+                    for(Object a : attractions){
+                        tagList.add(a.toString());
+                    }
+                }
+
+                if(tagList != null){
+                    String strTags = "";
+                    for(int i=0; i<tagList.size(); i++){
+                        if(i == (tagList.size()-1)){
+                            strTags += tagList.get(i);
+                        }else{
+                            strTags += tagList.get(i) + ", ";
+                        }
+                    }
+                    accommDetail.setStrTagName(strTags);
+                }
 
                 accommDetail.setStrApiFlag("ONDA");
                 //------------------------------------------------------------------------------------------------------
-                String strConId = accomodationMapper.accommRegist(accommDetail);
+                strConId = accomodationMapper.accommRegist(accommDetail);
                 System.out.println("con_id : " + strConId);
 
-
                 // 이미지------------------------------------------------------------------------------------------------
-
                 // test_CONTENTS_PHOTO, test_CONDO_PHOTO 테이블에 INSERT
-                JSONArray images = (JSONArray) jsonProperty.get("images");
+                JSONArray images = (JSONArray) accommDetailJson.get("images");
 
                 for(int i=0; i<images.size(); i++){
                     JSONObject image = (JSONObject) images.get(i);
@@ -419,7 +408,8 @@ public class AccommService {
                 }
 
                 // 환불 취소규정 ----------------------------------------------------------------------------------------
-                JSONObject refunds = (JSONObject) jsonProperty.get("property_refunds");
+                // tbl_cancel_info_row 테이블에 INSERT
+                JSONObject refunds = (JSONObject) accommDetailJson.get("property_refunds");
                 CancelInfoDto cancelInfoDto = new CancelInfoDto();
                 cancelInfoDto.setStrCname(strAccommName);
                 cancelInfoDto.setIntCid(Integer.parseInt(strConId));
@@ -427,6 +417,8 @@ public class AccommService {
                 String strCnFlag = "ps";
 
                 for(int i=0; i<2; i++){
+                    System.out.println("i : " + i);
+                    System.out.println("strCnFlag : " + strCnFlag);
                     cancelInfoDto.setStrCnFlag(strCnFlag);
                     for(int j=0; j<7; j++){
                         cancelInfoDto.setIntCnDcnt(j);
@@ -435,18 +427,62 @@ public class AccommService {
                     }
                     strCnFlag = "of";
                 }
-                // tbl_cancel_info_row 테이블에 INSERT
-
 
 //                if(cancelInfoRegResult == 0){
 //                    System.out.println("INSERT TBL_CANCEL_INFO_ROW FAIL");
 //                }
 
-            }
 
+
+                // 룸타입정보 INSERT
+                List<JSONObject> roomTypeList = getRoomTypeListApi(id);
+
+                List<String> roomTypeIdList = new ArrayList<>();
+                for(JSONObject list : roomTypeList){
+                    String roomTypeId = list.get("id").toString();
+                    roomTypeIdList.add(roomTypeId);
+                    System.out.println("roomTypeId : " + roomTypeId);
+                }
+
+                int intAdminCount = 1;
+                for(String roomTypeId : roomTypeIdList){
+                    JSONObject roomDetailJson = getRoomTypeDetail(id, roomTypeId);
+                    System.out.println("roomTypeDetailJson : " + roomDetailJson);
+
+                    // dto에 담기
+                    ToconDto roomDetail = new ToconDto();
+
+                    roomDetail.setRoomTypeId(roomTypeId);
+                    roomDetail.setConId(strConId);
+
+                    roomDetail.setTocode(roomDetailJson.get("name").toString());
+
+                    JSONObject capacity = (JSONObject) roomDetailJson.get("capacity");
+                    roomDetail.setStandpeopleCnt(Integer.parseInt(capacity.get("standard").toString()));
+                    roomDetail.setMaxpeopleCnt(Integer.parseInt(capacity.get("max").toString()));
+
+                    // ONDA는 별도의 내부 순서를 주지 않으므로 불러오는 순서대로 임의로 줌
+                    roomDetail.setAdmin_count(intAdminCount);
+                    intAdminCount +=1;
+
+                    String strRoomTypeStatus = roomDetailJson.get("status").toString();
+                    roomDetail.setStrIngYN(getStatusYn(strRoomTypeStatus));
+
+                    roomDetail.setTocodeText(roomDetailJson.get("description").toString());
+
+                    strToconIdx = accomodationMapper.roomTypeRegist(roomDetail);
+                    System.out.println("tocon_idx : " + strToconIdx);
+
+                }
+            }
         }catch (Exception e){
             e.printStackTrace();
+            System.out.println("숙소 정보 INSERT FAIL");
         }
+
+
+
+
     }
 
     public List<JSONObject> getInventories(String rateplan_id, String from, String to){
@@ -537,7 +573,15 @@ public class AccommService {
         }
     }
 
-
+    public String getStatusYn(String strRoomTypeStatus){
+        String status = "";
+        if(strRoomTypeStatus.equals("disabled") || strRoomTypeStatus.equals("deleted")){
+            status = "N";
+        }else if(strRoomTypeStatus.equals("enabled")){
+            status = "Y";
+        }
+        return status;
+    }
 
 
 }

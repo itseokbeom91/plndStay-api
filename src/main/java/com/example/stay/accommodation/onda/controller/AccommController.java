@@ -31,20 +31,13 @@ public class AccommController {
      * 전체 숙소 목록 가져오기
      */
     @GetMapping("getAccommList")
-    public void getAccommList(@RequestParam(value = "lastdate", required = false) String lastdate,
-                              @RequestParam(value = "status", required = false) String status){
-        String path = Constants.ondaPath + "properties";
-        if(lastdate != null){
-            path += "?lastdate=" + lastdate;
+//    @RequestParam(value = "status", required = false) String status
+    public void getAccommList(){
+        String path = Constants.ondaPath + "properties?status=all";
 
-            if(status != null){
-                path += "&status=" +  status;
-            }
-        }else{
-            if(status != null){
-                path += "?status=" +  status;
-            }
-        }
+//        if(status != null){
+//            path += "?status=" +  status;
+//        }
 
         accommService.getAccommListApi(path);
     }
@@ -98,23 +91,15 @@ public class AccommController {
     }
 
     /**
-     * ONDA에서 숙소정보 가져와서 있으면 PASS, 없으면 INSERT
+     * ONDA에서 숙소정보 가져와서 INSERT
      */
     @GetMapping("accommRegist")
-    public void accommRegist(@RequestParam(value = "lastdate", required = false) String lastdate,
-                                 @RequestParam(value = "status", required = false) String status){
-        String path = Constants.ondaPath + "properties";
-        if(lastdate != null){
-            path += "?lastdate=" + lastdate;
+    public void accommRegist(){
+        String path = Constants.ondaPath + "properties?status=all";
 
-            if(status != null){
-                path += "&status=" +  status;
-            }
-        }else{
-            if(status != null){
-                path += "?status=" +  status;
-            }
-        }
+//        if(status != null){
+//            path += "?status=" +  status;
+//        }
 
         accommService.accommRegist(path);
     }

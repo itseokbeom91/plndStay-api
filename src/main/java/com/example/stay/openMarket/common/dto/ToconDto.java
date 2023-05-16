@@ -47,6 +47,9 @@ public class ToconDto {
     private String strEzwelYn;
     private String strOrgCid;
     private String dateCreated;
+    private String roomTypeId;
+
+
 
 
 }
