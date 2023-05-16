@@ -35,13 +35,8 @@
         EXEC spGW_CONTENTS_PHOTO_REGIST_TEST<![CDATA[0, #{strSubject}, #{strFilePath}, #{strFileName}, ${intCreatedSID}, ${intModifiedSID}, #{strCid}, '']]>
     </select>
 
-    <insert id="cancelInfoReg" parameterType="CancelInfoDto">
-        INSERT INTO test_tbl_cancel_info_row(
-            cid, cname, cn_flag, cn_Dcnt, cn_per, regdate
-        )
-        VALUES(
-            <![CDATA[ ${intCid}, #{strCname}, #{strCnFlag}, ${intCnDcnt}, ${intCnPer}, GETDATE() ]]>
-        )
-    </insert>
+    <select id="cancelInfoReg" parameterType="CancelInfoDto" resultType="String">
+        EXEC spGW_CANCEL_INFO_REGIST_TEST ${intCid},<![CDATA[#{strCname}]]>, #{strCnFlag}, ${intCnDcnt}, ${intCnPer}, ''
+    </select>
 
 </mapper>

@@ -15,5 +15,5 @@ public interface AccomodationMapper {
 
     String accommPhotoContentsReg(ContentsPhotoDto contentsPhotoDto);
 
-    int cancelInfoReg(CancelInfoDto cancelInfoDto);
+    String cancelInfoReg(CancelInfoDto cancelInfoDto);
 }

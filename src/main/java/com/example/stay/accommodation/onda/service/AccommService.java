@@ -393,7 +393,6 @@ public class AccommService {
 
 
                 // 이미지------------------------------------------------------------------------------------------------
-
                 // test_CONTENTS_PHOTO, test_CONDO_PHOTO 테이블에 INSERT
                 JSONArray images = (JSONArray) jsonProperty.get("images");
 
@@ -419,6 +418,7 @@ public class AccommService {
                 }
 
                 // 환불 취소규정 ----------------------------------------------------------------------------------------
+                // tbl_cancel_info_row 테이블에 INSERT
                 JSONObject refunds = (JSONObject) jsonProperty.get("property_refunds");
                 CancelInfoDto cancelInfoDto = new CancelInfoDto();
                 cancelInfoDto.setStrCname(strAccommName);
@@ -427,6 +427,8 @@ public class AccommService {
                 String strCnFlag = "ps";
 
                 for(int i=0; i<2; i++){
+                    System.out.println("i : " + i);
+                    System.out.println("strCnFlag : " + strCnFlag);
                     cancelInfoDto.setStrCnFlag(strCnFlag);
                     for(int j=0; j<7; j++){
                         cancelInfoDto.setIntCnDcnt(j);
