@@ -5,6 +5,7 @@ import com.example.stay.common.util.Constants;
 import com.example.stay.common.util.XmlUtility;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.MultiValueMap;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -20,6 +21,8 @@ import java.io.OutputStreamWriter;
 import java.io.StringWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 @Service
@@ -41,7 +44,7 @@ public class APIHotelstoryService {
      * @return String result
      * @throws Exception
      */
-    public String hotelStoryParsing(Element tagElement, String tagList, Map<String, Map> roomTypeMap, Map<String, Map> ratePlanMap){
+    public String hotelStoryParsing(Element tagElement, String tagList, Map<String, Map> roomTypeMap, MultiValueMap<String, Map> ratePlanMap){
         String result = "";
 
         try {
@@ -95,6 +98,7 @@ public class APIHotelstoryService {
                 strTrafficInformation = xmlUtility.getTagValue("TrafficInformation", tagElement);
                 strRoomInformation = xmlUtility.getTagValue("RoomInformation", tagElement);
 
+                // condo 프로시저 실행
                 intAID = Integer.parseInt(hotelStoryMapper.insertAccomm(strPropertyId, strPropertyName, strAddress, strPhone, strNumRooms, strHomePageUrl, strCheckInTime, strCheckOutTime
                                                             , strLongitude, strLatitude, strPropertyDescription, strTrafficInformation, strRoomInformation));
 
@@ -123,9 +127,9 @@ public class APIHotelstoryService {
                         // 룸타입(tocon) 변수
                         strPropertyId = xmlUtility.getTagValue("PropertyId", tagElement);
                         intAID = Integer.parseInt(hotelStoryMapper.insertAccomm(strPropertyId, "", "", "", "", "", "", ""
-                                , "", "", "", "", ""));
+                                , "", "", "", "", "")); // intAID 가져오기위함
                         strRoomInformation = xmlUtility.getTagValue("RoomInformation", tagElement);
-                        String strRoomTypeId = "";
+                        String strRoomTypeId = xmlUtility.getTagValue("RoomTypeId",element);
                         String strText = "";
                         String strIngYn = "N";
                         String strRoomTypeName = "";
@@ -141,11 +145,11 @@ public class APIHotelstoryService {
                         // roomTypeList 값 넣기
                         if(strRoomTypeId != null){
 
-                            result += "RoomTypeId = " + strRoomTypeId + "<br>";
-                            result += "Text = " + xmlUtility.getTagValue("Text", element) + "<br>";
-
-                            strRoomTypeId = xmlUtility.getTagValue("RoomTypeId",element);
                             strText = xmlUtility.getTagValue("Text", element);
+
+                            result += "RoomTypeId = " + strRoomTypeId + "<br>";
+                            result += "Text = " + strText + "<br>";
+
 
                             // 룸타입 있으면(가용하는 룸타입일경우 )
                             if(roomTypeMap.containsKey(strRoomTypeId) == true){
@@ -154,35 +158,81 @@ public class APIHotelstoryService {
                                 result += "strIngYn = Y<br>";
                                 result += "RoomTypeName = "+roomTypeMap.get(strRoomTypeId).get("RoomTypeName")+"<br>";
                                 result += "BedTypeCode = "+roomTypeMap.get(strRoomTypeId).get("BedTypeCode")+"<br>";
-
-                                result += "RatePlanId = "+ratePlanMap.get(strRoomTypeId).get("RatePlanId")+"<br>";
-                                result += "RatePlanName = "+ratePlanMap.get(strRoomTypeId).get("RatePlanName")+"<br>";
-                                result += "MealCode = "+ratePlanMap.get(strRoomTypeId).get("MealCode")+"<br>";
-                                result += "SaleRate = "+ratePlanMap.get(strRoomTypeId).get("SaleRate")+"<br>";
-                                result += "MinPersons = "+ratePlanMap.get(strRoomTypeId).get("MinPersons")+"<br>";
-                                result += "MaxPersons = "+ratePlanMap.get(strRoomTypeId).get("MaxPersons")+"<br>";
+                                result += "MinPersons = "+roomTypeMap.get(strRoomTypeId).get("MinPersons")+"<br>";
+                                result += "MaxPersons = "+roomTypeMap.get(strRoomTypeId).get("MaxPersons")+"<br>";
 
                                 strIngYn = "Y";
                                 strRoomTypeName = roomTypeMap.get(strRoomTypeId).get("RoomTypeName").toString();
-                                strBedTypeCode = roomTypeMap.get(strRoomTypeId).get("BedTypeCode").toString();
+                                intMinPersons = Integer.parseInt(roomTypeMap.get(strRoomTypeId).get("intMinPersons").toString());
+                                intMaxPersons = Integer.parseInt(roomTypeMap.get(strRoomTypeId).get("intMaxPersons").toString());
 
-                                strRatePlanId = ratePlanMap.get(strRoomTypeId).get("RatePlanId").toString();
-                                strRatePlanName = ratePlanMap.get(strRoomTypeId).get("RatePlanName").toString();
-                                strMealCode = ratePlanMap.get(strRoomTypeId).get("MealCode").toString();
-                                intSaleRate = Integer.parseInt(ratePlanMap.get(strRoomTypeId).get("SaleRate").toString());
-                                intMinPersons = Integer.parseInt(ratePlanMap.get(strRoomTypeId).get("MinPersons").toString());
-                                intMaxPersons = Integer.parseInt(ratePlanMap.get(strRoomTypeId).get("MaxPersons").toString());
+                                int step = (strIngYn.equals("N"))? 150 : intStep;
+
+                                // tocon 프로시저 실행
+                                int toconIdx = Integer.parseInt(hotelStoryMapper.insertRoomType(strRoomTypeName, intAID, intMinPersons, intMaxPersons, strRoomTypeId, step, strIngYn, strText, strRoomInformation));
+
+                                System.out.println("toconIdx = "+toconIdx);
+
+                                for(Map map : ratePlanMap.get(strRoomTypeId)){
+                                    result += "RatePlanId = "+map.get("RatePlanId")+"<br>";
+                                    result += "RatePlanName = "+map.get("RatePlanName")+"<br>";
+                                    result += "MealCode = "+map.get("MealCode")+"<br>";
+                                    result += "BedTypeCode = "+map.get("BedTypeCode")+"<br>";
+                                    result += "SaleRate = "+map.get("SaleRate")+"<br>";
+                                    result += "MinPersons = "+map.get("MinPersons")+"<br>";
+                                    result += "MaxPersons = "+map.get("MaxPersons")+"<br>";
+
+                                    strRatePlanId = map.get("RatePlanId").toString();
+                                    strRatePlanName = map.get("RatePlanName").toString();
+                                    strMealCode = map.get("MealCode").toString();
+                                    strBedTypeCode = map.get("BedTypeCode").toString();
+                                    intSaleRate = Integer.parseInt(map.get("SaleRate").toString());
+                                    intMinPersons = Integer.parseInt(map.get("MinPersons").toString());
+                                    intMaxPersons = Integer.parseInt(map.get("MaxPersons").toString());
+
+                                    // 배드타입
+                                    String strBedTypeString = "";
+                                    switch (strBedTypeCode){
+                                        case "1": strBedTypeString = "싱글";
+                                            break;
+                                        case "2": strBedTypeString = "더블";
+                                            break;
+                                        case "3": strBedTypeString = "트윈";
+                                            break;
+                                        case "4": strBedTypeString = "트리플";
+                                            break;
+                                        case "5": strBedTypeString = "온돌";
+                                            break;
+                                        case "6": strBedTypeString = "퓨전(온돌더블)";
+                                            break;
+                                        case "8": strBedTypeString = "스위트";
+                                            break;
+                                        case "9": strBedTypeString = "4베드";
+                                            break;
+                                        case "10": strBedTypeString = "패밀리트윈";
+                                            break;
+                                        case "11": strBedTypeString = "현지배정";
+                                            break;
+                                        case "13": strBedTypeString = "세미더블";
+                                            break;
+                                        case "15": strBedTypeString = "더블 더블";
+                                            break;
+                                        default: strBedTypeString = strBedTypeCode;
+                                    }
+
+                                    // rate_plan 프로시저 실행
+                                    String ratePlanIdx = hotelStoryMapper.insertRatePlan(intAID, strPropertyId, toconIdx, strRoomTypeId, strRatePlanId, strRatePlanName, strBedTypeString, strMealCode, intMinPersons, intMaxPersons);
+
+                                    System.out.println(ratePlanIdx);
+                                }
 
                             }else{
                                 result += "strIngYn = N";
                             }
 
 
-                            int step = (strIngYn.equals("N"))? 150 : intStep;
 
-                            String roomTypeRegist = hotelStoryMapper.insertRoomType(strRoomTypeName, intAID, intSaleRate, intMinPersons, intMaxPersons, strRatePlanId, strRoomTypeId, step, strIngYn, strText, strRoomInformation);
 
-                            System.out.println("roomTypeId = "+roomTypeRegist);
 
                         }
 

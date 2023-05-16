@@ -8,6 +8,8 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.w3c.dom.Document;
@@ -43,6 +45,25 @@ public class APIHotelStoryController {
     @Autowired
     private XmlUtility xmlUtility;
 
+    @GetMapping("/city")
+    public ResponseEntity<String> city(){
+        StringBuilder sb = new StringBuilder();
+
+        try {
+            Document document = xmlUtility.HotelStoryAPIList("CityList","");
+            System.out.println(xmlUtility.parsingXml(document));
+            String xml = xmlUtility.parsingXml(document);
+            sb.append(xml);
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Content-Type", "text/html; charset=UTF-8");
+        return new ResponseEntity<String>(sb.toString(), headers, HttpStatus.OK);
+
+    }
+
     /**
      *
      * @param strAccommID
@@ -62,7 +83,8 @@ public class APIHotelStoryController {
         // roomTypeListMap, ratePlanListMap 담을 map 생성
         Map<String, Map> roomTypeListMap = new HashMap<String, Map>();
 
-        Map<String, Map> ratePlanListMap = new HashMap<String, Map>();
+        // 하나의 roomType에 여러개의 ratePlan이 있을 수 있어서 LinkedMultiValueMap 사용
+        MultiValueMap<String, Map> ratePlanListMap = new LinkedMultiValueMap<>();
 
         // Property 반복 돌려서 strAccommID 없을때의 propertyId 값 가져와서 roomTypeLIst, ratePlanList 담기
         NodeList sAIList = document.getElementsByTagName("Property");
@@ -94,6 +116,7 @@ public class APIHotelStoryController {
                 if(requestRoomTypeList != null){
                     NodeList nList = requestRoomTypeList.getElementsByTagName("RoomType");
                     List list = new ArrayList<Object>();
+                    System.out.println("roomType 개수 = " + nList.getLength());
                     for (int i = 0; i < nList.getLength(); i++) {
 
                         Node nNode = nList.item(i);
@@ -116,7 +139,7 @@ public class APIHotelStoryController {
                 // ratePlanList 구하기
                 if(requestRatePlanList != null){
                     NodeList nList = requestRatePlanList.getElementsByTagName("RatePlan");
-
+                    System.out.println("ratePlan 개수 = " + nList.getLength());
                     for (int i = 0; i < nList.getLength(); i++) {
 
                         Node nNode = nList.item(i);
@@ -124,7 +147,7 @@ public class APIHotelStoryController {
                             Element element = (Element) nNode;
 
                             // roomTypeID 기준 value 값 담을 map
-                            Map<String, Object> valMap = new HashMap<String, Object>();
+                            Map<String, Object> valMap = new HashMap<>();
                             valMap.put("RatePlanId", xmlUtility.getTagValue("RatePlanId", element));
                             valMap.put("RatePlanName", xmlUtility.getTagValue("RatePlanName", element));
                             valMap.put("BedTypeCode", xmlUtility.getTagValue("BedTypeCode", element));
@@ -134,7 +157,7 @@ public class APIHotelStoryController {
                             valMap.put("MaxPersons", xmlUtility.getTagValue("MaxPersons", element));
 
                             // roomTypeID dp valMap 값 담는 map
-                            ratePlanListMap.put(xmlUtility.getTagValue("RoomTypeId", element), valMap); // roomTypeId 기준 ㅇㅇ
+                            ratePlanListMap.add(xmlUtility.getTagValue("RoomTypeId", element), valMap); // roomTypeId 기준 ㅇㅇ
 
                         }
                     }
@@ -146,6 +169,7 @@ public class APIHotelStoryController {
                 System.out.println("roomType, ratePlan ApI 호출 완료 시간 = " + (System.currentTimeMillis()-ListAPIStart)/1000.0);
             }
         }
+
 
 
         // 데이터 담을 변수
@@ -180,7 +204,7 @@ public class APIHotelStoryController {
                 testSb += apiHotelstoryService.hotelStoryParsing(propertyElement,"property", roomTypeListMap, ratePlanListMap);
 
                 /**
-                 * Description 구하기(roomType, ratePlan`)
+                 * Description 구하기(roomType, ratePlan)
                  */
 //                sb.append("</br><textarea style=\"width=900px; height:700px;\">");
 //                sb.append(apiHotelstoryService.parsing(propertyElement,"Description",new String[]{"RoomTypeId","RatePlanId","Text"}, new StringBuilder(""), new StringBuilder("\n"), roomTypeListMap, ratePlanListMap));

@@ -11,7 +11,11 @@
     </select>
 
     <select id="insertRoomType" resultType="string">
-        exec dbo.spGW_ROOMTYPE_REGIST_SUPPLIER 0, #{strRoomTypeName}, #{intAID}, #{intSaleRate}, #{intMinPersons}, #{intMaxPersons}, #{strRatePlanId}, #{strRoomTypeId}, #{intStep}, #{strIngYn}, #{strText1}, #{strText2}, ''
+        exec dbo.spGW_ROOMTYPE_REGIST_SUPPLIER 0, #{strRoomTypeName}, #{intAID}, #{intMinPersons}, #{intMaxPersons}, #{strRoomTypeId}, #{intStep}, #{strIngYn}, #{strText1}, #{strText2}, ''
+    </select>
+
+    <select id="insertRatePlan" resultType="string">
+        exec dbo.spGW_RATEPLAN_REGIST_SUPPLIER 0, #{intAID}, #{strAccommId}, #{intToconIdx}, #{strRoomTypeId}, #{strRatePlanId}, #{strRatePlanName}, #{strBedTypeCode}, #{strMealCode}, #{intMinPersons}, #{intMaxPersons}, ''
     </select>
 
 </mapper>
