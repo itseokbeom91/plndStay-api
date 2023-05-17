@@ -116,7 +116,7 @@ public class APIHotelstoryService {
                 strCity = getCityNameByCode(cityDocument, cityCode)[0];
                 strPropertyDescription = xmlUtility.getTagValue("PropertyDescription", tagElement);
                 strTrafficInformation = xmlUtility.getTagValue("TrafficInformation", tagElement);
-                strRoomInformation = xmlUtility.getTagValue("RoomInformation", tagElement);
+                strRoomInformation = xmlUtility.getTagValue("RoomInformation", tagElement);   
 
                 // condo 프로시저 실행
                 intAID = Integer.parseInt(hotelStoryMapper.insertAccomm(strPropertyId, strPropertyName, strAddress, strPhone, strNumRooms, strLocation, strHomePageUrl, strCheckInTime, strCheckOutTime
