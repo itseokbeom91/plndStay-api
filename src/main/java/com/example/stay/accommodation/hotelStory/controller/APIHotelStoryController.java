@@ -41,7 +41,6 @@ public class APIHotelStoryController {
     @Autowired
     private HotelStoryMapper hotelStoryMapper;
 
-//    private XmlUtility xmlUtility = new XmlUtility();
     @Autowired
     private XmlUtility xmlUtility;
 
@@ -180,7 +179,7 @@ public class APIHotelStoryController {
                     /**
                      * Image 구하기
                      */
-                    result += apiHotelstoryService.hotelStoryParsing(propertyElement,"Image", roomTypeListMap, ratePlanListMap);
+//                    result += apiHotelstoryService.hotelStoryParsing(propertyElement,"Image", roomTypeListMap, ratePlanListMap);
 
                     /**
                      * PropertyList 구하기
@@ -190,7 +189,7 @@ public class APIHotelStoryController {
                     /**
                      * Description 구하기(roomType, ratePlan)
                      */
-                    result += apiHotelstoryService.hotelStoryParsing(propertyElement,"Description", roomTypeListMap, ratePlanListMap);
+//                    result += apiHotelstoryService.hotelStoryParsing(propertyElement,"Description", roomTypeListMap, ratePlanListMap);
 
                 }
 

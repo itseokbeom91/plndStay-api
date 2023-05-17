@@ -5,6 +5,7 @@ import com.example.stay.accommodation.onda.mapper.AccomodationMapper;
 import com.example.stay.common.util.Constants;
 import com.example.stay.common.util.UrlResourceDownloader;
 import com.example.stay.common.util.XmlUtility;
+import com.example.stay.openMarket.common.dto.CancelInfoDto;
 import com.example.stay.openMarket.common.dto.ContentsPhotoDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -80,7 +81,7 @@ public class APIHotelstoryService {
 
 
             // 시설정보
-            if(tagList.equals("property")){
+//            if(tagList.equals("property")){
 
                 result += "PropertyId = " + xmlUtility.getTagValue("PropertyId", tagElement) + "<br>";
                 result += "PropertyName = " + xmlUtility.getTagValue("PropertyName", tagElement) + "<br>";
@@ -123,8 +124,184 @@ public class APIHotelstoryService {
                                                             , strLongitude, strLatitude, strCity, strPropertyDescription, strTrafficInformation, strRoomInformation));
 
                 //System.out.println("con_id = " + intAID);
+//            }
+
+            /**
+             * img 데이터 insert
+             */
+            NodeList imgList = tagElement.getElementsByTagName("Image");
+            for(int i=0; i<imgList.getLength(); i++){
+                Node node = imgList.item(i);
+
+                if(node.getNodeType() == Node.ELEMENT_NODE) {
+                    Element element = (Element) node;
+                    result += xmlUtility.getTagValue("ImageUrl",element)+"<br>";
+
+                    String strImage = xmlUtility.getTagValue("ImageUrl",element).toString();
+                    accommPhotoContentsReg(strImage, strPropertyId, xmlUtility.getTagValue("PropertyName", tagElement).toString(), String.valueOf(intAID));
+                }
             }
 
+            /**
+             * 취소규정 데이터 insert
+             */
+            CancelInfoDto cancelInfoDto = new CancelInfoDto();
+            cancelInfoDto.setStrCname(strPropertyName);
+            cancelInfoDto.setIntCid(intAID);
+
+            NodeList cancelList = tagElement.getElementsByTagName("CancelPenalty");
+            for(int i=0; i<cancelList.getLength(); i++){
+                Node node = cancelList.item(i);
+
+                if(node.getNodeType() == Node.ELEMENT_NODE) {
+                    Element element = (Element) node;
+
+                    if(element.getAttribute("Type").equals("1")){ // 비성수기
+                        cancelInfoDto.setStrCnFlag("of");
+                    }else{
+                        cancelInfoDto.setStrCnFlag("ps");
+                    }
+
+                    NodeList infoList = element.getElementsByTagName("Deadline");
+                    for(int j=0; j<infoList.getLength(); j++){
+                        Node infoNode = infoList.item(j);
+
+                        if(infoNode.getNodeType() == Node.ELEMENT_NODE){
+                            Element infoElement = (Element) infoNode;
+
+                            cancelInfoDto.setIntCnDcnt(Integer.parseInt(infoElement.getAttribute("Date")));
+                            cancelInfoDto.setIntCnPer(Integer.parseInt(infoElement.getAttribute("value")));
+                            accomodationMapper.cancelInfoReg(cancelInfoDto);
+                        }
+                    }
+
+
+                }
+            }
+
+            /**
+             * description(roomType, ratePlan) 데이터 insert
+             */
+            int intStep = 0; // 노출 순서
+            NodeList descList = tagElement.getElementsByTagName("Description");
+            for(int i=0; i<descList.getLength(); i++){
+                Node node = descList.item(i);
+                if(node.getNodeType() == Node.ELEMENT_NODE){
+                    Element element = (Element) node;
+
+                    result += "<br><br>|<br>";
+
+                    // 룸타입(tocon) 변수
+                    strRoomInformation = xmlUtility.getTagValue("RoomInformation", tagElement);
+                    String strRoomTypeId = xmlUtility.getTagValue("RoomTypeId",element);
+                    String strText = "";
+                    String strIngYn = "N";
+                    String strRoomTypeName = "";
+                    String strBedTypeCode = "";
+                    String strRatePlanId = "";
+                    String strRatePlanName = "";
+                    String strMealCode = "";
+                    int intSaleRate = 0;
+                    int intMinPersons = 0;
+                    int intMaxPersons = 0;
+
+
+                    // roomTypeList 값 넣기
+                    if(strRoomTypeId != null){
+
+                        strText = xmlUtility.getTagValue("Text", element);
+
+                        result += "RoomTypeId = " + strRoomTypeId + "<br>";
+                        result += "Text = " + strText + "<br>";
+
+
+                        // 룸타입 있으면(가용하는 룸타입일경우 )
+                        if(roomTypeMap.containsKey(strRoomTypeId) == true){
+                            intStep ++;
+                            result += "intStep = " + intStep +"<br>";
+                            result += "strIngYn = Y<br>";
+                            result += "RoomTypeName = "+roomTypeMap.get(strRoomTypeId).get("RoomTypeName")+"<br>";
+                            result += "BedTypeCode = "+roomTypeMap.get(strRoomTypeId).get("BedTypeCode")+"<br>";
+                            result += "MinPersons = "+roomTypeMap.get(strRoomTypeId).get("MinPersons")+"<br>";
+                            result += "MaxPersons = "+roomTypeMap.get(strRoomTypeId).get("MaxPersons")+"<br>";
+
+                            strIngYn = "Y";
+                            strRoomTypeName = roomTypeMap.get(strRoomTypeId).get("RoomTypeName").toString();
+                            intMinPersons = Integer.parseInt(roomTypeMap.get(strRoomTypeId).get("MinPersons").toString());
+                            intMaxPersons = Integer.parseInt(roomTypeMap.get(strRoomTypeId).get("MaxPersons").toString());
+
+                            int step = (strIngYn.equals("N"))? 150 : intStep;
+
+                            // tocon 프로시저 실행
+                            int toconIdx = Integer.parseInt(hotelStoryMapper.insertRoomType(strRoomTypeName, intAID, intMinPersons, intMaxPersons, strRoomTypeId, step, strIngYn, strText, strRoomInformation));
+
+                            //System.out.println("toconIdx = "+toconIdx);
+
+                            if(ratePlanMap.get(strRoomTypeId) != null){
+                                for(Map map : ratePlanMap.get(strRoomTypeId)){
+                                    result += "RatePlanId = "+map.get("RatePlanId")+"<br>";
+                                    result += "RatePlanName = "+map.get("RatePlanName")+"<br>";
+                                    result += "MealCode = "+map.get("MealCode")+"<br>";
+                                    result += "BedTypeCode = "+map.get("BedTypeCode")+"<br>";
+                                    result += "SaleRate = "+map.get("SaleRate")+"<br>";
+                                    result += "MinPersons = "+map.get("MinPersons")+"<br>";
+                                    result += "MaxPersons = "+map.get("MaxPersons")+"<br>";
+
+                                    strRatePlanId = map.get("RatePlanId").toString();
+                                    strRatePlanName = map.get("RatePlanName").toString();
+                                    strMealCode = map.get("MealCode").toString();
+                                    strBedTypeCode = map.get("BedTypeCode").toString();
+                                    intSaleRate = Integer.parseInt(map.get("SaleRate").toString());
+                                    intMinPersons = Integer.parseInt(map.get("MinPersons").toString());
+                                    intMaxPersons = Integer.parseInt(map.get("MaxPersons").toString());
+
+                                    // 배드타입
+                                    String strBedTypeString = "";
+                                    switch (strBedTypeCode){
+                                        case "1": strBedTypeString = "싱글";
+                                            break;
+                                        case "2": strBedTypeString = "더블";
+                                            break;
+                                        case "3": strBedTypeString = "트윈";
+                                            break;
+                                        case "4": strBedTypeString = "트리플";
+                                            break;
+                                        case "5": strBedTypeString = "온돌";
+                                            break;
+                                        case "6": strBedTypeString = "퓨전(온돌더블)";
+                                            break;
+                                        case "8": strBedTypeString = "스위트";
+                                            break;
+                                        case "9": strBedTypeString = "4베드";
+                                            break;
+                                        case "10": strBedTypeString = "패밀리트윈";
+                                            break;
+                                        case "11": strBedTypeString = "현지배정";
+                                            break;
+                                        case "13": strBedTypeString = "세미더블";
+                                            break;
+                                        case "15": strBedTypeString = "더블 더블";
+                                            break;
+                                        default: strBedTypeString = strBedTypeCode;
+                                    }
+
+                                    // rate_plan 프로시저 실행
+                                    String ratePlanIdx = hotelStoryMapper.insertRatePlan(intAID, strPropertyId, toconIdx, strRoomTypeId, strRatePlanId, strRatePlanName, strBedTypeString, strMealCode, intMinPersons, intMaxPersons, intSaleRate);
+
+                                    //System.out.println(ratePlanIdx);
+                                }
+                            }
+
+                        }else{
+                            result += "strIngYn = N";
+                        }
+
+                    }
+                }
+
+            }
+
+/*
             NodeList nodeList = tagElement.getElementsByTagName(tagList);
 
             // 데이터 담을 변수
@@ -262,6 +439,7 @@ public class APIHotelstoryService {
                     }
                 }
             }
+ */
 
 
             //result = result.replace("\n", "<br>");
@@ -293,7 +471,7 @@ public class APIHotelstoryService {
                     String code = cityElement.getElementsByTagName("CityCode").item(0).getTextContent();
 
                     if (code.equals(cityCode)) {
-                        // Get the CityName value
+
                         String cityName = cityElement.getElementsByTagName("CityName").item(0).getTextContent();
 
                         Node provinceNode = cityElement.getParentNode().getParentNode();
@@ -308,7 +486,6 @@ public class APIHotelstoryService {
             e.printStackTrace();
         }
 
-        // CityCode not found, return null or an appropriate value
         return null;
     }
 
@@ -326,7 +503,7 @@ public class APIHotelstoryService {
             /**
              * 임시로 하드코딩
              */
-            int intCreatedSID = 147; // 이미지 생성한사람 50 : 손유정(employ테이블)
+            int intCreatedSID = 147; // 이미지 생성한사람 147 : 이석범(employ테이블)
             int intModifiedSID = 147; // 이미지 수정한사람
 
             String[] filePathArr = strImage.split("/");
@@ -349,20 +526,23 @@ public class APIHotelstoryService {
                 // 이미지 저장
                 UrlResourceDownloader downloader = new UrlResourceDownloader(strFilePath, strImage);
                 downloader.urlFileDownload();
-            }else{
-                System.out.println("ALREADY EXISTS PHOTO");
-            }
 
-            contentsPhotoDto.setStrFilePath("/hotelStory/" + strAccommId + "/");
-            contentsPhotoDto.setIntCreatedSID(intCreatedSID);
-            contentsPhotoDto.setIntModifiedSID(intModifiedSID);
-            contentsPhotoDto.setStrSubject(strAccommName);
-            contentsPhotoDto.setStrCid(strConId);
+                contentsPhotoDto.setStrFilePath("/hotelStory/" + strAccommId + "/");
+                contentsPhotoDto.setIntCreatedSID(intCreatedSID);
+                contentsPhotoDto.setIntModifiedSID(intModifiedSID);
+                contentsPhotoDto.setStrSubject(strAccommName);
+                contentsPhotoDto.setStrCid(strConId);
 
-            String insertResult = accomodationMapper.accommPhotoContentsReg(contentsPhotoDto);
-//                if(insertResult == 0){
+                String insertResult = accomodationMapper.accommPhotoContentsReg(contentsPhotoDto);
+//                if(Integer.parseInt(insertResult) == 0){
 //                    System.out.println("INSERT CONTENTS_PHOTO FAIL");
 //                }
+                System.out.println(insertResult);
+            }else{
+                //System.out.println("ALREADY EXISTS PHOTO");
+            }
+
+
 
         }catch (Exception e){
             e.printStackTrace();
