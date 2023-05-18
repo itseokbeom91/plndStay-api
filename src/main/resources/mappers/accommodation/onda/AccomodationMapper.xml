@@ -42,4 +42,15 @@
     <select id="roomTypeRegist" parameterType="ToconDto" resultType="String">
         EXEC spGW_ROOMTYPE_REGIST_SUPPLIER 0, #{tocode}, #{conId}, ${standpeopleCnt}, ${standpeopleCnt}, #{roomTypeId}, ${admin_count}, #{strIngYN}, #{tocodeText}, '', ''
     </select>
+
+    <select id="getRoomAdminCnt" parameterType="String" resultType="int">
+        SELECT ISNULL(MAX(admin_count), 0)
+        FROM test_tocon
+        WHERE con_id = #{conId}
+    </select>
+
+    <select id="ratePlanRegist" parameterType="RatePlanDto" resultType="String">
+        EXEC spGW_RATEPLAN_REGIST_SUPPLIER 0, ${intConId}, #{strAccommId}, ${intToconIdx}, #{strRoomTypeId}, #{strRatePlanId}, #{strRatePlanId}, #{bedTypeCode}, #{strMealCode}, ${intMinPersons}, ${intMaxPersons}, 0, ''
+    </select>
+
 </mapper>

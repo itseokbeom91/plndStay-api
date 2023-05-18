@@ -5,6 +5,10 @@ import lombok.Data;
 @Data
 public class StockDto {
 
+    /**
+     * DB goods
+     */
+
     private String strGoodDate;
     private String strTocode;
     private int intOMKPrice;
