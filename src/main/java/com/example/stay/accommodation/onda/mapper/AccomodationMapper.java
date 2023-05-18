@@ -9,7 +9,7 @@ public interface AccomodationMapper {
 
 //    String selectCode(String con_flag);
 
-    String accommRegist(CondoDto accommDetail);
+    String accommRegist(String strAccommDetail);
 
     String accommPhotoContentsReg(ContentsPhotoDto contentsPhotoDto);
 
@@ -20,4 +20,14 @@ public interface AccomodationMapper {
     int getRoomAdminCnt(String conId);
 
     String ratePlanRegist(RatePlanDto ratePlanDto);
+
+    StockDto getIdxsByRatePlanId(String strRatePlanId);
+
+    String goodsRegist(StockDto stockDto);
+
+    String accommRegistTotal(String strAccommId, String strApiFlag,String strAccommName, String strZipcode
+            , String strAddress, String strConAddrNew, String strConTel, String strConFax, String location
+            , String strTimeIn, String strTimeOut, String strConDisplay, String strDecLng, String strDecLat
+            , String strUsageNotice, String strCity, String strNation, String strSummary, String strTags
+            , String strImgData, String strPenaltyData);
 }

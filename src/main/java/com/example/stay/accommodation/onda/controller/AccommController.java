@@ -91,17 +91,20 @@ public class AccommController {
     }
 
     /**
-     * ONDA에서 숙소정보 가져와서 INSERT
+     * ONDA에서 숙소정보 가져와서 INSERT - 최초 생성
      */
     @GetMapping("accommRegist")
-    public void accommRegist(){
+    public void firstAccommRegist(){
         String path = Constants.ondaPath + "properties?status=all";
 
-//        if(status != null){
-//            path += "?status=" +  status;
-//        }
+//        accommService.firstAccommRegist(path);
+    }
 
-        accommService.accommRegist(path);
+    @GetMapping("accommRegist")
+    public void accommRegist(String propertyId){
+//        String path = Constants.ondaPath + "properties?status=all";
+
+        accommService.accommRegist(propertyId);
     }
 
 //    @GetMapping("getAccommTotal")

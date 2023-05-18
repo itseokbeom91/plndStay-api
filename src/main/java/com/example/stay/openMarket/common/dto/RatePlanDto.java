@@ -4,6 +4,10 @@ import lombok.Data;
 
 @Data
 public class RatePlanDto {
+    /**
+     * DB test_rate_plan
+     */
+
     private int intConId;
     private String strAccommId;
     private int intToconIdx;
@@ -16,8 +20,5 @@ public class RatePlanDto {
     private int intMaxPersons;
     private int intPrice;
     private String strDelYn;
-//    private int intMinStay;
-//    private int intMaxStay;
-
 
 }

@@ -25,7 +25,7 @@
 <!--            AND strName = #{strName}-->
 <!--    </select>-->
 
-    <select id="accommRegist" parameterType="CondoDto" resultType="String">
+    <select id="accommRegist" parameterType="String" resultType="String">
         EXEC spGW_CONDO_REGIST_SUPPLIER 0, #{strAccommId}, #{strApiFlag}, #{strAcmName}, #{strZipCode}
         , #{strAddress}, #{strConAddrNew}, #{strConTel}, #{strConFax}, '', '', #{strLoc}, '', #{strTimeIn}, #{strTimeOut}
         , #{strConDisplay}, #{decLng}, #{decLat}, #{strUsageNotice}, #{strCity}, #{strNation}, #{strSummary}, '', '', #{strTagName}, ''
@@ -51,6 +51,25 @@
 
     <select id="ratePlanRegist" parameterType="RatePlanDto" resultType="String">
         EXEC spGW_RATEPLAN_REGIST_SUPPLIER 0, ${intConId}, #{strAccommId}, ${intToconIdx}, #{strRoomTypeId}, #{strRatePlanId}, #{strRatePlanId}, #{bedTypeCode}, #{strMealCode}, ${intMinPersons}, ${intMaxPersons}, 0, ''
+    </select>
+
+    <select id="getIdxsByRatePlanId" parameterType="String" resultType="StockDto">
+        SELECT
+               idx AS intRatePlanIdx,
+               intConId,
+               intToconIdx
+        FROM test_rate_plan
+        WHERE strRatePlanId = #{strRatePlanId}
+    </select>
+
+    <select id="goodsRegist" parameterType="StockDto" resultType="String">
+        EXEC spGW_GOODS_REGIST_SUPPLIER 0, ${intConId}, ${intToconIdx}, ${intRatePlanIdx}, ${intStock}, #{checkInDate}, ${intBasicPrice}, ${intSalePrice}, ${intMinStay}, ${intMaxStay}, ''
+    </select>
+
+    <select id="accommRegistTotal" parameterType="String" resultType="String">
+        EXEC spGW_CONDO_REGIST_TOTAL #{strAccommId}, #{strApiFlag}, #{strAcmName}, #{strZipCode}
+        , #{strAddress}, #{strConAddrNew}, #{strConTel}, #{strConFax}, '', '', #{strLoc}, '', #{strTimeIn}, #{strTimeOut}
+        , #{strConDisplay}, #{decLng}, #{decLat}, #{strUsageNotice}, #{strCity}, #{strNation}, #{strSummary}, '', '', #{strTagName}, #{strImgData}, #{strPenaltyData},0 , '', 0, '', ''
     </select>
 
 </mapper>
