@@ -215,5 +215,52 @@ public class APIHotelStoryController {
         return new ResponseEntity<String>(result, headers, HttpStatus.OK);
     }
 
+    @GetMapping("/webhook")
+    public ResponseEntity<String> getWebHook(String strXml) {
+
+        String result = "";
+
+        try{
+
+            strXml = "<?xml version=\"1.0\" encoding=\"utf-8\" ?><RequestPushAvailability>   <Auth>       <AuthId>hotelstory</AuthId>       <AuthKey>ghxpftmxhfl!@#</AuthKey>   </Auth>   <PropertyId>1001283</PropertyId>   <AvailabilityList>       <Availability>           <RoomTypeId>130724</RoomTypeId>           <RatePlanId>130725</RatePlanId>           <Dates>               <Date Allotment=\"50\" Price=\"154545\">2023-06-04</Date>               <Date Allotment=\"50\" Price=\"118182\">2023-06-05</Date>           </Dates>       </Availability>   </AvailabilityList></RequestPushAvailability>";
+            InputSource is = new InputSource(new StringReader(strXml));
+            is.setEncoding("UTF-8");
+            DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
+            DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
+            Document document = dBuilder.parse(is);
+
+            NodeList nodeList = document.getElementsByTagName("RequestPushAvailability");
+            for(int i=0; i<nodeList.getLength(); i++) {
+
+                Node node = nodeList.item(i);
+                if (node.getNodeType() == Node.ELEMENT_NODE) {
+
+                    // 노드를 사용할 수 있게 element로 변환
+                    Element element = (Element) node;
+                    System.out.println(xmlUtility.getTagValue("PropertyId", element));
+
+                    NodeList dateList = document.getElementsByTagName("Date");
+                    for(int j=0; j<dateList.getLength(); j++){
+                        Node dateNode = dateList.item(j);
+                        if(dateNode.getNodeType() == Node.ELEMENT_NODE){
+                            Element dateElement = (Element) dateNode;
+                            System.out.println(dateElement.getAttribute("Price"));
+                            System.out.println(dateNode.getTextContent());
+
+                        }
+                    }
+
+                }
+            }
+
+                }catch (Exception e){
+            e.printStackTrace();
+        }
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Content-Type", "text/html; charset=UTF-8");
+        return new ResponseEntity<String>(result, headers, HttpStatus.OK);
+
+    }
 
 }

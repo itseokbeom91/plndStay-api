@@ -120,8 +120,8 @@ public class APIHotelstoryService {
                 strRoomInformation = xmlUtility.getTagValue("RoomInformation", tagElement);   
 
                 // condo 프로시저 실행
-                intAID = Integer.parseInt(hotelStoryMapper.insertAccomm(strPropertyId, strPropertyName, strAddress, strPhone, strNumRooms, strLocation, strHomePageUrl, strCheckInTime, strCheckOutTime
-                                                            , strLongitude, strLatitude, strCity, strPropertyDescription, strTrafficInformation, strRoomInformation));
+//                intAID = Integer.parseInt(hotelStoryMapper.insertAccomm(strPropertyId, strPropertyName, strAddress, strPhone, strNumRooms, strLocation, strHomePageUrl, strCheckInTime, strCheckOutTime
+//                                                            , strLongitude, strLatitude, strCity, strPropertyDescription, strTrafficInformation, strRoomInformation));
 
                 //System.out.println("con_id = " + intAID);
 //            }
@@ -129,6 +129,7 @@ public class APIHotelstoryService {
             /**
              * img 데이터 insert
              */
+            String imgData = "";
             NodeList imgList = tagElement.getElementsByTagName("Image");
             for(int i=0; i<imgList.getLength(); i++){
                 Node node = imgList.item(i);
@@ -138,8 +139,14 @@ public class APIHotelstoryService {
                     result += xmlUtility.getTagValue("ImageUrl",element)+"<br>";
 
                     String strImage = xmlUtility.getTagValue("ImageUrl",element).toString();
-                    accommPhotoContentsReg(strImage, strPropertyId, xmlUtility.getTagValue("PropertyName", tagElement).toString(), String.valueOf(intAID));
+                    //accommPhotoContentsReg(strImage, strPropertyId, xmlUtility.getTagValue("PropertyName", tagElement).toString(), String.valueOf(intAID));
+                    imgData += photoTest(strImage, strPropertyId);
+
+
                 }
+            }
+            if(imgData.length() > 1){
+                imgData = imgData.substring(0, imgData.length()-5);
             }
 
             /**
@@ -149,6 +156,7 @@ public class APIHotelstoryService {
             cancelInfoDto.setStrCname(strPropertyName);
             cancelInfoDto.setIntCid(intAID);
 
+            String cancelData = "";
             NodeList cancelList = tagElement.getElementsByTagName("CancelPenalty");
             for(int i=0; i<cancelList.getLength(); i++){
                 Node node = cancelList.item(i);
@@ -156,8 +164,10 @@ public class APIHotelstoryService {
                 if(node.getNodeType() == Node.ELEMENT_NODE) {
                     Element element = (Element) node;
 
+                    String strCnFlag = "ps";
                     if(element.getAttribute("Type").equals("1")){ // 비성수기
                         cancelInfoDto.setStrCnFlag("of");
+                        strCnFlag = "of";
                     }else{
                         cancelInfoDto.setStrCnFlag("ps");
                     }
@@ -171,17 +181,27 @@ public class APIHotelstoryService {
 
                             cancelInfoDto.setIntCnDcnt(Integer.parseInt(infoElement.getAttribute("Date")));
                             cancelInfoDto.setIntCnPer(Integer.parseInt(infoElement.getAttribute("value")));
-                            accomodationMapper.cancelInfoReg(cancelInfoDto);
+                            //accomodationMapper.cancelInfoReg(cancelInfoDto);
+                            if(i+1 == cancelList.getLength()){
+                                cancelData += strCnFlag +"|^|"+ infoElement.getAttribute("Date") +"|^|"+ infoElement.getAttribute("value");
+                            }else{
+                                cancelData += strCnFlag +"|^|"+ infoElement.getAttribute("Date") +"|^|"+ infoElement.getAttribute("value") + "{{|}}";
+                            }
                         }
                     }
 
-
                 }
             }
+            System.out.println(imgData);
+            System.out.println(cancelData);
+
+            result += hotelStoryMapper.insertAccommtotal(strPropertyId, strPropertyName, strAddress, strPhone, strNumRooms, strLocation, strHomePageUrl, strCheckInTime, strCheckOutTime
+                    , strLongitude, strLatitude, strCity, strPropertyDescription, strTrafficInformation, strRoomInformation, imgData, cancelData);
 
             /**
              * description(roomType, ratePlan) 데이터 insert
              */
+            /*
             int intStep = 0; // 노출 순서
             NodeList descList = tagElement.getElementsByTagName("Description");
             for(int i=0; i<descList.getLength(); i++){
@@ -300,6 +320,7 @@ public class APIHotelstoryService {
                 }
 
             }
+            */
 
 /*
             NodeList nodeList = tagElement.getElementsByTagName(tagList);
@@ -547,6 +568,50 @@ public class APIHotelstoryService {
         }catch (Exception e){
             e.printStackTrace();
         }
+    }
+
+    public String photoTest(String strImage, String strAccommId){
+
+        String result = "";
+        try{
+            /**
+             * 임시로 하드코딩
+             */
+            int intCreatedSID = 147; // 이미지 생성한사람 147 : 이석범(employ테이블)
+            int intModifiedSID = 147; // 이미지 수정한사람
+
+            String[] filePathArr = strImage.split("/");
+            String strFileName = "";
+            for(int j=0; j< filePathArr.length; j++){
+                if(j == (filePathArr.length - 1)){
+                    strFileName = filePathArr[j];
+                }
+            }
+
+            // 경로에 폴더 생성 -> 있으면 생성 안시킴
+            Path directoryPath = Paths.get(Constants.hotelStoryFileDir + strAccommId + "\\");
+            Files.createDirectories(directoryPath);
+
+            // 파일 존재여부 체크
+            String strFilePath = Constants.hotelStoryFileDir + strAccommId + "\\" +  strFileName;
+            File file = new File(strFilePath);
+            if(!(file.exists())){
+                // 이미지 저장
+                UrlResourceDownloader downloader = new UrlResourceDownloader(strFilePath, strImage);
+                downloader.urlFileDownload();
+
+                result += "/hotelStory/" + strAccommId + "/" +"|^|"+ strFileName +"|^|"+ intCreatedSID +"|^|"+ intModifiedSID + "{{|}}";
+            }else{
+                //System.out.println("ALREADY EXISTS PHOTO");
+            }
+
+
+
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+        return result;
+
     }
 
 
