@@ -1,9 +1,6 @@
 package com.example.stay.accommodation.onda.mapper;
 
-import com.example.stay.openMarket.common.dto.CancelInfoDto;
-import com.example.stay.openMarket.common.dto.CondoDto;
-import com.example.stay.openMarket.common.dto.ContentsPhotoDto;
-import com.example.stay.openMarket.common.dto.ToconDto;
+import com.example.stay.openMarket.common.dto.*;
 import org.springframework.stereotype.Repository;
 
 @Repository
@@ -19,4 +16,8 @@ public interface AccomodationMapper {
     String cancelInfoReg(CancelInfoDto cancelInfoDto);
 
     String roomTypeRegist(ToconDto toconDto);
+
+    int getRoomAdminCnt(String conId);
+
+    String ratePlanRegist(RatePlanDto ratePlanDto);
 }

@@ -3,10 +3,7 @@ package com.example.stay.accommodation.onda.service;
 import com.example.stay.accommodation.onda.mapper.AccomodationMapper;
 import com.example.stay.common.util.Constants;
 import com.example.stay.common.util.UrlResourceDownloader;
-import com.example.stay.openMarket.common.dto.CancelInfoDto;
-import com.example.stay.openMarket.common.dto.CondoDto;
-import com.example.stay.openMarket.common.dto.ContentsPhotoDto;
-import com.example.stay.openMarket.common.dto.ToconDto;
+import com.example.stay.openMarket.common.dto.*;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
@@ -250,14 +247,6 @@ public class AccommService {
                 JSONObject responseJson = (JSONObject) jsonParser.parse(responseBody);
 
                 jsonObject = (JSONObject) responseJson.get("rateplan");
-//
-//                // dto에 담기
-//                JSONObject lengthOfStay = (JSONObject) responseJson.get("length_of_stay");
-//
-//                JSONObject salesTerms = (JSONObject) responseJson.get("sales_terms");
-//
-//                JSONObject meal = (JSONObject) responseJson.get("meal");
-
             }
         }catch (Exception e){
             e.printStackTrace();
@@ -266,24 +255,24 @@ public class AccommService {
         return jsonObject;
     }
 
+    // onda 최초 등록 시 사용
     public void accommRegist(String path){
-        String strConId = "";
-        String strToconIdx = "";
+        List<String> conIdList = new ArrayList<>();
+        List<String> accommIdList = new ArrayList<>();
+        List<String> toconIdxList = new ArrayList<>();
 
         // 전체 숙소 id, 해당 id별 숙소 상세정보 불러오기
         List<JSONObject> accommList = getAccommListApi(path);
 
         List<String> propertyIdList = new ArrayList<>();
-        for(JSONObject list : accommList){
-            String propertyId = list.get("id").toString();
-            propertyIdList.add(propertyId);
-            System.out.println("propertyId : " + propertyId);
-        }
-
         // 숙소 정보 INSERT
         try{
-            for(String id : propertyIdList){
-                JSONObject accommDetailJson = getAccommDetailApi(id);
+            for(JSONObject list : accommList){
+                String propertyId = list.get("id").toString();
+                propertyIdList.add(propertyId);
+                System.out.println("propertyId : " + propertyId);
+
+                JSONObject accommDetailJson = getAccommDetailApi(propertyId);
                 System.out.println("accommDetailJson : " + accommDetailJson);
 
                 // dto에 담기
@@ -291,6 +280,7 @@ public class AccommService {
 
                 String strAccommId = accommDetailJson.get("id").toString();
                 accommDetail.setStrAccommId(strAccommId);
+                accommIdList.add(strAccommId);
                 String strAccommName = accommDetailJson.get("name").toString();
                 accommDetail.setStrAcmName(strAccommName);
 
@@ -336,7 +326,7 @@ public class AccommService {
 //                    accommDetail.setStrFlag(code);
 //                }
 
-                // 어차피 다 태그니까 한 번에 몰아넣자 tags 컬럼에.
+                // 어차피 다 태그니까 한 번에 몰아넣자 tags 컬럼에
                 JSONObject tags = (JSONObject) accommDetailJson.get("tags");
                 JSONArray properties = (JSONArray) tags.get("properties") ;
                 JSONArray facilities = (JSONArray) tags.get("facilities");
@@ -378,8 +368,9 @@ public class AccommService {
                 }
 
                 accommDetail.setStrApiFlag("ONDA");
-                //------------------------------------------------------------------------------------------------------
-                strConId = accomodationMapper.accommRegist(accommDetail);
+
+                String strConId = accomodationMapper.accommRegist(accommDetail);
+                conIdList.add(strConId);
                 System.out.println("con_id : " + strConId);
 
                 // 이미지------------------------------------------------------------------------------------------------
@@ -431,57 +422,199 @@ public class AccommService {
 //                if(cancelInfoRegResult == 0){
 //                    System.out.println("INSERT TBL_CANCEL_INFO_ROW FAIL");
 //                }
+            }
+            System.out.println("시설정보, 이미지, 취소규정 INSERT SUCCESS");
+        }catch (Exception e){
+            e.printStackTrace();
+            System.out.println("시설정보, 이미지, 취소규정 INSERT FAIL");
+        }
 
+        // 룸타입정보 INSERT
+        List<String> roomTypeIdList = new ArrayList<>();
+        List<JSONObject> bedtypeList = new ArrayList<>();
+        List<Integer> standPeopleCntList = new ArrayList<>();
+        List<Integer> maxPeopleCntList = new ArrayList<>();
+        try{
+            for(int i=0; i<conIdList.size(); i++){
+                String strPropertyId = propertyIdList.get(i);
+                List<JSONObject> roomTypeList = getRoomTypeListApi(strPropertyId);
 
-
-                // 룸타입정보 INSERT
-                List<JSONObject> roomTypeList = getRoomTypeListApi(id);
-
-                List<String> roomTypeIdList = new ArrayList<>();
-                for(JSONObject list : roomTypeList){
+                int intAdminCount = 1;
+                for (JSONObject list : roomTypeList) {
                     String roomTypeId = list.get("id").toString();
                     roomTypeIdList.add(roomTypeId);
                     System.out.println("roomTypeId : " + roomTypeId);
-                }
 
-                int intAdminCount = 1;
-                for(String roomTypeId : roomTypeIdList){
-                    JSONObject roomDetailJson = getRoomTypeDetail(id, roomTypeId);
+                    JSONObject roomDetailJson = getRoomTypeDetail(strPropertyId, roomTypeId);
                     System.out.println("roomTypeDetailJson : " + roomDetailJson);
 
                     // dto에 담기
                     ToconDto roomDetail = new ToconDto();
 
                     roomDetail.setRoomTypeId(roomTypeId);
-                    roomDetail.setConId(strConId);
+                    roomDetail.setConId(conIdList.get(i));
 
                     roomDetail.setTocode(roomDetailJson.get("name").toString());
 
                     JSONObject capacity = (JSONObject) roomDetailJson.get("capacity");
                     roomDetail.setStandpeopleCnt(Integer.parseInt(capacity.get("standard").toString()));
+                    standPeopleCntList.add(Integer.parseInt(capacity.get("standard").toString()));
                     roomDetail.setMaxpeopleCnt(Integer.parseInt(capacity.get("max").toString()));
+                    maxPeopleCntList.add(Integer.parseInt(capacity.get("max").toString()));
 
                     // ONDA는 별도의 내부 순서를 주지 않으므로 불러오는 순서대로 임의로 줌
-                    roomDetail.setAdmin_count(intAdminCount);
-                    intAdminCount +=1;
+                    // con_id로 먼저 등록되어있는 admin_count확인 후 추가
+                    int roomAdminCnt = accomodationMapper.getRoomAdminCnt(conIdList.get(i));
+                    if(roomAdminCnt > 0){
+                        roomDetail.setAdmin_count((roomAdminCnt+1));
+                    }else{
+                        roomDetail.setAdmin_count(intAdminCount);
+                        intAdminCount += 1;
+                    }
 
                     String strRoomTypeStatus = roomDetailJson.get("status").toString();
                     roomDetail.setStrIngYN(getStatusYn(strRoomTypeStatus));
 
                     roomDetail.setTocodeText(roomDetailJson.get("description").toString());
 
-                    strToconIdx = accomodationMapper.roomTypeRegist(roomDetail);
+                    bedtypeList.add((JSONObject) roomDetailJson.get("bedtype"));
+
+                    String strToconIdx = accomodationMapper.roomTypeRegist(roomDetail);
+                    toconIdxList.add(strToconIdx);
                     System.out.println("tocon_idx : " + strToconIdx);
 
                 }
             }
+            System.out.println("룸타입 정보 INSERT SUCCESS");
         }catch (Exception e){
             e.printStackTrace();
-            System.out.println("숙소 정보 INSERT FAIL");
+            System.out.println("룸타입 정보 INSERT FAIL");
         }
 
+        // 패키지(RatePlan) INSERT
+        List<String> ratePlanIdList = new ArrayList<>();
+        try{
+            for(int i=0; i<conIdList.size(); i++){
+                String strPropertyId = propertyIdList.get(i);
+                for(int j=0; j<roomTypeIdList.size(); j++){
+                    String roomTypeId = roomTypeIdList.get(j);
+                    List<JSONObject> ratePlanList = getPackageList(strPropertyId, roomTypeId);
+
+                    for(int k=0; k<ratePlanList.size(); k++){
+                        String ratePlanId = ratePlanList.get(k).get("id").toString();
+                        ratePlanIdList.add(ratePlanId);
+                        System.out.println("ratePlanId : " + ratePlanId);
+
+                        JSONObject ratePlanDtlJson = getPackageDetail(strPropertyId, roomTypeId, ratePlanId);
+
+                        RatePlanDto ratePlanDetail = new RatePlanDto();
+
+                        ratePlanDetail.setIntConId(Integer.parseInt(conIdList.get(i)));
+                        ratePlanDetail.setStrAccommId(accommIdList.get(i));
+                        ratePlanDetail.setIntToconIdx(Integer.parseInt(toconIdxList.get(j)));
+                        ratePlanDetail.setStrRoomTypeId(roomTypeId);
+                        ratePlanDetail.setStrRatePlanId(ratePlanId);
+                        ratePlanDetail.setStrRatePlanName(ratePlanDtlJson.get("name").toString());
+
+                        JSONObject bedTypeJson = bedtypeList.get(j);
+
+                        String strBedType = "";
+
+                        String single = "싱글";
+                        String super_single = "슈퍼싱글";
+                        String double_bed = "더블";
+                        String queen = "퀸";
+                        String king = "킹";
+                        String sofa = "소파베드";
+                        String air = "에어베드";
+
+                        int single_cnt = Integer.parseInt(bedTypeJson.get("single_beds").toString());
+                        int super_single_cnt = Integer.parseInt(bedTypeJson.get("super_single_beds").toString());
+                        int double_cnt = Integer.parseInt(bedTypeJson.get("double_beds").toString());
+                        int queen_cnt = Integer.parseInt(bedTypeJson.get("queen_beds").toString());
+                        int king_cnt = Integer.parseInt(bedTypeJson.get("king_beds").toString());
+                        int sofa_cnt = Integer.parseInt(bedTypeJson.get("sofa_beds").toString());
+                        int air_cnt = Integer.parseInt(bedTypeJson.get("air_beds").toString());
+
+                        if(single_cnt > 0){
+                            for(int l=0; l<single_cnt; l++){
+                                if(single_cnt == 1){
+                                    strBedType += single + " ";
+                                    break;
+                                }else if(single_cnt == 3){
+                                    strBedType += "트리플" + " ";
+                                    break;
+                                }else{
+                                    strBedType += single + " ";
+                                }
+                            }
+                        }else if(super_single_cnt > 0){
+                            for(int l=0; l<super_single_cnt; l++){
+                                strBedType += super_single + " ";
+                            }
+                        }else if(double_cnt > 0){
+                            for(int l=0; l<double_cnt; l++){
+                                strBedType += double_bed + " ";
+                            }
+                        }else if(queen_cnt > 0){
+                            for(int l=0; l<queen_cnt; l++){
+                                strBedType += queen + " ";
+                            }
+                        }else if(king_cnt > 0){
+                            for(int l=0; l<king_cnt; l++){
+                                strBedType += king + " ";
+                            }
+                        }else if(sofa_cnt > 0){
+                            for(int l=0; l<sofa_cnt; l++){
+                                strBedType += sofa + " ";
+                            }
+                        }else if(air_cnt > 0){
+                            for(int l=0; l<air_cnt; l++){
+                                strBedType += air + " ";
+                            }
+                        }
+
+                        ratePlanDetail.setBedTypeCode(strBedType);
+
+                        JSONObject mealJson = (JSONObject) ratePlanDtlJson.get("meal");
+                        boolean breakfastYn = (boolean) mealJson.get("breakfast");
+                        if(breakfastYn){
+                            ratePlanDetail.setStrMealCode("Y");
+                        }else{
+                            ratePlanDetail.setStrMealCode("N");
+                        }
+
+                        ratePlanDetail.setIntMinPersons(standPeopleCntList.get(j));
+                        ratePlanDetail.setIntMaxPersons(maxPeopleCntList.get(j));
+
+//                        JSONObject lengthOfStay = (JSONObject) ratePlanDtlJson.get("length_of_stay");
+//                        ratePlanDetail.setIntMinStay(Integer.parseInt(lengthOfStay.get("min").toString()));
+//                        ratePlanDetail.setIntMaxStay(Integer.parseInt(lengthOfStay.get("max").toString()));
+
+                        String strRatePlanIdx = accomodationMapper.ratePlanRegist(ratePlanDetail);
+                        System.out.println("strRatePlanIdx : " + strRatePlanIdx);
+                    }
+                }
+            }
+            System.out.println("패키지(RatePlan) 정보 INSERT SUCCESS");
+        }catch (Exception e){
+            e.printStackTrace();
+            System.out.println("패키지(RatePlan) 정보 INSERT FAIL");
+        }
+
+        // 요금 및 재고(Inventory) INSERT
+        try{
+            for(String ratePlanId : ratePlanIdList){
+
+            }
 
 
+
+            System.out.println("요금 및 재고(Inventory) INSERT SUCCESS");
+        }catch (Exception e){
+            e.printStackTrace();
+            System.out.println("요금 및 재고(Inventory) INSERT FAIL");
+        }
 
     }
 
@@ -513,6 +646,21 @@ public class AccommService {
                     JSONObject jsonObject = (JSONObject) inventoryArr.get(i);
                     inventoryArr.add(jsonObject);
                 }
+
+                for(Object inventories : inventoryArr){
+                    JSONObject inventoryJson = (JSONObject) inventories;
+
+                    StockDto inventory = new StockDto();
+
+                    inventory.setStrGoodDate(inventoryJson.get("date").toString());
+
+                }
+
+
+
+
+
+
 
             }
 
