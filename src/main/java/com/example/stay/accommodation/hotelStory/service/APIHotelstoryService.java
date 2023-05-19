@@ -115,9 +115,9 @@ public class APIHotelstoryService {
                 strCheckInTime = xmlUtility.getTagValue("CheckInTime", tagElement);
                 strCheckOutTime = xmlUtility.getTagValue("CheckOutTime", tagElement);
                 strCity = getCityNameByCode(cityDocument, cityCode)[0];
-                strPropertyDescription = xmlUtility.getTagValue("PropertyDescription", tagElement);
-                strTrafficInformation = xmlUtility.getTagValue("TrafficInformation", tagElement);
-                strRoomInformation = xmlUtility.getTagValue("RoomInformation", tagElement);   
+                strPropertyDescription = xmlUtility.getTagValue("PropertyDescription", tagElement).toString();
+                strTrafficInformation = xmlUtility.getTagValue("TrafficInformation", tagElement).toString();
+                strRoomInformation = xmlUtility.getTagValue("RoomInformation", tagElement).toString();
 
                 // condo 프로시저 실행
 //                intAID = Integer.parseInt(hotelStoryMapper.insertAccomm(strPropertyId, strPropertyName, strAddress, strPhone, strNumRooms, strLocation, strHomePageUrl, strCheckInTime, strCheckOutTime
@@ -182,26 +182,22 @@ public class APIHotelstoryService {
                             cancelInfoDto.setIntCnDcnt(Integer.parseInt(infoElement.getAttribute("Date")));
                             cancelInfoDto.setIntCnPer(Integer.parseInt(infoElement.getAttribute("value")));
                             //accomodationMapper.cancelInfoReg(cancelInfoDto);
-                            if(i+1 == cancelList.getLength()){
-                                cancelData += strCnFlag +"|^|"+ infoElement.getAttribute("Date") +"|^|"+ infoElement.getAttribute("value");
-                            }else{
-                                cancelData += strCnFlag +"|^|"+ infoElement.getAttribute("Date") +"|^|"+ infoElement.getAttribute("value") + "{{|}}";
-                            }
+                            cancelData += strCnFlag +"|^|"+ infoElement.getAttribute("Date") +"|^|"+ infoElement.getAttribute("value") + "{{|}}";
                         }
                     }
 
                 }
             }
-            System.out.println(imgData);
-            System.out.println(cancelData);
+            if(cancelData.length() > 1){
+                cancelData = cancelData.substring(0, cancelData.length()-5);
+            }
 
-            result += hotelStoryMapper.insertAccommtotal(strPropertyId, strPropertyName, strAddress, strPhone, strNumRooms, strLocation, strHomePageUrl, strCheckInTime, strCheckOutTime
-                    , strLongitude, strLatitude, strCity, strPropertyDescription, strTrafficInformation, strRoomInformation, imgData, cancelData);
 
             /**
              * description(roomType, ratePlan) 데이터 insert
              */
-            /*
+
+            String roomTypeData = "";
             int intStep = 0; // 노출 순서
             NodeList descList = tagElement.getElementsByTagName("Description");
             for(int i=0; i<descList.getLength(); i++){
@@ -212,7 +208,7 @@ public class APIHotelstoryService {
                     result += "<br><br>|<br>";
 
                     // 룸타입(tocon) 변수
-                    strRoomInformation = xmlUtility.getTagValue("RoomInformation", tagElement);
+                    //strRoomInformation = xmlUtility.getTagValue("RoomInformation", tagElement);
                     String strRoomTypeId = xmlUtility.getTagValue("RoomTypeId",element);
                     String strText = "";
                     String strIngYn = "N";
@@ -253,11 +249,12 @@ public class APIHotelstoryService {
                             int step = (strIngYn.equals("N"))? 150 : intStep;
 
                             // tocon 프로시저 실행
-                            int toconIdx = Integer.parseInt(hotelStoryMapper.insertRoomType(strRoomTypeName, intAID, intMinPersons, intMaxPersons, strRoomTypeId, step, strIngYn, strText, strRoomInformation));
+//                            int toconIdx = Integer.parseInt(hotelStoryMapper.insertRoomType(strRoomTypeName, intAID, intMinPersons, intMaxPersons, strRoomTypeId, step, strIngYn, strText, strRoomInformation));
 
                             //System.out.println("toconIdx = "+toconIdx);
-
+                            String ratePlanData = "";
                             if(ratePlanMap.get(strRoomTypeId) != null){
+
                                 for(Map map : ratePlanMap.get(strRoomTypeId)){
                                     result += "RatePlanId = "+map.get("RatePlanId")+"<br>";
                                     result += "RatePlanName = "+map.get("RatePlanName")+"<br>";
@@ -306,12 +303,20 @@ public class APIHotelstoryService {
                                     }
 
                                     // rate_plan 프로시저 실행
-                                    String ratePlanIdx = hotelStoryMapper.insertRatePlan(intAID, strPropertyId, toconIdx, strRoomTypeId, strRatePlanId, strRatePlanName, strBedTypeString, strMealCode, intMinPersons, intMaxPersons, intSaleRate);
-
+                                    //String ratePlanIdx = hotelStoryMapper.insertRatePlan(intAID, strPropertyId, toconIdx, strRoomTypeId, strRatePlanId, strRatePlanName, strBedTypeString, strMealCode, intMinPersons, intMaxPersons, intSaleRate);
+                                    ratePlanData += strRatePlanId +"|~|"+ strRatePlanName +"|~|"+ strBedTypeString +"|~|"+ strMealCode +"|~|"+ intMinPersons +"|~|"+ intMaxPersons +"{{~}}";
                                     //System.out.println(ratePlanIdx);
                                 }
+
+                            }
+                            if(ratePlanData.length() > 1){
+                                ratePlanData = ratePlanData.substring(0, ratePlanData.length()-5);
                             }
 
+
+
+                            roomTypeData += strRoomTypeName +"|^|"+ intMinPersons +"|^|"+ intMaxPersons +"|^|"+ strRoomTypeId +"|^|"+ step +"|^|"+ strIngYn +"|^|"+ strText +"|^|"+ strText +"|^|"+ ratePlanData +"{{|}}"; // strRoomInformation
+                            System.out.println(strRoomInformation);
                         }else{
                             result += "strIngYn = N";
                         }
@@ -320,7 +325,18 @@ public class APIHotelstoryService {
                 }
 
             }
-            */
+            if(roomTypeData.length() > 1){
+                roomTypeData = roomTypeData.substring(0, roomTypeData.length()-5);
+            }
+
+            // 프로시저 돌려
+//            System.out.println(imgData);
+//            System.out.println(cancelData);
+//            System.out.println(roomTypeData);
+
+            result += hotelStoryMapper.insertAccommtotal(strPropertyId, strPropertyName, strAddress, strPhone, strNumRooms, strLocation, strHomePageUrl, strCheckInTime, strCheckOutTime
+                    , strLongitude, strLatitude, strCity, strPropertyDescription, strTrafficInformation, strRoomInformation, imgData, cancelData, roomTypeData);
+
 
 /*
             NodeList nodeList = tagElement.getElementsByTagName(tagList);
