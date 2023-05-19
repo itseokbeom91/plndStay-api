@@ -69,17 +69,17 @@ public class AccommController {
     /**
      * 특정 객실의 전체 패키지 목록 가져오기
      */
-    @GetMapping("getPackageList")
-    public void getPackageList(String property_id, String roomtype_id){
-        accommService.getPackageList(property_id, roomtype_id);
+    @GetMapping("getRatePlanList")
+    public void getRatePlanList(String property_id, String roomtype_id){
+        accommService.getRatePlanList(property_id, roomtype_id);
     }
 
     /**
      * 특정 패키지의 상세 정보 가져오기
      */
-    @GetMapping("getPackageDetail")
-    public void getPackageDetail(String property_id, String roomtype_id, String rateplan_id){
-        accommService.getPackageDetail(property_id, roomtype_id, rateplan_id);
+    @GetMapping("getRatePlanDetail")
+    public void getRatePlanDetail(String property_id, String roomtype_id, String rateplan_id){
+        accommService.getRatePlanDetail(property_id, roomtype_id, rateplan_id);
     }
 
     /**
@@ -93,15 +93,18 @@ public class AccommController {
     /**
      * ONDA에서 숙소정보 가져와서 INSERT
      */
-    @GetMapping("accommRegist")
-    public void accommRegist(){
+    @GetMapping("accommRegistTotal")
+    public void accommRegistTotal(){
         String path = Constants.ondaPath + "properties?status=all";
 
-//        if(status != null){
-//            path += "?status=" +  status;
-//        }
+        accommService.accommRegistTotal(path);
+    }
 
-        accommService.accommRegist(path);
+    @GetMapping("updateAccomm")
+    public void updateAccomm(String propertyId){
+//        String path = Constants.ondaPath + "properties?status=all";
+
+        accommService.updateAccomm(propertyId);
     }
 
 //    @GetMapping("getAccommTotal")

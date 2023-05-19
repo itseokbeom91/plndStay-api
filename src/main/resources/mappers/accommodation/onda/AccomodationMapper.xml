@@ -4,14 +4,6 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="com.example.stay.accommodation.onda.mapper.AccomodationMapper">
-<!--    <select id="selectCondoByConId">-->
-<!--        SELECT-->
-<!--            con_name AS strAcmName-->
-<!--            , con_display AS strConDisplay-->
-<!--        FROM condo-->
-<!--        WHERE con_id = ${con_id}-->
-<!--&#45;&#45;         con_name = ${con_name}-->
-<!--    </select>-->
 
 <!--    <select id="selectCode" resultType="String">-->
 <!--        USE HAPPYDAYS-->
@@ -25,18 +17,11 @@
 <!--            AND strName = #{strName}-->
 <!--    </select>-->
 
-    <select id="accommRegist" parameterType="CondoDto" resultType="String">
-        EXEC spGW_CONDO_REGIST_SUPPLIER 0, #{strAccommId}, #{strApiFlag}, #{strAcmName}, #{strZipCode}
-        , #{strAddress}, #{strConAddrNew}, #{strConTel}, #{strConFax}, '', '', #{strLoc}, '', #{strTimeIn}, #{strTimeOut}
-        , #{strConDisplay}, #{decLng}, #{decLat}, #{strUsageNotice}, #{strCity}, #{strNation}, #{strSummary}, '', '', #{strTagName}, ''
-    </select>
 
-    <select id="accommPhotoContentsReg" parameterType="ContentsPhotoDto" resultType="String">
-        EXEC spGW_CONTENTS_PHOTO_REGIST_TEST<![CDATA[0, #{strSubject}, #{strFilePath}, #{strFileName}, ${intCreatedSID}, ${intModifiedSID}, #{strCid}, '']]>
-    </select>
-
-    <select id="cancelInfoReg" parameterType="CancelInfoDto" resultType="String">
-        EXEC spGW_CANCEL_INFO_REGIST_TEST ${intCid},<![CDATA[#{strCname}]]>, #{strCnFlag}, ${intCnDcnt}, ${intCnPer}, ''
+    <select id="accommUpdate" parameterType="map" resultType="String">
+        EXEC spGW_CONDO_REGIST_SUPPLIER #{accommDetail.strAccommId}, #{accommDetail.strApiFlag}, #{accommDetail.strAcmName}, #{accommDetail.strZipCode}
+        , #{accommDetail.strAddress}, #{accommDetail.strConAddrNew}, #{accommDetail.strConTel}, #{accommDetail.strConFax}, '', '', #{accommDetail.strLoc}, '', #{accommDetail.strTimeIn}, #{accommDetail.strTimeOut}, #{accommDetail.strConDisplay}
+        , #{accommDetail.decLng}, #{accommDetail.decLat}, #{accommDetail.strUsageNotice}, #{accommDetail.strCity}, #{accommDetail.strNation}, #{accommDetail.strSummary}, '', '', #{accommDetail.strTagName}, #{strImgData}, #{strPenaltyData}, '', '', '', '', ''
     </select>
 
     <select id="roomTypeRegist" parameterType="ToconDto" resultType="String">
@@ -44,13 +29,33 @@
     </select>
 
     <select id="getRoomAdminCnt" parameterType="String" resultType="int">
-        SELECT ISNULL(MAX(admin_count), 0)
-        FROM test_tocon
-        WHERE con_id = #{conId}
+        SELECT ISNULL(MAX(admin_count), 1)
+        FROM test_room_type RT WITH(NOLOCK)
+            JOIN test_condo C WITH(NOLOCK) ON RT.intCondoID = C.intCondoID
+        WHERE C.accomm_id = #{propertyId}
     </select>
 
     <select id="ratePlanRegist" parameterType="RatePlanDto" resultType="String">
         EXEC spGW_RATEPLAN_REGIST_SUPPLIER 0, ${intConId}, #{strAccommId}, ${intToconIdx}, #{strRoomTypeId}, #{strRatePlanId}, #{strRatePlanId}, #{bedTypeCode}, #{strMealCode}, ${intMinPersons}, ${intMaxPersons}, 0, ''
+    </select>
+
+    <select id="getIdxsByRatePlanId" parameterType="String" resultType="StockDto">
+        SELECT
+               idx AS intRatePlanIdx,
+               intConId,
+               intToconIdx
+        FROM test_rate_plan
+        WHERE strRatePlanId = #{strRatePlanId}
+    </select>
+
+    <select id="goodsRegist" parameterType="StockDto" resultType="String">
+        EXEC spGW_GOODS_REGIST_SUPPLIER 0, ${intConId}, ${intToconIdx}, ${intRatePlanIdx}, ${intStock}, #{checkInDate}, ${intBasicPrice}, ${intSalePrice}, ${intMinStay}, ${intMaxStay}, ''
+    </select>
+
+    <select id="accommRegistTotal" parameterType="map" resultType="String">
+        EXEC spGW_CONDO_REGIST_TOTAL #{accommDetail.strAccommId}, #{accommDetail.strApiFlag}, #{accommDetail.strAcmName}, #{accommDetail.strZipCode}
+        , #{accommDetail.strAddress}, #{accommDetail.strConAddrNew}, #{accommDetail.strConTel}, #{accommDetail.strConFax}, '', '', #{accommDetail.strLoc}, '', #{accommDetail.strTimeIn}, #{accommDetail.strTimeOut}, #{accommDetail.strConDisplay}
+        , #{accommDetail.decLng}, #{accommDetail.decLat}, #{accommDetail.strUsageNotice}, #{accommDetail.strCity}, #{accommDetail.strNation}, #{accommDetail.strSummary}, '', '', #{accommDetail.strTagName}, #{strImgData}, #{strPenaltyData}, #{strRoomDatas}, ''
     </select>
 
 </mapper>

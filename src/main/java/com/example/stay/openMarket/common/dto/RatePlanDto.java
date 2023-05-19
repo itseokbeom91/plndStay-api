@@ -4,11 +4,15 @@ import lombok.Data;
 
 @Data
 public class RatePlanDto {
-    private int intConId;
+    /**
+     * DB test_rate_plan
+     */
+
+    private int intCondoID;
     private String strAccommId;
-    private int intToconIdx;
+    private int intRoomID;
     private String strRoomTypeId;
-    private String strRatePlanId;
+    private String intRateID;
     private String strRatePlanName;
     private String bedTypeCode;
     private String strMealCode;
@@ -16,8 +20,5 @@ public class RatePlanDto {
     private int intMaxPersons;
     private int intPrice;
     private String strDelYn;
-//    private int intMinStay;
-//    private int intMaxStay;
-
 
 }

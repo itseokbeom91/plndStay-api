@@ -19,4 +19,19 @@ public class StockDto {
     private String strOMKFlag;
     private int intOMKNextStock;
     private int intPId;
+
+    /**
+     * DB test_goods
+     */
+
+    private int intGoodsID;
+    private int intCondoID;
+    private int intRoomID;
+    private int intRateID;
+    private int intStock;
+    private String checkInDate;
+    private int intBasicPrice;
+    private int intSalePrice;
+    private int intMinStay;
+    private int intMaxStay;
 }
