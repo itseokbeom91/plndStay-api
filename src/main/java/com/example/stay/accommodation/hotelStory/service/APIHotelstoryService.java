@@ -316,7 +316,7 @@ public class APIHotelstoryService {
 
 
                             roomTypeData += strRoomTypeName +"|^|"+ intMinPersons +"|^|"+ intMaxPersons +"|^|"+ strRoomTypeId +"|^|"+ step +"|^|"+ strIngYn +"|^|"+ strText +"|^|"+ strText +"|^|"+ ratePlanData +"{{|}}"; // strRoomInformation
-                            System.out.println(strRoomInformation);
+                            //System.out.println(strRoomInformation);
                         }else{
                             result += "strIngYn = N";
                         }
