@@ -49,7 +49,10 @@ public class ToconDto {
     private String dateCreated;
     private String roomTypeId;
 
+    /**
+     * DB test_room_type
+     */
 
-
-
+    private int intCondoID;
+    private int intRoomID;
 }

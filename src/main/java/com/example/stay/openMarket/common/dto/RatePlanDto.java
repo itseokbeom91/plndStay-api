@@ -8,11 +8,11 @@ public class RatePlanDto {
      * DB test_rate_plan
      */
 
-    private int intConId;
+    private int intCondoID;
     private String strAccommId;
-    private int intToconIdx;
+    private int intRoomID;
     private String strRoomTypeId;
-    private String strRatePlanId;
+    private String intRateID;
     private String strRatePlanName;
     private String bedTypeCode;
     private String strMealCode;

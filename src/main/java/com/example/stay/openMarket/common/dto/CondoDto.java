@@ -40,6 +40,12 @@ public class CondoDto {
     private String strConTel; // con_tel
     private String strConFax; // con_fax
 
+
+    /**
+     * test_condo
+     */
+    private String intCondoID;
+
     /**
      * SSGMapper
      */

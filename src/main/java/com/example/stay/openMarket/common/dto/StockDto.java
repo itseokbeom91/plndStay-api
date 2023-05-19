@@ -24,10 +24,10 @@ public class StockDto {
      * DB test_goods
      */
 
-    private int intGoodsIdx;
-    private int intConId;
-    private int intToconIdx;
-    private int intRatePlanIdx;
+    private int intGoodsID;
+    private int intCondoID;
+    private int intRoomID;
+    private int intRateID;
     private int intStock;
     private String checkInDate;
     private int intBasicPrice;

@@ -17,4 +17,9 @@ public class CancelInfoDto {
 
     private String cancelPolicyNotice; // 비수기 + 성수기 조합한 취소규정
 
+    /**
+     * DB test_tbl_cancel_info_row
+     */
+    private int intCondoID;
+
 }
