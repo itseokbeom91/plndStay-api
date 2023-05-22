@@ -20,7 +20,7 @@
 
     <select id="insertAccommtotal" resultType="string">
         exec dbo.spGW_CONDO_REGIST_TOTAL #{strPropertyId}, 'HS', #{strPropertyName}, '', #{strAddress}, '', #{strPhone}, '', #{strNumRooms}, '', #{strLocation}, #{strHomePageUrl}, #{strCheckInTime}, #{strCheckOutTime}
-        , 'Y', #{strLongitude}, #{strLatitude}, '', #{strCity}, '', #{strPropertyDescription}, #{strTrafficInformation}, #{strRoomInformation}, '', #{imgData}, #{cancelData}, '','','','',''
+        , 'Y', #{strLongitude}, #{strLatitude}, '', #{strCity}, '', #{strPropertyDescription}, #{strTrafficInformation}, #{strRoomInformation}, '', #{imgData}, #{cancelData}, #{roomTypeData},''
     </select>
 
 </mapper>
