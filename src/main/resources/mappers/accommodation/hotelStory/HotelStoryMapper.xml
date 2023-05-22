@@ -4,7 +4,7 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="com.example.stay.accommodation.hotelStory.mapper.HotelStoryMapper">
-
+<!--
     <select id="insertAccomm" resultType="string">
         exec dbo.spGW_CONDO_REGIST_SUPPLIER 0, #{strPropertyId}, 'HS', #{strPropertyName}, '', #{strAddress}, '', #{strPhone}, '', #{strNumRooms}, '', #{strLocation}, #{strHomePageUrl}, #{strCheckInTime}, #{strCheckOutTime}
                                             , 'Y', #{strLongitude}, #{strLatitude}, '', #{strCity}, '', #{strPropertyDescription}, #{strTrafficInformation}, #{strRoomInformation}, '', ''
@@ -17,10 +17,14 @@
     <select id="insertRatePlan" resultType="string">
         exec dbo.spGW_RATEPLAN_REGIST_SUPPLIER 0, #{intAID}, #{strAccommId}, #{intToconIdx}, #{strRoomTypeId}, #{strRatePlanId}, #{strRatePlanName}, #{strBedTypeCode}, #{strMealCode}, #{intMinPersons}, #{intMaxPersons}, #{intPrice}, ''
     </select>
-
+-->
     <select id="insertAccommtotal" resultType="string">
         exec dbo.spGW_CONDO_REGIST_TOTAL #{strPropertyId}, 'HS', #{strPropertyName}, '', #{strAddress}, '', #{strPhone}, '', #{strNumRooms}, '', #{strLocation}, #{strHomePageUrl}, #{strCheckInTime}, #{strCheckOutTime}
         , 'Y', #{strLongitude}, #{strLatitude}, '', #{strCity}, '', #{strPropertyDescription}, #{strTrafficInformation}, #{strRoomInformation}, '', #{imgData}, #{cancelData}, #{roomTypeData},''
+    </select>
+
+    <select id="insertGoods" resultType="String">
+        EXEC spGW_GOODS_REGIST_SUPPLIER #{strRatePlanID}, ${intStock}, #{strDate}, ${intBasicPrice}, ${intSalePrice}, 0, 0, ''
     </select>
 
 </mapper>

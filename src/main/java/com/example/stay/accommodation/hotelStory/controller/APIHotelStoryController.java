@@ -12,12 +12,15 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.transform.Transformer;
@@ -218,42 +221,25 @@ public class APIHotelStoryController {
     @GetMapping("/webhook")
     public ResponseEntity<String> getWebHook(String strXml) {
 
-        String result = "";
+        String result = "<ResponsePushAvailability>\n" +
+                "   <Error><ErrorCode>1010</ErrorCode><ErrorDescription><![CDATA[not is data]]></ErrorDescription></Error>\n" +
+                "</ResponsePushAvailability>";
 
         try{
 
-            strXml = "<?xml version=\"1.0\" encoding=\"utf-8\" ?><RequestPushAvailability>   <Auth>       <AuthId>hotelstory</AuthId>       <AuthKey>ghxpftmxhfl!@#</AuthKey>   </Auth>   <PropertyId>1001283</PropertyId>   <AvailabilityList>       <Availability>           <RoomTypeId>130724</RoomTypeId>           <RatePlanId>130725</RatePlanId>           <Dates>               <Date Allotment=\"50\" Price=\"154545\">2023-06-04</Date>               <Date Allotment=\"50\" Price=\"118182\">2023-06-05</Date>           </Dates>       </Availability>   </AvailabilityList></RequestPushAvailability>";
-            InputSource is = new InputSource(new StringReader(strXml));
-            is.setEncoding("UTF-8");
-            DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
-            DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
-            Document document = dBuilder.parse(is);
+            getClientIP(); // 클라이언트 IP 구하기
 
-            NodeList nodeList = document.getElementsByTagName("RequestPushAvailability");
-            for(int i=0; i<nodeList.getLength(); i++) {
+            strXml = "<?xml version=\"1.0\" encoding=\"utf-8\" ?><RequestPushAvailability>   <Auth>       <AuthId>hotelstory</AuthId>       <AuthKey>ghxpftmxhfl!@#</AuthKey>   </Auth>   <PropertyId>1000582</PropertyId>   <AvailabilityList>       <Availability>           <RoomTypeId>140148</RoomTypeId>           <RatePlanId>140149</RatePlanId>           <Dates>               <Date Allotment=\"0\" Price=\"54545\">2023-05-22</Date>               <Date Allotment=\"0\" Price=\"54545\">2023-05-23</Date>               <Date Allotment=\"0\" Price=\"54545\">2023-05-24</Date>               <Date Allotment=\"4\" Price=\"54545\">2023-05-25</Date>               <Date Allotment=\"4\" Price=\"81818\">2023-05-26</Date>               <Date Allotment=\"0\" Price=\"109091\">2023-05-27</Date>               <Date Allotment=\"1\" Price=\"90909\">2023-05-28</Date>               <Date Allotment=\"4\" Price=\"63636\">2023-05-29</Date>               <Date Allotment=\"4\" Price=\"63636\">2023-05-30</Date>               <Date Allotment=\"4\" Price=\"63636\">2023-05-31</Date>           </Dates>       </Availability>   </AvailabilityList></RequestPushAvailability>";
 
-                Node node = nodeList.item(i);
-                if (node.getNodeType() == Node.ELEMENT_NODE) {
+            Document document = apiHotelstoryService.getWebhook(strXml);;
 
-                    // 노드를 사용할 수 있게 element로 변환
-                    Element element = (Element) node;
-                    System.out.println(xmlUtility.getTagValue("PropertyId", element));
+            apiHotelstoryService.parsingGoods(document);
 
-                    NodeList dateList = document.getElementsByTagName("Date");
-                    for(int j=0; j<dateList.getLength(); j++){
-                        Node dateNode = dateList.item(j);
-                        if(dateNode.getNodeType() == Node.ELEMENT_NODE){
-                            Element dateElement = (Element) dateNode;
-                            System.out.println(dateElement.getAttribute("Price"));
-                            System.out.println(dateNode.getTextContent());
+            result = "<ResponsePushAvailability>\n" +
+                    "   <Success/>\n" +
+                    "</ResponsePushAvailability>";
 
-                        }
-                    }
-
-                }
-            }
-
-                }catch (Exception e){
+        }catch (Exception e){
             e.printStackTrace();
         }
 
@@ -261,6 +247,36 @@ public class APIHotelStoryController {
         headers.add("Content-Type", "text/html; charset=UTF-8");
         return new ResponseEntity<String>(result, headers, HttpStatus.OK);
 
+    }
+
+    public static String getClientIP() {
+        HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest();
+        String ip = request.getHeader("X-Forwarded-For");
+        System.out.println("> X-FORWARDED-FOR : " + ip);
+
+        if (ip == null) {
+            ip = request.getHeader("Proxy-Client-IP");
+            System.out.println("> Proxy-Client-IP : " + ip);
+        }
+        if (ip == null) {
+            ip = request.getHeader("WL-Proxy-Client-IP");
+            System.out.println(">  WL-Proxy-Client-IP : " + ip);
+        }
+        if (ip == null) {
+            ip = request.getHeader("HTTP_CLIENT_IP");
+            System.out.println("> HTTP_CLIENT_IP : " + ip);
+        }
+        if (ip == null) {
+            ip = request.getHeader("HTTP_X_FORWARDED_FOR");
+            System.out.println("> HTTP_X_FORWARDED_FOR : " + ip);
+        }
+        if (ip == null) {
+            ip = request.getRemoteAddr();
+            System.out.println("> getRemoteAddr : "+ip);
+        }
+        System.out.println("> Result : IP Address : "+ip);
+
+        return ip;
     }
 
 }
