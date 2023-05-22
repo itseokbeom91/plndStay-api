@@ -34,7 +34,7 @@
     </select>
 
     <select id="updateRoomNRatePlan" parameterType="String" resultType="String">
-        EXEC spGW_ROOMTYPE_UPDATE_SUPPLIER #{propertyId}, #{API_FLAG}, #strRoomNRatePlanDatas}
+        EXEC spGW_ROOMTYPE_UPDATE_SUPPLIER #{propertyId}, #{API_FLAG}, #{strRoomNRatePlanDatas}, ''
     </select>
 
     <select id="updateGoods" parameterType="StockDto" resultType="String">
@@ -46,6 +46,13 @@
         FROM test_room_type RT WITH(NOLOCK)
             JOIN test_condo C WITH(NOLOCK) ON RT.intCondoID = C.intCondoID
         WHERE C.accomm_id = #{propertyId}
+    </select>
+
+    <select id="getCondoIDByAccommId" parameterType="String">
+        SELECT intCondoID
+        FROM condo24.test_condo WITH(NOLOCK)
+        WHERE accomm_id = ${propertyId}
+            AND API_FLAG = "ONDA"
     </select>
 
 </mapper>

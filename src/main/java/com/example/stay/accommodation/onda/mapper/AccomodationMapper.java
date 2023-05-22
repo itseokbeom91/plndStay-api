@@ -27,7 +27,7 @@ public interface AccomodationMapper {
 
     int getRoomAdminCnt(String intCondoId);
 
-
+    String getCondoIDByAccommId(String propertyId);
 
 
 

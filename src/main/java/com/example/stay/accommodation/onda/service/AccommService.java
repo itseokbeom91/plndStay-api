@@ -241,10 +241,11 @@ public class AccommService {
     }
 
     // 시설, 룸타입, ratePlan 등록
-    public void insertAccommTotal(String path){
+    public void insertAccommTotal(){
+
         long startTime = System.currentTimeMillis();
         // 전체 숙소 리스트 불러오기
-        List<JSONObject> accommList = getAccommListApi(path);
+        List<JSONObject> accommList = getAccommListApi(Constants.ondaPath + "properties?status=all");
         try{
             for(JSONObject accomm : accommList){
                 String propertyId = accomm.get("id").toString();
@@ -258,7 +259,7 @@ public class AccommService {
                 int intAdminCount = 1;
                 for (JSONObject roomType : roomTypeList) {
                     String roomTypeId = roomType.get("id").toString();
-                    strRoomNRatePlanDatas = setRoomNRatePlanData(propertyId, roomTypeId, intAdminCount);
+                    strRoomNRatePlanDatas = setRoomNRatePlanData(propertyId, roomTypeId, intAdminCount, "");
 
                     intAdminCount += 1;
                 }
@@ -529,16 +530,22 @@ public class AccommService {
     }
 
     // 룸타입, ratePlan 등록 및 수정
-    public void updateRoomNRatePlan(String propertyId, String roomTypeId){
-        int intAdminCount = accomodationMapper.getRoomAdminCnt(propertyId);
-        String strRoomNRatePlanDatas = setRoomNRatePlanData(propertyId, roomTypeId, intAdminCount);
-        String API_FLAG = "ONDA";
+    public void updateRoomNRatePlan(String propertyId, String roomTypeId, String ratePlanId){
+        try{
+            int intAdminCount = accomodationMapper.getRoomAdminCnt(propertyId);
+            String strRoomNRatePlanDatas = setRoomNRatePlanData(propertyId, roomTypeId, intAdminCount, ratePlanId);
+            String API_FLAG = "ONDA";
 
-        String result = accomodationMapper.updateRoomNRatePlan(propertyId, API_FLAG, strRoomNRatePlanDatas);
+            String result = accomodationMapper.updateRoomNRatePlan(propertyId, API_FLAG, strRoomNRatePlanDatas);
+            System.out.println("result : " + result);
+        }catch (Exception e){
+            e.printStackTrace();
+            System.out.println("rooType, ratePlan 등록 및 수정 실패");
+        }
     }
 
     // 룸타입, ratePlan 데이터 세팅
-    public String setRoomNRatePlanData(String propertyId, String roomTypeId, int intAdminCount){
+    public String setRoomNRatePlanData(String propertyId, String roomTypeId, int intAdminCount, String ratePlanId){
         String strRoomNRatePlanData = "";
         try{
             JSONObject roomDetailJson = getRoomTypeDetail(propertyId, roomTypeId);
@@ -612,14 +619,33 @@ public class AccommService {
                 }
             }
 
-            List<JSONObject> ratePlanList = getRatePlanList(propertyId, roomTypeId);
+            // ratePlanId가 특정되어있으면 반복문X
             String strRatePlanDatas = "";
-            for(JSONObject ratePlan : ratePlanList){
-                String ratePlanId = ratePlan.get("id").toString();
+            if(ratePlanId.equals("")){
+                List<JSONObject> ratePlanList = getRatePlanList(propertyId, roomTypeId);
 
+                for(JSONObject ratePlan : ratePlanList){
+                    String strRatePlanId = ratePlan.get("id").toString();
+
+                    JSONObject ratePlanDtlJson = getRatePlanDetail(propertyId, roomTypeId, strRatePlanId);
+
+                    JSONObject mealJson = (JSONObject) ratePlanDtlJson.get("meal");
+                    boolean breakfastYn = (boolean) mealJson.get("breakfast");
+                    String strBreakFastYn = "";
+                    if(breakfastYn){
+                        strBreakFastYn = "Y";
+                    }else{
+                        strBreakFastYn = "N";
+                    }
+                    strRatePlanDatas += strRatePlanId + "|~|" + ratePlanDtlJson.get("name").toString() + "|~|" + strBedType + "|~|"
+                            + strBreakFastYn + "|~|" + 0 + "|~|" + 0 + "{{~}}";
+                }
+                strRatePlanDatas = strRatePlanDatas.substring(0, strRatePlanDatas.length()-5);
+
+            }else{
                 JSONObject ratePlanDtlJson = getRatePlanDetail(propertyId, roomTypeId, ratePlanId);
-
                 JSONObject mealJson = (JSONObject) ratePlanDtlJson.get("meal");
+
                 boolean breakfastYn = (boolean) mealJson.get("breakfast");
                 String strBreakFastYn = "";
                 if(breakfastYn){
@@ -630,9 +656,8 @@ public class AccommService {
 
                 strRatePlanDatas += ratePlanId + "|~|" + ratePlanDtlJson.get("name").toString() + "|~|" + strBedType + "|~|"
                         + strBreakFastYn + "|~|" + 0 + "|~|" + 0 + "{{~}}";
-            }
-            strRatePlanDatas = strRatePlanDatas.substring(0, strRatePlanDatas.length()-5);
 
+            }
             strRoomNRatePlanData += strRatePlanDatas + "{{|}}";
 
         }catch (Exception e){
@@ -754,6 +779,37 @@ public class AccommService {
         return status;
     }
 
+    public void webhookProcess(JSONObject bodyJson){
+        String event_type = bodyJson.get("event_type").toString();
+        JSONObject event_detail = (JSONObject) bodyJson.get("event_detail");
+        String target = event_detail.get("target").toString();
+        if(event_type.equals("contents_updated")){
+            if(target.equals("property")){
+                String propertyId = event_detail.get("property_id").toString();
+                // 기존에 있는 시설인지 확인
+                String condoID = accomodationMapper.getCondoIDByAccommId(propertyId);
 
+                // 있으면 update
+                if(condoID != null){
+                    updateAccomm(propertyId);
+                }else{ // 없으면 insert total
+                    insertAccommTotal();
+                }
+            }else if(target.equals("roomtype") || target.equals("rateplan")){
+                // roomType & ratePlane은 DB구조상 데이터 조합해서 넣어야하기 때문에 같이 수정
+                String propertyId = event_detail.get("property_id").toString();
+                String roomTypeId = event_detail.get("roomtype_id").toString();
+                String ratePlanId = "";
+                if(target.equals("rateplan")){
+                    ratePlanId = event_detail.get("rateplan_id").toString();
+                }
+                updateRoomNRatePlan(propertyId, roomTypeId, ratePlanId);
+            }
+        }else if(event_type.equals("status_updated")){
+
+        }else if(event_type.equals("inventory_updated")){
+
+        }
+    }
 
 }

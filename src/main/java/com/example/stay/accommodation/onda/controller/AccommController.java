@@ -2,22 +2,31 @@ package com.example.stay.accommodation.onda.controller;
 
 import com.example.stay.accommodation.onda.service.AccommService;
 import com.example.stay.common.util.Constants;
+import com.example.stay.common.util.StringEncrypter;
 import com.example.stay.common.util.XmlUtility;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonObject;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+import javax.servlet.http.HttpServletRequest;
+import java.io.BufferedReader;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.URLDecoder;
 import java.util.*;
 
 @Controller
@@ -87,9 +96,7 @@ public class AccommController {
      */
     @GetMapping("insertAccommTotal")
     public void insertAccommTotal(){
-        String path = Constants.ondaPath + "properties?status=all";
-
-        accommService.insertAccommTotal(path);
+        accommService.insertAccommTotal();
     }
 
     /**
@@ -108,7 +115,8 @@ public class AccommController {
      */
     @GetMapping("updateRoomNRatePlan")
     public void updateRoomNRatePlan(String propertyId, String roomTypeId){
-        accommService.updateRoomNRatePlan(propertyId, roomTypeId);
+        String ratePlanId = "";
+        accommService.updateRoomNRatePlan(propertyId, roomTypeId, ratePlanId);
     }
 
     /**
@@ -117,6 +125,87 @@ public class AccommController {
     @GetMapping("updateGoods")
     public void updateGoods(int rateplan_id, String from, String to){
         accommService.updateGoods(rateplan_id, from, to);
+    }
+
+    /**
+     * WEBHOOK AuthKey 발급
+     */
+    @GetMapping("webhookAuth")
+    public String webhookAuth(){
+        String authKey = "";
+        try{
+            StringEncrypter encrypter = new StringEncrypter("leezeno.com", "condo24.com");
+
+//            String encrypted = encrypter.encrypt("148|syjung618|손유정|yoojung.son@plnd.co.kr|05|07||210.206.23.116|1||");
+            authKey = encrypter.encrypt("onda_AuthKey_Regist");
+//            String decodeText = URLDecoder.decode(encrypted, "UTF-8");
+            System.out.println("authKey : " + authKey); // AuthKey : b/8waV7zIhA5w8O1BnpHhmikDvaCTnDFpJwmJVdkCbo=
+//            String decrypted = encrypter.decrypt(encrypted);
+//            System.out.println("decrypted : " + decrypted);
+
+//            JSONObject authKeyJson = new JSONObject();
+//            authKeyJson.put("Auth_key", encrypted);
+
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+
+        return authKey;
+
+    }
+
+
+    /**
+     * WEBHOOK
+     */
+    @PutMapping("webhook")
+    @ResponseBody
+    public ResponseEntity<Object> webhook(HttpServletRequest request){
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Content-Type", "application/json; charset=UTF-8");
+        HttpStatus httpStatus = HttpStatus.BAD_REQUEST;
+
+        Map<String,Object> responseMap = new HashMap<String,Object>();
+
+        try{
+            String authKey = request.getHeader("Authorization");
+            if(authKey.equals(Constants.webhookAuthKey)){
+                httpStatus = HttpStatus.OK;
+                responseMap.put("httpStatus", httpStatus.value());
+                responseMap.put("message", "success");
+
+                InputStream inputStream = request.getInputStream();
+                BufferedReader br = null;
+                StringBuilder stringBuilder = new StringBuilder();
+                String line = "";
+                if (inputStream != null) {
+                    br = new BufferedReader(new InputStreamReader(inputStream));
+                    //더 읽을 라인이 없을때까지 계속
+                    while ((line = br.readLine()) != null) {
+                        stringBuilder.append(line);
+                    }
+
+                    String strBody = stringBuilder.toString();
+                    System.out.println(strBody);
+                    JSONParser jsonParser = new JSONParser();
+                    JSONObject bodyJson = (JSONObject) jsonParser.parse(strBody);
+
+                    accommService.webhookProcess(bodyJson);
+
+                }else {
+                    System.out.println("Data 없음");
+                }
+
+
+            }else{
+                responseMap.put("httpStatus", httpStatus.value());
+                responseMap.put("message", "invaild_AuthKey");
+
+            }
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+        return new ResponseEntity<>(responseMap, headers, httpStatus);
     }
 
 
