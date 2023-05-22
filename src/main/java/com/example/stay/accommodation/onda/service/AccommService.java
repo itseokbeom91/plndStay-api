@@ -230,11 +230,7 @@ public class AccommService {
 //                System.out.println("responseBody : " + responseBody);
 
                 JSONParser jsonParser = new JSONParser();
-
-                jsonObject = (JSONObject) jsonParser.parse(responseBody);
-
                 JSONObject responseJson = (JSONObject) jsonParser.parse(responseBody);
-
                 jsonObject = (JSONObject) responseJson.get("rateplan");
             }
         }catch (Exception e){
@@ -244,77 +240,12 @@ public class AccommService {
         return jsonObject;
     }
 
-    public void insertInventories(int rateplan_id, String from, String to){
-        try{
-            OkHttpClient client = new OkHttpClient();
-
-            Request request = new Request.Builder()
-                    .url(Constants.ondaPath + "inventories?rateplan_id=" + rateplan_id + "&from=" + from + "&to=" + to)
-                    .get()
-                    .addHeader("accept", "application/json")
-                    .addHeader("Authorization", Constants.ondaAuth)
-                    .build();
-
-            Response response = client.newCall(request).execute();
-            if(response.isSuccessful()) {
-                // response 파싱
-                String responseBody = response.body().string();
-                System.out.println("responseBody : " + responseBody);
-
-                JSONParser jsonParser = new JSONParser();
-                JSONObject responseJson = (JSONObject) jsonParser.parse(responseBody);
-
-                JSONArray inventoryArr = (JSONArray) responseJson.get("inventories");
-
-                List<JSONObject> inventoryList = new ArrayList<>();
-                for(int i=0; i<inventoryArr.size(); i++){
-                    JSONObject jsonObject = (JSONObject) inventoryArr.get(i);
-                    inventoryList.add(jsonObject);
-                }
-
-                for(Object inventories : inventoryList){
-                    JSONObject inventoryJson = (JSONObject) inventories;
-
-                    // rateplan_id에 해당하는 정보 DB에서 불러오기
-                    StockDto idxDto = accomodationMapper.getIdxsByRatePlanId(rateplan_id);
-
-                    if(idxDto != null){
-                        int intCondoID = idxDto.getIntCondoID();
-                        int intRoomID = idxDto.getIntRoomID();
-                        int intRateID = idxDto.getIntRateID();
-                        int intStock = Integer.parseInt(inventoryJson.get("vacancy").toString());
-                        String strCheckInDate = inventoryJson.get("date").toString();
-                        int intBasicPrice = Integer.parseInt(inventoryJson.get("basic_price").toString());
-                        int intSalePrice = Integer.parseInt(inventoryJson.get("sale_price").toString());
-
-                        JSONObject lengthOfStay = (JSONObject) inventoryJson.get("length_of_stay");
-
-                        int intMinStay = Integer.parseInt(lengthOfStay.get("min").toString());
-                        int intMaxStay = Integer.parseInt(lengthOfStay.get("max").toString());
-
-                        String strGoodsIdx = accomodationMapper.insertGoods(intCondoID, intRoomID, intRateID,
-                                intStock, strCheckInDate, intBasicPrice, intSalePrice, intMinStay, intMaxStay);
-
-                        System.out.println("strGoodsIdx : " + strGoodsIdx);
-
-                    }else{
-                        System.out.println("해당하는 ratePlan이 없음. ratePlan 등록 필요");
-                    }
-                }
-            }else{
-                System.out.println("[onda API] 특정 패키지의 재고 및 요금 정보 가져오기 실패");
-            }
-
-        }catch(Exception e){
-            e.printStackTrace();
-        }
-    }
-
     // 시설, 룸타입, ratePlan 등록
-    public void insertAccommTotal(String path){
+    public void insertAccommTotal(){
+
         long startTime = System.currentTimeMillis();
         // 전체 숙소 리스트 불러오기
-        List<JSONObject> accommList = getAccommListApi(path);
+        List<JSONObject> accommList = getAccommListApi(Constants.ondaPath + "properties?status=all");
         try{
             for(JSONObject accomm : accommList){
                 String propertyId = accomm.get("id").toString();
@@ -328,7 +259,7 @@ public class AccommService {
                 int intAdminCount = 1;
                 for (JSONObject roomType : roomTypeList) {
                     String roomTypeId = roomType.get("id").toString();
-                    strRoomNRatePlanDatas = setRoomNRatePlanData(propertyId, roomTypeId, intAdminCount);
+                    strRoomNRatePlanDatas = setRoomNRatePlanData(propertyId, roomTypeId, intAdminCount, "");
 
                     intAdminCount += 1;
                 }
@@ -362,7 +293,7 @@ public class AccommService {
                 String strImgData = condoData.get("strImgData").toString();
                 String strPenaltyData = condoData.get("strPenaltyData").toString();
 
-                String result = accomodationMapper.accommRegistTotal(strAccommId, API_FLAG, strCondoName, strConZip,
+                String result = accomodationMapper.insertAccommTotal(strAccommId, API_FLAG, strCondoName, strConZip,
                         strConAddr1, strConAddr2, strConTel, strConFax, strConGekNum, strConFlag, strLocation, strHomepage,
                         strTimeIn, strTimeOut, strConDisplay, strMapX, strMapY, strMobileWarning, strCity, strNation,
                         strConDesc, strConAround, strConSookbak, strTagName, strImgData, strPenaltyData, strRoomNRatePlanDatas);
@@ -377,67 +308,53 @@ public class AccommService {
         }
     }
 
-    // CONTENTS_PHOTO, CONDO_PHOTO에 INSERT
-    public String accommPhotoContentsReg(String strImage, int intSize, String strAccommId, String strCondoName){
-        String strAccommPhotoContent = "";
+    // 시설 수정(시설+이미지+취소규정)
+    public void updateAccomm(String propertyId){
         try{
-            /**
-             * 임시로 하드코딩
-             */
-            int intCreatedSID = 50; // 이미지 생성한사람 50 : 손유정(employ테이블)
-            int intModifiedSID = 50; // 이미지 수정한사람
+            Map<String, Object> condoData = setCondoData(propertyId);
 
-            String[] filePathArr = strImage.split("/");
-            String strFileName = "";
-            for(int j=0; j< filePathArr.length; j++){
-                if(j == (filePathArr.length - 1)){
-                    strFileName = filePathArr[j];
-                }
-            }
+            String strAccommId = condoData.get("strAccommId").toString();
+            String API_FLAG = condoData.get("API_FLAG").toString();
+            String strCondoName = condoData.get("strCondoName").toString();
+            String strConZip = condoData.get("strConZip").toString();
+            String strConAddr1 = condoData.get("strConAddr1").toString();
+            String strConAddr2 = condoData.get("strConAddr2").toString();
+            String strConTel = condoData.get("strConTel").toString();
+            String strConFax = condoData.get("strConFax").toString();
+            String strConGekNum = condoData.get("strConGekNum").toString();
+            String strConFlag = condoData.get("strConFlag").toString();
+            String strLocation = condoData.get("strLocation").toString();
+            String strHomepage = condoData.get("strHomepage").toString();
+            String strTimeIn = condoData.get("strTimeIn").toString();
+            String strTimeOut = condoData.get("strTimeOut").toString();
+            String strConDisplay = condoData.get("strConDisplay").toString();
+            String strMapX = condoData.get("strMapX").toString();
+            String strMapY = condoData.get("strMapY").toString();
+            String strMobileWarning = condoData.get("strMobileWarning").toString();
+            String strCity = condoData.get("strCity").toString();
+            String strNation = condoData.get("strNation").toString();
+            String strConDesc = condoData.get("strConDesc").toString();
+            String strConAround = condoData.get("strConAround").toString();
+            String strConSookbak = condoData.get("strConSookbak").toString();
+            String strTagName = condoData.get("strTagName").toString();
 
-            // 경로에 폴더 생성 -> 있으면 생성 안시킴
-            Path directoryPath = Paths.get(Constants.ondaFileDir + strAccommId + "\\" + intSize + "\\");
-            Files.createDirectories(directoryPath);
+            String strImgData = condoData.get("strImgData").toString();
+            String strPenaltyData = condoData.get("strPenaltyData").toString();
 
-            // 파일 존재여부 체크
-            String filePath = Constants.ondaFileDir + strAccommId + "\\" + intSize + "\\" + strFileName;
-            File file = new File(filePath);
-            if(!(file.exists())){
-                // 이미지 저장
-                UrlResourceDownloader downloader = new UrlResourceDownloader(filePath, strImage);
-                downloader.urlFileDownload();
-            }else{
-                System.out.println("ALREADY EXISTS PHOTO");
-            }
+            String result = accomodationMapper.updateAccomm(strAccommId, API_FLAG, strCondoName, strConZip,
+                    strConAddr1, strConAddr2, strConTel, strConFax, strConGekNum, strConFlag, strLocation, strHomepage,
+                    strTimeIn, strTimeOut, strConDisplay, strMapX, strMapY, strMobileWarning, strCity, strNation,
+                    strConDesc, strConAround, strConSookbak, strTagName, strImgData, strPenaltyData);
 
-            String strFilePath = "/onda/" + strAccommId + "/" + intSize + "/";
-
-            strAccommPhotoContent = strFilePath + "|^|" + strFileName + "|^|" + intCreatedSID + "|^|"
-                                    + intModifiedSID;
+            System.out.println("result : " + result);
 
         }catch (Exception e){
             e.printStackTrace();
+            System.out.println("시설 수정 실패");
         }
-        return strAccommPhotoContent;
     }
 
-    public String getStatusYn(String strRoomTypeStatus){
-        String status = "";
-        if(strRoomTypeStatus.equals("disabled") || strRoomTypeStatus.equals("deleted")){
-            status = "N";
-        }else if(strRoomTypeStatus.equals("enabled")){
-            status = "Y";
-        }
-        return status;
-    }
-
-    // 시설 수정(시설+이미지+취소규정)
-    public void updateAccomm(String propertyId){
-        Map<String, Object> totalData = setCondoData(propertyId);
-        String result = accomodationMapper.accommUpdate(totalData);
-    }
-
-    // 시설 수정(시설+이미지+취소규정)
+    // 시설 생성 및 수정 데이터 세팅(시설+이미지+취소규정)
     public Map<String, Object> setCondoData(String propertyId){
         Map<String, Object> condoData = new HashMap<>();
         try{
@@ -611,13 +528,24 @@ public class AccommService {
 
         return condoData;
     }
-    public void updateRoomType(String propertyId, String roomTypeId){
-//        Map<String, Object> totalData = setRoomTypeData(propertyId, roomTypeId);
 
-//        String result = accomodationMapper.(totalData);
+    // 룸타입, ratePlan 등록 및 수정
+    public void updateRoomNRatePlan(String propertyId, String roomTypeId, String ratePlanId){
+        try{
+            int intAdminCount = accomodationMapper.getRoomAdminCnt(propertyId);
+            String strRoomNRatePlanDatas = setRoomNRatePlanData(propertyId, roomTypeId, intAdminCount, ratePlanId);
+            String API_FLAG = "ONDA";
+
+            String result = accomodationMapper.updateRoomNRatePlan(propertyId, API_FLAG, strRoomNRatePlanDatas);
+            System.out.println("result : " + result);
+        }catch (Exception e){
+            e.printStackTrace();
+            System.out.println("rooType, ratePlan 등록 및 수정 실패");
+        }
     }
 
-    public String setRoomNRatePlanData(String propertyId, String roomTypeId, int intAdminCount){
+    // 룸타입, ratePlan 데이터 세팅
+    public String setRoomNRatePlanData(String propertyId, String roomTypeId, int intAdminCount, String ratePlanId){
         String strRoomNRatePlanData = "";
         try{
             JSONObject roomDetailJson = getRoomTypeDetail(propertyId, roomTypeId);
@@ -691,14 +619,33 @@ public class AccommService {
                 }
             }
 
-            List<JSONObject> ratePlanList = getRatePlanList(propertyId, roomTypeId);
+            // ratePlanId가 특정되어있으면 반복문X
             String strRatePlanDatas = "";
-            for(JSONObject ratePlan : ratePlanList){
-                String ratePlanId = ratePlan.get("id").toString();
+            if(ratePlanId.equals("")){
+                List<JSONObject> ratePlanList = getRatePlanList(propertyId, roomTypeId);
 
+                for(JSONObject ratePlan : ratePlanList){
+                    String strRatePlanId = ratePlan.get("id").toString();
+
+                    JSONObject ratePlanDtlJson = getRatePlanDetail(propertyId, roomTypeId, strRatePlanId);
+
+                    JSONObject mealJson = (JSONObject) ratePlanDtlJson.get("meal");
+                    boolean breakfastYn = (boolean) mealJson.get("breakfast");
+                    String strBreakFastYn = "";
+                    if(breakfastYn){
+                        strBreakFastYn = "Y";
+                    }else{
+                        strBreakFastYn = "N";
+                    }
+                    strRatePlanDatas += strRatePlanId + "|~|" + ratePlanDtlJson.get("name").toString() + "|~|" + strBedType + "|~|"
+                            + strBreakFastYn + "|~|" + 0 + "|~|" + 0 + "{{~}}";
+                }
+                strRatePlanDatas = strRatePlanDatas.substring(0, strRatePlanDatas.length()-5);
+
+            }else{
                 JSONObject ratePlanDtlJson = getRatePlanDetail(propertyId, roomTypeId, ratePlanId);
-
                 JSONObject mealJson = (JSONObject) ratePlanDtlJson.get("meal");
+
                 boolean breakfastYn = (boolean) mealJson.get("breakfast");
                 String strBreakFastYn = "";
                 if(breakfastYn){
@@ -709,15 +656,160 @@ public class AccommService {
 
                 strRatePlanDatas += ratePlanId + "|~|" + ratePlanDtlJson.get("name").toString() + "|~|" + strBedType + "|~|"
                         + strBreakFastYn + "|~|" + 0 + "|~|" + 0 + "{{~}}";
-            }
-            strRatePlanDatas = strRatePlanDatas.substring(0, strRatePlanDatas.length()-5);
 
+            }
             strRoomNRatePlanData += strRatePlanDatas + "{{|}}";
 
         }catch (Exception e){
             e.printStackTrace();
         }
         return strRoomNRatePlanData;
+    }
+
+    // 특정 패키지의 재고 및 요금 정보 가져와서 insert or update
+    public void updateGoods(int rateplan_id, String from, String to){
+        long startTime = System.currentTimeMillis();
+        try{
+            OkHttpClient client = new OkHttpClient();
+
+            Request request = new Request.Builder()
+                    .url(Constants.ondaPath + "inventories?rateplan_id=" + rateplan_id + "&from=" + from + "&to=" + to)
+                    .get()
+                    .addHeader("accept", "application/json")
+                    .addHeader("Authorization", Constants.ondaAuth)
+                    .build();
+
+            Response response = client.newCall(request).execute();
+            if(response.isSuccessful()) {
+                // response 파싱
+                String responseBody = response.body().string();
+                System.out.println("responseBody : " + responseBody);
+
+                JSONParser jsonParser = new JSONParser();
+                JSONObject responseJson = (JSONObject) jsonParser.parse(responseBody);
+
+                JSONArray inventoryArr = (JSONArray) responseJson.get("inventories");
+
+                List<JSONObject> inventoryList = new ArrayList<>();
+                for(int i=0; i<inventoryArr.size(); i++){
+                    JSONObject jsonObject = (JSONObject) inventoryArr.get(i);
+                    inventoryList.add(jsonObject);
+                }
+
+                for(Object inventories : inventoryList){
+                    JSONObject inventoryJson = (JSONObject) inventories;
+
+                    int intStock = Integer.parseInt(inventoryJson.get("vacancy").toString());
+                    String strCheckInDate = inventoryJson.get("date").toString();
+                    int intBasicPrice = Integer.parseInt(inventoryJson.get("basic_price").toString());
+                    int intSalePrice = Integer.parseInt(inventoryJson.get("sale_price").toString());
+
+                    JSONObject lengthOfStay = (JSONObject) inventoryJson.get("length_of_stay");
+
+                    int intMinStay = Integer.parseInt(lengthOfStay.get("min").toString());
+                    int intMaxStay = Integer.parseInt(lengthOfStay.get("max").toString());
+
+                    String strGoodsIdx = accomodationMapper.updateGoods(rateplan_id, intStock, strCheckInDate,
+                            intBasicPrice, intSalePrice, intMinStay, intMaxStay);
+
+                    System.out.println("strGoodsIdx : " + strGoodsIdx);
+                }
+                System.out.println("재고 등록 실행 시간 : " + (System.currentTimeMillis()-startTime)/1000.0);
+            }else{
+                System.out.println("[onda API] 특정 패키지의 재고 및 요금 정보 가져오기 실패");
+            }
+
+        }catch(Exception e){
+            e.printStackTrace();
+        }
+    }
+
+    // CONTENTS_PHOTO, CONDO_PHOTO에 INSERT
+    public String accommPhotoContentsReg(String strImage, int intSize, String strAccommId, String strCondoName){
+        String strAccommPhotoContent = "";
+        try{
+            /**
+             * 임시로 하드코딩
+             */
+            int intCreatedSID = 50; // 이미지 생성한사람 50 : 손유정(employ테이블)
+            int intModifiedSID = 50; // 이미지 수정한사람
+
+            String[] filePathArr = strImage.split("/");
+            String strFileName = "";
+            for(int j=0; j< filePathArr.length; j++){
+                if(j == (filePathArr.length - 1)){
+                    strFileName = filePathArr[j];
+                }
+            }
+
+            // 경로에 폴더 생성 -> 있으면 생성 안시킴
+            Path directoryPath = Paths.get(Constants.ondaFileDir + strAccommId + "\\" + intSize + "\\");
+            Files.createDirectories(directoryPath);
+
+            // 파일 존재여부 체크
+            String filePath = Constants.ondaFileDir + strAccommId + "\\" + intSize + "\\" + strFileName;
+            File file = new File(filePath);
+            if(!(file.exists())){
+                // 이미지 저장
+                UrlResourceDownloader downloader = new UrlResourceDownloader(filePath, strImage);
+                downloader.urlFileDownload();
+            }else{
+                System.out.println("ALREADY EXISTS PHOTO");
+            }
+
+            String strFilePath = "/onda/" + strAccommId + "/" + intSize + "/";
+
+            strAccommPhotoContent = strFilePath + "|^|" + strFileName + "|^|" + intCreatedSID + "|^|"
+                                    + intModifiedSID;
+
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+        return strAccommPhotoContent;
+    }
+
+    // 상태값 세팅
+    public String getStatusYn(String strRoomTypeStatus){
+        String status = "";
+        if(strRoomTypeStatus.equals("disabled") || strRoomTypeStatus.equals("deleted")){
+            status = "N";
+        }else if(strRoomTypeStatus.equals("enabled")){
+            status = "Y";
+        }
+        return status;
+    }
+
+    public void webhookProcess(JSONObject bodyJson){
+        String event_type = bodyJson.get("event_type").toString();
+        JSONObject event_detail = (JSONObject) bodyJson.get("event_detail");
+        String target = event_detail.get("target").toString();
+        if(event_type.equals("contents_updated")){
+            if(target.equals("property")){
+                String propertyId = event_detail.get("property_id").toString();
+                // 기존에 있는 시설인지 확인
+                String condoID = accomodationMapper.getCondoIDByAccommId(propertyId);
+
+                // 있으면 update
+                if(condoID != null){
+                    updateAccomm(propertyId);
+                }else{ // 없으면 insert total
+                    insertAccommTotal();
+                }
+            }else if(target.equals("roomtype") || target.equals("rateplan")){
+                // roomType & ratePlane은 DB구조상 데이터 조합해서 넣어야하기 때문에 같이 수정
+                String propertyId = event_detail.get("property_id").toString();
+                String roomTypeId = event_detail.get("roomtype_id").toString();
+                String ratePlanId = "";
+                if(target.equals("rateplan")){
+                    ratePlanId = event_detail.get("rateplan_id").toString();
+                }
+                updateRoomNRatePlan(propertyId, roomTypeId, ratePlanId);
+            }
+        }else if(event_type.equals("status_updated")){
+
+        }else if(event_type.equals("inventory_updated")){
+
+        }
     }
 
 }

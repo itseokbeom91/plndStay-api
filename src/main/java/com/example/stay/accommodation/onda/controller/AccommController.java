@@ -2,22 +2,31 @@ package com.example.stay.accommodation.onda.controller;
 
 import com.example.stay.accommodation.onda.service.AccommService;
 import com.example.stay.common.util.Constants;
+import com.example.stay.common.util.StringEncrypter;
 import com.example.stay.common.util.XmlUtility;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonObject;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+import javax.servlet.http.HttpServletRequest;
+import java.io.BufferedReader;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.URLDecoder;
 import java.util.*;
 
 @Controller
@@ -27,85 +36,181 @@ public class AccommController {
     @Autowired
     private AccommService accommService;
 
-    /**
-     * 전체 숙소 목록 가져오기
-     */
-    @GetMapping("getAccommList")
-//    @RequestParam(value = "status", required = false) String status
-    public void getAccommList(){
-        String path = Constants.ondaPath + "properties?status=all";
+//    /**
+//     * 전체 숙소 목록 가져오기
+//     */
+//    @GetMapping("getAccommList")
+////    @RequestParam(value = "status", required = false) String status
+//    public void getAccommList(){
+//        String path = Constants.ondaPath + "properties?status=all";
+//
+////        if(status != null){
+////            path += "?status=" +  status;
+////        }
+//
+//        accommService.getAccommListApi(path);
+//    }
 
-//        if(status != null){
-//            path += "?status=" +  status;
-//        }
-
-        accommService.getAccommListApi(path);
-    }
-
-    /**
-     * 특정 숙소 상세정보 가져오기
-     */
-    @GetMapping("getAccommDetail")
-    public void getAccommDetail(String property_id){
-        accommService.getAccommDetailApi(property_id);
-    }
-
-    /**
-     * 특정 숙소 전체 객실 목록 가져오기
-     */
-    @GetMapping("getRoomtypeList")
-    public void getRoomTypeList(String property_id){
-        accommService.getRoomTypeListApi(property_id);
-    }
-
-    /**
-     * 특정 객실 상세정보 가져오기
-     */
-    @GetMapping("getRoomTypeDetail")
-    public void getRoomTypeDetail(String property_id, String roomtype_id){
-        accommService.getRoomTypeDetail(property_id, roomtype_id);
-    }
-
-    /**
-     * 특정 객실의 전체 패키지 목록 가져오기
-     */
-    @GetMapping("getRatePlanList")
-    public void getRatePlanList(String property_id, String roomtype_id){
-        accommService.getRatePlanList(property_id, roomtype_id);
-    }
-
-    /**
-     * 특정 패키지의 상세 정보 가져오기
-     */
-    @GetMapping("getRatePlanDetail")
-    public void getRatePlanDetail(String property_id, String roomtype_id, String rateplan_id){
-        accommService.getRatePlanDetail(property_id, roomtype_id, rateplan_id);
-    }
-
-    /**
-     * 특정 패키지의 재고 및 요금 정보 가져오기
-     */
-    @GetMapping("insertInventories")
-    public void insertInventories(int rateplan_id, String from, String to){
-        accommService.insertInventories(rateplan_id, from, to);
-    }
+//    /**
+//     * 특정 숙소 상세정보 가져오기
+//     */
+//    @GetMapping("getAccommDetail")
+//    public void getAccommDetail(String property_id){
+//        accommService.getAccommDetailApi(property_id);
+//    }
+//
+//    /**
+//     * 특정 숙소 전체 객실 목록 가져오기
+//     */
+//    @GetMapping("getRoomtypeList")
+//    public void getRoomTypeList(String property_id){
+//        accommService.getRoomTypeListApi(property_id);
+//    }
+//
+//    /**
+//     * 특정 객실 상세정보 가져오기
+//     */
+//    @GetMapping("getRoomTypeDetail")
+//    public void getRoomTypeDetail(String property_id, String roomtype_id){
+//        accommService.getRoomTypeDetail(property_id, roomtype_id);
+//    }
+//
+//    /**
+//     * 특정 객실의 전체 패키지 목록 가져오기
+//     */
+//    @GetMapping("getRatePlanList")
+//    public void getRatePlanList(String property_id, String roomtype_id){
+//        accommService.getRatePlanList(property_id, roomtype_id);
+//    }
+//
+//    /**
+//     * 특정 패키지의 상세 정보 가져오기
+//     */
+//    @GetMapping("getRatePlanDetail")
+//    public void getRatePlanDetail(String property_id, String roomtype_id, String rateplan_id){
+//        accommService.getRatePlanDetail(property_id, roomtype_id, rateplan_id);
+//    }
 
     /**
      * ONDA에서 숙소정보 가져와서 INSERT
      */
     @GetMapping("insertAccommTotal")
     public void insertAccommTotal(){
-        String path = Constants.ondaPath + "properties?status=all";
-
-        accommService.insertAccommTotal(path);
+        accommService.insertAccommTotal();
     }
 
+    /**
+     * 시설(시설+이미지+취소규정) 수정
+     * @param propertyId
+     */
     @GetMapping("updateAccomm")
     public void updateAccomm(String propertyId){
-//        String path = Constants.ondaPath + "properties?status=all";
-
         accommService.updateAccomm(propertyId);
     }
+
+    /**
+     * 룸타입, ratePlan 등록 및 수정
+     * @param propertyId
+     * @param roomTypeId
+     */
+    @GetMapping("updateRoomNRatePlan")
+    public void updateRoomNRatePlan(String propertyId, String roomTypeId){
+        String ratePlanId = "";
+        accommService.updateRoomNRatePlan(propertyId, roomTypeId, ratePlanId);
+    }
+
+    /**
+     * 특정 패키지의 재고 및 요금 정보 가져와서 insert or update
+     */
+    @GetMapping("updateGoods")
+    public void updateGoods(int rateplan_id, String from, String to){
+        accommService.updateGoods(rateplan_id, from, to);
+    }
+
+    /**
+     * WEBHOOK AuthKey 발급
+     */
+    @GetMapping("webhookAuth")
+    public String webhookAuth(){
+        String authKey = "";
+        try{
+            StringEncrypter encrypter = new StringEncrypter("leezeno.com", "condo24.com");
+
+//            String encrypted = encrypter.encrypt("148|syjung618|손유정|yoojung.son@plnd.co.kr|05|07||210.206.23.116|1||");
+            authKey = encrypter.encrypt("onda_AuthKey_Regist");
+//            String decodeText = URLDecoder.decode(encrypted, "UTF-8");
+            System.out.println("authKey : " + authKey); // AuthKey : b/8waV7zIhA5w8O1BnpHhmikDvaCTnDFpJwmJVdkCbo=
+//            String decrypted = encrypter.decrypt(encrypted);
+//            System.out.println("decrypted : " + decrypted);
+
+//            JSONObject authKeyJson = new JSONObject();
+//            authKeyJson.put("Auth_key", encrypted);
+
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+
+        return authKey;
+
+    }
+
+
+    /**
+     * WEBHOOK
+     */
+    @PutMapping("webhook")
+    @ResponseBody
+    public ResponseEntity<Object> webhook(HttpServletRequest request){
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Content-Type", "application/json; charset=UTF-8");
+        HttpStatus httpStatus = HttpStatus.BAD_REQUEST;
+
+        Map<String,Object> responseMap = new HashMap<String,Object>();
+
+        try{
+            String authKey = request.getHeader("Authorization");
+            if(authKey.equals(Constants.webhookAuthKey)){
+                httpStatus = HttpStatus.OK;
+                responseMap.put("httpStatus", httpStatus.value());
+                responseMap.put("message", "success");
+
+                InputStream inputStream = request.getInputStream();
+                BufferedReader br = null;
+                StringBuilder stringBuilder = new StringBuilder();
+                String line = "";
+                if (inputStream != null) {
+                    br = new BufferedReader(new InputStreamReader(inputStream));
+                    //더 읽을 라인이 없을때까지 계속
+                    while ((line = br.readLine()) != null) {
+                        stringBuilder.append(line);
+                    }
+
+                    String strBody = stringBuilder.toString();
+                    System.out.println(strBody);
+                    JSONParser jsonParser = new JSONParser();
+                    JSONObject bodyJson = (JSONObject) jsonParser.parse(strBody);
+
+                    accommService.webhookProcess(bodyJson);
+
+                }else {
+                    System.out.println("Data 없음");
+                }
+
+
+            }else{
+                responseMap.put("httpStatus", httpStatus.value());
+                responseMap.put("message", "invaild_AuthKey");
+
+            }
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+        return new ResponseEntity<>(responseMap, headers, httpStatus);
+    }
+
+
+
+
 
 //    @GetMapping("getAccommTotal")
 //    public ModelAndView getAccommTotal(){
