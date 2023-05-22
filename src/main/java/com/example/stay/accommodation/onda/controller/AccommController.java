@@ -85,19 +85,19 @@ public class AccommController {
     /**
      * 특정 패키지의 재고 및 요금 정보 가져오기
      */
-    @GetMapping("getInventories")
-    public void getInventories(String rateplan_id, String from, String to){
-        accommService.getInventories(rateplan_id, from, to);
+    @GetMapping("insertInventories")
+    public void insertInventories(int rateplan_id, String from, String to){
+        accommService.insertInventories(rateplan_id, from, to);
     }
 
     /**
      * ONDA에서 숙소정보 가져와서 INSERT
      */
-    @GetMapping("accommRegistTotal")
-    public void accommRegistTotal(){
+    @GetMapping("insertAccommTotal")
+    public void insertAccommTotal(){
         String path = Constants.ondaPath + "properties?status=all";
 
-        accommService.accommRegistTotal(path);
+        accommService.insertAccommTotal(path);
     }
 
     @GetMapping("updateAccomm")

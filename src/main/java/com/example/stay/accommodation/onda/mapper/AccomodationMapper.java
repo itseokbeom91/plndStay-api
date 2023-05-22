@@ -16,11 +16,15 @@ public interface AccomodationMapper {
 
     String ratePlanRegist(RatePlanDto ratePlanDto);
 
-    StockDto getIdxsByRatePlanId(String strRatePlanId);
+    StockDto getIdxsByRatePlanId(int strRatePlanId);
 
-    String goodsRegist(StockDto stockDto);
+    String insertGoods(int intCondoID, int intRoomID, int intRateID,
+                       int intStock, String strCheckInDate, int intBasicPrice, int intSalePrice, int intMinStay, int intMaxStay);
 
-    String accommRegistTotal(Map<String, Object> totalData);
+    String accommRegistTotal(String strAccommId, String API_FLAG, String strCondoName, String strConZip,
+                             String strConAddr1, String strConAddr2, String strConTel, String strConFax, String strConGekNum, String strConFlag, String strLocation, String strHomepage,
+                             String strTimeIn, String strTimeOut, String strConDisplay, String strMapX, String strMapY, String strMobileWarning, String strCity, String strNation,
+                             String strConDesc, String strConAround, String strConSookbak, String strTagName, String strImgData, String strPenaltyData, String strRoomNRatePlanDatas);
 
     String accommUpdate(Map<String, Object> totalData);
 
