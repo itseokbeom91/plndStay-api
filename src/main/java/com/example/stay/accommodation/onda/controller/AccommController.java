@@ -27,68 +27,60 @@ public class AccommController {
     @Autowired
     private AccommService accommService;
 
-    /**
-     * 전체 숙소 목록 가져오기
-     */
-    @GetMapping("getAccommList")
-//    @RequestParam(value = "status", required = false) String status
-    public void getAccommList(){
-        String path = Constants.ondaPath + "properties?status=all";
+//    /**
+//     * 전체 숙소 목록 가져오기
+//     */
+//    @GetMapping("getAccommList")
+////    @RequestParam(value = "status", required = false) String status
+//    public void getAccommList(){
+//        String path = Constants.ondaPath + "properties?status=all";
+//
+////        if(status != null){
+////            path += "?status=" +  status;
+////        }
+//
+//        accommService.getAccommListApi(path);
+//    }
 
-//        if(status != null){
-//            path += "?status=" +  status;
-//        }
-
-        accommService.getAccommListApi(path);
-    }
-
-    /**
-     * 특정 숙소 상세정보 가져오기
-     */
-    @GetMapping("getAccommDetail")
-    public void getAccommDetail(String property_id){
-        accommService.getAccommDetailApi(property_id);
-    }
-
-    /**
-     * 특정 숙소 전체 객실 목록 가져오기
-     */
-    @GetMapping("getRoomtypeList")
-    public void getRoomTypeList(String property_id){
-        accommService.getRoomTypeListApi(property_id);
-    }
-
-    /**
-     * 특정 객실 상세정보 가져오기
-     */
-    @GetMapping("getRoomTypeDetail")
-    public void getRoomTypeDetail(String property_id, String roomtype_id){
-        accommService.getRoomTypeDetail(property_id, roomtype_id);
-    }
-
-    /**
-     * 특정 객실의 전체 패키지 목록 가져오기
-     */
-    @GetMapping("getRatePlanList")
-    public void getRatePlanList(String property_id, String roomtype_id){
-        accommService.getRatePlanList(property_id, roomtype_id);
-    }
-
-    /**
-     * 특정 패키지의 상세 정보 가져오기
-     */
-    @GetMapping("getRatePlanDetail")
-    public void getRatePlanDetail(String property_id, String roomtype_id, String rateplan_id){
-        accommService.getRatePlanDetail(property_id, roomtype_id, rateplan_id);
-    }
-
-    /**
-     * 특정 패키지의 재고 및 요금 정보 가져오기
-     */
-    @GetMapping("insertInventories")
-    public void insertInventories(int rateplan_id, String from, String to){
-        accommService.insertInventories(rateplan_id, from, to);
-    }
+//    /**
+//     * 특정 숙소 상세정보 가져오기
+//     */
+//    @GetMapping("getAccommDetail")
+//    public void getAccommDetail(String property_id){
+//        accommService.getAccommDetailApi(property_id);
+//    }
+//
+//    /**
+//     * 특정 숙소 전체 객실 목록 가져오기
+//     */
+//    @GetMapping("getRoomtypeList")
+//    public void getRoomTypeList(String property_id){
+//        accommService.getRoomTypeListApi(property_id);
+//    }
+//
+//    /**
+//     * 특정 객실 상세정보 가져오기
+//     */
+//    @GetMapping("getRoomTypeDetail")
+//    public void getRoomTypeDetail(String property_id, String roomtype_id){
+//        accommService.getRoomTypeDetail(property_id, roomtype_id);
+//    }
+//
+//    /**
+//     * 특정 객실의 전체 패키지 목록 가져오기
+//     */
+//    @GetMapping("getRatePlanList")
+//    public void getRatePlanList(String property_id, String roomtype_id){
+//        accommService.getRatePlanList(property_id, roomtype_id);
+//    }
+//
+//    /**
+//     * 특정 패키지의 상세 정보 가져오기
+//     */
+//    @GetMapping("getRatePlanDetail")
+//    public void getRatePlanDetail(String property_id, String roomtype_id, String rateplan_id){
+//        accommService.getRatePlanDetail(property_id, roomtype_id, rateplan_id);
+//    }
 
     /**
      * ONDA에서 숙소정보 가져와서 INSERT
@@ -100,12 +92,36 @@ public class AccommController {
         accommService.insertAccommTotal(path);
     }
 
+    /**
+     * 시설(시설+이미지+취소규정) 수정
+     * @param propertyId
+     */
     @GetMapping("updateAccomm")
     public void updateAccomm(String propertyId){
-//        String path = Constants.ondaPath + "properties?status=all";
-
         accommService.updateAccomm(propertyId);
     }
+
+    /**
+     * 룸타입, ratePlan 등록 및 수정
+     * @param propertyId
+     * @param roomTypeId
+     */
+    @GetMapping("updateRoomNRatePlan")
+    public void updateRoomNRatePlan(String propertyId, String roomTypeId){
+        accommService.updateRoomNRatePlan(propertyId, roomTypeId);
+    }
+
+    /**
+     * 특정 패키지의 재고 및 요금 정보 가져와서 insert or update
+     */
+    @GetMapping("updateGoods")
+    public void updateGoods(int rateplan_id, String from, String to){
+        accommService.updateGoods(rateplan_id, from, to);
+    }
+
+
+
+
 
 //    @GetMapping("getAccommTotal")
 //    public ModelAndView getAccommTotal(){
