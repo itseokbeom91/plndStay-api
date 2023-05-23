@@ -56,5 +56,10 @@ public class BookingDto {
     private String strSt11SelectDate;
     private String strPid;
 
+    /**
+     * DB test_tbl_Booking
+     */
+    private String strOrderID;
+    private int intCondoID;
 
 }

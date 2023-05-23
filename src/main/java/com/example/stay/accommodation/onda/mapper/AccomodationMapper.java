@@ -10,12 +10,12 @@ public interface AccomodationMapper {
 
     String insertAccommTotal(String strAccommId, String API_FLAG, String strCondoName, String strConZip,
                              String strConAddr1, String strConAddr2, String strConTel, String strConFax, String strConGekNum, String strConFlag, String strLocation, String strHomepage,
-                             String strTimeIn, String strTimeOut, String strConDisplay, String strMapX, String strMapY, String strMobileWarning, String strCity, String strNation,
+                             String strTimeIn, String strTimeOut, String strUseYN, String strMapX, String strMapY, String strMobileWarning, String strCity, String strNation,
                              String strConDesc, String strConAround, String strConSookbak, String strTagName, String strImgData, String strPenaltyData, String strRoomNRatePlanDatas);
 
     String updateAccomm(String strAccommId, String API_FLAG, String strCondoName, String strConZip,
                         String strConAddr1, String strConAddr2, String strConTel, String strConFax, String strConGekNum, String strConFlag, String strLocation, String strHomepage,
-                        String strTimeIn, String strTimeOut, String strConDisplay, String strMapX, String strMapY, String strMobileWarning, String strCity, String strNation,
+                        String strTimeIn, String strTimeOut, String strUseYN, String strMapX, String strMapY, String strMobileWarning, String strCity, String strNation,
                         String strConDesc, String strConAround, String strConSookbak, String strTagName, String strImgData, String strPenaltyData);
 
     String updateRoomNRatePlan(String propertyId, String API_FLAG, String strRoomNRatePlanDatas);
@@ -29,7 +29,7 @@ public interface AccomodationMapper {
 
     String getCondoIDByAccommId(String propertyId);
 
-
+    String updateStatus(String target, String status, String propertyId, String roomTypeId, String ratePlanId);
 
 
 

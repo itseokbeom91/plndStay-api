@@ -19,6 +19,6 @@ public class RatePlanDto {
     private int intMinPersons;
     private int intMaxPersons;
     private int intPrice;
-    private String strDelYn;
+    private String strUseYN;
 
 }
