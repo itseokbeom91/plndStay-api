@@ -12,6 +12,8 @@ import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
+import java.io.DataOutputStream;
+import java.io.InputStream;
 import java.io.OutputStreamWriter;
 import java.io.StringWriter;
 import java.net.HttpURLConnection;
@@ -131,6 +133,47 @@ public class XmlUtility {
             e.printStackTrace();
         }
         return result;
+    }
+
+    public String sendRequest(String sendXmlData) {
+        String ret = "";
+        HttpURLConnection connection = null;
+        try {
+            URL url = new URL("");
+            connection = (HttpURLConnection) url.openConnection();
+            connection.setConnectTimeout(60000);
+            connection.setReadTimeout(60000);
+            connection.setRequestMethod("POST");
+            connection.setRequestProperty("Content-Type", "text/xml; charset=utf-8");
+            connection.setRequestProperty("Content-Length", Integer.toString(sendXmlData.length()));
+            connection.setDoOutput(true);
+
+            DataOutputStream outputStream = new DataOutputStream(connection.getOutputStream());
+            outputStream.writeBytes(sendXmlData);
+            outputStream.close();
+
+            int responseCode = connection.getResponseCode();
+            if (responseCode == 200) {
+                InputStream inputStream = connection.getInputStream();
+                StringBuilder response = new StringBuilder();
+                byte[] buffer = new byte[1024];
+                int bytesRead;
+                while ((bytesRead = inputStream.read(buffer)) != -1) {
+                    response.append(new String(buffer, 0, bytesRead));
+                }
+                inputStream.close();
+                ret = response.toString();
+            } else {
+                ret = "DisConnect|" + responseCode + "|" + connection.getResponseMessage();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            if (connection != null) {
+                connection.disconnect();
+            }
+        }
+        return ret;
     }
 
 }

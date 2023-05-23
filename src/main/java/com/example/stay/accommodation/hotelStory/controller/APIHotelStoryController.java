@@ -187,7 +187,7 @@ public class APIHotelStoryController {
                     /**
                      * PropertyList 구하기
                      */
-                    result += apiHotelstoryService.hotelStoryParsing(propertyElement,"property", roomTypeListMap, ratePlanListMap);
+                    result += apiHotelstoryService.hotelStoryParsing(propertyElement, roomTypeListMap, ratePlanListMap);
 
                     /**
                      * Description 구하기(roomType, ratePlan)
@@ -218,6 +218,11 @@ public class APIHotelStoryController {
         return new ResponseEntity<String>(result, headers, HttpStatus.OK);
     }
 
+    /**
+     * 웹훅으로 xml 받아 DB에 적용시키기
+     * @param strXml
+     * @return
+     */
     @GetMapping("/webhook")
     public ResponseEntity<String> getWebHook(String strXml) {
 
