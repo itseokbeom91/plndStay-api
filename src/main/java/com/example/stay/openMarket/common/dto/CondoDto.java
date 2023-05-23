@@ -32,7 +32,7 @@ public class CondoDto {
     private String strLandNumberAdr; // CONCAT(C.con_addr1,' ',C.con_addr2) 지번주소
     private String strChainCode; // 숙소 체인점 분류
     private String strConAddrNew; // con_addr_new
-    private String strConDisplay; // con_display 노출여부
+    private String strConDisplay; // con_display 노출여부 -> strUseYN로 변경 추후 삭제
     private String strApiFlag; // API_FLAG
     private String strRegDate; // 생성일시
     private String strAccommId; // accomm_id
@@ -45,6 +45,7 @@ public class CondoDto {
      * test_condo
      */
     private String intCondoID;
+    private String strUseYN;
 
     /**
      * SSGMapper

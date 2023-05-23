@@ -38,7 +38,7 @@ public class ToconDto {
     private String coupang_yn;
     private int intApiPriceType;
     private String MRN_YN;
-    private String strIngYN;
+    private String strIngYN; // strUseYN로 변경 추후 삭제
     private String strGmkYn;
     private String strAucYn;
     private String str11stYn;
@@ -55,4 +55,5 @@ public class ToconDto {
 
     private int intCondoID;
     private int intRoomID;
+    private String strUseYN;
 }

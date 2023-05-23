@@ -279,7 +279,7 @@ public class AccommService {
                 String strHomepage = condoData.get("strHomepage").toString();
                 String strTimeIn = condoData.get("strTimeIn").toString();
                 String strTimeOut = condoData.get("strTimeOut").toString();
-                String strConDisplay = condoData.get("strConDisplay").toString();
+                String strUseYN = condoData.get("strUseYN").toString();
                 String strMapX = condoData.get("strMapX").toString();
                 String strMapY = condoData.get("strMapY").toString();
                 String strMobileWarning = condoData.get("strMobileWarning").toString();
@@ -295,7 +295,7 @@ public class AccommService {
 
                 String result = accomodationMapper.insertAccommTotal(strAccommId, API_FLAG, strCondoName, strConZip,
                         strConAddr1, strConAddr2, strConTel, strConFax, strConGekNum, strConFlag, strLocation, strHomepage,
-                        strTimeIn, strTimeOut, strConDisplay, strMapX, strMapY, strMobileWarning, strCity, strNation,
+                        strTimeIn, strTimeOut, strUseYN, strMapX, strMapY, strMobileWarning, strCity, strNation,
                         strConDesc, strConAround, strConSookbak, strTagName, strImgData, strPenaltyData, strRoomNRatePlanDatas);
 
                 System.out.println("result : " + result);
@@ -327,7 +327,7 @@ public class AccommService {
             String strHomepage = condoData.get("strHomepage").toString();
             String strTimeIn = condoData.get("strTimeIn").toString();
             String strTimeOut = condoData.get("strTimeOut").toString();
-            String strConDisplay = condoData.get("strConDisplay").toString();
+            String strUseYN = condoData.get("strUseYN").toString();
             String strMapX = condoData.get("strMapX").toString();
             String strMapY = condoData.get("strMapY").toString();
             String strMobileWarning = condoData.get("strMobileWarning").toString();
@@ -343,7 +343,7 @@ public class AccommService {
 
             String result = accomodationMapper.updateAccomm(strAccommId, API_FLAG, strCondoName, strConZip,
                     strConAddr1, strConAddr2, strConTel, strConFax, strConGekNum, strConFlag, strLocation, strHomepage,
-                    strTimeIn, strTimeOut, strConDisplay, strMapX, strMapY, strMobileWarning, strCity, strNation,
+                    strTimeIn, strTimeOut, strUseYN, strMapX, strMapY, strMobileWarning, strCity, strNation,
                     strConDesc, strConAround, strConSookbak, strTagName, strImgData, strPenaltyData);
 
             System.out.println("result : " + result);
@@ -364,7 +364,7 @@ public class AccommService {
             String strAccommId = accommDetailJson.get("id").toString();
             String strCondoName = accommDetailJson.get("name").toString();
 
-            String strConDisplay = getStatusYn(accommDetailJson.get("status").toString());
+            String strUseYN = getStatusYn(accommDetailJson.get("status").toString());
 
 
             JSONObject address = (JSONObject) accommDetailJson.get("address");
@@ -462,7 +462,7 @@ public class AccommService {
             condoData.put("strHomepage", "");
             condoData.put("strTimeIn", strTimeIn);
             condoData.put("strTimeOut", strTimeOut);
-            condoData.put("strConDisplay", strConDisplay);
+            condoData.put("strUseYN", strUseYN);
             condoData.put("strMapX", strMapX);
             condoData.put("strMapY", strMapY);
             condoData.put("strMobileWarning", strMobileWarning);
@@ -781,9 +781,10 @@ public class AccommService {
 
     public void webhookProcess(JSONObject bodyJson){
         String event_type = bodyJson.get("event_type").toString();
-        JSONObject event_detail = (JSONObject) bodyJson.get("event_detail");
-        String target = event_detail.get("target").toString();
         if(event_type.equals("contents_updated")){
+            JSONObject event_detail = (JSONObject) bodyJson.get("event_detail");
+            String target = event_detail.get("target").toString();
+
             if(target.equals("property")){
                 String propertyId = event_detail.get("property_id").toString();
                 // 기존에 있는 시설인지 확인
@@ -806,8 +807,57 @@ public class AccommService {
                 updateRoomNRatePlan(propertyId, roomTypeId, ratePlanId);
             }
         }else if(event_type.equals("status_updated")){
+            JSONObject event_detail = (JSONObject) bodyJson.get("event_detail");
+            String target = event_detail.get("target").toString();
+
+            String propertyId = "";
+            String roomTypeId = "";
+            String ratePlanId = "";
+
+            if(target.equals("property")){
+                propertyId = event_detail.get("property_id").toString();
+
+            }else if(target.equals("roomtype")){
+                propertyId = event_detail.get("property_id").toString();
+                roomTypeId = event_detail.get("roomtype_id").toString();
+
+            }else if(target.equals("rateplan")){
+                propertyId = event_detail.get("property_id").toString();
+                roomTypeId = event_detail.get("roomtype_id").toString();
+                ratePlanId = event_detail.get("rateplan_id").toString();
+            }
+
+            String status = event_detail.get("status").toString();
+            if(status.equals("enabled")){
+                status = "Y";
+            }else{
+                status = "N";
+            }
+
+            String result = accomodationMapper.updateStatus(target, status, propertyId, roomTypeId, ratePlanId);
+            System.out.println("result : " + result);
 
         }else if(event_type.equals("inventory_updated")){
+            JSONArray eventDetailsArr = (JSONArray) bodyJson.get("event_details");
+            for(int i=0; i<eventDetailsArr.size(); i++){
+                JSONObject event_detail = (JSONObject) eventDetailsArr.get(i);
+
+//                String propertyId = event_detail.get("property_id").toString();
+//                String roomtypeId = event_detail.get("roomtype_id").toString();
+                int rateplanId = Integer.parseInt(event_detail.get("rateplan_id").toString());
+                String strCheckInDate = event_detail.get("date").toString();
+                int intBasicPrice = Integer.parseInt(event_detail.get("basic_price").toString());
+                int intSalePrice = Integer.parseInt(event_detail.get("sale_price").toString());
+//                String promotionType = event_detail.get("promotion_type").toString();
+                int intStock = Integer.parseInt(event_detail.get("vacancy").toString());
+
+                // 있으면 업데이트 없으면 생성
+                // 업데이트됐다만 알려주는게 아니라 정보를 주는데 인벤토리 상세정보 가져오는 api호출 했을 때 업데이트된 정보로 주겠지..?
+                // 그럼 웹훅으로 주는 인벤토리 정보는 아이디값말고 받을게 없지..?
+                accomodationMapper.updateGoods(rateplanId, intStock, strCheckInDate,
+                        intBasicPrice, intSalePrice, 0, 0);
+
+            }
 
         }
     }

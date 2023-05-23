@@ -22,14 +22,14 @@
     <select id="insertAccommTotal" parameterType="String" resultType="String">
         EXEC spGW_CONDO_REGIST_TOTAL #{strAccommId}, #{API_FLAG}, #{strCondoName}, #{strConZip}
         , #{strConAddr1}, #{strConAddr2}, #{strConTel}, #{strConFax}, #{strConGekNum}, #{strConFlag}, #{strLocation}, #{strHomepage}
-        , #{strTimeIn}, #{strTimeOut}, #{strConDisplay}, #{strMapX}, #{strMapY}, #{strMobileWarning}, #{strCity}, #{strNation}
+        , #{strTimeIn}, #{strTimeOut}, #{strUseYN}, #{strMapX}, #{strMapY}, #{strMobileWarning}, #{strCity}, #{strNation}
         , #{strConDesc}, #{strConAround}, #{strConSookbak}, #{strTagName}, #{strImgData}, #{strPenaltyData}, #{strRoomNRatePlanDatas}, ''
     </select>
 
     <select id="updateAccomm" parameterType="String" resultType="String">
         EXEC spGW_CONDO_UPDATE_SUPPLIER #{strAccommId}, #{API_FLAG}, #{strCondoName}, #{strConZip}
         , #{strConAddr1}, #{strConAddr2}, #{strConTel}, #{strConFax}, #{strConGekNum}, #{strConFlag}, #{strLocation}, #{strHomepage}
-        , #{strTimeIn}, #{strTimeOut}, #{strConDisplay}, #{strMapX}, #{strMapY}, #{strMobileWarning}, #{strCity}, #{strNation}
+        , #{strTimeIn}, #{strTimeOut}, #{strUseYN}, #{strMapX}, #{strMapY}, #{strMobileWarning}, #{strCity}, #{strNation}
         , #{strConDesc}, #{strConAround}, #{strConSookbak}, #{strTagName}, #{strImgData}, #{strPenaltyData}, ''
     </select>
 
@@ -53,6 +53,10 @@
         FROM condo24.test_condo WITH(NOLOCK)
         WHERE accomm_id = ${propertyId}
             AND API_FLAG = "ONDA"
+    </select>
+
+    <select id="updateStatus" parameterType="String" resultType="String">
+        EXEC spGW_CONDO_STATUS_UPDATE #{target}, #{status}, #{propertyId}, #{roomTypeId}, #{ratePlanId}, ''
     </select>
 
 </mapper>
