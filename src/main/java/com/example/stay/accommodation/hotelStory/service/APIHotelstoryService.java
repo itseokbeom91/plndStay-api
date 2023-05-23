@@ -55,13 +55,12 @@ public class APIHotelstoryService {
     /**
      * API 데이터 파싱
      * @param tagElement
-     * @param tagList
      * @param roomTypeMap
      * @param ratePlanMap
      * @return String result
      * @throws Exception
      */
-    public String hotelStoryParsing(Element tagElement, String tagList, Map<String, Map> roomTypeMap, MultiValueMap<String, Map> ratePlanMap){
+    public String hotelStoryParsing(Element tagElement, Map<String, Map> roomTypeMap, MultiValueMap<String, Map> ratePlanMap){
         String result = "";
 
         try {
@@ -143,7 +142,7 @@ public class APIHotelstoryService {
 
                     String strImage = xmlUtility.getTagValue("ImageUrl",element).toString();
                     //accommPhotoContentsReg(strImage, strPropertyId, xmlUtility.getTagValue("PropertyName", tagElement).toString(), String.valueOf(intAID));
-                    imgData += photoTest(strImage, strPropertyId);
+                    imgData += accommPhotoContentsReg(strImage, strPropertyId);
 
 
                 }
@@ -353,6 +352,76 @@ public class APIHotelstoryService {
         return result;
     }
 
+
+    public String booking(){
+        String result = "";
+
+        try {
+            String strOrderId = "";
+            String strPropertyId = "";
+            String strRoomTypeId = "";
+            String strRatePlanId = "";
+            String strRatePlanName = "";
+            String strRoom = "";
+            String strStartDate = "";
+            String strEndDate = "";
+            String strPrice = "";
+            String strOrderLastName = "";
+            String strOrderFirstName = "";
+            String strOrderEmail = "";
+            String strOrderPhone = "";
+            String strUserLastName = "";
+            String strUserFirstName = "";
+            String strUserEmail = "";
+            String strUserPhone = "";
+
+            String strXml =
+                    "<RequestBooking>\n" +
+                    "   <Auth>\n" +
+                    "       <AuthId>"+Constants.hotelStoryID+"</AuthId>\n" +
+                    "       <AuthKey>"+Constants.hotelStoryAuthKey+"</AuthKey>\n" +
+                    "   </Auth>\n" +
+                    "   <Channel>condo2424</Channel>\n" +
+                    "   <ChannelBookingId>"+strOrderId+"</ChannelBookingId>\n" +
+                    "   <PropertyId>"+strPropertyId+"</PropertyId>\n" +
+                    "   <RoomTypeId>"+strRoomTypeId+"</RoomTypeId>\n" +
+                    "   <RatePlanId>"+strRatePlanId+"</RatePlanId>\n" +
+                    "   <RatePlanName>"+strRatePlanName+"</RatePlanName>\n" +
+                    "   <NumRooms>"+strRoom+"</NumRooms>\n" +
+                    "   <StartDate>"+strStartDate+"</StartDate>\n" +
+                    "   <EndDate>"+strEndDate+"</EndDate>\n" +
+                    "   <BedTypeCode></BedTypeCode>\n" +
+                    "   <MealCode></MealCode>\n" +
+                    "   <Price>"+strPrice+"</Price>\n" +
+                    "   <AdultCount></AdultCount>\n" +
+                    "   <ChildCount></ChildCount>\n" +
+                    "   <Customer>\n" +
+                    "       <CustomerFName>"+strOrderLastName+"</CustomerFName>\n" +
+                    "       <CustomerLName>"+strOrderFirstName+"</CustomerLName>\n" +
+                    "       <CustomerEmail>"+strOrderEmail+"</CustomerEmail>\n" +
+                    "       <CustomerPhone>"+strOrderPhone+"</CustomerPhone>\n" +
+                    "   </Customer>\n" +
+                    "   <Occupant>\n" +
+                    "       <OccupantFName>"+strUserLastName+"</OccupantFName>\n" +
+                    "       <OccupantLName>"+strUserFirstName+"</OccupantLName>\n" +
+                    "       <OccupantEmail>"+strUserEmail+"</OccupantEmail>\n" +
+                    "       <OccupantPhone>"+strUserPhone+"</OccupantPhone>\n" +
+                    "   </Occupant>\n" +
+                    "   <CancelPolicys>\n" +
+                    "       <CancelPolicy>\n" +
+                    "       </CancelPolicy>\n" +
+                    "   </CancelPolicys>\n" +
+                    "</RequestBooking>\n";
+
+
+
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+
+        return result;
+    }
+
     /**
      * webhook으로 받는 xml to document 파싱
      * @param strXML
@@ -473,62 +542,8 @@ public class APIHotelstoryService {
      * 사진 저장하기
      * @param strImage
      * @param strAccommId
-     * @param strAccommName
-     * @param strConId
      */
-    public void accommPhotoContentsReg(String strImage, String strAccommId, String strAccommName, String strConId){
-        try{
-            ContentsPhotoDto contentsPhotoDto = new ContentsPhotoDto();
-            /**
-             * 임시로 하드코딩
-             */
-            int intCreatedSID = 147; // 이미지 생성한사람 147 : 이석범(employ테이블)
-            int intModifiedSID = 147; // 이미지 수정한사람
-
-            String[] filePathArr = strImage.split("/");
-            String strFileName = "";
-            for(int j=0; j< filePathArr.length; j++){
-                if(j == (filePathArr.length - 1)){
-                    strFileName = filePathArr[j];
-                    contentsPhotoDto.setStrFileName(strFileName);
-                }
-            }
-
-            // 경로에 폴더 생성 -> 있으면 생성 안시킴
-            Path directoryPath = Paths.get(Constants.hotelStoryFileDir + strAccommId + "\\");
-            Files.createDirectories(directoryPath);
-
-            // 파일 존재여부 체크
-            String strFilePath = Constants.hotelStoryFileDir + strAccommId + "\\" +  strFileName;
-            File file = new File(strFilePath);
-            if(!(file.exists())){
-                // 이미지 저장
-                UrlResourceDownloader downloader = new UrlResourceDownloader(strFilePath, strImage);
-                downloader.urlFileDownload();
-
-                contentsPhotoDto.setStrFilePath("/hotelStory/" + strAccommId + "/");
-                contentsPhotoDto.setIntCreatedSID(intCreatedSID);
-                contentsPhotoDto.setIntModifiedSID(intModifiedSID);
-                contentsPhotoDto.setStrSubject(strAccommName);
-                contentsPhotoDto.setStrCid(strConId);
-
-                String insertResult = accomodationMapper.accommPhotoContentsReg(contentsPhotoDto);
-//                if(Integer.parseInt(insertResult) == 0){
-//                    System.out.println("INSERT CONTENTS_PHOTO FAIL");
-//                }
-                System.out.println(insertResult);
-            }else{
-                //System.out.println("ALREADY EXISTS PHOTO");
-            }
-
-
-
-        }catch (Exception e){
-            e.printStackTrace();
-        }
-    }
-
-    public String photoTest(String strImage, String strAccommId){
+    public String accommPhotoContentsReg(String strImage, String strAccommId){
 
         String result = "";
         try{
