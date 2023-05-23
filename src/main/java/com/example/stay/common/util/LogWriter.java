@@ -71,7 +71,7 @@ public class LogWriter {
 
         return log;
     }
-    
+
 
     public void log(int level) {
         if (makeLog() != null) {
