@@ -44,7 +44,7 @@ public class CondoDto {
     /**
      * test_condo
      */
-    private String intCondoID;
+    private int intCondoID;
     private String strUseYN;
 
     /**

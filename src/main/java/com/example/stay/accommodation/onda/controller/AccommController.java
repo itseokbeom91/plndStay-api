@@ -30,7 +30,7 @@ import java.net.URLDecoder;
 import java.util.*;
 
 @Controller
-@RequestMapping("/accomm/onda/*")
+@RequestMapping("/onda/accomm/*")
 public class AccommController {
 
     @Autowired
