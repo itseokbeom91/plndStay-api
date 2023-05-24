@@ -1,5 +1,6 @@
 package com.example.stay.accommodation.hotelStory.service;
 
+import com.example.stay.accommodation.hotelStory.dto.BookingDto;
 import com.example.stay.accommodation.hotelStory.mapper.HotelStoryMapper;
 import com.example.stay.accommodation.onda.mapper.AccomodationMapper;
 import com.example.stay.common.util.Constants;
@@ -357,6 +358,8 @@ public class APIHotelstoryService {
         String result = "";
 
         try {
+            BookingDto bookingDto = hotelStoryMapper.getbooking();
+            System.out.println(bookingDto);
             String strOrderId = "";
             String strPropertyId = "";
             String strRoomTypeId = "";
@@ -382,30 +385,30 @@ public class APIHotelstoryService {
                     "       <AuthKey>"+Constants.hotelStoryAuthKey+"</AuthKey>\n" +
                     "   </Auth>\n" +
                     "   <Channel>condo2424</Channel>\n" +
-                    "   <ChannelBookingId>"+strOrderId+"</ChannelBookingId>\n" +
-                    "   <PropertyId>"+strPropertyId+"</PropertyId>\n" +
-                    "   <RoomTypeId>"+strRoomTypeId+"</RoomTypeId>\n" +
-                    "   <RatePlanId>"+strRatePlanId+"</RatePlanId>\n" +
-                    "   <RatePlanName>"+strRatePlanName+"</RatePlanName>\n" +
-                    "   <NumRooms>"+strRoom+"</NumRooms>\n" +
-                    "   <StartDate>"+strStartDate+"</StartDate>\n" +
-                    "   <EndDate>"+strEndDate+"</EndDate>\n" +
+                    "   <ChannelBookingId>"+bookingDto.getIntBookingID()+"</ChannelBookingId>\n" +
+                    "   <PropertyId>"+bookingDto.getStrPropertyId()+"</PropertyId>\n" +
+                    "   <RoomTypeId>"+bookingDto.getStrRoomTypeId()+"</RoomTypeId>\n" +
+                    "   <RatePlanId>"+bookingDto.getStrRatePlanId()+"</RatePlanId>\n" +
+                    "   <RatePlanName>"+bookingDto.getStrRatePlanName()+"</RatePlanName>\n" +
+                    "   <NumRooms>"+bookingDto.getIntRoomCount()+"</NumRooms>\n" +
+                    "   <StartDate>"+bookingDto.getCheckInDate()+"</StartDate>\n" +
+                    "   <EndDate>"+bookingDto.getCheckOutDate()+"</EndDate>\n" +
                     "   <BedTypeCode></BedTypeCode>\n" +
                     "   <MealCode></MealCode>\n" +
-                    "   <Price>"+strPrice+"</Price>\n" +
+                    "   <Price>"+bookingDto.getIntPaymentPrice()+"</Price>\n" +
                     "   <AdultCount></AdultCount>\n" +
                     "   <ChildCount></ChildCount>\n" +
                     "   <Customer>\n" +
-                    "       <CustomerFName>"+strOrderLastName+"</CustomerFName>\n" +
-                    "       <CustomerLName>"+strOrderFirstName+"</CustomerLName>\n" +
-                    "       <CustomerEmail>"+strOrderEmail+"</CustomerEmail>\n" +
-                    "       <CustomerPhone>"+strOrderPhone+"</CustomerPhone>\n" +
+                    "       <CustomerFName>"+bookingDto.getStrOrdName()+"</CustomerFName>\n" +
+                    "       <CustomerLName>"+bookingDto.getStrOrdName()+"</CustomerLName>\n" +
+                    "       <CustomerEmail>"+bookingDto.getStrOrdEmail()+"</CustomerEmail>\n" +
+                    "       <CustomerPhone>"+bookingDto.getStrOrdPhone()+"</CustomerPhone>\n" +
                     "   </Customer>\n" +
                     "   <Occupant>\n" +
-                    "       <OccupantFName>"+strUserLastName+"</OccupantFName>\n" +
-                    "       <OccupantLName>"+strUserFirstName+"</OccupantLName>\n" +
-                    "       <OccupantEmail>"+strUserEmail+"</OccupantEmail>\n" +
-                    "       <OccupantPhone>"+strUserPhone+"</OccupantPhone>\n" +
+                    "       <OccupantFName>"+bookingDto.getStrRecvName()+"</OccupantFName>\n" +
+                    "       <OccupantLName>"+bookingDto.getStrRecvName()+"</OccupantLName>\n" +
+                    "       <OccupantEmail>"+bookingDto.getStrRecvEmail()+"</OccupantEmail>\n" +
+                    "       <OccupantPhone>"+bookingDto.getStrRecvPhone()+"</OccupantPhone>\n" +
                     "   </Occupant>\n" +
                     "   <CancelPolicys>\n" +
                     "       <CancelPolicy>\n" +

@@ -27,4 +27,14 @@
         EXEC spGW_GOODS_REGIST_SUPPLIER #{strRatePlanID}, ${intStock}, #{strDate}, ${intBasicPrice}, ${intSalePrice}, 0, 0, ''
     </select>
 
+    <select id="getbooking" resultType="com.example.stay.accommodation.hotelStory.dto.BookingDto">
+        select tc.accomm_id as strPropertyId, rp.strRatePlanName, rp.strRoomTypeId, rp.strRatePlanId,
+               tb.intBookingID, tb.checkInDate, tb.checkOutDate, tb.intPaymentPrice, tb.intPersonCount,
+               tb.strOrdName, tb.strOrdemail, tb.strOrdPhone, tb.strRecvName, tb.strRecvemail, tb.strRecvPhone, tb.introomCount
+        from condo24.test_Booking tb with(nolock)
+        inner join condo24.test_condo tc with(nolock) on tb.intCondoID = tc.intCondoID
+            inner join condo24.test_rate_plan rp with(nolock) on tb.intrateID = rp.intRateID
+        where tb.intBookingID = 2
+    </select>
+
 </mapper>

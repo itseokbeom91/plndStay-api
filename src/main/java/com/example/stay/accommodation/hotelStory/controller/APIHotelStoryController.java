@@ -254,6 +254,11 @@ public class APIHotelStoryController {
 
     }
 
+    @GetMapping("/booking")
+    public void getBooking(){
+        apiHotelstoryService.booking();
+    }
+
     public static String getClientIP() {
         HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest();
         String ip = request.getHeader("X-Forwarded-For");

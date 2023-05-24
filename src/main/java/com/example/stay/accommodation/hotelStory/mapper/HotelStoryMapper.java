@@ -1,5 +1,6 @@
 package com.example.stay.accommodation.hotelStory.mapper;
 
+import com.example.stay.accommodation.hotelStory.dto.BookingDto;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -19,4 +20,6 @@ public interface HotelStoryMapper {
             , String strLongitude, String strLatitude, String strCity, String strPropertyDescription, String strTrafficInformation, String strRoomInformation, String imgData, String cancelData, String roomTypeData);
 
     String insertGoods(String strRatePlanID, int intStock, String strDate, int intBasicPrice, int intSalePrice);
+
+    BookingDto getbooking();
 }
