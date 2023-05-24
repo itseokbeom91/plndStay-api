@@ -20,7 +20,7 @@ public class LogWriter {
     private String logMessage;
     private long startTime; // 로직 프로세스 시작 시간
     private long endTime; //  로직 프로세스 완료 시간
-    private String requestTime; // 걸린 시간
+    private double processTime; // 걸린 시간
 
     public static final String logHead  = "┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━";
     public static final String logBody  = "┃";
@@ -29,16 +29,15 @@ public class LogWriter {
 
 
 
-    public LogWriter() {
-        this.startTime = System.currentTimeMillis();
-        this.requestTime = getRequestTime();
-    }
+//    public LogWriter() {
+//        this.startTime = System.currentTimeMillis();
+//    }
 
     public LogWriter(String method, String apiUrl, long startTime){
+        this.startTime = startTime;
+        this.processTime = (System.currentTimeMillis()-startTime)/1000.0;
         this.method = (method != null) ? method : "";
         this.apiUrl = (apiUrl != null) ? apiUrl : "";
-        this.startTime = startTime;
-//        this.endTime = System.currentTimeMillis();
     }
 
     public void add(String msg) {
@@ -60,7 +59,7 @@ public class LogWriter {
         sb.append(logHead + "\r\n");
         sb.append(logBody + "  method : " + getMethod() + "\r\n");
         sb.append(logBody + "  apiUrl : " + getApiUrl() + "\r\n");
-        sb.append(logBody + "  requestTime : " + requestTime + "\r\n\n");
+        sb.append(logBody + "  processTime : " + this.processTime + "\r\n" + logBody + "\r\n");
 
         if(getLogMessage() != null){
             sb.append(getLogMessage());
@@ -73,11 +72,6 @@ public class LogWriter {
         return log;
     }
 
-
-    String getRequestTime() {
-        SimpleDateFormat dayTime = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.sss");
-        return dayTime.format(new Date(getStartTime()));
-    }
 
     public void log(int level) {
         if (makeLog() != null) {
