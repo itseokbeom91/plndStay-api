@@ -5,6 +5,8 @@ import lombok.Data;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.BufferedReader;
+import java.io.StringReader;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -26,12 +28,10 @@ public class LogWriter {
     public static final String logBody  = "┃";
     public static final String logFoot  = "┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━";
 
-
-
-
-//    public LogWriter() {
-//        this.startTime = System.currentTimeMillis();
-//    }
+    public LogWriter(){
+        this.startTime = System.currentTimeMillis();
+        this.processTime = startTime;
+    }
 
     public LogWriter(String method, String apiUrl, long startTime){
         this.startTime = startTime;
@@ -42,32 +42,44 @@ public class LogWriter {
 
     public void add(String msg) {
         if (logMessage != null) {
-            this.logMessage += logBody + "  ".concat(msg.concat("\r\n"));
+//            this.logMessage += "  ".concat(msg.concat("\r\n"));
+            this.logMessage += msg.concat("\r\n");
+
         }
         else {
-            this.logMessage = logBody + "  ".concat(msg.concat("\r\n"));
+//            this.logMessage = "  ".concat(msg.concat("\r\n"));
+            this.logMessage = msg.concat("\r\n");
         }
     }
 
     public String makeLog(){
         this.endTime = System.currentTimeMillis();
-
-        sb = new StringBuilder();
-
         String log = "";
-        sb.append("\r\n");
-        sb.append(logHead + "\r\n");
-        sb.append(logBody + "  method : " + getMethod() + "\r\n");
-        sb.append(logBody + "  apiUrl : " + getApiUrl() + "\r\n");
-        sb.append(logBody + "  processTime : " + this.processTime + "\r\n" + logBody + "\r\n");
+        try{
+            sb = new StringBuilder();
 
-        if(getLogMessage() != null){
-            sb.append(getLogMessage());
+            sb.append("\r\n");
+            sb.append(logHead + "\r\n");
+            sb.append(logBody + "  method : " + getMethod() + "\r\n");
+            sb.append(logBody + "  apiUrl : " + getApiUrl() + "\r\n");
+            sb.append(logBody + "  processTime : " + this.processTime + "\r\n" + logBody + "\r\n");
+
+            String line = getLogMessage();
+            if(getLogMessage() != null){
+                BufferedReader br = new BufferedReader(new StringReader(getLogMessage()));
+
+                while ((line = br.readLine()) != null) {
+                    sb.append(logBody + "  " + line);
+                    sb.append("\n\r");
+                }
+
+            }
+            sb.append(logFoot + "\r\n");
+
+            log = sb.toString();
+        }catch (Exception e){
+            e.printStackTrace();
         }
-
-        sb.append(logFoot + "\r\n");
-
-        log = sb.toString();
 
         return log;
     }

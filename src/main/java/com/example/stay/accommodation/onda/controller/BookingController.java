@@ -24,15 +24,22 @@ public class BookingController {
 
     }
 
-    @GetMapping("test")
-    public void test(){
-        String propertyId = "130517";
-        String roomTypeId = "1459423";
-        String ratePlanId = "1592553";
-        String checkInDate = "2023-10-19";
-        String checkOutDate = "2023-10-20";
+//    @GetMapping("test")
+//    public void test(){
+//        String propertyId = "130517";
+//        String roomTypeId = "1459423";
+//        String ratePlanId = "1592553";
+//        String checkInDate = "2023-05-24";
+//        String checkOutDate = "2023-06-01";
+//
+//        bookingService.checkAvailBooking(propertyId, roomTypeId, ratePlanId, checkInDate, checkOutDate);
+//
+//    }
 
-        bookingService.checkAvailBooking(propertyId, roomTypeId, ratePlanId, checkInDate, checkOutDate);
+    @GetMapping("createBooking")
+    public void createBooking(int intBookingID){
+        bookingService.createBookingInfo(intBookingID);
 
     }
+
 }

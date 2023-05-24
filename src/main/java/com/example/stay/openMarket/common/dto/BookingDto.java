@@ -59,7 +59,20 @@ public class BookingDto {
     /**
      * DB test_tbl_Booking
      */
-    private String strOrderID;
+    private int strBookingID;
     private int intCondoID;
+    private String accommId;
+    private int intRoomID;
+    private int intRateID;
+    private String strRatePlanId;
+    private int intGoodsID;
+    private String checkInDate;
+    private String checkOutDate;
+    private int intPaymentPrice;
+    private int intPersonCount;
+    private int intRoomCount;
+    private int intCustomerID;
+    private String strSpBookingId;
+    private String strBookingProcess;
 
 }

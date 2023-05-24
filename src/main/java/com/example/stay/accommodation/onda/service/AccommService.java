@@ -852,8 +852,6 @@ public class AccommService {
                 int intStock = Integer.parseInt(event_detail.get("vacancy").toString());
 
                 // 있으면 업데이트 없으면 생성
-                // 업데이트됐다만 알려주는게 아니라 정보를 주는데 인벤토리 상세정보 가져오는 api호출 했을 때 업데이트된 정보로 주겠지..?
-                // 그럼 웹훅으로 주는 인벤토리 정보는 아이디값말고 받을게 없지..?
                 accomodationMapper.updateGoods(rateplanId, intStock, strCheckInDate,
                         intBasicPrice, intSalePrice, 0, 0);
 
