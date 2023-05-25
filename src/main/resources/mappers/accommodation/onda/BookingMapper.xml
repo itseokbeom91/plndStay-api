@@ -4,16 +4,40 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="com.example.stay.accommodation.onda.mapper.BookingMapper">
-    <select id="getOrderByOrderID" resultType="BookingDto">
+    <select id="getBookingByIntBookingID" resultType="BookingDto">
         SELECT
-            C.intCondoID,
-            C.accomm_id,
-            B.StartDay,
-               EndDay,
-
-        FROM tbl_Booking B WITH(NOLOCK)
-            JOIN test_condo C WITH(NOLOCK) ON B.intCondoID = C.intCondoID
-        WHERE OrderID = #{orderID}
+            B.intCondoID,
+            C.accomm_id AS accommId,
+            convert(varchar(10), B.checkInDate, 120) AS checkInDate,
+            convert(varchar(10), B.checkOutDate, 120) AS checkOutDate,
+            RP.strRatePlanId,
+            G.intSalePrice,
+            ISNULL(B.intPersonCount, RT.standpeopleCnt) AS intPersonCount,
+            B.strRecvName,
+            B.strRecvPhone,
+            B.strRecvEmail,
+            B.strOrdName,
+            B.strOrdEmail,
+            B.strOrdPhone,
+            B.intRoomCount
+        FROM test_Booking B WITH(NOLOCK)
+            LEFT JOIN test_condo C WITH(NOLOCK) ON B.intCondoID = C.intCondoID
+            LEFT JOIN test_room_type RT WITH(NOLOCK) ON B.intRoomID = RT.intRoomID
+            LEFT JOIN test_rate_plan RP WITH(NOLOCK) ON B.intRateID = RP.intRateID
+            LEFT JOIN test_goods G WITH(NOLOCK) ON B.intGoodsID = G.intGoodsID
+        WHERE intBookingID = ${intBookingID}
     </select>
 
+    <insert id="insertRefundPolicy">
+        INSERT INTO test_refund_policy (
+            untilDate, intPercent, intRefundPrice, intRefundFee
+        )
+        VALUES(
+            #{untilDate}, ${intPercent}, ${intRefundPrice}, ${intRefundFee}
+        )
+    </insert>
+
+    <select id="updateBooking" resultType="String">
+        EXEC spGW_BOOKING_UPDATE_SUPPLIER ${intBookingID}, #{strSpBookingId}, #{strBookingProcess}, #{strRefundPolicys}, ''
+    </select>
 </mapper>
