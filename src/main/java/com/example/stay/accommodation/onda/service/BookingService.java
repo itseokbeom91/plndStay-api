@@ -6,6 +6,7 @@ import com.example.stay.common.util.LogWriter;
 import com.example.stay.openMarket.common.dto.BookingDto;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonObject;
 import okhttp3.*;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
@@ -14,6 +15,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeFormatterBuilder;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.TimeZone;
 
 @Service
 public class BookingService {
@@ -121,6 +130,7 @@ public class BookingService {
             String checkOutDate = bookingDto.getCheckOutDate();
             requestJson.put("currency", currency);
             requestJson.put("channel_booking_number", intBookingID);
+//            requestJson.put("channel_booking_number", "27731622");
             requestJson.put("checkin", checkInDate);
             requestJson.put("checkout", checkOutDate);
 
@@ -139,13 +149,13 @@ public class BookingService {
 
                 JSONObject number_of_guest = new JSONObject();
                 number_of_guest.put("adult", intPersonCount);
-//                number_of_guest.put("child_age", 0);
                 rateplanJson.put("number_of_guest", number_of_guest);
 
                 JSONArray guests = new JSONArray();
                 JSONObject guestsJson = new JSONObject();
                 String strRecvName = bookingDto.getStrRecvName();
                 String strRecvEmail = bookingDto.getStrRecvEmail();
+//                String strRecvEmail = "dbwjd@naver.com";
                 String strRecvPhone = bookingDto.getStrRecvPhone();
                 String strRecvNationality = "KR";
                 guestsJson.put("name", strRecvName);
@@ -164,9 +174,10 @@ public class BookingService {
             JSONObject booker = new JSONObject();
             String strOrdName = bookingDto.getStrOrdName();
             String strOrdEmail = bookingDto.getStrOrdEmail();
+//            String strOrdEmail = "dbwjd@naver.com";
             String strOrdPhone = bookingDto.getStrOrdPhone();
             String strOrdNationality = "KR";
-            String timezone = "Asia/Soul";
+            String timezone = "Asia/Seoul";
             booker.put("name", strOrdName);
             booker.put("email", strOrdEmail);
             booker.put("phone", strOrdPhone);
@@ -175,8 +186,12 @@ public class BookingService {
 
             requestJson.put("booker", booker);
 
-            Gson gson = new GsonBuilder().setPrettyPrinting().create();
-            String contetns = gson.toJson(requestJson);
+//            Gson gson = new GsonBuilder().setPrettyPrinting().create();
+//            String contetns = gson.toJson(requestJson);
+
+            String contetns = requestJson.toJSONString();
+
+            System.out.println(contetns);
 
             createBooking(propertyId, contetns);
 
@@ -189,8 +204,8 @@ public class BookingService {
     public void createBooking(String propertyId, String contents){
         OkHttpClient client = new OkHttpClient();
 
-        MediaType mediaType = MediaType.parse("application/json");
-        RequestBody body = RequestBody.create(mediaType, contents);
+        MediaType mediaType = MediaType.parse("application/json; charset=utf-8");
+        RequestBody body = RequestBody.create(contents, mediaType);
         Request request = new Request.Builder()
                 .url("https://dapi.tport.dev/gds/diglett/properties/" + propertyId + "/bookings")
                 .post(body)
@@ -201,11 +216,13 @@ public class BookingService {
         try{
             Response response = client.newCall(request).execute();
 
-            if(response.isSuccessful()){
-                String responseBody = response.body().string();
-                JSONParser jsonParser = new JSONParser();
-                JSONObject responseJson = (JSONObject) jsonParser.parse(responseBody);
+            System.out.println("response : " + response);
+            String responseBody = response.body().string();
+            JSONParser jsonParser = new JSONParser();
+            JSONObject responseJson = (JSONObject) jsonParser.parse(responseBody);
 
+            System.out.println("responseJson : " + responseJson);
+            if(response.isSuccessful()){
                 int intBookingID = Integer.parseInt(responseJson.get("channel_booking_number").toString());
                 String strSpBookingId = responseJson.get("booking_number").toString();
                 String status = responseJson.get("status").toString();
@@ -218,34 +235,52 @@ public class BookingService {
                     strBookingProcess = "5"; // 취소대기
                 }
 
-                boolean refundable = (boolean) responseJson.get("refundable");
-                String strRefundYN = "";
-                if(refundable){
-                    strRefundYN = "Y";
-                }else{
-                    strRefundYN = "N";
-                }
-
-                String strOndaRefundType = responseJson.get("refund_type").toString();
-
-
-                JSONArray refundPolicyArr = (JSONArray) responseJson.get("responseJson");
+                JSONArray rateplanArr = (JSONArray) responseJson.get("rateplans");
 
                 String strRefundPolicys = "";
-                for(int i=0; i<refundPolicyArr.size(); i++){
-                    JSONObject refundPolicyJson = (JSONObject) refundPolicyArr.get(i);
-                    String untilDate = refundPolicyJson.get("until").toString();
-                    int intPercent = Integer.parseInt(refundPolicyJson.get("percent").toString());
-                    int intRefundPrice = Integer.parseInt(refundPolicyJson.get("refund_amount").toString());
-                    int intRefundFee = Integer.parseInt(refundPolicyJson.get("charge_amount").toString());
+                for(int i=0; i< rateplanArr.size(); i++){
+                    JSONObject rateplanJson = (JSONObject) rateplanArr.get(i);
 
-                    // refund_policy 테이블에 insert
-                    bookingMapper.insertRefundPolicy(untilDate, intPercent, intRefundPrice, intRefundFee);
+                    boolean refundable = (boolean) rateplanJson.get("refundable");
+                    String strRefundYN = "";
+                    if(refundable){
+                        strRefundYN = "Y";
+                    }else{
+                        strRefundYN = "N";
+                    }
 
+                    String strOndaRefundType = rateplanJson.get("refund_type").toString();
+
+                    JSONArray refundPolicyArr = (JSONArray) rateplanJson.get("refund_policy");
+
+
+                    for(int j=0; j<refundPolicyArr.size(); j++){
+                        JSONObject refundPolicyJson = (JSONObject) refundPolicyArr.get(j);
+
+                        // 한국날짜시간으로 변경
+                        SimpleDateFormat sdf = new SimpleDateFormat ("yyyy-MM-dd'T'HH:mm:ssXXX"); // 2023-05-25T15:00:23+09:00
+                        SimpleDateFormat sdf2 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+
+                        Date originDate = sdf.parse(refundPolicyJson.get("until").toString());
+
+                        Calendar cal = Calendar.getInstance();
+                        cal.setTime(originDate);
+                        cal.add(Calendar.HOUR, 9);
+                        String strUntilDate = sdf2.format(cal.getTime());
+
+                        int intPercent = Integer.parseInt(refundPolicyJson.get("percent").toString());
+                        int intRefundPrice = Integer.parseInt(refundPolicyJson.get("refund_amount").toString());
+                        int intRefundFee = Integer.parseInt(refundPolicyJson.get("charge_amount").toString());
+
+                        // refund_policy 테이블에 insert
+                        strRefundPolicys += (i+1) + "|^|" + strUntilDate + "|^|" + intPercent + "|^|" + intRefundPrice + "|^|" + intRefundFee  + "|^|" + strRefundYN  + "|^|" + strOndaRefundType + "|^|" + "{{|}}";
+                    }
+
+                    strRefundPolicys = strRefundPolicys.substring(0, strRefundPolicys.length()-5);
                 }
 
-                // 프로시저로 만들어서 booking테이블 업데이트, refundpolicy 테이블 insert 한 번에 하는게?
-
+                // booking 테이블 UPDATE, refund_policy 테이블 INSERT
+                bookingMapper.updateBooking(intBookingID, strSpBookingId, strBookingProcess, strRefundPolicys);
             }
 
         }catch (Exception e){

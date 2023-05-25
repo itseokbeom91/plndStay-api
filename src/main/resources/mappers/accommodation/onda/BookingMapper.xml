@@ -8,8 +8,8 @@
         SELECT
             B.intCondoID,
             C.accomm_id AS accommId,
-            B.checkInDate,
-            B.checkOutDate,
+            convert(varchar(10), B.checkInDate, 120) AS checkInDate,
+            convert(varchar(10), B.checkOutDate, 120) AS checkOutDate,
             RP.strRatePlanId,
             G.intSalePrice,
             ISNULL(B.intPersonCount, RT.standpeopleCnt) AS intPersonCount,
@@ -36,4 +36,8 @@
             #{untilDate}, ${intPercent}, ${intRefundPrice}, ${intRefundFee}
         )
     </insert>
+
+    <select id="updateBooking" resultType="String">
+        EXEC spGW_BOOKING_UPDATE_SUPPLIER ${intBookingID}, #{strSpBookingId}, #{strBookingProcess}, #{strRefundPolicys}, ''
+    </select>
 </mapper>
