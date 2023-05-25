@@ -34,7 +34,7 @@
         from condo24.test_Booking tb with(nolock)
         inner join condo24.test_condo tc with(nolock) on tb.intCondoID = tc.intCondoID
             inner join condo24.test_rate_plan rp with(nolock) on tb.intrateID = rp.intRateID
-        where tb.intBookingID = 2
+        where tb.intBookingID = ${intBookingID}
     </select>
 
 </mapper>
