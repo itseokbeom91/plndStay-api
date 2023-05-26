@@ -61,10 +61,8 @@ public class BookingDto {
      */
     private int strBookingID;
     private int intCondoID;
-    private String accommId;
     private int intRoomID;
     private int intRateID;
-    private String strRatePlanId;
     private int intGoodsID;
     private String checkInDate;
     private String checkOutDate;
@@ -74,5 +72,10 @@ public class BookingDto {
     private int intCustomerID;
     private String strSpBookingId;
     private String strBookingProcess;
+
+    private String accommId;
+    private String strRatePlanId;
+    private String strRoomTypeId;
+    private int intTotalSalePrice;
 
 }

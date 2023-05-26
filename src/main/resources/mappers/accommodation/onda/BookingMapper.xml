@@ -7,11 +7,13 @@
     <select id="getBookingByIntBookingID" resultType="BookingDto">
         SELECT
             B.intCondoID,
+            B.intRoomID,
+            B.intRateID,
             C.accomm_id AS accommId,
+            RT.room_type_id AS strRoomTypeId,
             convert(varchar(10), B.checkInDate, 120) AS checkInDate,
             convert(varchar(10), B.checkOutDate, 120) AS checkOutDate,
             RP.strRatePlanId,
-            G.intSalePrice,
             ISNULL(B.intPersonCount, RT.standpeopleCnt) AS intPersonCount,
             B.strRecvName,
             B.strRecvPhone,
@@ -19,25 +21,28 @@
             B.strOrdName,
             B.strOrdEmail,
             B.strOrdPhone,
-            B.intRoomCount
+            B.intRoomCount,
+            B.strBookingProcess,
+            (SELECT SUM(tg.intSalePrice)
+             FROM test_goods tg WITH(NOLOCK)
+             JOIN test_booking_goods bg ON tg.intGoodsID = bg.intGoodsID
+             WHERE bg.intBookingID = ${intBookingID}) AS intTotalSalePrice,
+            B.strSpBookingId
         FROM test_Booking B WITH(NOLOCK)
             LEFT JOIN test_condo C WITH(NOLOCK) ON B.intCondoID = C.intCondoID
             LEFT JOIN test_room_type RT WITH(NOLOCK) ON B.intRoomID = RT.intRoomID
             LEFT JOIN test_rate_plan RP WITH(NOLOCK) ON B.intRateID = RP.intRateID
-            LEFT JOIN test_goods G WITH(NOLOCK) ON B.intGoodsID = G.intGoodsID
-        WHERE intBookingID = ${intBookingID}
+        WHERE B.intBookingID = ${intBookingID}
     </select>
-
-    <insert id="insertRefundPolicy">
-        INSERT INTO test_refund_policy (
-            untilDate, intPercent, intRefundPrice, intRefundFee
-        )
-        VALUES(
-            #{untilDate}, ${intPercent}, ${intRefundPrice}, ${intRefundFee}
-        )
-    </insert>
 
     <select id="updateBooking" resultType="String">
-        EXEC spGW_BOOKING_UPDATE_SUPPLIER ${intBookingID}, #{strSpBookingId}, #{strBookingProcess}, #{strRefundPolicys}, ''
+        EXEC spGW_BOOKING_UPDATE_SUPPLIER ${intBookingID}, ${intCondoID}, ${intRoomID}, ${intRateID}, #{strSpBookingId},
+            #{strRefundPolicies}, ${stayDays}, ''
     </select>
+
+    <update id="updateBookingStatus" parameterType="String">
+        UPDATE test_Booking SET strBookingProcess = #{strBookingProcess}
+        WHERE intBookingID = ${intBookingID}
+    </update>
+
 </mapper>
