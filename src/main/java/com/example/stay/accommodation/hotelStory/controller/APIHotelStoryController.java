@@ -255,8 +255,24 @@ public class APIHotelStoryController {
     }
 
     @GetMapping("/booking")
-    public void getBooking(){
-        apiHotelstoryService.booking();
+    public void getBooking(int intBookingID){
+
+        apiHotelstoryService.booking(intBookingID);
+
+    }
+
+    @GetMapping("/bookingCheck")
+    public void checkBooking(){
+
+        apiHotelstoryService.bookingCheck();
+
+    }
+
+    @GetMapping("/bookingCancel")
+    public void cancelBooking(){
+
+        apiHotelstoryService.bookingCancel();
+
     }
 
     public static String getClientIP() {

@@ -354,61 +354,77 @@ public class APIHotelstoryService {
     }
 
 
-    public String booking(){
+    /**
+     * 예약하기
+     * @param intBookingID
+     * @return
+     */
+    public String booking(int intBookingID){
         String result = "";
 
         try {
-            BookingDto bookingDto = hotelStoryMapper.getbooking();
-            System.out.println(bookingDto);
-            String strOrderId = "";
-            String strPropertyId = "";
-            String strRoomTypeId = "";
-            String strRatePlanId = "";
-            String strRatePlanName = "";
-            String strRoom = "";
-            String strStartDate = "";
-            String strEndDate = "";
-            String strPrice = "";
-            String strOrderLastName = "";
-            String strOrderFirstName = "";
-            String strOrderEmail = "";
-            String strOrderPhone = "";
-            String strUserLastName = "";
-            String strUserFirstName = "";
-            String strUserEmail = "";
-            String strUserPhone = "";
+            BookingDto bookingDto = hotelStoryMapper.getbooking(intBookingID);
+            //System.out.println(bookingDto);
+            String strOrderId = Integer.toString(bookingDto.getIntBookingID());
+            String strPropertyId = bookingDto.getStrPropertyId();
+            String strRoomTypeId = bookingDto.getStrRoomTypeId();
+            String strRatePlanId = bookingDto.getStrRatePlanId();
+            String strRatePlanName = bookingDto.getStrRatePlanName();
+            String strRoom = Integer.toString(bookingDto.getIntRoomCount());
+            String strStartDate = bookingDto.getCheckInDate().split(" ")[0];
+            String strEndDate = bookingDto.getCheckOutDate().split(" ")[0];
+            String strPrice = Integer.toString(bookingDto.getIntPaymentPrice());
+
+            // 주문자 이름 및 정보
+            String strOrderName = bookingDto.getStrOrdName();
+            String strOrderLastName = strOrderName.substring(0,1);
+            String strOrderFirstName = strOrderName.substring(strOrderName.lastIndexOf(strOrderLastName)+1);
+            String strOrderEmail = bookingDto.getStrOrdEmail();
+            String strOrderPhone = bookingDto.getStrOrdPhone();
+
+            // 투숙자 이름 및 정보
+            String strUserName = bookingDto.getStrRecvName();
+            String strUserLastName = strUserName.substring(0,1);
+            String strUserFirstName = strUserName.substring(strUserName.lastIndexOf(strUserLastName)+1);
+            String strUserEmail = bookingDto.getStrRecvEmail();
+            String strUserPhone = bookingDto.getStrRecvPhone();
+
+            // API 호출 정보
+            String sysHotelStoryID = Constants.hotelStoryID;
+            String sysHotelStoryAuthKey = Constants.hotelStoryAuthKey;
+            URL url = new URL("https://b2b.hotelstory.com/API/api.php");
 
             String strXml =
                     "<RequestBooking>\n" +
                     "   <Auth>\n" +
-                    "       <AuthId>"+Constants.hotelStoryID+"</AuthId>\n" +
-                    "       <AuthKey>"+Constants.hotelStoryAuthKey+"</AuthKey>\n" +
+                    "       <AuthId>"+sysHotelStoryID+"</AuthId>\n" +
+                    "       <AuthKey>"+sysHotelStoryAuthKey+"</AuthKey>\n" +
                     "   </Auth>\n" +
                     "   <Channel>condo2424</Channel>\n" +
-                    "   <ChannelBookingId>"+bookingDto.getIntBookingID()+"</ChannelBookingId>\n" +
-                    "   <PropertyId>"+bookingDto.getStrPropertyId()+"</PropertyId>\n" +
-                    "   <RoomTypeId>"+bookingDto.getStrRoomTypeId()+"</RoomTypeId>\n" +
-                    "   <RatePlanId>"+bookingDto.getStrRatePlanId()+"</RatePlanId>\n" +
-                    "   <RatePlanName>"+bookingDto.getStrRatePlanName()+"</RatePlanName>\n" +
-                    "   <NumRooms>"+bookingDto.getIntRoomCount()+"</NumRooms>\n" +
-                    "   <StartDate>"+bookingDto.getCheckInDate()+"</StartDate>\n" +
-                    "   <EndDate>"+bookingDto.getCheckOutDate()+"</EndDate>\n" +
+                    "   <ChannelBookingId>"+strOrderId+"</ChannelBookingId>\n" +
+                    "   <PropertyId>"+strPropertyId+"</PropertyId>\n" +
+                    "   <RoomTypeId>"+strRoomTypeId+"</RoomTypeId>\n" +
+                    "   <RatePlanId>"+strRatePlanId+"</RatePlanId>\n" +
+                    "   <RatePlanName>"+strRatePlanName+"</RatePlanName>\n" +
+                    "   <NumRooms>"+strRoom+"</NumRooms>\n" +
+                    "   <StartDate>"+strStartDate+"</StartDate>\n" +
+                    "   <EndDate>"+strEndDate+"</EndDate>\n" +
                     "   <BedTypeCode></BedTypeCode>\n" +
                     "   <MealCode></MealCode>\n" +
-                    "   <Price>"+bookingDto.getIntPaymentPrice()+"</Price>\n" +
-                    "   <AdultCount></AdultCount>\n" +
+                    "   <Price>"+strPrice+"</Price>\n" +
+                    "   <AdultCount>2</AdultCount>\n" +
                     "   <ChildCount></ChildCount>\n" +
                     "   <Customer>\n" +
-                    "       <CustomerFName>"+bookingDto.getStrOrdName()+"</CustomerFName>\n" +
-                    "       <CustomerLName>"+bookingDto.getStrOrdName()+"</CustomerLName>\n" +
-                    "       <CustomerEmail>"+bookingDto.getStrOrdEmail()+"</CustomerEmail>\n" +
-                    "       <CustomerPhone>"+bookingDto.getStrOrdPhone()+"</CustomerPhone>\n" +
+                    "       <CustomerFName>"+strOrderFirstName+"</CustomerFName>\n" +
+                    "       <CustomerLName>"+strOrderLastName+"</CustomerLName>\n" +
+                    "       <CustomerEmail>"+strOrderEmail+"</CustomerEmail>\n" +
+                    "       <CustomerPhone>"+strOrderPhone+"</CustomerPhone>\n" +
                     "   </Customer>\n" +
                     "   <Occupant>\n" +
-                    "       <OccupantFName>"+bookingDto.getStrRecvName()+"</OccupantFName>\n" +
-                    "       <OccupantLName>"+bookingDto.getStrRecvName()+"</OccupantLName>\n" +
-                    "       <OccupantEmail>"+bookingDto.getStrRecvEmail()+"</OccupantEmail>\n" +
-                    "       <OccupantPhone>"+bookingDto.getStrRecvPhone()+"</OccupantPhone>\n" +
+                    "       <OccupantFName>"+strUserFirstName+"</OccupantFName>\n" +
+                    "       <OccupantLName>"+strUserLastName+"</OccupantLName>\n" +
+                    "       <OccupantEmail>"+strUserEmail+"</OccupantEmail>\n" +
+                    "       <OccupantPhone>"+strUserPhone+"</OccupantPhone>\n" +
                     "   </Occupant>\n" +
                     "   <CancelPolicys>\n" +
                     "       <CancelPolicy>\n" +
@@ -416,7 +432,143 @@ public class APIHotelstoryService {
                     "   </CancelPolicys>\n" +
                     "</RequestBooking>\n";
 
+            System.out.println(strXml);
 
+            // API 호출
+            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+            conn.setRequestMethod("POST");
+            conn.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
+            conn.setDoOutput(true);
+
+            OutputStreamWriter writer = new OutputStreamWriter(conn.getOutputStream(), "UTF-8");
+            writer.write(strXml);
+            writer.close();
+
+            // transformer 사용하기 위해 xml을 Document로 파싱
+            DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
+            DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
+            Document document = dBuilder.parse(conn.getInputStream());
+            document.getDocumentElement().normalize();
+            conn.disconnect();
+
+            System.out.println(xmlUtility.parsingXml(document));
+            NodeList nodeList = document.getElementsByTagName("ResponseBooking");
+            for(int i=0; i<nodeList.getLength(); i++) {
+
+                Node node = nodeList.item(i);
+                if (node.getNodeType() == Node.ELEMENT_NODE) {
+
+                    Element element = (Element) node;
+                    //System.out.println(element.);
+                    if(xmlUtility.getTagValue("ErrorCode",element).isEmpty()){
+
+                    }else{
+                        System.out.println(xmlUtility.getTagValue("ErrorCode", element));
+                    }
+
+                }
+            }
+
+
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+
+        return result;
+    }
+
+
+    public String bookingCheck(){
+        String result = "";
+
+        try {
+            // API 호출 정보
+            String sysHotelStoryID = Constants.hotelStoryID;
+            String sysHotelStoryAuthKey = Constants.hotelStoryAuthKey;
+            URL url = new URL("https://b2b.hotelstory.com/API/api.php");
+
+            String strXml =
+                    "<RequestBookingList>\n" +
+                    "   <Auth>\n" +
+                    "       <AuthId>"+sysHotelStoryID+"</AuthId>\n" +
+                    "       <AuthKey>"+sysHotelStoryAuthKey+"</AuthKey>\n" +
+                    "   </Auth>\n" +
+                    "   <ChannelBookingId>2</ChannelBookingId>\n" +
+                    "   <BookingId>S2305252145</BookingId>\n" +
+                    "   <DateType>C</DateType>\n" +
+                    "   <StartDate>2023-06-27</StartDate>\n" +
+                    "   <EndDate>2023-06-28</EndDate>\n" +
+                    "</RequestBookingList>\n";
+
+            System.out.println(strXml);
+
+            // API 호출
+            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+            conn.setRequestMethod("POST");
+            conn.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
+            conn.setDoOutput(true);
+
+            OutputStreamWriter writer = new OutputStreamWriter(conn.getOutputStream(), "UTF-8");
+            writer.write(strXml);
+            writer.close();
+
+            // transformer 사용하기 위해 xml을 Document로 파싱
+            DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
+            DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
+            Document doc = dBuilder.parse(conn.getInputStream());
+            doc.getDocumentElement().normalize();
+            conn.disconnect();
+
+            System.out.println(xmlUtility.parsingXml(doc));
+
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+
+
+        return result;
+    }
+
+    public String bookingCancel(){
+        String result = "";
+
+        try {
+            // API 호출 정보
+            String sysHotelStoryID = Constants.hotelStoryID;
+            String sysHotelStoryAuthKey = Constants.hotelStoryAuthKey;
+            URL url = new URL("https://b2b.hotelstory.com/API/api.php");
+
+            String strXml =
+                    "<RequestCancellation>\n" +
+                    "   <Auth>\n" +
+                    "       <AuthId>"+sysHotelStoryID+"</AuthId>\n" +
+                    "       <AuthKey>"+sysHotelStoryAuthKey+"</AuthKey>\n" +
+                    "   </Auth>\n" +
+                    "   <ChannelBookingId>2</ChannelBookingId>\n" +
+                    "   <BookingId>S2305252145</BookingId>\n" +
+                    "   <CancellationReason>test_cancel</CancellationReason>\n" +
+                    "</RequestCancellation>\n";
+
+            System.out.println(strXml);
+
+            // API 호출
+            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+            conn.setRequestMethod("POST");
+            conn.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
+            conn.setDoOutput(true);
+
+            OutputStreamWriter writer = new OutputStreamWriter(conn.getOutputStream(), "UTF-8");
+            writer.write(strXml);
+            writer.close();
+
+            // transformer 사용하기 위해 xml을 Document로 파싱
+            DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
+            DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
+            Document doc = dBuilder.parse(conn.getInputStream());
+            doc.getDocumentElement().normalize();
+            conn.disconnect();
+
+            System.out.println(xmlUtility.parsingXml(doc));
 
         }catch (Exception e){
             e.printStackTrace();
