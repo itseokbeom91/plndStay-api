@@ -21,5 +21,6 @@ public class BookingDto {
     private String strRecvEmail;
     private String strRecvPhone;
     private int intRoomCount;
+    private String strSpBookingId;
 
 }

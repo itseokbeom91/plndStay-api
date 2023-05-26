@@ -30,11 +30,19 @@
     <select id="getbooking" resultType="com.example.stay.accommodation.hotelStory.dto.BookingDto">
         select tc.accomm_id as strPropertyId, rp.strRatePlanName, rp.strRoomTypeId, rp.strRatePlanId,
                tb.intBookingID, tb.checkInDate, tb.checkOutDate, tb.intPaymentPrice, tb.intPersonCount,
-               tb.strOrdName, tb.strOrdemail, tb.strOrdPhone, tb.strRecvName, tb.strRecvemail, tb.strRecvPhone, tb.introomCount
+               tb.strOrdName, tb.strOrdemail, tb.strOrdPhone, tb.strRecvName, tb.strRecvemail, tb.strRecvPhone, tb.introomCount, tb.strSpBookingId
         from condo24.test_Booking tb with(nolock)
         inner join condo24.test_condo tc with(nolock) on tb.intCondoID = tc.intCondoID
             inner join condo24.test_rate_plan rp with(nolock) on tb.intrateID = rp.intRateID
         where tb.intBookingID = ${intBookingID}
+    </select>
+
+    <select id="updateBooking" resultType="String">
+        EXEC spGW_BOOKING_UPDATE_PROCESS ${intBookingID}, #{strBookingProcess}, #{strSpBookingId}, ${intRoomCount}, ''
+    </select>
+
+    <select id="insertRefund" resultType="String">
+        EXEC spGW_REFUND_POLICY_REGIST ${intBookingID}, #{strRefundData}, ''
     </select>
 
 </mapper>

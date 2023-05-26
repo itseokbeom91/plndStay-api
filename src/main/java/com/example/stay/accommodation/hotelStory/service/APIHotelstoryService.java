@@ -452,21 +452,45 @@ public class APIHotelstoryService {
             conn.disconnect();
 
             System.out.println(xmlUtility.parsingXml(document));
-            NodeList nodeList = document.getElementsByTagName("ResponseBooking");
-            for(int i=0; i<nodeList.getLength(); i++) {
+            NodeList successList = document.getElementsByTagName("ResponseBooking");
+            NodeList errorList = document.getElementsByTagName("Error");
 
-                Node node = nodeList.item(i);
+
+            if(errorList.getLength() > 0){
+                Node node = errorList.item(0);
                 if (node.getNodeType() == Node.ELEMENT_NODE) {
 
                     Element element = (Element) node;
-                    //System.out.println(element.);
-                    if(xmlUtility.getTagValue("ErrorCode",element).isEmpty()){
-
-                    }else{
-                        System.out.println(xmlUtility.getTagValue("ErrorCode", element));
-                    }
+                    System.out.println(xmlUtility.getTagValue("ErrorCode", element));
+                    System.out.println(xmlUtility.getTagValue("ErrorDescription", element));
 
                 }
+
+            }else if(successList.getLength() > 0){
+
+                Node node = successList.item(0);
+                if (node.getNodeType() == Node.ELEMENT_NODE) {
+
+                    Element element = (Element) node;
+                    System.out.println(xmlUtility.getTagValue("BookingId", element));
+                    System.out.println(xmlUtility.getTagValue("BookingStatus", element));
+                    String strBookingId = xmlUtility.getTagValue("BookingId", element).toString();
+                    String strBookingStatus = xmlUtility.getTagValue("BookingStatus", element);
+                    String strBookingProcess = "";
+                    if(strBookingStatus.equals("CF")) { // 예약완료
+                        strBookingProcess = "4";
+                    }else if(strBookingStatus.equals("CP")){ // 예약대기(번호대기)
+                        strBookingProcess = "2";
+                    }else if(strBookingStatus.equals("RJ")){ // 예약불가
+                        strBookingProcess = "21";
+                    }else{ // 취소대기
+                        strBookingProcess = "14";
+                    }
+
+                    hotelStoryMapper.updateBooking(intBookingID, strBookingProcess, strBookingId, Integer.parseInt(strRoom));
+
+                }
+
             }
 
 
@@ -478,10 +502,17 @@ public class APIHotelstoryService {
     }
 
 
-    public String bookingCheck(){
+    public String bookingCheck(int intBookingID){
         String result = "";
 
         try {
+            BookingDto bookingDto = hotelStoryMapper.getbooking(intBookingID);
+
+            String strOrderId = Integer.toString(bookingDto.getIntBookingID());
+            String strBookingId = bookingDto.getStrSpBookingId();
+            String strStartDate = bookingDto.getCheckInDate().split(" ")[0];
+            String strEndDate = bookingDto.getCheckOutDate().split(" ")[0];
+
             // API 호출 정보
             String sysHotelStoryID = Constants.hotelStoryID;
             String sysHotelStoryAuthKey = Constants.hotelStoryAuthKey;
@@ -493,11 +524,11 @@ public class APIHotelstoryService {
                     "       <AuthId>"+sysHotelStoryID+"</AuthId>\n" +
                     "       <AuthKey>"+sysHotelStoryAuthKey+"</AuthKey>\n" +
                     "   </Auth>\n" +
-                    "   <ChannelBookingId>2</ChannelBookingId>\n" +
-                    "   <BookingId>S2305252145</BookingId>\n" +
+                    "   <ChannelBookingId>"+strOrderId+"</ChannelBookingId>\n" +
+                    "   <BookingId>"+strBookingId+"</BookingId>\n" +
                     "   <DateType>C</DateType>\n" +
-                    "   <StartDate>2023-06-27</StartDate>\n" +
-                    "   <EndDate>2023-06-28</EndDate>\n" +
+                    "   <StartDate>"+strStartDate+"</StartDate>\n" +
+                    "   <EndDate>"+strEndDate+"</EndDate>\n" +
                     "</RequestBookingList>\n";
 
             System.out.println(strXml);
@@ -515,11 +546,48 @@ public class APIHotelstoryService {
             // transformer 사용하기 위해 xml을 Document로 파싱
             DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
             DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
-            Document doc = dBuilder.parse(conn.getInputStream());
-            doc.getDocumentElement().normalize();
+            Document document = dBuilder.parse(conn.getInputStream());
+            document.getDocumentElement().normalize();
             conn.disconnect();
 
-            System.out.println(xmlUtility.parsingXml(doc));
+            System.out.println(xmlUtility.parsingXml(document));
+            int intPirce = 0;
+            NodeList infoList = document.getElementsByTagName("Booking");
+            Node infoNode = infoList.item(0);
+            if (infoNode.getNodeType() == Node.ELEMENT_NODE) {
+
+                Element element = (Element) infoNode;
+                System.out.println(xmlUtility.getTagValue("Price", element));
+                intPirce = Integer.parseInt(xmlUtility.getTagValue("Price", element).toString());
+
+            }
+
+            NodeList cancelList = document.getElementsByTagName("CancelPolicy");
+            if(cancelList.getLength() > 0){
+                String refundData = "";
+                for(int i=0; i<cancelList.getLength(); i++){
+                    Node node = cancelList.item(i);
+                    if (node.getNodeType() == Node.ELEMENT_NODE) {
+
+                        Element element = (Element) node;
+                        int intPercent = Integer.parseInt(xmlUtility.getTagValue("Charge", element).toString());
+                        int intRefundPrice = intPirce*(intPercent/100);
+                        int intRefundFee = intPirce - intRefundPrice;
+
+                        System.out.println(xmlUtility.getTagValue("DeadLine", element));
+                        System.out.println(xmlUtility.getTagValue("Charge", element));
+                        refundData += xmlUtility.getTagValue("DeadLine", element) + "|^|";
+                        refundData += intPercent +"|^|"+ intRefundPrice +"|^|"+ intRefundFee +"{{|}}";
+
+                    }
+                }
+                if(refundData.length() > 1){
+                    refundData = refundData.substring(0, refundData.length()-5);
+                }
+
+                hotelStoryMapper.insertRefund(intBookingID, refundData);
+
+            }
 
         }catch (Exception e){
             e.printStackTrace();
@@ -529,10 +597,16 @@ public class APIHotelstoryService {
         return result;
     }
 
-    public String bookingCancel(){
+    public String bookingCancel(int intBookingID){
         String result = "";
 
         try {
+            BookingDto bookingDto = hotelStoryMapper.getbooking(intBookingID);
+
+            String strOrderId = Integer.toString(bookingDto.getIntBookingID());
+            String strBookingId = bookingDto.getStrSpBookingId();
+            String strRoom = Integer.toString(bookingDto.getIntRoomCount());
+
             // API 호출 정보
             String sysHotelStoryID = Constants.hotelStoryID;
             String sysHotelStoryAuthKey = Constants.hotelStoryAuthKey;
@@ -544,9 +618,9 @@ public class APIHotelstoryService {
                     "       <AuthId>"+sysHotelStoryID+"</AuthId>\n" +
                     "       <AuthKey>"+sysHotelStoryAuthKey+"</AuthKey>\n" +
                     "   </Auth>\n" +
-                    "   <ChannelBookingId>2</ChannelBookingId>\n" +
-                    "   <BookingId>S2305252145</BookingId>\n" +
-                    "   <CancellationReason>test_cancel</CancellationReason>\n" +
+                    "   <ChannelBookingId>"+strOrderId+"</ChannelBookingId>\n" +
+                    "   <BookingId>"+strBookingId+"</BookingId>\n" +
+                    "   <CancellationReason></CancellationReason>\n" +
                     "</RequestCancellation>\n";
 
             System.out.println(strXml);
@@ -564,11 +638,43 @@ public class APIHotelstoryService {
             // transformer 사용하기 위해 xml을 Document로 파싱
             DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
             DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
-            Document doc = dBuilder.parse(conn.getInputStream());
-            doc.getDocumentElement().normalize();
+            Document document = dBuilder.parse(conn.getInputStream());
+            document.getDocumentElement().normalize();
             conn.disconnect();
 
-            System.out.println(xmlUtility.parsingXml(doc));
+            System.out.println(xmlUtility.parsingXml(document));
+            NodeList successList = document.getElementsByTagName("ResponseCancellation");
+            NodeList errorList = document.getElementsByTagName("Error");
+
+            if(errorList.getLength() > 0){
+                Node node = errorList.item(0);
+                if (node.getNodeType() == Node.ELEMENT_NODE) {
+
+                    Element element = (Element) node;
+                    System.out.println(xmlUtility.getTagValue("ErrorCode", element));
+                    System.out.println(xmlUtility.getTagValue("ErrorDescription", element));
+
+                }
+
+            }else if(successList.getLength() > 0){
+
+                Node node = successList.item(0);
+                if (node.getNodeType() == Node.ELEMENT_NODE) {
+
+                    Element element = (Element) node;
+
+                    String strBookingStatus = xmlUtility.getTagValue("BookingStatus", element);
+                    String strBookingProcess = "";
+                    if(strBookingStatus.equals("CX")) { // 취소
+                        strBookingProcess = "14";
+                        hotelStoryMapper.updateBooking(intBookingID, strBookingProcess, strBookingId, Integer.parseInt(strRoom));
+                    }else{ // 취소 실패
+                        System.out.println("취소 실패");
+                    }
+
+                }
+
+            }
 
         }catch (Exception e){
             e.printStackTrace();

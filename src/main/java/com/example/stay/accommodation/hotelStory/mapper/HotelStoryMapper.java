@@ -22,4 +22,8 @@ public interface HotelStoryMapper {
     String insertGoods(String strRatePlanID, int intStock, String strDate, int intBasicPrice, int intSalePrice);
 
     BookingDto getbooking(int intBookingID);
+
+    String updateBooking(int intBookingID, String strBookingProcess, String strSpBookingId, int intRoomCount);
+
+    String insertRefund(int intBookingID, String strRefundData);
 }
