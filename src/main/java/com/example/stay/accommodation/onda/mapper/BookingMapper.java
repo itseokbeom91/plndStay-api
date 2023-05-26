@@ -7,9 +7,9 @@ import org.springframework.stereotype.Repository;
 public interface BookingMapper {
     BookingDto getBookingByIntBookingID(int intOrderID);
 
-    int insertRefundPolicy(String untilDate, int intPercent, int intRefundPrice, int intRefundFee);
+    String updateBooking(int intBookingID, int intCondoID, int intRoomID, int intRateID, String strSpBookingId,
+                         String strRefundPolicies, long stayDays);
 
-    String updateBooking(int intBookingID, String strSpBookingId, String strBookingProcess, String strRefundPolicys);
-
+    int updateBookingStatus(String strBookingProcess, int intBookingID);
 
 }

@@ -18,11 +18,21 @@ public class BookingController {
     private BookingService bookingService;
 
     /**
-     * 예약
+     * 예약 생성
      */
     @GetMapping("createBooking")
-    public void createBooking(int intBookingID){
+    public void createBooking(int intBookingID) {
+
         bookingService.createBookingInfo(intBookingID);
+    }
+
+    /**
+     * 예약 취소
+     */
+    @GetMapping("cancelBooking")
+    public void cancelBooking(int intBookingID) {
+
+        bookingService.cancelBookingInfo(intBookingID);
     }
 
 }
