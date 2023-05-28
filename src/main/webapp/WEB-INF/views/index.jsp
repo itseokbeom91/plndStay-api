@@ -49,7 +49,7 @@ insert - SSG
 
 <%--<input type="button" id="requestToken" class="eland_btn" value="이랜드 토큰 발급">--%>
 <%--<input type="button" id="getOrder" class="eland_btn" value="이랜드 주문 가져오기">--%>
-
+<input type="button" id="testBtn" value="ONDA test">
 </body>
 <script  src="http://code.jquery.com/jquery-latest.min.js"></script>
 <script>
@@ -128,8 +128,22 @@ insert - SSG
         location.href="/eland/order/getOrder";
     })
 
-</script>
+    $("#testBtn").click(function() {
+        $.ajax({
+            type :'GET',
+            url: "/onda/booking/createBooking?intBookingID=9",
+            contentType: "application/json; charset=utf-8",
+            success : function(responseData){
+                console.log(responseData)
+                alert(responseData.result.message);
+            },
+            error : function(err){
+                console.log(err)
+            }
+        });
 
-<a href="/accomm/onda/getAccommTotal?">[ONDA] 숙소 정보 불러오기</a>
+    });
+
+</script>
 
 </html>

@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -22,9 +23,11 @@ public class BookingController {
      * 예약 생성
      */
     @GetMapping("createBooking")
-    public void createBooking(int intBookingID) {
+    @ResponseBody
+    public ResponseResult createBooking(int intBookingID) {
 
-        bookingService.createBookingInfo(intBookingID);
+        ResponseResult responseResult = bookingService.createBookingInfo(intBookingID);
+        return responseResult;
     }
 
     /**

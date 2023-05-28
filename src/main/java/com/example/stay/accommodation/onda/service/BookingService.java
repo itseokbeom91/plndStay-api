@@ -225,6 +225,8 @@ public class BookingService {
             e.printStackTrace();
 //            message = e.getMessage();
         }
+        resultMap.put("status", true);
+        resultMap.put("message", "DPDPDPDPDDPD");
 
         return new ResponseResult<>(resultMap);
     }
