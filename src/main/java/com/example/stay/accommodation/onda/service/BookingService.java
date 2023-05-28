@@ -3,6 +3,7 @@ package com.example.stay.accommodation.onda.service;
 import com.example.stay.accommodation.onda.mapper.BookingMapper;
 import com.example.stay.common.util.Constants;
 import com.example.stay.common.util.LogWriter;
+import com.example.stay.common.util.ResponseResult;
 import com.example.stay.openMarket.common.dto.BookingDto;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -14,6 +15,7 @@ import org.json.simple.parser.JSONParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.text.SimpleDateFormat;
@@ -108,7 +110,10 @@ public class BookingService {
 //    }
 
     // 온다에 예약정보 전송데이터 생성
-    public void createBookingInfo(int intBookingID){
+    public ResponseResult<Map<String, Object>> createBookingInfo(int intBookingID){
+        Map<String, Object> resultMap = new HashMap<>();
+//        boolean status = false;
+//        String message = "";
         try{
             // intOrderID로 필요한 정보 조회
             BookingDto bookingDto = bookingMapper.getBookingByIntBookingID(intBookingID);
@@ -199,6 +204,7 @@ public class BookingService {
                     createBooking(propertyId, contetns, intCondoID, intRoomID, intRateID, stayDays);
                 }else{
                     System.out.println("예약이 불가능합니다");
+//                    message = "예약이 불가능합니다";
                 }
 
             }else if(strBookingProcess.equals("2")) { // 번호대기
@@ -217,8 +223,10 @@ public class BookingService {
 
         }catch (Exception e){
             e.printStackTrace();
+//            message = e.getMessage();
         }
 
+        return new ResponseResult<>(resultMap);
     }
 
     public void createBooking(String propertyId, String contents, int intCondoID, int intRoomID, int intRateID, long stayDays){
