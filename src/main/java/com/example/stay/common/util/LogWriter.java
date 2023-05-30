@@ -35,7 +35,6 @@ public class LogWriter {
 
     public LogWriter(String method, String apiUrl, long startTime){
         this.startTime = startTime;
-        this.processTime = (System.currentTimeMillis()-startTime)/1000.0;
         this.method = (method != null) ? method : "";
         this.apiUrl = (apiUrl != null) ? apiUrl : "";
     }
@@ -53,7 +52,7 @@ public class LogWriter {
     }
 
     public String makeLog(){
-        this.endTime = System.currentTimeMillis();
+        this.processTime = (System.currentTimeMillis()-startTime)/1000.0;
         String log = "";
         try{
             sb = new StringBuilder();

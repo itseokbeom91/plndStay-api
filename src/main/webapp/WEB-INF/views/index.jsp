@@ -131,11 +131,14 @@ insert - SSG
     $("#testBtn").click(function() {
         $.ajax({
             type :'GET',
-            url: "/onda/booking/createBooking?intBookingID=9",
+            // cancelBooking   createBooking
+            url: "/onda/booking/cancelBooking?intBookingID=9",
             contentType: "application/json; charset=utf-8",
+
             success : function(responseData){
                 console.log(responseData)
-                alert(responseData.result.message);
+                alert(responseData.statusCode);
+                alert(responseData.message);
             },
             error : function(err){
                 console.log(err)

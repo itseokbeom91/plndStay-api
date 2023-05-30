@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import javax.servlet.http.HttpServletRequest;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
@@ -24,9 +25,9 @@ public class BookingController {
      */
     @GetMapping("createBooking")
     @ResponseBody
-    public ResponseResult createBooking(int intBookingID) {
+    public ResponseResult createBooking(int intBookingID, HttpServletRequest httpServletRequest) {
 
-        ResponseResult responseResult = bookingService.createBookingInfo(intBookingID);
+        ResponseResult responseResult = bookingService.createBookingInfo(intBookingID, httpServletRequest);
         return responseResult;
     }
 
@@ -34,9 +35,11 @@ public class BookingController {
      * 예약 취소
      */
     @GetMapping("cancelBooking")
-    public void cancelBooking(int intBookingID) {
+    @ResponseBody
+    public ResponseResult cancelBooking(int intBookingID, HttpServletRequest httpServletRequest) {
 
-        bookingService.cancelBookingInfo(intBookingID);
+        ResponseResult responseResult = bookingService.cancelBookingInfo(intBookingID, httpServletRequest);
+        return responseResult;
     }
 
 }

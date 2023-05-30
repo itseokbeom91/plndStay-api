@@ -18,6 +18,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import javax.servlet.http.HttpServletRequest;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -29,6 +30,8 @@ public class BookingService {
 
     @Autowired
     private BookingMapper bookingMapper;
+
+    Gson gson = new GsonBuilder().setPrettyPrinting().create();
 
     // 예약 전 예약 가능 여부 조회
     public boolean checkAvailBooking(String propertyId, String roomTypeId, String ratePlanId, String checkInDate, String checkOutDate){
@@ -44,7 +47,7 @@ public class BookingService {
                 .addHeader("Authorization", Constants.ondaAuth)
                 .build();
 
-        LogWriter logWriter = new LogWriter("", request.url().toString(), startTime);
+        LogWriter logWriter = new LogWriter(request.method(), request.url().toString(), startTime);
 
         try{
             Response response = client.newCall(request).execute();
@@ -65,11 +68,6 @@ public class BookingService {
                     String date = datesJson.get("date").toString();
                     int vacancy = Integer.parseInt(datesJson.get("vacancy").toString());
 
-//                    dates += "예약 가능 여부 : " + availability
-//                            + "예약 일자 : " + date
-//                            + "예약 가능 재고 : " + vacancy + "개";
-
-                    Gson gson = new GsonBuilder().setPrettyPrinting().create();
                     dates += gson.toJson(datesJson);
 
                 }
@@ -79,11 +77,9 @@ public class BookingService {
             }
         }catch (Exception e){
             e.printStackTrace();
-            logWriter.add("예약 가능 여부 조회 실패");
+
             logWriter.add("error : " + e.getMessage());
             logWriter.log(0);
-//            System.out.println("예약 가능 여부 조회 실패");
-
         }
         return availability;
     }
@@ -110,10 +106,11 @@ public class BookingService {
 //    }
 
     // 온다에 예약정보 전송데이터 생성
-    public ResponseResult<Map<String, Object>> createBookingInfo(int intBookingID){
-        Map<String, Object> resultMap = new HashMap<>();
-//        boolean status = false;
-//        String message = "";
+    public ResponseResult createBookingInfo(int intBookingID, HttpServletRequest httpServletRequest){
+        LogWriter logWriter = new LogWriter(httpServletRequest.getMethod(), httpServletRequest.getServletPath(), System.currentTimeMillis());
+
+        String statusCode = "200";
+        String message = "";
         try{
             // intOrderID로 필요한 정보 조회
             BookingDto bookingDto = bookingMapper.getBookingByIntBookingID(intBookingID);
@@ -201,12 +198,15 @@ public class BookingService {
 
                     String contetns = requestJson.toJSONString();
 
-                    createBooking(propertyId, contetns, intCondoID, intRoomID, intRateID, stayDays);
+                    boolean result = createBooking(propertyId, contetns, intCondoID, intRoomID, intRateID, stayDays);
+                    if(result){
+                        message = "예약 완료";
+                    }else{
+                        message = "예약 실패";
+                    }
                 }else{
-                    System.out.println("예약이 불가능합니다");
-//                    message = "예약이 불가능합니다";
+                    message = "예약 불가";
                 }
-
             }else if(strBookingProcess.equals("2")) { // 번호대기
                 String strSpBookingId = bookingDto.getStrSpBookingId();
                 // 예약 확인으로 보내서
@@ -215,23 +215,37 @@ public class BookingService {
                 // 상태값이 확정으로 바꼈으면 업데이트
                 // 재고, 환불규정은 예약 생성할 때 업데이트 했으니까 상태값만 업데이트하면됨
                 if (strStatus.equals("4")) { // 예약 완료처리
-                    bookingMapper.updateBookingStatus(strBookingProcess, intBookingID);
+                    int result = bookingMapper.updateBookingStatus(strBookingProcess, intBookingID);
+                    if(result > 0){
+                        message = "예약 완료";
+                    }else{
+                        message = "예약 실패";
+                    }
                 } else {
-                    System.out.println("아직 예약이 확정되지 않았습니다");
+                    message = "아직 예약이 확정되지 않았습니다";
                 }
             }
 
+            logWriter.add("BookingID : " + intBookingID + " -> " + message);
+            logWriter.log(0);
         }catch (Exception e){
             e.printStackTrace();
-//            message = e.getMessage();
-        }
-        resultMap.put("status", true);
-        resultMap.put("message", "DPDPDPDPDDPD");
 
-        return new ResponseResult<>(resultMap);
+            message = "예약 실패";
+            statusCode = "500";
+            logWriter.add("error : " + e.getMessage());
+            logWriter.log(0);
+        }
+
+
+        return new ResponseResult<>(statusCode, message);
     }
 
-    public void createBooking(String propertyId, String contents, int intCondoID, int intRoomID, int intRateID, long stayDays){
+    public boolean createBooking(String propertyId, String contents, int intCondoID, int intRoomID, int intRateID, long stayDays){
+        boolean result = false;
+        String message = "";
+        long startTime = System.currentTimeMillis();
+
         OkHttpClient client = new OkHttpClient();
 
         MediaType mediaType = MediaType.parse("application/json; charset=utf-8");
@@ -243,15 +257,17 @@ public class BookingService {
                 .addHeader("content-type", "application/json")
                 .addHeader("Authorization", Constants.ondaAuth)
                 .build();
+
+        LogWriter logWriter = new LogWriter(request.method(), request.url().toString(), startTime);
+
+        String bookingID = "";
         try{
             Response response = client.newCall(request).execute();
 
-            System.out.println("response : " + response);
             String responseBody = response.body().string();
             JSONParser jsonParser = new JSONParser();
             JSONObject responseJson = (JSONObject) jsonParser.parse(responseBody);
 
-            System.out.println("responseJson : " + responseJson);
             if(response.isSuccessful()){
                 int intBookingID = Integer.parseInt(responseJson.get("channel_booking_number").toString());
                 String strSpBookingId = responseJson.get("booking_number").toString();
@@ -296,16 +312,27 @@ public class BookingService {
                 strRefundPolicies = strRefundPolicies.substring(0, strRefundPolicies.length()-5);
 
                 // booking 테이블 UPDATE, refund_policy 테이블 INSERT
-                bookingMapper.updateBooking(intBookingID, intCondoID, intRoomID, intRateID, strSpBookingId, strRefundPolicies, stayDays);
+                bookingID = bookingMapper.updateBooking(intBookingID, intCondoID, intRoomID, intRateID, strSpBookingId, strRefundPolicies, stayDays);
+                if(bookingID != null){
+                    result = true;
+                }
             }
 
+            message = gson.toJson(responseJson);
+            logWriter.add(message);
+            logWriter.log(0);
         }catch (Exception e){
             e.printStackTrace();
+
+            logWriter.add("error : " + e.getMessage());
+            logWriter.log(0);
         }
+        return result;
     }
 
     // 예약 확인
     public String checkBooking(String propertyId, String strSpBookingId){
+        long startTime = System.currentTimeMillis();
         String strStatus = "";
 
         OkHttpClient client = new OkHttpClient();
@@ -316,6 +343,9 @@ public class BookingService {
                 .addHeader("accept", "application/json")
                 .addHeader("Authorization", Constants.ondaAuth)
                 .build();
+
+        LogWriter logWriter = new LogWriter(request.method(), request.url().toString(), startTime);
+
         try{
             Response response = client.newCall(request).execute();
 
@@ -336,15 +366,27 @@ public class BookingService {
                 }
             }
 
+            logWriter.add("ONDA 현재 예약 상태 : " + strStatus);
+
+            logWriter.log(0);
+
         }catch (Exception e){
             e.printStackTrace();
+
+            logWriter.add("error : " + e.getMessage());
+            logWriter.log(0);
         }
 
         return strStatus;
     }
 
 
-    public void cancelBookingInfo(int intBookingID){
+    public ResponseResult cancelBookingInfo(int intBookingID, HttpServletRequest httpServletRequest){
+        LogWriter logWriter = new LogWriter(httpServletRequest.getMethod(), httpServletRequest.getServletPath(), System.currentTimeMillis());
+
+        String statusCode = "200";
+        String message = "";
+
         try{
             // intOrderID로 필요한 정보 조회
             BookingDto bookingDto = bookingMapper.getBookingByIntBookingID(intBookingID);
@@ -373,17 +415,33 @@ public class BookingService {
 
             String contetns = requestJson.toJSONString();
 
-            cancelBooking(intBookingID, propertyId, strSpBookingId, contetns);
+            boolean result = cancelBooking(intBookingID, propertyId, strSpBookingId, contetns);
+            if(result){
+                message = "예약 취소 완료";
+            }else{
+                message = "예약 취소 실패";
+            }
 
+            logWriter.add("BookingID : " + intBookingID + " -> " + message);
+            logWriter.log(0);
         }catch (Exception e){
             e.printStackTrace();
-        }
 
+            message = "예약 취소 실패";
+            statusCode = "500";
+
+            logWriter.add("error : " + e.getMessage());
+            logWriter.log(0);
+        }
+        return new ResponseResult<>(statusCode, message);
     }
 
-
     // 예약 취소
-    public void cancelBooking(int intBookingID, String propertyId, String strSpBookingId, String contents){
+    public boolean cancelBooking(int intBookingID, String propertyId, String strSpBookingId, String contents){
+        long startTime = System.currentTimeMillis();
+        boolean result = false;
+        String message = "";
+
         OkHttpClient client = new OkHttpClient();
 
         MediaType mediaType = MediaType.parse("application/json; charset=utf-8");
@@ -396,6 +454,7 @@ public class BookingService {
                 .addHeader("Authorization", Constants.ondaAuth)
                 .build();
 
+        LogWriter logWriter = new LogWriter(request.method(), request.url().toString(), startTime);
         try{
             Response response = client.newCall(request).execute();
 
@@ -403,16 +462,24 @@ public class BookingService {
             JSONParser jsonParser = new JSONParser();
             JSONObject responseJson = (JSONObject) jsonParser.parse(responseBody);
 
-            System.out.println("responseJson : " + responseJson);
-
             if(response.isSuccessful()) {
                 // Booking 상태값 업데이트 -> 취소대기로
-                bookingMapper.updateBookingStatus("14", intBookingID);
+                int updateResult = bookingMapper.updateBookingStatus("14", intBookingID);
+                if(updateResult > 0){
+                    result = true;
+                }
             }
+
+            message = gson.toJson(responseJson);
+            logWriter.add(message);
+            logWriter.log(0);
         }catch (Exception e){
             e.printStackTrace();
-        }
 
+            logWriter.add("error : " + e.getMessage());
+            logWriter.log(0);
+        }
+        return result;
     }
 
 }
