@@ -19,8 +19,9 @@ public class ResponseResult<T> {
         this.message = message;
     }
 
-    public ResponseResult(String statusCode, T result){
+    public ResponseResult(String statusCode, String message, T result){
         this.statusCode = statusCode;
+        this.message = message;
         this.result = result;
     }
 
