@@ -8,6 +8,8 @@ import com.example.stay.common.util.XmlUtility;
 import com.example.stay.openMarket.common.dto.BookingDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -31,6 +33,7 @@ import java.net.URLDecoder;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Map;
 
 @Service("kumho.BookingService")
 public class BookingService {
@@ -134,28 +137,81 @@ public class BookingService {
         return new ResponseResult<>(statusCode, message);
     }
 
-    // 잔여 객실 수 조회
+    // 예약 시 잔여 객실 수 조회
     public int getRemainCount(String fr_date, String to_date, String area, String room_type){
         int remainCount = 0;
         try{
-            String groupid = Constants.groupId;
-            String site = "1";
-
-            String kumhoUrl = Constants.kumhoUrl + "inter05.asp?groupid=" + groupid + "&fr_date=" + fr_date + "&to_date=" + to_date
-                            + "&area=" + area + "&site=" + site + "&room_type=" + room_type;
+            String kumhoUrl = "inter05.asp?groupid=" + Constants.groupId + "&fr_date=" + fr_date + "&to_date=" + to_date
+                            + "&area=" + area + "&site=1" + "&room_type=" + room_type;
+//            String kumhoUrl = "inter05.asp?groupid=210001&fr_date=20151201&to_date=20151201&area=1&site=1&room_type=16A";
 
             Document document = callKumhoAPI(kumhoUrl);
-            String rdate = document.getElementsByTagName("rdate").item(0).getChildNodes().item(0).getNodeValue();
-            if(rdate.equals("F")){ // 조회 실패
-                remainCount = -1;
-            }else{
-                remainCount = Integer.parseInt(document.getElementsByTagName("remainCount").item(0).getChildNodes().item(0).getNodeValue());
-            }
+            if(document != null){
+                NodeList roomList = document.getElementsByTagName("room");
+                for(int i=0; i< roomList.getLength(); i++) {
+                    Node node = roomList.item(i);
+                    if (node.getNodeType() == Node.ELEMENT_NODE) {
+                        Element element = (Element) node;
 
+                        String rdate = xmlUtility.getTagValue("rdate", element).trim();
+                        if(rdate.equals("F")){
+                            remainCount = -1;
+                        }else{
+                            remainCount = Integer.parseInt(xmlUtility.getTagValue("remainCount", element));
+                        }
+                    }
+                }
+            }
         }catch (Exception e){
             e.printStackTrace();
         }
         return remainCount;
+    }
+
+    // 잔여 객실 수 조회
+    public ResponseResult getRemainCountList(String fr_date, String to_date, String area, String room_type, HttpServletRequest httpServletRequest){
+        LogWriter logWriter = new LogWriter(httpServletRequest.getMethod(), httpServletRequest.getServletPath(), System.currentTimeMillis());
+        String statusCode = "200";
+        String message = "";
+        MultiValueMap<String, Map> resultMap = new LinkedMultiValueMap<>();
+        try{
+            String kumhoUrl = "inter05.asp?groupid=" + Constants.groupId + "&fr_date=" + fr_date + "&to_date=" + to_date
+                            + "&area=" + area + "&site=1" + "&room_type=" + room_type;
+
+            Document document = callKumhoAPI(kumhoUrl);
+            if(document != null){
+                NodeList roomList = document.getElementsByTagName("room");
+                for(int i=0; i< roomList.getLength(); i++) {
+                    Map<String, Object> roomMap = new HashMap<>();
+                    Node node = roomList.item(i);
+                    if (node.getNodeType() == Node.ELEMENT_NODE) {
+                        Element element = (Element) node;
+
+                        String rdate = xmlUtility.getTagValue("rdate", element).trim();
+                        String msg = URLDecoder.decode(xmlUtility.getTagValue("msg", element), "utf-8");
+                        if(rdate.equals("F")){
+                            message = msg;
+                        }else{
+                            roomMap.put("reservDate", rdate);
+                            roomMap.put("roomtype", xmlUtility.getTagValue("roomtype", element));
+                            roomMap.put("remainCount", xmlUtility.getTagValue("remainCount", element));
+                        }
+                    }
+                    resultMap.add("roomMap", roomMap);
+                }
+            }else{
+                message = "잔여 객실 수 조회 실패";
+            }
+            logWriter.add(message);
+            logWriter.log(0);
+        }catch (Exception e){
+            e.printStackTrace();
+            message = "잔여 객실 수 조회 실패";
+            statusCode = "500";
+            logWriter.add("error : " + e.getMessage());
+            logWriter.log(0);
+        }
+        return new ResponseResult<>(statusCode, message, resultMap);
     }
 
     // 예약 취소
@@ -179,9 +235,7 @@ public class BookingService {
             if(document != null){
                 String resultCode = document.getElementsByTagName("resultCode").item(0).getChildNodes().item(0).getNodeValue();
                 String resultMsg = document.getElementsByTagName("resultMsg").item(0).getChildNodes().item(0).getNodeValue();
-                if(resultCode.equals("F")){
-                    message = resultMsg;
-                }else{
+                if(resultCode.equals("S")){
                     // DB 상태값 변경
                     int result = bookingMapper.updateBookingStatus(intBookingID, "14");
                     if(result > 0){
@@ -189,6 +243,8 @@ public class BookingService {
                     }else{
                         message = "예약 취소 실패";
                     }
+                }else{
+                    message = resultMsg;
                 }
             }else{
                 message = "금호 API 호출 실패";
@@ -211,28 +267,83 @@ public class BookingService {
         LogWriter logWriter = new LogWriter(httpServletRequest.getMethod(), httpServletRequest.getServletPath(), System.currentTimeMillis());
         String statusCode = "200";
         String message = "";
-
+        Map<String, Object> resultMap = new HashMap<>();
         try{
             BookingDto bookingDto = bookingMapper.getBookingByIntBookingID(intBookingID);
 
-            String area = bookingDto.getAccommId(); // 사업장(통영, 화순, 설악, 제주)
+//            String area = bookingDto.getAccommId(); // 사업장(통영, 화순, 설악, 제주)
             String site = "1"; // 사이트(현재 무조건 1)
-            String arrive_date = bookingDto.getCheckInDate(); // 도착일자
-            String reserv_year = arrive_date.substring(0, 4);
-            String reserv_number = bookingDto.getStrSpBookingId();
+//            String arrive_date = bookingDto.getCheckInDate(); // 도착일자
+//            String reserv_year = arrive_date.substring(0, 4);
+//            String reserv_number = bookingDto.getStrSpBookingId();
+            String area = "4";
+            String arrive_date = "2023-06-10"; // 도착일자
+            String reserv_year = "2023";
+            String reserv_number = "37537";
+
 
             String kumhoUrl = "inter06.asp?area=" + area + "&site=" + site + "&reserv_year=" + reserv_year
                     + "&reserv_number=" + reserv_number;
 
+            Document document = callKumhoAPI(kumhoUrl);
+            if(document != null){
+                String resultCode = document.getElementsByTagName("resultCode").item(0).getChildNodes().item(0).getNodeValue();
+                String resultMsg = URLDecoder.decode(document.getElementsByTagName("resultMsg").item(0).getChildNodes().item(0).getNodeValue(), "utf-8");
+                if(resultCode.equals("S")){
+                    String reservArea = document.getElementsByTagName("area").item(0).getChildNodes().item(0).getNodeValue();
+//                    String reservSite = document.getElementsByTagName("site").item(0).getChildNodes().item(0).getNodeValue();
+//                    String reservYear = document.getElementsByTagName("reserv_year").item(0).getChildNodes().item(0).getNodeValue();
+                    String reservNumber = document.getElementsByTagName("reserv_number").item(0).getChildNodes().item(0).getNodeValue();
+
+                    resultMap.put("reservArea", reservArea);
+//                    resultMap.put("reservSite", reservSite);
+//                    resultMap.put("reservYear", reservYear);
+                    resultMap.put("reservNumber", reservNumber);
+
+                    // reusltMsg로 온 데이터들 자르기 <resultMsg>20230610/1/27A/1//N/1/박운주대표/양선경/010-111-1111/010-111-1111/예약현황이 조회되었습니다.</resultMsg>
+                    String[] strResult = resultMsg.split("/");
+                    String checkInDate = strResult[0]; // 체크인 날짜
+                    String stayDays = strResult[1]; // 숙박일 수 
+                    String roomType = strResult[2]; // 룸타입
+                    String roomCount = strResult[3]; // 객실 수 
+                    String personCount = strResult[4]; // 인원
+                    String mealYN = strResult[5]; // 조식여부 Y/N
+                    String packageDiv = strResult[6]; // 패키지 구분 0 : 객실예약 / 1 : 패키지예약
+                    String OrdName = strResult[7]; // 예약자명
+                    String recvName = strResult[8]; // 투숙자명
+                    String recvTel = strResult[9]; // 투숙자 전화번호
+                    String recvPhone = strResult[10]; // 투숙자 휴대폰번호
+
+                    resultMap.put("checkInDate", checkInDate);
+                    resultMap.put("stayDays", stayDays);
+                    resultMap.put("roomType", roomType);
+                    resultMap.put("roomCount", roomCount);
+                    resultMap.put("personCount", personCount);
+                    resultMap.put("mealYN", mealYN);
+                    resultMap.put("packageDiv", packageDiv);
+                    resultMap.put("OrdName", OrdName);
+                    resultMap.put("recvName", recvName);
+                    resultMap.put("recvTel", recvTel);
+                    resultMap.put("recvPhone", recvPhone);
+
+                }else{
+                    message = resultMsg;
+                }
+            }else{
+                message = "예약 조회 실패";
+            }
+
+            logWriter.add(message);
+            logWriter.log(0);
         }catch (Exception e){
             e.printStackTrace();
-            message = "예약 취소 실패";
+            message = "예약 조회 실패";
             statusCode = "500";
             logWriter.add("error : " + e.getMessage());
             logWriter.log(0);
         }
 
-        return new ResponseResult<>(statusCode, message);
+        return new ResponseResult<>(statusCode, message, resultMap);
     }
 
     // 예약 대사자료 조회
@@ -240,28 +351,81 @@ public class BookingService {
         LogWriter logWriter = new LogWriter(httpServletRequest.getMethod(), httpServletRequest.getServletPath(), System.currentTimeMillis());
         String statusCode = "200";
         String message = "";
-
+        MultiValueMap<String, Map> resultMap = new LinkedMultiValueMap<>();
         try{
-            String kumhoUrl =  "http://www.kumhoresort.co.kr/interface/inter07.asp?groupid=" + Constants.groupId + "&fr_date=" + fr_date + "&to_date=" + to_date;
+            String kumhoUrl = "inter07.asp?groupid=" + Constants.groupId + "&fr_date=" + fr_date + "&to_date=" + to_date;
 
             Document document = callKumhoAPI(kumhoUrl);
             if(document != null){
-
+                String resultCode = document.getElementsByTagName("resultCode").item(0).getChildNodes().item(0).getNodeValue();
                 String resultMsg = URLDecoder.decode(document.getElementsByTagName("resultMsg").item(0).getChildNodes().item(0).getNodeValue(), "utf-8");
+                if(resultCode.equals("S")){
+                    NodeList reservList = document.getElementsByTagName("rserve");
+                    for(int i=0; i< reservList.getLength(); i++){
+                        Map<String, Object> reservMap = new HashMap<>();
+                        Node node = reservList.item(i);
+                        if(node.getNodeType() == Node.ELEMENT_NODE){
+                            Element element = (Element) node;
 
+                            // DB에 정리해서 가져와야할듯...
+                            String area = xmlUtility.getTagValue("ps_area", element);
+                            if(area.equals("1")){
+                                area = "통영";
+                            }else if(area.equals("2")){
+                                area = "화순";
+                            }else if(area.equals("3")){
+                                area = "설악";
+                            }else if(area.equals("4")){
+                                area = "제주";
+                            }
+                            reservMap.put("area", area);
+
+                            reservMap.put("reservYear", xmlUtility.getTagValue("ps_reserv_year", element));
+                            reservMap.put("reservNumber", xmlUtility.getTagValue("ps_reserv_number", element));
+
+                            String reservStatus = xmlUtility.getTagValue("ps_reserv_status", element);
+                            if(reservStatus.equals("R")){
+                                reservStatus = "예약";
+                            }else if(reservStatus.equals("C")){
+                                reservStatus = "취소";
+                            }else if(reservStatus.equals("I")){
+                                reservStatus = "사용";
+                            }else if(reservStatus.equals("N")){
+                                reservStatus = "노쇼";
+                            }
+                            reservMap.put("reservStatus", reservStatus);
+
+                            reservMap.put("roomType", xmlUtility.getTagValue("ps_room_type", element));
+                            reservMap.put("modifyDate", xmlUtility.getTagValue("ps_modify_date", element));
+                            reservMap.put("arriveDate", xmlUtility.getTagValue("ps_arrive_date", element));
+                            reservMap.put("leaveDate", xmlUtility.getTagValue("ps_leave_date", element));
+                            reservMap.put("reservDate", xmlUtility.getTagValue("ps_reserv_date", element));
+                            reservMap.put("strSpBookingId", xmlUtility.getTagValue("ps_ipark_resno", element));
+                        }
+                        resultMap.add("reservMap", reservMap);
+                    }
+
+                }else if(resultCode.equals("F")){
+                    message = resultMsg;
+
+                }else if(resultCode.equals("0")){
+                    message = resultMsg;
+                }
             }else{
                 message = "금호 API 호출 실패";
             }
 
+            logWriter.add(message);
+            logWriter.log(0);
         }catch (Exception e){
             e.printStackTrace();
-            message = "예약 취소 실패";
+            message = "예약 조회 실패";
             statusCode = "500";
             logWriter.add("error : " + e.getMessage());
             logWriter.log(0);
         }
 
-        return new ResponseResult<>(statusCode, message);
+        return new ResponseResult<>(statusCode, message, resultMap);
     }
 
     // 금호 api 호출
@@ -272,11 +436,11 @@ public class BookingService {
         String message = "";
         long startTime = System.currentTimeMillis();
         try{
-            URL url = new URL(kumhoUrl);
+            URL url = new URL(Constants.kumhoUrl + kumhoUrl);
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             conn.setRequestMethod("GET");
             conn.setConnectTimeout(10000);
-//            conn.setDoInput(true);
+            conn.setReadTimeout(10000);
             conn.setRequestProperty("Content-Type", "application/xml");
             conn.setRequestProperty("Accept-Charset", "UTF-8");
 
@@ -291,17 +455,6 @@ public class BookingService {
                 document.getDocumentElement().normalize();
                 String result = xmlUtility.parsingXml(document);
 
-//                NodeList dataList = document.getElementsByTagName("data");
-//                for(int i=0; i<dataList.getLength(); i++){
-//                    Node node = dataList.item(i);
-//                    if (node.getNodeType() == Node.ELEMENT_NODE) {
-//                        Element element = (Element) node;
-//                        System.out.println(xmlUtility.getTagValue("resultMsg", element));
-//                        System.out.println(URLDecoder.decode(xmlUtility.getTagValue("resultMsg", element), "utf-8"));
-//                    }
-//                }
-
-//                message = result;
                 message = URLDecoder.decode(result, "utf-8");
             }else{
                 message = "금호 API 호출 실패";

@@ -42,6 +42,13 @@ public class BookingController {
     /**
      * 예약 현황 조회
      */
+    @GetMapping("getReservationStatus")
+    @ResponseBody
+    public ResponseResult getReservationStatus(int intBookingID, HttpServletRequest httpServletRequest) {
+
+        ResponseResult responseResult = bookingService.getReservationStatus(intBookingID, httpServletRequest);
+        return responseResult;
+    }
 
     /**
      * 예약 대사자료 조회
@@ -52,4 +59,21 @@ public class BookingController {
         ResponseResult responseResult = bookingService.getReservations(fr_date, to_date, httpServletRequest);
         return responseResult;
     }
+
+    /**
+     * 잔여 객실 수 조회
+     */
+    @GetMapping("getRemainCountList")
+    @ResponseBody
+    public ResponseResult getRemainCountList(String fr_date, String to_date, String area, String room_type, HttpServletRequest httpServletRequest){
+                ResponseResult responseResult = bookingService.getRemainCountList(fr_date, to_date, area, room_type, httpServletRequest);
+        return responseResult;
+    }
+
+//    @GetMapping("getRemainCount")
+//    @ResponseBody
+//    public int getRemainCount(String fr_date, String to_date, String area, String room_type){
+//        int cnt = bookingService.getRemainCount(fr_date, to_date, area, room_type);
+//        return cnt;
+//    }
 }

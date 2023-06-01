@@ -14,7 +14,7 @@
             convert(varchar(10), B.checkInDate, 120) AS checkInDate,
             convert(varchar(10), B.checkOutDate, 120) AS checkOutDate,
             RP.strRatePlanId,
-            RT.strMealCode,
+            RP.strMealCode,
             ISNULL(B.intPersonCount, RT.standpeopleCnt) AS intPersonCount,
             B.strRecvName,
             B.strRecvPhone,

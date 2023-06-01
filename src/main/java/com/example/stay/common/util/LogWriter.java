@@ -7,7 +7,9 @@ import org.slf4j.LoggerFactory;
 
 import java.io.BufferedReader;
 import java.io.StringReader;
+import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
 import java.util.Date;
 
 @Data
@@ -16,6 +18,7 @@ public class LogWriter {
     private static final Logger logger = LoggerFactory.getLogger(LogWriter.class);
 
     private StringBuilder sb;
+    private SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
     private String apiUrl;
     private String method; // api 호출 방식
@@ -28,10 +31,10 @@ public class LogWriter {
     public static final String logBody  = "┃";
     public static final String logFoot  = "┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━";
 
-    public LogWriter(){
-        this.startTime = System.currentTimeMillis();
-        this.processTime = startTime;
-    }
+//    public LogWriter(){
+//        this.startTime = df.format(new Date(System.currentTimeMillis()));
+//        this.processTime = startTime;
+//    }
 
     public LogWriter(String method, String apiUrl, long startTime){
         this.startTime = startTime;
@@ -52,7 +55,7 @@ public class LogWriter {
     }
 
     public String makeLog(){
-        this.processTime = (System.currentTimeMillis()-startTime)/1000.0;
+        this.processTime = (System.currentTimeMillis()-this.startTime)/1000.0;
         String log = "";
         try{
             sb = new StringBuilder();
@@ -61,6 +64,7 @@ public class LogWriter {
             sb.append(logHead + "\r\n");
             sb.append(logBody + "  method : " + getMethod() + "\r\n");
             sb.append(logBody + "  apiUrl : " + getApiUrl() + "\r\n");
+            sb.append(logBody + "  startTime : " + df.format(new Date(this.startTime)) + "\r\n");
             sb.append(logBody + "  processTime : " + this.processTime + "\r\n" + logBody + "\r\n");
 
             String line = getLogMessage();
