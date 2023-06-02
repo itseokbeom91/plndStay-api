@@ -44,6 +44,8 @@ public class BookingService {
     @Autowired
     private XmlUtility xmlUtility;
 
+    private String site = "1"; // 현재 무조건 1
+
     // 예약
     public ResponseResult createBooking(int intBookingID, HttpServletRequest httpServletRequest){
         LogWriter logWriter = new LogWriter(httpServletRequest.getMethod(), httpServletRequest.getServletPath(), System.currentTimeMillis());
@@ -54,7 +56,6 @@ public class BookingService {
 
             String ipark_resno = Integer.toString(intBookingID); // 예약번호
             String area = bookingDto.getAccommId(); // 사업장(통영, 화순, 설악, 제주)
-            String site = "1"; // 사이트(현재 무조건 1)
             String arrive_date = bookingDto.getCheckInDate(); // 도착일자
             String leave_date = bookingDto.getCheckOutDate(); // 퇴실일자
 
@@ -63,8 +64,6 @@ public class BookingService {
             Date inDate = sdf.parse(arrive_date);
             Date outDate = sdf.parse(leave_date);
             nights_count = ((outDate.getTime() - inDate.getTime()) / 1000) / (24*60*60);
-
-            String groupid = Constants.groupId;
 
             String morning_aqua = bookingDto.getStrRatePlanId(); // 패키지 상품구분
             String event_div = "1"; // 객실예약인지 패키지인지
@@ -83,14 +82,15 @@ public class BookingService {
             int coupon_number = 0; // 쿠폰번호(무조건 0)
             String ipark_goodsno = Integer.toString(bookingDto.getIntCondoID()); // 상품코드
 
+            // 재고확인
             int intRoomCount = getRemainCount(arrive_date, leave_date, area, room_type);
             if(intRoomCount == -1){
                 message = "재고확인 실패";
             }else{
                 if(intRoomCount >= room_count){
-                    String kumhoUrl = Constants.kumhoUrl + "inter01.asp?ipark_resno=" + ipark_resno + "&area=" + area
+                    String kumhoUrl = "inter01.asp?ipark_resno=" + ipark_resno + "&area=" + area
                             + "&site=" + site + "&arrive_date=" + arrive_date + "&leave_date=" + leave_date
-                            + "&nights_count=" + nights_count + "&groupid=" + groupid + "&event_div=" + event_div
+                            + "&nights_count=" + nights_count + "&groupid=" + Constants.groupId + "&event_div=" + event_div
                             + "&morning_aqua=" + morning_aqua + "&use_name=" + use_name + "use_phone=" + use_phone
                             + "&use_cell_phone=" + use_cell_phone + "&morning_div=" + morning_div + "&room_type=" + room_type
                             + "&room_count=" + room_count + "&person_count=" + person_count + "&coupon_year=" + coupon_year
@@ -102,10 +102,6 @@ public class BookingService {
                         String resultCode = document.getElementsByTagName("resultCode").item(0).getChildNodes().item(0).getNodeValue();
                         String strSpBookingId = document.getElementsByTagName("reserv_number").item(0).getChildNodes().item(0).getNodeValue();
                         String resultmsg = document.getElementsByTagName("resultmsg").item(0).getChildNodes().item(0).getNodeValue();
-
-                        System.out.println("resultCode : " + resultCode);
-                        System.out.println("strSpBookingId : " + strSpBookingId);
-                        System.out.println("resultmsg : " + resultmsg);
 
                         // 금호측에 예약이 완료됐으면 우리 DB 상태값 업데이트
                         if(resultCode.equals("S")){
@@ -142,8 +138,7 @@ public class BookingService {
         int remainCount = 0;
         try{
             String kumhoUrl = "inter05.asp?groupid=" + Constants.groupId + "&fr_date=" + fr_date + "&to_date=" + to_date
-                            + "&area=" + area + "&site=1" + "&room_type=" + room_type;
-//            String kumhoUrl = "inter05.asp?groupid=210001&fr_date=20151201&to_date=20151201&area=1&site=1&room_type=16A";
+                            + "&area=" + area + "&site=" + site + "&room_type=" + room_type;
 
             Document document = callKumhoAPI(kumhoUrl);
             if(document != null){
@@ -176,7 +171,7 @@ public class BookingService {
         MultiValueMap<String, Map> resultMap = new LinkedMultiValueMap<>();
         try{
             String kumhoUrl = "inter05.asp?groupid=" + Constants.groupId + "&fr_date=" + fr_date + "&to_date=" + to_date
-                            + "&area=" + area + "&site=1" + "&room_type=" + room_type;
+                            + "&area=" + area + "&site=" + site + "&room_type=" + room_type;
 
             Document document = callKumhoAPI(kumhoUrl);
             if(document != null){
@@ -222,7 +217,6 @@ public class BookingService {
         try{
             BookingDto bookingDto = bookingMapper.getBookingByIntBookingID(intBookingID);
             String area = bookingDto.getAccommId(); // 사업장(통영, 화순, 설악, 제주)
-            String site = "1"; // 사이트(현재 무조건 1)
             String arrive_date = bookingDto.getCheckInDate(); // 도착일자
             String reserv_year = arrive_date.substring(0, 4);
             String reserv_number = bookingDto.getStrSpBookingId();
@@ -272,7 +266,6 @@ public class BookingService {
             BookingDto bookingDto = bookingMapper.getBookingByIntBookingID(intBookingID);
 
 //            String area = bookingDto.getAccommId(); // 사업장(통영, 화순, 설악, 제주)
-            String site = "1"; // 사이트(현재 무조건 1)
 //            String arrive_date = bookingDto.getCheckInDate(); // 도착일자
 //            String reserv_year = arrive_date.substring(0, 4);
 //            String reserv_number = bookingDto.getStrSpBookingId();

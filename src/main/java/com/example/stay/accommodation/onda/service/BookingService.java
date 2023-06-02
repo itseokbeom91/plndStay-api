@@ -196,9 +196,9 @@ public class BookingService {
 
                     requestJson.put("booker", booker);
 
-                    String contetns = requestJson.toJSONString();
+//                    String contetns = requestJson.toJSONString();
 
-                    boolean result = createBooking(propertyId, contetns, intCondoID, intRoomID, intRateID, stayDays);
+                    boolean result = createBooking(propertyId, requestJson, intCondoID, intRoomID, intRateID, stayDays);
                     if(result){
                         message = "예약 완료";
                     }else{
@@ -241,10 +241,11 @@ public class BookingService {
         return new ResponseResult<>(statusCode, message);
     }
 
-    public boolean createBooking(String propertyId, String contents, int intCondoID, int intRoomID, int intRateID, long stayDays){
+    public boolean createBooking(String propertyId, JSONObject requestJson, int intCondoID, int intRoomID, int intRateID, long stayDays){
         boolean result = false;
         String message = "";
         long startTime = System.currentTimeMillis();
+        String contents = requestJson.toJSONString();
 
         OkHttpClient client = new OkHttpClient();
 
@@ -259,6 +260,7 @@ public class BookingService {
                 .build();
 
         LogWriter logWriter = new LogWriter(request.method(), request.url().toString(), startTime);
+        logWriter.addRequest(gson.toJson(requestJson));
 
         String bookingID = "";
         try{
@@ -409,13 +411,11 @@ public class BookingService {
 
             // 온다에 보낼 데이터 생성
             JSONObject requestJson = new JSONObject();
-            requestJson.put("bcanceled_by", "user");
-            requestJson.put("currency", "KRW");
+//            requestJson.put("bcanceled_by", "user");
+//            requestJson.put("currency", "KRW");
             requestJson.put("total_amount", totalSalePrice);
 
-            String contetns = requestJson.toJSONString();
-
-            boolean result = cancelBooking(intBookingID, propertyId, strSpBookingId, contetns);
+            boolean result = cancelBooking(intBookingID, propertyId, strSpBookingId, requestJson);
             if(result){
                 message = "예약 취소 완료";
             }else{
@@ -437,12 +437,14 @@ public class BookingService {
     }
 
     // 예약 취소
-    public boolean cancelBooking(int intBookingID, String propertyId, String strSpBookingId, String contents){
+    public boolean cancelBooking(int intBookingID, String propertyId, String strSpBookingId, JSONObject requestJson){
         long startTime = System.currentTimeMillis();
         boolean result = false;
         String message = "";
 
         OkHttpClient client = new OkHttpClient();
+
+        String contents = requestJson.toJSONString();
 
         MediaType mediaType = MediaType.parse("application/json; charset=utf-8");
         RequestBody body = RequestBody.create(contents, mediaType);
@@ -455,6 +457,7 @@ public class BookingService {
                 .build();
 
         LogWriter logWriter = new LogWriter(request.method(), request.url().toString(), startTime);
+        logWriter.addRequest(gson.toJson(requestJson));
         try{
             Response response = client.newCall(request).execute();
 

@@ -26,9 +26,12 @@ public class LogWriter {
     private long startTime; // 로직 프로세스 시작 시간
     private long endTime; //  로직 프로세스 완료 시간
     private double processTime; // 걸린 시간
+    private String requestData; // request data
+    private String responseData; // response data
 
     public static final String logHead  = "┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━";
     public static final String logBody  = "┃";
+    public static final String logBlock = "┡━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━";
     public static final String logFoot  = "┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━";
 
 //    public LogWriter(){
@@ -44,13 +47,19 @@ public class LogWriter {
 
     public void add(String msg) {
         if (logMessage != null) {
-//            this.logMessage += "  ".concat(msg.concat("\r\n"));
             this.logMessage += msg.concat("\r\n");
-
         }
         else {
-//            this.logMessage = "  ".concat(msg.concat("\r\n"));
             this.logMessage = msg.concat("\r\n");
+        }
+    }
+
+    public void addRequest(String requestData) {
+        if (requestData != null) {
+            this.requestData += requestData.concat("\r\n");
+        }
+        else {
+            this.requestData = requestData.concat("\r\n");
         }
     }
 
@@ -65,17 +74,29 @@ public class LogWriter {
             sb.append(logBody + "  method : " + getMethod() + "\r\n");
             sb.append(logBody + "  apiUrl : " + getApiUrl() + "\r\n");
             sb.append(logBody + "  startTime : " + df.format(new Date(this.startTime)) + "\r\n");
-            sb.append(logBody + "  processTime : " + this.processTime + "\r\n" + logBody + "\r\n");
+            sb.append(logBody + "  processTime : " + this.processTime + "\r\n" + logBlock + "\r\n");
 
-            String line = getLogMessage();
-            if(getLogMessage() != null){
-                BufferedReader br = new BufferedReader(new StringReader(getLogMessage()));
-
-                while ((line = br.readLine()) != null) {
-                    sb.append(logBody + "  " + line);
+            String requestLine = getRequestData();
+            if(getRequestData() != null){
+                sb.append(logBody + "  [Request] \r\n");
+                sb.append(logBody + "\r\n");
+                BufferedReader br = new BufferedReader(new StringReader(getRequestData()));
+                while ((requestLine = br.readLine()) != null) {
+                    sb.append(logBody + "  " + requestLine);
                     sb.append("\n\r");
                 }
+                sb.append(logBlock + "\r\n");
+            }
 
+            String messageLine = getLogMessage();
+            if(getLogMessage() != null){
+                sb.append(logBody + "  [Response] \r\n");
+                sb.append(logBody + "\r\n");
+                BufferedReader br = new BufferedReader(new StringReader(getLogMessage()));
+                while ((messageLine = br.readLine()) != null) {
+                    sb.append(logBody + "  " + messageLine);
+                    sb.append("\n\r");
+                }
             }
             sb.append(logFoot + "\r\n");
 
