@@ -54,7 +54,7 @@ public class APIHotelStoryController {
      * @return API 호출 리스트
      */
     @GetMapping("/callapi")
-    public ResponseEntity<String> callApi(String strAccommID) {
+    public String callApi(String strAccommID) {
 
         // 데이터 담을 변수
         String result = "";
@@ -212,10 +212,7 @@ public class APIHotelStoryController {
         }
 
 
-
-        HttpHeaders headers = new HttpHeaders();
-        headers.add("Content-Type", "text/html; charset=UTF-8");
-        return new ResponseEntity<String>(result, headers, HttpStatus.OK);
+        return result;
     }
 
     /**
@@ -224,9 +221,10 @@ public class APIHotelStoryController {
      * @return
      */
     @GetMapping("/webhook")
-    public ResponseEntity<String> getWebHook(String strXml) {
+    public String getWebHook(String strXml) {
 
-        String result = "<ResponsePushAvailability>\n" +
+        String result =
+                "<ResponsePushAvailability>\n" +
                 "   <Error><ErrorCode>1010</ErrorCode><ErrorDescription><![CDATA[not is data]]></ErrorDescription></Error>\n" +
                 "</ResponsePushAvailability>";
 
@@ -234,13 +232,15 @@ public class APIHotelStoryController {
 
             getClientIP(); // 클라이언트 IP 구하기
 
+            // 우선 test xml 삽입
             strXml = "<?xml version=\"1.0\" encoding=\"utf-8\" ?><RequestPushAvailability>   <Auth>       <AuthId>hotelstory</AuthId>       <AuthKey>ghxpftmxhfl!@#</AuthKey>   </Auth>   <PropertyId>1000582</PropertyId>   <AvailabilityList>       <Availability>           <RoomTypeId>140148</RoomTypeId>           <RatePlanId>140149</RatePlanId>           <Dates>               <Date Allotment=\"0\" Price=\"54545\">2023-05-22</Date>               <Date Allotment=\"0\" Price=\"54545\">2023-05-23</Date>               <Date Allotment=\"0\" Price=\"54545\">2023-05-24</Date>               <Date Allotment=\"4\" Price=\"54545\">2023-05-25</Date>               <Date Allotment=\"4\" Price=\"81818\">2023-05-26</Date>               <Date Allotment=\"0\" Price=\"109091\">2023-05-27</Date>               <Date Allotment=\"1\" Price=\"90909\">2023-05-28</Date>               <Date Allotment=\"4\" Price=\"63636\">2023-05-29</Date>               <Date Allotment=\"4\" Price=\"63636\">2023-05-30</Date>               <Date Allotment=\"4\" Price=\"63636\">2023-05-31</Date>           </Dates>       </Availability>   </AvailabilityList></RequestPushAvailability>";
 
             Document document = apiHotelstoryService.getWebhook(strXml);;
 
             apiHotelstoryService.parsingGoods(document);
 
-            result = "<ResponsePushAvailability>\n" +
+            result =
+                    "<ResponsePushAvailability>\n" +
                     "   <Success/>\n" +
                     "</ResponsePushAvailability>";
 
@@ -248,9 +248,7 @@ public class APIHotelStoryController {
             e.printStackTrace();
         }
 
-        HttpHeaders headers = new HttpHeaders();
-        headers.add("Content-Type", "text/html; charset=UTF-8");
-        return new ResponseEntity<String>(result, headers, HttpStatus.OK);
+        return result;
 
     }
 

@@ -502,6 +502,11 @@ public class APIHotelstoryService {
     }
 
 
+    /**
+     * 예약 조회하기 - 조회해서 나온 취소규정(날짜별 수수료 퍼센트) insert
+     * @param intBookingID
+     * @return
+     */
     public String bookingCheck(int intBookingID){
         String result = "";
 
@@ -557,7 +562,7 @@ public class APIHotelstoryService {
             if (infoNode.getNodeType() == Node.ELEMENT_NODE) {
 
                 Element element = (Element) infoNode;
-                System.out.println(xmlUtility.getTagValue("Price", element));
+                //System.out.println(xmlUtility.getTagValue("Price", element));
                 intPirce = Integer.parseInt(xmlUtility.getTagValue("Price", element).toString());
 
             }
@@ -570,14 +575,15 @@ public class APIHotelstoryService {
                     if (node.getNodeType() == Node.ELEMENT_NODE) {
 
                         Element element = (Element) node;
-                        int intPercent = Integer.parseInt(xmlUtility.getTagValue("Charge", element).toString());
-                        int intRefundPrice = intPirce*(intPercent/100);
+                        double intPercent = Integer.parseInt(xmlUtility.getTagValue("Charge", element).toString());
+                        int intRefundPrice = (int) (intPirce*(intPercent/100));
                         int intRefundFee = intPirce - intRefundPrice;
 
-                        System.out.println(xmlUtility.getTagValue("DeadLine", element));
-                        System.out.println(xmlUtility.getTagValue("Charge", element));
+                        System.out.println((int) intPercent +" / "+ intRefundPrice +" / "+ intRefundFee);
+                        //System.out.println(xmlUtility.getTagValue("DeadLine", element));
+                        //System.out.println(xmlUtility.getTagValue("Charge", element));
                         refundData += xmlUtility.getTagValue("DeadLine", element) + "|^|";
-                        refundData += intPercent +"|^|"+ intRefundPrice +"|^|"+ intRefundFee +"{{|}}";
+                        refundData += (int) intPercent +"|^|"+ intRefundPrice +"|^|"+ intRefundFee +"{{|}}";
 
                     }
                 }
@@ -597,6 +603,12 @@ public class APIHotelstoryService {
         return result;
     }
 
+
+    /**
+     * 예약 취소하기
+     * @param intBookingID
+     * @return
+     */
     public String bookingCancel(int intBookingID){
         String result = "";
 
