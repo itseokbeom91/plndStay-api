@@ -77,5 +77,6 @@ public class BookingDto {
     private String strRatePlanId;
     private String strRoomTypeId;
     private int intTotalSalePrice;
+    private String strMealCode;
 
 }

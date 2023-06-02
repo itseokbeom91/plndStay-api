@@ -2,6 +2,7 @@ package com.example.stay.accommodation.onda.service;
 
 import com.example.stay.accommodation.onda.mapper.AccomodationMapper;
 import com.example.stay.common.util.Constants;
+import com.example.stay.common.util.LogWriter;
 import com.example.stay.common.util.UrlResourceDownloader;
 import com.example.stay.openMarket.common.dto.*;
 import com.google.gson.Gson;
@@ -37,212 +38,8 @@ public class AccommService {
 
     Gson gson = new GsonBuilder().setPrettyPrinting().create();
 
-    public List<JSONObject> getAccommListApi(String path){
-        List<JSONObject> accommList = new ArrayList<>();
-
-        try {
-            OkHttpClient client = new OkHttpClient();
-
-            Request request = new Request.Builder()
-                    .url(path)
-                    .get()
-                    .addHeader("accept", "application/json")
-                    .addHeader("Authorization", Constants.ondaAuth)
-                    .build();
-
-            Response response = client.newCall(request).execute();
-
-            if(response.isSuccessful()){
-                // response 파싱
-                String responseBody = response.body().string();
-//                System.out.println("responseBody : " + responseBody);
-
-                JSONParser jsonParser = new JSONParser();
-                JSONObject responseJson = (JSONObject) jsonParser.parse(responseBody);
-
-                JSONArray accommArray = (JSONArray) responseJson.get("properties");
-
-                for(int i=0; i<accommArray.size(); i++){
-                    JSONObject jsonObject = (JSONObject) accommArray.get(i);
-                    accommList.add(jsonObject);
-                }
-
-            }
-        }catch (Exception e){
-            e.printStackTrace();
-            System.out.println("[onda API] 전체 숙소 목록 가져오기 실패");
-        }
-        return accommList;
-    }
-
-    public JSONObject getAccommDetailApi(String property_id){
-        JSONObject jsonObject = new JSONObject();
-        try{
-            OkHttpClient client = new OkHttpClient();
-
-            Request request = new Request.Builder()
-                    .url(Constants.ondaPath + "properties/" + property_id)
-                    .get()
-                    .addHeader("accept", "application/json")
-                    .addHeader("Authorization", Constants.ondaAuth)
-                    .build();
-
-            Response response = client.newCall(request).execute();
-
-            if(response.isSuccessful()){
-                // response 파싱
-                String responseBody = response.body().string();
-//                System.out.println("responseBody : " + responseBody);
-
-                JSONParser jsonParser = new JSONParser();
-                JSONObject responseJson = (JSONObject) jsonParser.parse(responseBody);
-                jsonObject = (JSONObject) responseJson.get("property");
-
-            }
-        }catch (Exception e){
-            e.printStackTrace();
-            System.out.println("[onda API] 특정 숙소 상세정보 가져오기 실패");
-        }
-        return jsonObject;
-    }
-
-    public List<JSONObject> getRoomTypeListApi(String property_id){
-        List<JSONObject> roomTypeList = new ArrayList<>();
-        try{
-            OkHttpClient client = new OkHttpClient();
-
-            Request request = new Request.Builder()
-                    .url(Constants.ondaPath + "properties/" + property_id + "/roomtypes")
-                    .get()
-                    .addHeader("accept", "application/json")
-                    .addHeader("Authorization", Constants.ondaAuth)
-                    .build();
-
-            Response response = client.newCall(request).execute();
-
-            if(response.isSuccessful()){
-                // response 파싱
-                String responseBody = response.body().string();
-//                System.out.println("responseBody : " + responseBody);
-
-                JSONParser jsonParser = new JSONParser();
-                JSONObject responseJson = (JSONObject) jsonParser.parse(responseBody);
-
-                JSONArray roomtypeArray = (JSONArray) responseJson.get("roomtypes");
-
-                for(int i=0; i<roomtypeArray.size(); i++){
-                    JSONObject jsonObject = (JSONObject) roomtypeArray.get(i);
-                    roomTypeList.add(jsonObject);
-                }
-
-            }
-        }catch (Exception e){
-            e.printStackTrace();
-            System.out.println("[onda API] 특정 숙소 전체 객실 목록 가져오기 실패");
-        }
-        return roomTypeList;
-    }
-
-    public JSONObject getRoomTypeDetail(String property_id, String roomtype_id){
-        JSONObject jsonObject = new JSONObject();
-        try{
-            OkHttpClient client = new OkHttpClient();
-
-            Request request = new Request.Builder()
-                    .url(Constants.ondaPath + "properties/" + property_id + "/roomtypes/" + roomtype_id)
-                    .get()
-                    .addHeader("accept", "application/json")
-                    .addHeader("Authorization", Constants.ondaAuth)
-                    .build();
-
-            Response response = client.newCall(request).execute();
-
-            if(response.isSuccessful()){
-                // response 파싱
-                String responseBody = response.body().string();
-//                System.out.println("responseBody : " + responseBody);
-
-                JSONParser jsonParser = new JSONParser();
-                JSONObject responseJson = (JSONObject) jsonParser.parse(responseBody);
-                jsonObject = (JSONObject) responseJson.get("roomtype");
-
-            }
-        }catch (Exception e){
-            e.printStackTrace();
-            System.out.println("[onda API] 특정 객실 상세정보 가져오기 실패");
-        }
-        return jsonObject;
-    }
-
-    public List<JSONObject> getRatePlanList(String property_id, String roomtype_id){
-        List<JSONObject> packageList = new ArrayList<>();
-        try{
-            OkHttpClient client = new OkHttpClient();
-
-            Request request = new Request.Builder()
-                    .url(Constants.ondaPath + "properties/" + property_id + "/roomtypes/" + roomtype_id + "/rateplans")
-                    .get()
-                    .addHeader("accept", "application/json")
-                    .addHeader("Authorization", Constants.ondaAuth)
-                    .build();
-
-            Response response = client.newCall(request).execute();
-
-            if(response.isSuccessful()){
-                // response 파싱
-                String responseBody = response.body().string();
-//                System.out.println("responseBody : " + responseBody);
-
-                JSONParser jsonParser = new JSONParser();
-                JSONObject responseJson = (JSONObject) jsonParser.parse(responseBody);
-
-                JSONArray packageArray = (JSONArray) responseJson.get("rateplans");
-
-                for(int i=0; i<packageArray.size(); i++){
-                    JSONObject jsonObject = (JSONObject) packageArray.get(i);
-                    packageList.add(jsonObject);
-                }
-
-            }
-        }catch (Exception e){
-            e.printStackTrace();
-            System.out.println("[onda API] 특정 객실의 전체 패키지 목록 가져오기 실패");
-        }
-        return packageList;
-    }
-
-    public JSONObject getRatePlanDetail(String property_id, String roomtype_id, String rateplan_id){
-        JSONObject jsonObject = new JSONObject();
-        try{
-            OkHttpClient client = new OkHttpClient();
-
-            Request request = new Request.Builder()
-                    .url(Constants.ondaPath + "properties/" + property_id + "/roomtypes/" + roomtype_id + "/rateplans/" + rateplan_id)
-                    .get()
-                    .addHeader("accept", "application/json")
-                    .addHeader("Authorization", Constants.ondaAuth)
-                    .build();
-
-            Response response = client.newCall(request).execute();
-            if(response.isSuccessful()){
-                // response 파싱
-                String responseBody = response.body().string();
-//                System.out.println("responseBody : " + responseBody);
-
-                JSONParser jsonParser = new JSONParser();
-                JSONObject responseJson = (JSONObject) jsonParser.parse(responseBody);
-                jsonObject = (JSONObject) responseJson.get("rateplan");
-            }
-        }catch (Exception e){
-            e.printStackTrace();
-            System.out.println("[onda API] 특정 패키지의 상세 정보 가져오기 실패");
-        }
-        return jsonObject;
-    }
-
     // 시설, 룸타입, ratePlan 등록
     public void insertAccommTotal(){
-
         long startTime = System.currentTimeMillis();
         // 전체 숙소 리스트 불러오기
         List<JSONObject> accommList = getAccommListApi(Constants.ondaPath + "properties?status=all");
@@ -858,6 +655,210 @@ public class AccommService {
             }
 
         }
+    }
+
+
+    public List<JSONObject> getAccommListApi(String path){
+        List<JSONObject> accommList = new ArrayList<>();
+
+        try {
+            OkHttpClient client = new OkHttpClient();
+
+            Request request = new Request.Builder()
+                    .url(path)
+                    .get()
+                    .addHeader("accept", "application/json")
+                    .addHeader("Authorization", Constants.ondaAuth)
+                    .build();
+
+            Response response = client.newCall(request).execute();
+
+            if(response.isSuccessful()){
+                // response 파싱
+                String responseBody = response.body().string();
+//                System.out.println("responseBody : " + responseBody);
+
+                JSONParser jsonParser = new JSONParser();
+                JSONObject responseJson = (JSONObject) jsonParser.parse(responseBody);
+
+                JSONArray accommArray = (JSONArray) responseJson.get("properties");
+
+                for(int i=0; i<accommArray.size(); i++){
+                    JSONObject jsonObject = (JSONObject) accommArray.get(i);
+                    accommList.add(jsonObject);
+                }
+
+            }
+        }catch (Exception e){
+            e.printStackTrace();
+            System.out.println("[onda API] 전체 숙소 목록 가져오기 실패");
+        }
+        return accommList;
+    }
+
+    public JSONObject getAccommDetailApi(String property_id){
+        JSONObject jsonObject = new JSONObject();
+        try{
+            OkHttpClient client = new OkHttpClient();
+
+            Request request = new Request.Builder()
+                    .url(Constants.ondaPath + "properties/" + property_id)
+                    .get()
+                    .addHeader("accept", "application/json")
+                    .addHeader("Authorization", Constants.ondaAuth)
+                    .build();
+
+            Response response = client.newCall(request).execute();
+
+            if(response.isSuccessful()){
+                // response 파싱
+                String responseBody = response.body().string();
+//                System.out.println("responseBody : " + responseBody);
+
+                JSONParser jsonParser = new JSONParser();
+                JSONObject responseJson = (JSONObject) jsonParser.parse(responseBody);
+                jsonObject = (JSONObject) responseJson.get("property");
+
+            }
+        }catch (Exception e){
+            e.printStackTrace();
+            System.out.println("[onda API] 특정 숙소 상세정보 가져오기 실패");
+        }
+        return jsonObject;
+    }
+
+    public List<JSONObject> getRoomTypeListApi(String property_id){
+        List<JSONObject> roomTypeList = new ArrayList<>();
+        try{
+            OkHttpClient client = new OkHttpClient();
+
+            Request request = new Request.Builder()
+                    .url(Constants.ondaPath + "properties/" + property_id + "/roomtypes")
+                    .get()
+                    .addHeader("accept", "application/json")
+                    .addHeader("Authorization", Constants.ondaAuth)
+                    .build();
+
+            Response response = client.newCall(request).execute();
+
+            if(response.isSuccessful()){
+                // response 파싱
+                String responseBody = response.body().string();
+//                System.out.println("responseBody : " + responseBody);
+
+                JSONParser jsonParser = new JSONParser();
+                JSONObject responseJson = (JSONObject) jsonParser.parse(responseBody);
+
+                JSONArray roomtypeArray = (JSONArray) responseJson.get("roomtypes");
+
+                for(int i=0; i<roomtypeArray.size(); i++){
+                    JSONObject jsonObject = (JSONObject) roomtypeArray.get(i);
+                    roomTypeList.add(jsonObject);
+                }
+
+            }
+        }catch (Exception e){
+            e.printStackTrace();
+            System.out.println("[onda API] 특정 숙소 전체 객실 목록 가져오기 실패");
+        }
+        return roomTypeList;
+    }
+
+    public JSONObject getRoomTypeDetail(String property_id, String roomtype_id){
+        JSONObject jsonObject = new JSONObject();
+        try{
+            OkHttpClient client = new OkHttpClient();
+
+            Request request = new Request.Builder()
+                    .url(Constants.ondaPath + "properties/" + property_id + "/roomtypes/" + roomtype_id)
+                    .get()
+                    .addHeader("accept", "application/json")
+                    .addHeader("Authorization", Constants.ondaAuth)
+                    .build();
+
+            Response response = client.newCall(request).execute();
+
+            if(response.isSuccessful()){
+                // response 파싱
+                String responseBody = response.body().string();
+//                System.out.println("responseBody : " + responseBody);
+
+                JSONParser jsonParser = new JSONParser();
+                JSONObject responseJson = (JSONObject) jsonParser.parse(responseBody);
+                jsonObject = (JSONObject) responseJson.get("roomtype");
+
+            }
+        }catch (Exception e){
+            e.printStackTrace();
+            System.out.println("[onda API] 특정 객실 상세정보 가져오기 실패");
+        }
+        return jsonObject;
+    }
+
+    public List<JSONObject> getRatePlanList(String property_id, String roomtype_id){
+        List<JSONObject> packageList = new ArrayList<>();
+        try{
+            OkHttpClient client = new OkHttpClient();
+
+            Request request = new Request.Builder()
+                    .url(Constants.ondaPath + "properties/" + property_id + "/roomtypes/" + roomtype_id + "/rateplans")
+                    .get()
+                    .addHeader("accept", "application/json")
+                    .addHeader("Authorization", Constants.ondaAuth)
+                    .build();
+
+            Response response = client.newCall(request).execute();
+
+            if(response.isSuccessful()){
+                // response 파싱
+                String responseBody = response.body().string();
+//                System.out.println("responseBody : " + responseBody);
+
+                JSONParser jsonParser = new JSONParser();
+                JSONObject responseJson = (JSONObject) jsonParser.parse(responseBody);
+
+                JSONArray packageArray = (JSONArray) responseJson.get("rateplans");
+
+                for(int i=0; i<packageArray.size(); i++){
+                    JSONObject jsonObject = (JSONObject) packageArray.get(i);
+                    packageList.add(jsonObject);
+                }
+
+            }
+        }catch (Exception e){
+            e.printStackTrace();
+            System.out.println("[onda API] 특정 객실의 전체 패키지 목록 가져오기 실패");
+        }
+        return packageList;
+    }
+
+    public JSONObject getRatePlanDetail(String property_id, String roomtype_id, String rateplan_id){
+        JSONObject jsonObject = new JSONObject();
+        try{
+            OkHttpClient client = new OkHttpClient();
+
+            Request request = new Request.Builder()
+                    .url(Constants.ondaPath + "properties/" + property_id + "/roomtypes/" + roomtype_id + "/rateplans/" + rateplan_id)
+                    .get()
+                    .addHeader("accept", "application/json")
+                    .addHeader("Authorization", Constants.ondaAuth)
+                    .build();
+
+            Response response = client.newCall(request).execute();
+            if(response.isSuccessful()){
+                // response 파싱
+                String responseBody = response.body().string();
+//                System.out.println("responseBody : " + responseBody);
+
+                JSONParser jsonParser = new JSONParser();
+                JSONObject responseJson = (JSONObject) jsonParser.parse(responseBody);
+                jsonObject = (JSONObject) responseJson.get("rateplan");
+            }
+        }catch (Exception e){
+            e.printStackTrace();
+            System.out.println("[onda API] 특정 패키지의 상세 정보 가져오기 실패");
+        }
+        return jsonObject;
     }
 
 }
