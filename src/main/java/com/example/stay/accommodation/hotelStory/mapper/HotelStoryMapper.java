@@ -19,6 +19,9 @@ public interface HotelStoryMapper {
     String insertAccommtotal(String strPropertyId, String strPropertyName, String strAddress, String strPhone, String strNumRooms, String strLocation, String strHomePageUrl, String strCheckInTime, String strCheckOutTime
             , String strLongitude, String strLatitude, String strCity, String strPropertyDescription, String strTrafficInformation, String strRoomInformation, String imgData, String cancelData, String roomTypeData);
 
+    String insertProperty(String strPropertyId, String strLocation, String strCity, String strPropertyName, String strLatitude, String strLongitude, String strStarRating, String strNumRooms, String strCheckInTime, String strCheckOutTime, String strPhone, String strAddress, String strHomePageUrl
+            , String strPropertyDescription, String strTrafficInformation, String strRsvGuide, String imgData, String cancelData, String roomTypeData);
+
     String insertGoods(String strRatePlanID, int intStock, String strDate, int intBasicPrice, int intSalePrice);
 
     BookingDto getbooking(int intBookingID);
