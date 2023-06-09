@@ -96,12 +96,15 @@ public class BookingService {
                             + "&room_count=" + room_count + "&person_count=" + person_count + "&coupon_year=" + coupon_year
                             + "&coupon_number=" + coupon_number + "&ipark_goodsno=" + ipark_goodsno;
 
+//                    String kumhoUrl = "inter01.asp?ipark_resno=INT2015081804&area=4&site=1&arrive_date=20230915&leave_date=20230917&nights_count=2&groupid=210010&event_div=0&morning_aqua=0&use_name=KMK-%EB%A3%B8%EC%98%A8%EB%A6%AC&use_phone=7469&use_cell_phone=01071050426&morning_div=N&room_type=27A&room_count=1&person_count=5&coupon_year=*&coupon_number=0&ipark_goodsno=0129O01";
+
+
                     Document document = callKumhoAPI(kumhoUrl);
                     // response 처리
                     if(document != null){
                         String resultCode = document.getElementsByTagName("resultCode").item(0).getChildNodes().item(0).getNodeValue();
                         String strSpBookingId = document.getElementsByTagName("reserv_number").item(0).getChildNodes().item(0).getNodeValue();
-                        String resultmsg = document.getElementsByTagName("resultmsg").item(0).getChildNodes().item(0).getNodeValue();
+                        String resultMsg = document.getElementsByTagName("resultMsg").item(0).getChildNodes().item(0).getNodeValue();
 
                         // 금호측에 예약이 완료됐으면 우리 DB 상태값 업데이트
                         if(resultCode.equals("S")){
@@ -112,12 +115,13 @@ public class BookingService {
                                 message = "예약실패";
                             }
                         }else{
-                            message = resultmsg;
+                            message = resultMsg;
                         }
                     }else{
                         message = "금호 API 호출 실패";
                     }
-                }else{
+                }
+        else{
                     message = "예약불가 - 재고없음";
                 }
             }
@@ -224,6 +228,8 @@ public class BookingService {
             String kumhoUrl = Constants.kumhoUrl + "inter02.asp?area=" + area + "&site=" + site + "&reserv_year=" + reserv_year
                     + "&reserv_number=" + reserv_number;
 
+//            String kumhoUrl = "inter02.asp?area=4&site=1&reserv_year=2023&reserv_number=40154";
+
             Document document = callKumhoAPI(kumhoUrl);
 
             if(document != null){
@@ -265,14 +271,14 @@ public class BookingService {
         try{
             BookingDto bookingDto = bookingMapper.getBookingByIntBookingID(intBookingID);
 
-//            String area = bookingDto.getAccommId(); // 사업장(통영, 화순, 설악, 제주)
-//            String arrive_date = bookingDto.getCheckInDate(); // 도착일자
-//            String reserv_year = arrive_date.substring(0, 4);
-//            String reserv_number = bookingDto.getStrSpBookingId();
-            String area = "4";
-            String arrive_date = "2023-06-10"; // 도착일자
-            String reserv_year = "2023";
-            String reserv_number = "37537";
+            String area = bookingDto.getAccommId(); // 사업장(통영, 화순, 설악, 제주)
+            String arrive_date = bookingDto.getCheckInDate(); // 도착일자
+            String reserv_year = arrive_date.substring(0, 4);
+            String reserv_number = bookingDto.getStrSpBookingId();
+//            String area = "4";
+//            String arrive_date = "2023-06-10"; // 도착일자
+//            String reserv_year = "2023";
+//            String reserv_number = "37537";
 
 
             String kumhoUrl = "inter06.asp?area=" + area + "&site=" + site + "&reserv_year=" + reserv_year
@@ -284,16 +290,13 @@ public class BookingService {
                 String resultMsg = URLDecoder.decode(document.getElementsByTagName("resultMsg").item(0).getChildNodes().item(0).getNodeValue(), "utf-8");
                 if(resultCode.equals("S")){
                     String reservArea = document.getElementsByTagName("area").item(0).getChildNodes().item(0).getNodeValue();
-//                    String reservSite = document.getElementsByTagName("site").item(0).getChildNodes().item(0).getNodeValue();
-//                    String reservYear = document.getElementsByTagName("reserv_year").item(0).getChildNodes().item(0).getNodeValue();
                     String reservNumber = document.getElementsByTagName("reserv_number").item(0).getChildNodes().item(0).getNodeValue();
 
                     resultMap.put("reservArea", reservArea);
-//                    resultMap.put("reservSite", reservSite);
-//                    resultMap.put("reservYear", reservYear);
                     resultMap.put("reservNumber", reservNumber);
 
-                    // reusltMsg로 온 데이터들 자르기 <resultMsg>20230610/1/27A/1//N/1/박운주대표/양선경/010-111-1111/010-111-1111/예약현황이 조회되었습니다.</resultMsg>
+                    // reusltMsg로 온 데이터들 자르기
+                    // <resultMsg>20230610/1/27A/1//N/1/박운주대표/양선경/010-111-1111/010-111-1111/예약현황이 조회되었습니다.</resultMsg>
                     String[] strResult = resultMsg.split("/");
                     String checkInDate = strResult[0]; // 체크인 날짜
                     String stayDays = strResult[1]; // 숙박일 수 

@@ -1,13 +1,15 @@
 package com.example.stay.common.util;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
 
 @Data
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class ResponseResult<T> {
 
-    private T result;
-    private String message;
     private String statusCode;
+    private String message;
+    private T result;
 
 //    public ResponseResult(){
 //
