@@ -7,4 +7,6 @@ import javax.servlet.http.HttpServletRequest;
 
 @Repository("resom.BookingMapper")
 public interface BookingMapper {
+
+    String insertPackage(String pkgNo, String nights, String maxNights, String rmCnt, String maxRmCnt, String rmTypeCd);
 }
