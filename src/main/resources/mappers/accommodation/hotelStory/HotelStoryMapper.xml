@@ -17,10 +17,15 @@
     <select id="insertRatePlan" resultType="string">
         exec dbo.spGW_RATEPLAN_REGIST_SUPPLIER 0, #{intAID}, #{strAccommId}, #{intToconIdx}, #{strRoomTypeId}, #{strRatePlanId}, #{strRatePlanName}, #{strBedTypeCode}, #{strMealCode}, #{intMinPersons}, #{intMaxPersons}, #{intPrice}, ''
     </select>
--->
+
     <select id="insertAccommtotal" resultType="string">
         exec dbo.spGW_CONDO_REGIST_TOTAL #{strPropertyId}, 'HS', #{strPropertyName}, '', #{strAddress}, '', #{strPhone}, '', #{strNumRooms}, '', #{strLocation}, #{strHomePageUrl}, #{strCheckInTime}, #{strCheckOutTime}
         , 'Y', #{strLongitude}, #{strLatitude}, '', #{strCity}, '', #{strPropertyDescription}, #{strTrafficInformation}, #{strRoomInformation}, '', #{imgData}, #{cancelData}, #{roomTypeData},''
+    </select>
+-->
+    <select id="insertProperty" resultType="string">
+        exec PLNDSTAY.dbo.spHS_ACCOMM_REGIST #{strPropertyId}, 'HS', #{strLocation}, #{strCity}, #{strPropertyName}, #{strLatitude}, #{strLongitude}, #{strStarRating}, #{strNumRooms}, #{strCheckInTime}, #{strCheckOutTime}, #{strPhone}, #{strAddress}
+        , #{strHomePageUrl}, #{strPropertyDescription}, #{strTrafficInformation}, #{strRsvGuide}, #{imgData}, #{cancelData}, #{roomTypeData}, ''
     </select>
 
     <select id="insertGoods" resultType="String">
