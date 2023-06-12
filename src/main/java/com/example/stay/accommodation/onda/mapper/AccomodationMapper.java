@@ -11,7 +11,8 @@ public interface AccomodationMapper {
     String insertAccommTotal(String strPropertyID, String strDeleteYn, String strViewYn, String strType,
                              String intDistrict1, String intDistrict2, String intDistrict3, String strSubject, String strLat, String strLon,
                              String strCheckIn, String strCheckOut, String strPhone, String strFax, String strEmail, String strZipCode,
-                             String strAddr1, String strAddr2, String strDescription, String strRsvGuide, String strAcmNotice, String strImgDatas, String strPenaltyDatas, String strKeyWordDatas, String strRmtypeDatas);
+                             String strAddr1, String strAddr2, String strDescription, String strRsvGuide, String strAcmNotice,String strImgDatas,
+                             String strPenaltyDatas, String strKeyWordDatas, String strFacilityDatas, String strRmtypeDatas);
 
     String updateRoomNRatePlan(String propertyId, String API_FLAG, String strRoomNRatePlanDatas);
 

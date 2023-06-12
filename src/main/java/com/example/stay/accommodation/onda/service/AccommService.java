@@ -122,11 +122,12 @@ public class AccommService {
                 String strImgDatas = accommData.get("strImgDatas").toString();
                 String strPenaltyDatas = accommData.get("strPenaltyDatas").toString();
                 String strKeyWordDatas = accommData.get("strKeyWordDatas").toString();
+                String strFacilityDatas = accommData.get("strFacilityDatas").toString();
 
                 String result = accomodationMapper.insertAccommTotal(strPropertyID, strDeleteYn, strViewYn, strType,
                         strDistrict1, strDistrict2, strDistrict3, strSubject, strLat, strLon, strCheckIn, strCheckOut,
                         strPhone, strFax, strEmail, strZipCode, strAddr1, strAddr2, strDescription, strRsvGuide,
-                        strAcmNotice, strImgDatas, strPenaltyDatas, strKeyWordDatas, strRmtypeDatas);
+                        strAcmNotice, strImgDatas, strPenaltyDatas, strKeyWordDatas, strFacilityDatas, strRmtypeDatas);
 
                 if(result.equals("")){
                     message = "시설 등록 완료";
@@ -186,15 +187,17 @@ public class AccommService {
             String strPenaltyDatas = accommData.get("strPenaltyDatas").toString();
             String strKeyWordDatas = accommData.get("strKeyWordDatas").toString();
 
+            String strFacilityDatas = accommData.get("strFacilityDatas").toString();
+
             String result = accomodationMapper.insertAccommTotal(strPropertyID, strDeleteYn, strViewYn, strType,
                     strDistrict1, strDistrict2, strDistrict3, strSubject, strLat, strLon, strCheckIn, strCheckOut,
                     strPhone, strFax, strEmail, strZipCode, strAddr1, strAddr2, strDescription, strRsvGuide,
-                    strAcmNotice, strImgDatas, strPenaltyDatas, strKeyWordDatas, "");
+                    strAcmNotice, strImgDatas, strPenaltyDatas, strKeyWordDatas, strFacilityDatas, "");
 
-            if(result.equals("")){
+            if(result.equals("완료")){
                 message = "시설 등록 완료";
             }else{
-                message = "시설 등록 실패";
+                message = result;
             }
 
             logWriter.add(message);
@@ -303,6 +306,8 @@ public class AccommService {
             JSONArray attractions = (JSONArray) tags.get("attractions");
 
             List<String> keywordList = new ArrayList<>();
+            List<String> facilityList = new ArrayList<>();
+
             if(properties != null){
                 for(Object p : properties){
                     keywordList.add(p.toString());
@@ -310,12 +315,12 @@ public class AccommService {
             }
             if(facilities != null){
                 for(Object f : facilities){
-                    keywordList.add(f.toString());
+                    facilityList.add(f.toString());
                 }
             }
             if(services != null){
                 for(Object s : services){
-                    keywordList.add(s.toString());
+                    facilityList.add(s.toString());
                 }
             }
             if(attractions != null){
@@ -331,7 +336,29 @@ public class AccommService {
                 }
                 strKeyWordDatas = strKeyWordDatas.substring(0, strKeyWordDatas.length()-5);
             }
+            String strFacilityDatas = "";
+            String facility = "";
+            if(facilityList != null){
+                for(int i=0; i<facilityList.size(); i++){
+
+                    if(facilityList.get(i).equals("수화물 보관")){
+                        facilityList.set(i, "수화물보관");
+                    }
+                    if(facilityList.get(i).equals("매점/편의점")){
+                        facilityList.set(i, "마트/편의점");
+                    }
+
+                    facility = accomodationMapper.getStrCodeByStrName("ACCOMM_ADD_FAC", facilityList.get(i));
+
+                    strFacilityDatas += facility + "{{|}}";
+                }
+
+                strFacilityDatas = strFacilityDatas.substring(0, strFacilityDatas.length()-5);
+            }
+
+
             accommData.put("strKeyWordDatas", strKeyWordDatas);
+            accommData.put("strFacilityDatas", strFacilityDatas);
 
             // ACCOMM
             accommData.put("strDeleteYn", strDeleteYn);
