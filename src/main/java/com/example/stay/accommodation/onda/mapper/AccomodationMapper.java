@@ -8,29 +8,26 @@ import java.util.Map;
 @Repository
 public interface AccomodationMapper {
 
-    String insertAccommTotal(String strAccommId, String API_FLAG, String strCondoName, String strConZip,
-                             String strConAddr1, String strConAddr2, String strConTel, String strConFax, String strConGekNum, String strConFlag, String strLocation, String strHomepage,
-                             String strTimeIn, String strTimeOut, String strUseYN, String strMapX, String strMapY, String strMobileWarning, String strCity, String strNation,
-                             String strConDesc, String strConAround, String strConSookbak, String strTagName, String strImgData, String strPenaltyData, String strRoomNRatePlanDatas);
-
-    String updateAccomm(String strAccommId, String API_FLAG, String strCondoName, String strConZip,
-                        String strConAddr1, String strConAddr2, String strConTel, String strConFax, String strConGekNum, String strConFlag, String strLocation, String strHomepage,
-                        String strTimeIn, String strTimeOut, String strUseYN, String strMapX, String strMapY, String strMobileWarning, String strCity, String strNation,
-                        String strConDesc, String strConAround, String strConSookbak, String strTagName, String strImgData, String strPenaltyData);
+    String insertAccommTotal(String strPropertyID, String strDeleteYn, String strViewYn, String strType,
+                             String intDistrict1, String intDistrict2, String intDistrict3, String strSubject, String strLat, String strLon,
+                             String strCheckIn, String strCheckOut, String strPhone, String strFax, String strEmail, String strZipCode,
+                             String strAddr1, String strAddr2, String strDescription, String strRsvGuide, String strAcmNotice,String strImgDatas,
+                             String strPenaltyDatas, String strKeyWordDatas, String strFacilityDatas, String strRmtypeDatas);
 
     String updateRoomNRatePlan(String propertyId, String API_FLAG, String strRoomNRatePlanDatas);
 
     String updateGoods(int strRatePlanId, int intStock, String strCheckInDate, int intBasicPrice, int intSalePrice,
                        int intMinStay, int intMaxStay);
 
-    String accommPhotoContentsReg(ContentsPhotoDto contentsPhotoDto);
-
     int getRoomAdminCnt(String intCondoId);
 
-    String getCondoIDByAccommId(String propertyId);
+    int getAIDByStrPropertyID(String strPropertyID);
 
-    String updateStatus(String target, String status, String propertyId, String roomTypeId, String ratePlanId);
+    String updateStatus(String target, String strDeleteYn, String strViewYn, String propertyId, String roomTypeId, String ratePlanId);
 
+    String getDistrictCodeByStrName(String strDistrict);
+    String getDistrictCodeByStrName2(String strDistrict);
 
+    String getStrCodeByStrName(String strCateCode, String strName);
 
 }

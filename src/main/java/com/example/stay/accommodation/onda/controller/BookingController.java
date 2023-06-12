@@ -42,4 +42,11 @@ public class BookingController {
         return responseResult;
     }
 
+    @GetMapping("getCancelPolicy")
+    @ResponseBody
+    public void getCancelPolicy(String propertyId, String roomTypeId, String ratePlanId,
+                                String strCheckInDate, String strCheckOutDate, HttpServletRequest httpServletRequest){
+        bookingService.getCancelPolicy(propertyId, roomTypeId, ratePlanId, strCheckInDate, strCheckOutDate, httpServletRequest);
+    }
+
 }

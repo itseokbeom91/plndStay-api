@@ -1,9 +1,7 @@
 package com.example.stay.accommodation.onda.controller;
 
 import com.example.stay.accommodation.onda.service.AccommService;
-import com.example.stay.common.util.Constants;
-import com.example.stay.common.util.StringEncrypter;
-import com.example.stay.common.util.XmlUtility;
+import com.example.stay.common.util.*;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
@@ -95,8 +93,10 @@ public class AccommController {
      * ONDA에서 숙소정보 가져와서 INSERT
      */
     @GetMapping("insertAccommTotal")
-    public void insertAccommTotal(){
-        accommService.insertAccommTotal();
+    @ResponseBody       
+    public ResponseResult insertAccommTotal(HttpServletRequest httpServletRequest){
+        ResponseResult responseResult = accommService.insertAccommTotal(httpServletRequest);
+        return responseResult;
     }
 
     /**
@@ -113,11 +113,11 @@ public class AccommController {
      * @param propertyId
      * @param roomTypeId
      */
-    @GetMapping("updateRoomNRatePlan")
-    public void updateRoomNRatePlan(String propertyId, String roomTypeId){
-        String ratePlanId = "";
-        accommService.updateRoomNRatePlan(propertyId, roomTypeId, ratePlanId);
-    }
+//    @GetMapping("updateRoomNRatePlan")
+//    public void updateRoomNRatePlan(String propertyId, String roomTypeId){
+//        String ratePlanId = "";
+//        accommService.updateRoomNRatePlan(propertyId, roomTypeId, ratePlanId);
+//    }
 
     /**
      * 특정 패키지의 재고 및 요금 정보 가져와서 insert or update
@@ -136,22 +136,13 @@ public class AccommController {
         try{
             StringEncrypter encrypter = new StringEncrypter("leezeno.com", "condo24.com");
 
-//            String encrypted = encrypter.encrypt("148|syjung618|손유정|yoojung.son@plnd.co.kr|05|07||210.206.23.116|1||");
             authKey = encrypter.encrypt("onda_AuthKey_Regist");
-//            String decodeText = URLDecoder.decode(encrypted, "UTF-8");
-            System.out.println("authKey : " + authKey); // AuthKey : b/8waV7zIhA5w8O1BnpHhmikDvaCTnDFpJwmJVdkCbo=
-//            String decrypted = encrypter.decrypt(encrypted);
-//            System.out.println("decrypted : " + decrypted);
-
-//            JSONObject authKeyJson = new JSONObject();
-//            authKeyJson.put("Auth_key", encrypted);
+            System.out.println("authKey : " + authKey);
 
         }catch (Exception e){
             e.printStackTrace();
         }
-
         return authKey;
-
     }
 
 
@@ -160,52 +151,58 @@ public class AccommController {
      */
     @PutMapping("webhook")
     @ResponseBody
-    public ResponseEntity<Object> webhook(HttpServletRequest request){
-        HttpHeaders headers = new HttpHeaders();
-        headers.add("Content-Type", "application/json; charset=UTF-8");
-        HttpStatus httpStatus = HttpStatus.BAD_REQUEST;
-
-        Map<String,Object> responseMap = new HashMap<String,Object>();
+    public ResponseResult webhook(HttpServletRequest httpServletRequest){
+        LogWriter logWriter = new LogWriter(httpServletRequest.getMethod(), httpServletRequest.getServletPath(), System.currentTimeMillis());
+        String message = "";
+        String statusCode = "400";
 
         try{
-            String authKey = request.getHeader("Authorization");
+            String authKey = httpServletRequest.getHeader("Authorization");
             if(authKey.equals(Constants.webhookAuthKey)){
-                httpStatus = HttpStatus.OK;
-                responseMap.put("httpStatus", httpStatus.value());
-                responseMap.put("message", "success");
+                statusCode = "200";
 
-                InputStream inputStream = request.getInputStream();
+                InputStream inputStream = httpServletRequest.getInputStream();
                 BufferedReader br = null;
                 StringBuilder stringBuilder = new StringBuilder();
                 String line = "";
                 if (inputStream != null) {
                     br = new BufferedReader(new InputStreamReader(inputStream));
-                    //더 읽을 라인이 없을때까지 계속
                     while ((line = br.readLine()) != null) {
                         stringBuilder.append(line);
                     }
 
                     String strBody = stringBuilder.toString();
-                    System.out.println(strBody);
                     JSONParser jsonParser = new JSONParser();
                     JSONObject bodyJson = (JSONObject) jsonParser.parse(strBody);
 
-                    accommService.webhookProcess(bodyJson);
+                    Gson gson = new GsonBuilder().setPrettyPrinting().create();
+                    logWriter.add(gson.toJson(bodyJson));
+
+                    boolean result = accommService.webhookProcess(bodyJson, httpServletRequest);
+
+                    if(result){
+                        message = "success";
+                    }else{
+                        message = "fail";
+                    }
 
                 }else {
-                    System.out.println("Data 없음");
+                    message = "data not found";
                 }
-
-
             }else{
-                responseMap.put("httpStatus", httpStatus.value());
-                responseMap.put("message", "invaild_AuthKey");
-
+                message = "invaild_AuthKey";
             }
+            logWriter.add(message);
+            logWriter.log(0);
         }catch (Exception e){
             e.printStackTrace();
+            statusCode = "500";
+            message = "fail";
+
+            logWriter.add("error : " + e.getMessage());
+            logWriter.log(0);
         }
-        return new ResponseEntity<>(responseMap, headers, httpStatus);
+        return new ResponseResult<>(statusCode, message);
     }
 
 
