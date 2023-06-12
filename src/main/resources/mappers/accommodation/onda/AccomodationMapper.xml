@@ -5,32 +5,11 @@
 
 <mapper namespace="com.example.stay.accommodation.onda.mapper.AccomodationMapper">
 
-<!--    <select id="selectCode" resultType="String">-->
-<!--        USE HAPPYDAYS-->
-
-<!--        SELECT-->
-<!--            strCode-->
-<!--        FROM HAPPYDAYS.dbo.CODE_SYSTEM-->
-<!--        WHERE-->
-<!--            strCateCode = 'CON_FLAG'-->
-<!--            AND strUsageYn = 'Y'-->
-<!--            AND strName = #{strName}-->
-<!--    </select>-->
-
-
-
     <select id="insertAccommTotal" parameterType="String" resultType="String">
-        EXEC spGW_CONDO_REGIST_TOTAL #{strAccommId}, #{API_FLAG}, #{strCondoName}, #{strConZip}
-        , #{strConAddr1}, #{strConAddr2}, #{strConTel}, #{strConFax}, #{strConGekNum}, #{strConFlag}, #{strLocation}, #{strHomepage}
-        , #{strTimeIn}, #{strTimeOut}, #{strUseYN}, #{strMapX}, #{strMapY}, #{strMobileWarning}, #{strCity}, #{strNation}
-        , #{strConDesc}, #{strConAround}, #{strConSookbak}, #{strTagName}, #{strImgData}, #{strPenaltyData}, #{strRoomNRatePlanDatas}, ''
-    </select>
-
-    <select id="updateAccomm" parameterType="String" resultType="String">
-        EXEC spGW_CONDO_UPDATE_SUPPLIER #{strAccommId}, #{API_FLAG}, #{strCondoName}, #{strConZip}
-        , #{strConAddr1}, #{strConAddr2}, #{strConTel}, #{strConFax}, #{strConGekNum}, #{strConFlag}, #{strLocation}, #{strHomepage}
-        , #{strTimeIn}, #{strTimeOut}, #{strUseYN}, #{strMapX}, #{strMapY}, #{strMobileWarning}, #{strCity}, #{strNation}
-        , #{strConDesc}, #{strConAround}, #{strConSookbak}, #{strTagName}, #{strImgData}, #{strPenaltyData}, ''
+        EXEC spONDA_ACCOMM_REGIST #{strPropertyID}, #{strDeleteYn}, #{strViewYn}, #{strType}, #{intDistrict1}, #{intDistrict2}, #{intDistrict3},
+            #{strSubject}, #{strLat}, #{strLon}, #{strCheckIn}, #{strCheckOut}, #{strPhone}, #{strFax}, #{strEmail},
+            #{strZipCode}, #{strAddr1},#{strAddr2}, #{strDescription}, #{strRsvGuide}, #{strAcmNotice}, #{strImgDatas},
+            #{strPenaltyDatas},  #{strKeyWordDatas}, #{strRmtypeDatas}, ''
     </select>
 
     <select id="updateRoomNRatePlan" parameterType="String" resultType="String">
@@ -48,15 +27,31 @@
         WHERE C.accomm_id = #{propertyId}
     </select>
 
-    <select id="getCondoIDByAccommId" parameterType="String">
-        SELECT intCondoID
-        FROM condo24.test_condo WITH(NOLOCK)
-        WHERE accomm_id = ${propertyId}
-            AND API_FLAG = "ONDA"
+    <select id="getAIDByStrPropertyID" parameterType="String" resultType="int">
+        SELECT intAID
+        FROM ACCOMM WITH(NOLOCK)
+        WHERE strPropertyID = ${strPropertyID}
+            AND strType = "OND"
     </select>
 
     <select id="updateStatus" parameterType="String" resultType="String">
-        EXEC spGW_CONDO_STATUS_UPDATE #{target}, #{status}, #{propertyId}, #{roomTypeId}, #{ratePlanId}, ''
+        EXEC spONDA_ACCOMM_STATUS_UPDATE #{target}, #{strDeleteYn}, #{strViewYn}, #{propertyId}, #{roomTypeId}, #{ratePlanId}, ''
     </select>
 
+    <select id="getDistrictCodeByStrName" parameterType="String" resultType="String">
+        SELECT TOP 1 intIdx FROM CODE_DISTRICT WITH(NOLOCK)
+        WHERE strName LIKE #{strDistrict}+'%'
+    </select>
+
+    <select id="getDistrictCodeByStrName2" parameterType="String" resultType="String">
+        SELECT TOP 1 intIdx FROM CODE_DISTRICT WITH(NOLOCK)
+        WHERE strName2 LIKE #{strDistrict} + '%'
+    </select>
+
+    <select id="getStrCodeByStrName" parameterType="String" resultType="String">
+        SELECT strCode FROM CODE_SYSTEM WITH(NOLOCK)
+        WHERE
+            strCateCode = #{strCateCode}
+            AND strName = #{strName}
+    </select>
 </mapper>

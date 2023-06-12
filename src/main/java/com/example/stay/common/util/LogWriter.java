@@ -34,10 +34,9 @@ public class LogWriter {
     public static final String logBlock = "┡━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━";
     public static final String logFoot  = "┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━";
 
-//    public LogWriter(){
-//        this.startTime = df.format(new Date(System.currentTimeMillis()));
-//        this.processTime = startTime;
-//    }
+    public LogWriter(long startTime){
+        this.startTime = startTime;
+    }
 
     public LogWriter(String method, String apiUrl, long startTime){
         this.startTime = startTime;

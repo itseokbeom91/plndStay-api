@@ -25,6 +25,148 @@ public class HanwhaService {
     @Autowired
     private CommonService commonService;
 
+
+
+    /**
+     * 예약하기
+     * @param
+     * @return
+     */
+    public String booking(String strBookingID){ // 예약요청 : 01
+
+        String result = "";
+
+        try {
+            JSONObject mainObject = getCommonHeader("01");
+            JSONObject dataObject = new JSONObject();
+            JSONObject detailObject = new JSONObject();
+
+
+            detailObject.put("O", Constants.hanwhaCustNo);
+            detailObject.put("MEMB_NO", "");
+            detailObject.put("CUST_IDNT_NO", "");
+            detailObject.put("CONT_NO", Constants.hanwhaContNo);
+            detailObject.put("PAKG_NO", "");
+            detailObject.put("CPON_NO", "");
+            detailObject.put("LOC_CD", "0101");
+            detailObject.put("ROOM_TYPE_CD", "FAM");
+            detailObject.put("RSRV_LOC_DIV_CD", "C");
+            detailObject.put("ARRV_DATE", "20231010");
+            detailObject.put("RSRV_ROOM_CNT", "1");
+            detailObject.put("OVNT_CNT", "1");
+            detailObject.put("INHS_CUST_NM", "개발테스트");
+            detailObject.put("INHS_CUST_TEL_NO2", "010");
+            detailObject.put("INHS_CUST_TEL_NO3", "8633");
+            detailObject.put("INHS_CUST_TEL_NO4", "1776");
+            detailObject.put("RSRV_CUST_NM", "테스트개발");
+            detailObject.put("RSRV_CUST_TEL_NO2", "010");
+            detailObject.put("RSRV_CUST_TEL_NO3", "8633");
+            detailObject.put("RSRV_CUST_TEL_NO4", "1776");
+            detailObject.put("REFRESH_YN", "N");
+
+            List<Object> dataList = new ArrayList<>();
+            dataList.add(detailObject);
+
+            dataObject.put("ds_rsrvInfo", dataList);
+
+            mainObject.put("Data", dataObject);
+
+            System.out.println(mainObject);
+
+//            JsonNode jsonNode = commonService.callJsonApi("hanwha", mainObject);
+//
+//            result = jsonNode.toString();
+//            System.out.println(result);
+
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+
+        return result;
+    }
+
+    /**
+     * 예약 취소
+     * @return
+     */
+    public String bookingCancel(){ // 예약취소 : 02
+
+        String result = "";
+
+        try {
+            JSONObject mainObject = getCommonHeader("02");
+            JSONObject dataObject = new JSONObject();
+            JSONObject detailObject = new JSONObject();
+
+
+            detailObject.put("CUST_NO", Constants.hanwhaCustNo);
+            detailObject.put("RSRV_NO", "");
+
+            List<Object> dataList = new ArrayList<>();
+            dataList.add(detailObject);
+
+            dataObject.put("ds_cnclInfo", dataList);
+
+            mainObject.put("Data", dataObject);
+
+            System.out.println(mainObject);
+
+            JsonNode jsonNode = commonService.callJsonApi("hanwha", mainObject);
+
+            result = jsonNode.toString();
+            System.out.println(result);
+
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+
+        return result;
+    }
+
+    // 예약조회시 예약확정코드 RR : 확정예약, RC : 취소
+    // test 예약넘버 : 2308799080
+
+    /**
+     * 예약 죄회
+     * @return
+     */
+    public String bookingInfo(){ // 예약조회 : 03
+
+        String result = "";
+
+        try {
+            JSONObject mainObject = getCommonHeader("03");
+            JSONObject dataObject = new JSONObject();
+            JSONObject detailObject = new JSONObject();
+
+
+            detailObject.put("CUST_NO", Constants.hanwhaCustNo);
+            detailObject.put("RSRV_NO", ""); // 예약번호
+            detailObject.put("RSRV_DATE_STRT", ""); // 예약한 날짜 조회(투숙날 아님)
+            detailObject.put("RSRV_DATE_END", "");
+
+            List<Object> dataList = new ArrayList<>();
+            dataList.add(detailObject);
+
+            dataObject.put("ds_search", dataList);
+
+            mainObject.put("Data", dataObject);
+
+            System.out.println(mainObject);
+
+            JsonNode jsonNode = commonService.callJsonApi("hanwha", mainObject);
+
+            result = jsonNode.toString();
+            System.out.println(result);
+
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+
+        return result;
+    }
+
+
     /**
      * 캐파조회
      * @param strAccommId
@@ -128,139 +270,6 @@ public class HanwhaService {
 
 
             detailObject.put("PAKG_NO", strPackageCode);
-
-            List<Object> dataList = new ArrayList<>();
-            dataList.add(detailObject);
-
-            dataObject.put("ds_search", dataList);
-
-            mainObject.put("Data", dataObject);
-
-            System.out.println(mainObject);
-
-            JsonNode jsonNode = commonService.callJsonApi("hanwha", mainObject);
-
-            result = jsonNode.toString();
-            System.out.println(result);
-
-        }catch (Exception e){
-            e.printStackTrace();
-        }
-
-        return result;
-    }
-
-
-    /**
-     * 예약하기
-     * @param
-     * @return
-     */
-    public String booking(){ // 예약요청 : 01
-
-        String result = "";
-
-        try {
-            JSONObject mainObject = getCommonHeader("01");
-            JSONObject dataObject = new JSONObject();
-            JSONObject detailObject = new JSONObject();
-
-
-            detailObject.put("O", Constants.hanwhaCustNo);
-            detailObject.put("MEMB_NO", "");
-            detailObject.put("CUST_IDNT_NO", "");
-            detailObject.put("CONT_NO", Constants.hanwhaContNo);
-            detailObject.put("PAKG_NO", "");
-            detailObject.put("CPON_NO", "");
-            detailObject.put("LOC_CD", "0101");
-            detailObject.put("ROOM_TYPE_CD", "FAM");
-            detailObject.put("RSRV_LOC_DIV_CD", "C");
-            detailObject.put("ARRV_DATE", "20231010");
-            detailObject.put("RSRV_ROOM_CNT", "1");
-            detailObject.put("OVNT_CNT", "1");
-            detailObject.put("INHS_CUST_NM", "개발테스트");
-            detailObject.put("INHS_CUST_TEL_NO2", "010");
-            detailObject.put("INHS_CUST_TEL_NO3", "8633");
-            detailObject.put("INHS_CUST_TEL_NO4", "1776");
-            detailObject.put("RSRV_CUST_NM", "테스트개발");
-            detailObject.put("RSRV_CUST_TEL_NO2", "010");
-            detailObject.put("RSRV_CUST_TEL_NO3", "8633");
-            detailObject.put("RSRV_CUST_TEL_NO4", "1776");
-            detailObject.put("REFRESH_YN", "N");
-
-            List<Object> dataList = new ArrayList<>();
-            dataList.add(detailObject);
-
-            dataObject.put("ds_rsrvInfo", dataList);
-
-            mainObject.put("Data", dataObject);
-
-            System.out.println(mainObject);
-
-//            JsonNode jsonNode = commonService.callJsonApi("hanwha", mainObject);
-//
-//            result = jsonNode.toString();
-//            System.out.println(result);
-
-        }catch (Exception e){
-            e.printStackTrace();
-        }
-
-        return result;
-    }
-
-
-    public String bookingCancel(){ // 예약취소 : 02
-
-        String result = "";
-
-        try {
-            JSONObject mainObject = getCommonHeader("02");
-            JSONObject dataObject = new JSONObject();
-            JSONObject detailObject = new JSONObject();
-
-
-            detailObject.put("CUST_NO", Constants.hanwhaCustNo);
-            detailObject.put("RSRV_NO", "");
-
-            List<Object> dataList = new ArrayList<>();
-            dataList.add(detailObject);
-
-            dataObject.put("ds_cnclInfo", dataList);
-
-            mainObject.put("Data", dataObject);
-
-            System.out.println(mainObject);
-
-            JsonNode jsonNode = commonService.callJsonApi("hanwha", mainObject);
-
-            result = jsonNode.toString();
-            System.out.println(result);
-
-        }catch (Exception e){
-            e.printStackTrace();
-        }
-
-        return result;
-    }
-
-    // 예약조회시 예약확정코드 RR : 확정예약, RC : 취소
-    // test 예약넘버 : 2308799080
-
-    public String bookingInfo(){ // 예약조회 : 03
-
-        String result = "";
-
-        try {
-            JSONObject mainObject = getCommonHeader("02");
-            JSONObject dataObject = new JSONObject();
-            JSONObject detailObject = new JSONObject();
-
-
-            detailObject.put("CUST_NO", Constants.hanwhaCustNo);
-            detailObject.put("RSRV_NO", ""); // 예약번호
-            detailObject.put("RSRV_DATE_STRT", ""); // 예약한 날짜 조회(투숙날 아님)
-            detailObject.put("RSRV_DATE_END", "");
 
             List<Object> dataList = new ArrayList<>();
             dataList.add(detailObject);

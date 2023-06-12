@@ -41,7 +41,7 @@ public class BookingService {
         OkHttpClient client = new OkHttpClient();
 
         Request request = new Request.Builder()
-                .url("https://dapi.tport.dev/gds/diglett/properties/" + propertyId + "/roomtypes/" + roomTypeId + "/rateplans/" + ratePlanId + "/checkavail?checkin=" + checkInDate + "&checkout=" + checkOutDate)
+                .url(Constants.ondaPath + "properties/" + propertyId + "/roomtypes/" + roomTypeId + "/rateplans/" + ratePlanId + "/checkavail?checkin=" + checkInDate + "&checkout=" + checkOutDate)
                 .get()
                 .addHeader("accept", "application/json")
                 .addHeader("Authorization", Constants.ondaAuth)
@@ -252,7 +252,7 @@ public class BookingService {
         MediaType mediaType = MediaType.parse("application/json; charset=utf-8");
         RequestBody body = RequestBody.create(contents, mediaType);
         Request request = new Request.Builder()
-                .url("https://dapi.tport.dev/gds/diglett/properties/" + propertyId + "/bookings")
+                .url(Constants.ondaPath + "properties/" + propertyId + "/bookings")
                 .post(body)
                 .addHeader("accept", "application/json")
                 .addHeader("content-type", "application/json")
@@ -340,7 +340,7 @@ public class BookingService {
         OkHttpClient client = new OkHttpClient();
 
         Request request = new Request.Builder()
-                .url("https://dapi.tport.dev/gds/diglett/properties/" + propertyId + "/bookings/" + strSpBookingId)
+                .url(Constants.ondaPath + "properties/" + propertyId + "/bookings/" + strSpBookingId)
                 .get()
                 .addHeader("accept", "application/json")
                 .addHeader("Authorization", Constants.ondaAuth)
@@ -369,9 +369,7 @@ public class BookingService {
             }
 
             logWriter.add("ONDA 현재 예약 상태 : " + strStatus);
-
             logWriter.log(0);
-
         }catch (Exception e){
             e.printStackTrace();
 
@@ -449,7 +447,7 @@ public class BookingService {
         MediaType mediaType = MediaType.parse("application/json; charset=utf-8");
         RequestBody body = RequestBody.create(contents, mediaType);
         Request request = new Request.Builder()
-                .url("https://dapi.tport.dev/gds/diglett/properties/" + propertyId + "/bookings/" + strSpBookingId + "/cancel")
+                .url(Constants.ondaPath + "properties/" + propertyId + "/bookings/" + strSpBookingId + "/cancel")
                 .put(body)
                 .addHeader("accept", "application/json")
                 .addHeader("content-type", "application/json")
@@ -483,6 +481,61 @@ public class BookingService {
             logWriter.log(0);
         }
         return result;
+    }
+
+    // 취소/환불 규정 가져오기 -> 언제 사용할건지 정해서 return 어떻게할지 정해야함
+    public void getCancelPolicy(String propertyId, String roomTypeId, String ratePlanId,
+                                String strCheckInDate, String strCheckOutDate, HttpServletRequest httpServletRequest){
+        long startTime = System.currentTimeMillis();
+        String message = "";
+
+        OkHttpClient client = new OkHttpClient();
+
+        Request request = new Request.Builder()
+                .url(Constants.ondaPath + "properties/" + propertyId + "/roomtypes/" + roomTypeId + "/rateplans/" + ratePlanId
+                        + "/refund_policy?checkin=" + strCheckInDate + "&checkout=" + strCheckOutDate)
+                .get()
+                .addHeader("accept", "application/json")
+                .addHeader("Authorization", Constants.ondaAuth)
+                .build();
+        LogWriter logWriter = new LogWriter(request.method(), request.url().toString(), startTime);
+        try{
+            Response response = client.newCall(request).execute();
+
+            String responseBody = response.body().string();
+            JSONParser jsonParser = new JSONParser();
+            JSONObject responseJson = (JSONObject) jsonParser.parse(responseBody);
+
+            message = gson.toJson(responseJson);
+
+            String refundType = responseJson.get("refund_type").toString();
+            JSONArray refundPolicyArr = (JSONArray) responseJson.get("refund_policy");
+            for(int i=0; i< refundPolicyArr.size(); i++){
+                JSONObject refundPolicyJson = (JSONObject) refundPolicyArr.get(i);
+
+                // 한국날짜시간으로 변경
+                SimpleDateFormat sdf = new SimpleDateFormat ("yyyy-MM-dd'T'HH:mm:ssXXX"); // 2023-05-25T15:00:23+09:00
+                SimpleDateFormat sdf2 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+
+                Date originDate = sdf.parse(refundPolicyJson.get("until").toString());
+
+                Calendar cal = Calendar.getInstance();
+                cal.setTime(originDate);
+                cal.add(Calendar.HOUR, 9);
+                String strUntilDate = sdf2.format(cal.getTime());
+
+                int intPercent = Integer.parseInt(refundPolicyJson.get("percent").toString());
+                int intRefundPrice = Integer.parseInt(refundPolicyJson.get("refund_amount").toString());
+                int intRefundFee = Integer.parseInt(refundPolicyJson.get("charge_amount").toString());
+            }
+
+            logWriter.add(message);
+            logWriter.log(0);
+        }catch (Exception e){
+            logWriter.add("error : " + e.getMessage());
+            logWriter.log(0);
+        }
+
     }
 
 }

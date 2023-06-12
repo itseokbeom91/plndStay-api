@@ -21,7 +21,11 @@ public class CommonService {
     public JsonNode callJsonApi(String strOmk, JSONObject object) throws Exception{
 
         // API 호출 정보
-        URL url = new URL(Constants.hanwhaUrl);
+        String strUrl = "";
+        if(strOmk.equals("hanwha")){
+            strUrl = Constants.hanwhaUrl;
+        }
+        URL url = new URL(strUrl);
 
         // API 호출
         String response = ConnectionApi(url, strOmk, object);
@@ -46,7 +50,7 @@ public class CommonService {
             conn.setRequestProperty("Accept-Charset", "UTF-8");
             conn.setDoOutput(true);
 
-            if(strOmk.equals("hanwha")){
+            if(!object.isEmpty()){
                 OutputStreamWriter writer = new OutputStreamWriter(conn.getOutputStream(), "UTF-8");
                 writer.write(object.toJSONString());
                 writer.close();
