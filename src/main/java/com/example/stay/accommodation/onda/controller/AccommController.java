@@ -93,8 +93,10 @@ public class AccommController {
      * ONDA에서 숙소정보 가져와서 INSERT
      */
     @GetMapping("insertAccommTotal")
-    public void insertAccommTotal(HttpServletRequest httpServletRequest){
-        accommService.insertAccommTotal(httpServletRequest);
+    @ResponseBody       
+    public ResponseResult insertAccommTotal(HttpServletRequest httpServletRequest){
+        ResponseResult responseResult = accommService.insertAccommTotal(httpServletRequest);
+        return responseResult;
     }
 
     /**
