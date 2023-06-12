@@ -25,7 +25,7 @@
 -->
     <select id="insertProperty" resultType="string">
         exec PLNDSTAY.dbo.spHS_ACCOMM_REGIST #{strPropertyId}, 'HS', #{strLocation}, #{strCity}, #{strPropertyName}, #{strLatitude}, #{strLongitude}, #{strStarRating}, #{strNumRooms}, #{strCheckInTime}, #{strCheckOutTime}, #{strPhone}, #{strAddress}
-        , #{strHomePageUrl}, #{strPropertyDescription}, #{strTrafficInformation}, #{strRsvGuide}, #{imgData}, #{cancelData}, #{roomTypeData}, ''
+        , #{strHomePageUrl}, #{strPropertyDescription}, #{strTrafficInformation}, #{strRsvGuide}, #{imgData}, #{cancelData}, #{roomTypeData}, #{addData}, ''
     </select>
 
     <select id="insertGoods" resultType="String">
