@@ -9,7 +9,7 @@
         EXEC spONDA_ACCOMM_REGIST #{strPropertyID}, #{strDeleteYn}, #{strViewYn}, #{strType}, #{intDistrict1}, #{intDistrict2}, #{intDistrict3},
             #{strSubject}, #{strLat}, #{strLon}, #{strCheckIn}, #{strCheckOut}, #{strPhone}, #{strFax}, #{strEmail},
             #{strZipCode}, #{strAddr1},#{strAddr2}, #{strDescription}, #{strRsvGuide}, #{strAcmNotice}, #{strImgDatas},
-            #{strPenaltyDatas},  #{strKeyWordDatas}, #{strRmtypeDatas}, ''
+            #{strPenaltyDatas},  #{strKeyWordDatas}, #{strFacilityDatas}, #{strRmtypeDatas}, ''
     </select>
 
     <select id="updateRoomNRatePlan" parameterType="String" resultType="String">

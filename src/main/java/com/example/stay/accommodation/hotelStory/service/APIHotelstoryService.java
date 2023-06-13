@@ -133,6 +133,25 @@ public class APIHotelstoryService {
             //System.out.println("con_id = " + intAID);
 
             /**
+             * 부대시설 insert
+             */
+            String addData = "";
+            NodeList addList = tagElement.getElementsByTagName("Additional");
+            for(int i=0; i<addList.getLength(); i++){
+                Node node = addList.item(i);
+
+                if(node.getNodeType() == Node.ELEMENT_NODE) {
+                    Element element = (Element) node;
+                    result += xmlUtility.getTagValue("AdditionalName",element)+"<br>";
+                    addData += xmlUtility.getTagValue("AdditionalCode",element) + "|^|";
+                }
+            }
+            if(addData.length() > 1){
+                addData = addData.substring(0, addData.length()-3);
+            }
+
+
+            /**
              * img 데이터 insert
              */
             String imgData = "";
@@ -145,9 +164,10 @@ public class APIHotelstoryService {
                     result += xmlUtility.getTagValue("ImageUrl",element)+"<br>";
 
                     String strImage = xmlUtility.getTagValue("ImageUrl",element).toString();
+                    String strImgCode = xmlUtility.getTagValue("ImageTypeCode",element);
+                    String strImgRPId = xmlUtility.getTagValue("RatePlanId",element);
                     //accommPhotoContentsReg(strImage, strPropertyId, xmlUtility.getTagValue("PropertyName", tagElement).toString(), String.valueOf(intAID));
-                    imgData += accommPhotoContentsReg(strImage, strPropertyId);
-
+                    imgData += accommPhotoContentsReg(strImage, strPropertyId, strImgCode, strImgRPId);
 
                 }
             }
@@ -344,7 +364,7 @@ public class APIHotelstoryService {
                     , strLongitude, strLatitude, strCity, strPropertyDescription, strTrafficInformation, strRoomInformation, imgData, cancelData, roomTypeData);*/
 
             result += hotelStoryMapper.insertProperty(strPropertyId, strLocation, strCity, strPropertyName, strLatitude, strLongitude, strStarRating, strNumRooms, strCheckInTime, strCheckOutTime, strPhone, strAddress, strHomePageUrl
-                    , strPropertyDescription, strTrafficInformation, strRsvGuide, imgData, cancelData, roomTypeData);
+                    , strPropertyDescription, strTrafficInformation, strRsvGuide, imgData, cancelData, roomTypeData, addData);
 
 
 
@@ -822,7 +842,7 @@ public class APIHotelstoryService {
      * @param strImage
      * @param strAccommId
      */
-    public String accommPhotoContentsReg(String strImage, String strAccommId){
+    public String accommPhotoContentsReg(String strImage, String strAccommId, String strImgCode, String strImgRPId){
 
         String result = "";
         try{
@@ -852,7 +872,13 @@ public class APIHotelstoryService {
                 UrlResourceDownloader downloader = new UrlResourceDownloader(strFilePath, strImage);
                 downloader.urlFileDownload();
 
-                result += "/hotelStory/" + strAccommId + "/" +"|^|"+ strFileName +"|^|"+ intCreatedSID +"|^|"+ intModifiedSID + "{{|}}";
+                if(strImgCode.equals("H")){
+                    result += "/hotelStory/" + strAccommId + "/" +"|^|"+ strFileName +"|^|"+ intCreatedSID +"|^|"+ intModifiedSID +"|^|"+ strImgCode + "|^|0000{{|}}";
+                }else if(strImgCode.equals("R")){
+                    result += "/hotelStory/" + strAccommId + "/" +"|^|"+ strFileName +"|^|"+ intCreatedSID +"|^|"+ intModifiedSID +"|^|"+ strImgCode + "|^|" + strImgRPId + "{{|}}";
+                }
+
+//                result += "/hotelStory/" + strAccommId + "/" +"|^|"+ strFileName +"|^|"+ intCreatedSID +"|^|"+ intModifiedSID + "|^|";
             }else{
                 //System.out.println("ALREADY EXISTS PHOTO");
             }

@@ -100,6 +100,9 @@ public class AccommService {
                 String strDistrict1 = accommData.get("strDistrict1").toString();
                 String strDistrict2 = accommData.get("strDistrict2").toString();
                 String strDistrict3 = accommData.get("strDistrict3").toString();
+                if(strDistrict3.equals("")){
+                    strDistrict3 = null;
+                }
                 String strSubject = accommData.get("strSubject").toString();
 
                 String strLat = accommData.get("strLat").toString();
@@ -119,16 +122,21 @@ public class AccommService {
                 String strImgDatas = accommData.get("strImgDatas").toString();
                 String strPenaltyDatas = accommData.get("strPenaltyDatas").toString();
                 String strKeyWordDatas = accommData.get("strKeyWordDatas").toString();
+                String strFacilityDatas = accommData.get("strFacilityDatas").toString();
 
                 String result = accomodationMapper.insertAccommTotal(strPropertyID, strDeleteYn, strViewYn, strType,
                         strDistrict1, strDistrict2, strDistrict3, strSubject, strLat, strLon, strCheckIn, strCheckOut,
                         strPhone, strFax, strEmail, strZipCode, strAddr1, strAddr2, strDescription, strRsvGuide,
-                        strAcmNotice, strImgDatas, strPenaltyDatas, strKeyWordDatas, strRmtypeDatas);
+                        strAcmNotice, strImgDatas, strPenaltyDatas, strKeyWordDatas, strFacilityDatas, strRmtypeDatas);
 
-                logWriter.add("시설코드 : " + result);
+                if(result.equals("")){
+                    message = "시설 등록 완료";
+                }else{
+                    message = "시설 등록 실패";
+                }
             }
-            message = "시설 등록 완료";
-            logWriter.add("시설 등록 완료");
+            
+            logWriter.add(message);
             logWriter.log(0);
         }catch (Exception e){
             e.printStackTrace();
@@ -144,6 +152,7 @@ public class AccommService {
     // 시설 수정(시설+이미지+취소규정+키워드)
     public boolean updateAccomm(String strPropertyID){
         LogWriter logWriter = new LogWriter(System.currentTimeMillis());
+        String message = "";
         boolean updateResult = false;
         try{
             Map<String, Object> accommData = setAccommData(strPropertyID);
@@ -153,9 +162,9 @@ public class AccommService {
             String strType = accommData.get("strType").toString();
             String strDistrict1 = accommData.get("strDistrict1").toString();
             String strDistrict2 = accommData.get("strDistrict2").toString();
-            String strDistrict3 = "";
-            if(accommData.get("strDistrict3") != null){
-                strDistrict3 = accommData.get("strDistrict3").toString();
+            String strDistrict3 = accommData.get("strDistrict3").toString();
+            if(strDistrict3.equals("")){
+                strDistrict3 = null;
             }
 
             String strSubject = accommData.get("strSubject").toString();
@@ -178,17 +187,21 @@ public class AccommService {
             String strPenaltyDatas = accommData.get("strPenaltyDatas").toString();
             String strKeyWordDatas = accommData.get("strKeyWordDatas").toString();
 
+            String strFacilityDatas = accommData.get("strFacilityDatas").toString();
+
             String result = accomodationMapper.insertAccommTotal(strPropertyID, strDeleteYn, strViewYn, strType,
                     strDistrict1, strDistrict2, strDistrict3, strSubject, strLat, strLon, strCheckIn, strCheckOut,
-                    strPhone, strFax, strEmail, strZipCode, strAddr1, strAddr2, strDescription, strRsvGuide, strAcmNotice, strImgDatas, strPenaltyDatas, strKeyWordDatas, "");
+                    strPhone, strFax, strEmail, strZipCode, strAddr1, strAddr2, strDescription, strRsvGuide,
+                    strAcmNotice, strImgDatas, strPenaltyDatas, strKeyWordDatas, strFacilityDatas, "");
 
-            if(result.equals("")){
-                logWriter.add("시설코드 : " + result + " - > 시설정보 수정 실패");
-            }else {
-                updateResult = true;
-                logWriter.add("시설코드 : " + result + " - > 시설정보 수정 성공");
+            if(result.equals("완료")){
+                message = "시설 등록 완료";
+            }else{
+                message = result;
             }
 
+            logWriter.add(message);
+            logWriter.log(0);
         }catch (Exception e){
             e.printStackTrace();
 
@@ -247,8 +260,8 @@ public class AccommService {
             String address1 = address.get("address1").toString();
             String address2 = address.get("address2").toString();
             String addressDetail = address.get("address_detail").toString();
-            String strAddr1 = address1;
-            String strAddr2 = address2 + addressDetail;
+            String strAddr1 = address1 + address2;
+            String strAddr2 = addressDetail;
             String strZipCode = address.get("postal_code").toString();
 
             JSONObject location = (JSONObject) address.get("location");
@@ -293,6 +306,8 @@ public class AccommService {
             JSONArray attractions = (JSONArray) tags.get("attractions");
 
             List<String> keywordList = new ArrayList<>();
+            List<String> facilityList = new ArrayList<>();
+
             if(properties != null){
                 for(Object p : properties){
                     keywordList.add(p.toString());
@@ -300,12 +315,12 @@ public class AccommService {
             }
             if(facilities != null){
                 for(Object f : facilities){
-                    keywordList.add(f.toString());
+                    facilityList.add(f.toString());
                 }
             }
             if(services != null){
                 for(Object s : services){
-                    keywordList.add(s.toString());
+                    facilityList.add(s.toString());
                 }
             }
             if(attractions != null){
@@ -321,7 +336,29 @@ public class AccommService {
                 }
                 strKeyWordDatas = strKeyWordDatas.substring(0, strKeyWordDatas.length()-5);
             }
+            String strFacilityDatas = "";
+            String facility = "";
+            if(facilityList != null){
+                for(int i=0; i<facilityList.size(); i++){
+
+                    if(facilityList.get(i).equals("수화물 보관")){
+                        facilityList.set(i, "수화물보관");
+                    }
+                    if(facilityList.get(i).equals("매점/편의점")){
+                        facilityList.set(i, "마트/편의점");
+                    }
+
+                    facility = accomodationMapper.getStrCodeByStrName("ACCOMM_ADD_FAC", facilityList.get(i));
+
+                    strFacilityDatas += facility + "{{|}}";
+                }
+
+                strFacilityDatas = strFacilityDatas.substring(0, strFacilityDatas.length()-5);
+            }
+
+
             accommData.put("strKeyWordDatas", strKeyWordDatas);
+            accommData.put("strFacilityDatas", strFacilityDatas);
 
             // ACCOMM
             accommData.put("strDeleteYn", strDeleteYn);
@@ -409,15 +446,26 @@ public class AccommService {
 
     // 룸타입+옵션 등록 및 수정
     public void updateRmtype(String strPropertyID, String strRmtypeID, String strRateplanID){
+        LogWriter logWriter = new LogWriter(System.currentTimeMillis());
+        String message = "";
         try{
             String strRmtypeDatas = setRmtypeDatas(strPropertyID, strRmtypeID, strRateplanID);
             String strType = accomodationMapper.getStrCodeByStrName("ACCOMM_TYPE", "온다");
 
             String result = accomodationMapper.updateRoomNRatePlan(strPropertyID, strType, strRmtypeDatas);
-            System.out.println("result : " + result);
+
+            if(result.equals("")){
+                message = "객실 등록 및 수정 완료";
+            }else{
+                message = "객실 등록 및 수정 실패";
+            }
+            logWriter.add(message);
+            logWriter.log(0);
         }catch (Exception e){
             e.printStackTrace();
-            System.out.println("rooType, ratePlan 등록 및 수정 실패");
+
+            logWriter.add("error : " + e.getMessage());
+            logWriter.log(0);
         }
     }
 
@@ -468,78 +516,6 @@ public class AccommService {
             if(strImgDatas.length() != 0){
                 strImgDatas = strImgDatas.substring(0, strImgDatas.length()-5);
             }
-            // RM_BEDTYPE-------------------------------------------------------------------------------------------------
-//            JSONObject bedTypeJson = (JSONObject) roomDetailJson.get("bedtype");
-//
-//            String strBedTypeDatas = "";
-//
-//            String single = "싱글";
-//            String super_single = "슈퍼싱글";
-//            String double_bed = "더블";
-//            String queen = "퀸";
-//            String king = "킹";
-//            String sofa = "소파베드";
-//            String air = "에어베드";
-//
-//            int single_cnt = Integer.parseInt(bedTypeJson.get("single_beds").toString());
-//            int super_single_cnt = Integer.parseInt(bedTypeJson.get("super_single_beds").toString()); // 슈퍼 싱글도 싱글로
-//            int double_cnt = Integer.parseInt(bedTypeJson.get("double_beds").toString());
-//            int queen_cnt = Integer.parseInt(bedTypeJson.get("queen_beds").toString());
-//            int king_cnt = Integer.parseInt(bedTypeJson.get("king_beds").toString());
-//            int sofa_cnt = Integer.parseInt(bedTypeJson.get("sofa_beds").toString());
-//            int air_cnt = Integer.parseInt(bedTypeJson.get("air_beds").toString());
-//
-//            if(single_cnt > 0){
-//                for(int i=0; i<single_cnt; i++){
-//                    strBedTypeDatas += single + "{{|}}";
-//                }
-//            }
-//            if(super_single_cnt > 0){
-//                for(int i=0; i<super_single_cnt; i++){
-//                    strBedTypeDatas += single + "{{|}}";
-//                }
-//            }
-
-
-//            if(single_cnt > 0){
-//                for(int l=0; l<single_cnt; l++){
-//                    if(single_cnt == 1){
-//                        strBedType += single + " ";
-//                        break;
-//                    }else if(single_cnt == 3){
-//                        strBedType += "트리플" + " ";
-//                        break;
-//                    }else{
-//                        strBedType += single + " ";
-//                    }
-//                }
-//            }else if(super_single_cnt > 0){
-//                for(int l=0; l<super_single_cnt; l++){
-//                    strBedType += super_single + " ";
-//                }
-//            }else if(double_cnt > 0){
-//                for(int l=0; l<double_cnt; l++){
-//                    strBedType += double_bed + " ";
-//                }
-//            }else if(queen_cnt > 0){
-//                for(int l=0; l<queen_cnt; l++){
-//                    strBedType += queen + " ";
-//                }
-//            }else if(king_cnt > 0){
-//                for(int l=0; l<king_cnt; l++){
-//                    strBedType += king + " ";
-//                }
-//            }else if(sofa_cnt > 0){
-//                for(int l=0; l<sofa_cnt; l++){
-//                    strBedType += sofa + " ";
-//                }
-//            }else if(air_cnt > 0){
-//                for(int l=0; l<air_cnt; l++){
-//                    strBedType += air + " ";
-//                }
-//            }
-
-//            rmTypeMap.put("strBedTypeDatas", strBedTypeDatas);
 
             String strRmtypeData = strDeleteYn + "|^|" + strIngYn  + "|^|" + intQuanStd + "|^|" +
                     intQuanMax + "|^|" + strSubject + "|^|" + strDescription + "|^|" + strRmtypeID + "|^|";
