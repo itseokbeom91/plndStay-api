@@ -12,8 +12,8 @@
             #{strPenaltyDatas},  #{strKeyWordDatas}, #{strFacilityDatas}, #{strRmtypeDatas}, ''
     </select>
 
-    <select id="updateRoomNRatePlan" parameterType="String" resultType="String">
-        EXEC spGW_ROOMTYPE_UPDATE_SUPPLIER #{propertyId}, #{API_FLAG}, #{strRoomNRatePlanDatas}, ''
+    <select id="updateRmtype" parameterType="String" resultType="String">
+        EXEC spONDA_RMTYPE_UPDATE #{strPropertyID}, #{strType}, #{strRmtypeDatas}, ''
     </select>
 
     <select id="updateGoods" parameterType="StockDto" resultType="String">

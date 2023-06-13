@@ -196,8 +196,10 @@ public class AccommService {
 
             if(result.equals("완료")){
                 message = "시설 등록 완료";
+                updateResult = true;
             }else{
-                message = result;
+                logWriter.add(result);
+                message = "시설 등록 실패";
             }
 
             logWriter.add(message);
@@ -445,18 +447,21 @@ public class AccommService {
     }
 
     // 룸타입+옵션 등록 및 수정
-    public void updateRmtype(String strPropertyID, String strRmtypeID, String strRateplanID){
+    public boolean updateRmtype(String strPropertyID, String strRmtypeID, String strRateplanID){
         LogWriter logWriter = new LogWriter(System.currentTimeMillis());
         String message = "";
+        boolean updateResult = false;
         try{
             String strRmtypeDatas = setRmtypeDatas(strPropertyID, strRmtypeID, strRateplanID);
             String strType = accomodationMapper.getStrCodeByStrName("ACCOMM_TYPE", "온다");
 
-            String result = accomodationMapper.updateRoomNRatePlan(strPropertyID, strType, strRmtypeDatas);
+            String result = accomodationMapper.updateRmtype(strPropertyID, strType, strRmtypeDatas);
 
             if(result.equals("")){
                 message = "객실 등록 및 수정 완료";
+                updateResult = true;
             }else{
+                logWriter.add(result);
                 message = "객실 등록 및 수정 실패";
             }
             logWriter.add(message);
@@ -467,6 +472,7 @@ public class AccommService {
             logWriter.add("error : " + e.getMessage());
             logWriter.log(0);
         }
+        return updateResult;
     }
 
     // 룸타입, ratePlan 데이터 세팅
@@ -762,7 +768,7 @@ public class AccommService {
                     if(target.equals("rateplan")){
                         strRateplanID = event_detail.get("rateplan_id").toString();
                     }
-                    updateRmtype(strPropertyID, strRmtypeID, strRateplanID);
+                    result = updateRmtype(strPropertyID, strRmtypeID, strRateplanID);
                 }
             }else if(event_type.equals("status_updated")){
                 JSONObject event_detail = (JSONObject) bodyJson.get("event_detail");

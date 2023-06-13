@@ -99,24 +99,24 @@ public class AccommController {
         return responseResult;
     }
 
-    /**
-     * 시설(시설+이미지+취소규정) 수정
-     * @param propertyId
-     */
-    @GetMapping("updateAccomm")
-    public void updateAccomm(String propertyId){
-        accommService.updateAccomm(propertyId);
-    }
+//    /**
+//     * 시설(시설+이미지+취소규정) 수정
+//     * @param propertyId
+//     */
+//    @GetMapping("updateAccomm")
+//    public void updateAccomm(String propertyId){
+//        accommService.updateAccomm(propertyId);
+//    }
 
-    /**
-     * 룸타입, ratePlan 등록 및 수정
-     * @param propertyId
-     * @param roomTypeId
-     */
-//    @GetMapping("updateRoomNRatePlan")
-//    public void updateRoomNRatePlan(String propertyId, String roomTypeId){
-//        String ratePlanId = "";
-//        accommService.updateRoomNRatePlan(propertyId, roomTypeId, ratePlanId);
+//    /**
+//     * 룸타입, ratePlan 등록 및 수정
+//     * @param strPropertyID
+//     * @param strRmtypeID
+//     */
+//    @GetMapping("updateRmtype")
+//    public void updateRmtype(String strPropertyID, String strRmtypeID){
+//        String strRateplanID = "";
+//        accommService.updateRmtype(strPropertyID, strRmtypeID, strRateplanID);
 //    }
 
     /**

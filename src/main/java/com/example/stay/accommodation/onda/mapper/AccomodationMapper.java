@@ -14,7 +14,7 @@ public interface AccomodationMapper {
                              String strAddr1, String strAddr2, String strDescription, String strRsvGuide, String strAcmNotice,String strImgDatas,
                              String strPenaltyDatas, String strKeyWordDatas, String strFacilityDatas, String strRmtypeDatas);
 
-    String updateRoomNRatePlan(String propertyId, String API_FLAG, String strRoomNRatePlanDatas);
+    String updateRmtype(String strPropertyID, String strType, String strRmtypeDatas);
 
     String updateGoods(int strRatePlanId, int intStock, String strCheckInDate, int intBasicPrice, int intSalePrice,
                        int intMinStay, int intMaxStay);
