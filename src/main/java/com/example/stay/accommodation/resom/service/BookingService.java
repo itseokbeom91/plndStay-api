@@ -64,23 +64,28 @@ public class BookingService {
                 System.out.println(responseJson);
 
                 List<Map<String, Object>> resultList = (List<Map<String, Object>>) responseJson.get("resultList");
-/*
-                for (int i = 0;i<=resultList.size();i++) {
+                for (int i = 0;i<resultList.size();i++) {
                     Map<String, Object> packageMap = resultList.get(i);
                     String var1 = (String) packageMap.get("pkgNo");
-                    String var2 = (String) packageMap.get("nights");
-                    String var3 = (String) packageMap.get("maxNights");
-                    String var4 = (String) packageMap.get("rmCnt");
-                    String var5 = (String) packageMap.get("maxRmCnt");
+                    String var2 = (String) packageMap.get("pkgNm");
+                    String var3 = (String) packageMap.get("saleStartDt");
+                    String var4 = (String) packageMap.get("saleEndDt");
+                    String var5 = (String) packageMap.get("todaySaleYn");
                     List<Map<String, Object>> roomList = (List<Map<String, Object>>) packageMap.get("roomList");
-                    for (int j = 0; j<=roomList.size();j++) {
-                        Map<String, Object> roomMap = roomList.get(i);
+                    for (int j = 0; j<roomList.size();j++) {
+                        Map<String, Object> roomMap = roomList.get(j);
                         String var6 = (String) roomMap.get("rmTypeCd");
-                        System.out.println(var1 + " and " + var2 + " and " + var3 + " and " + var4 + " and " + var5 + " and " + var6);
+                        System.out.println( " pkgNo :: " + var1);
+                        System.out.println( " pkgNm :: " + var2);
+                        System.out.println( " saleStartDt :: " + var3);
+                        System.out.println( " saleEndDt :: " + var4);
+                        System.out.println( " todaySaleYn :: " + var5);
+                        System.out.println( " rmTypeCd :: " + var6);
+                        System.out.println("");
                         //패키지 밀어넣기
 
                     }
-                }*/
+                }
 
 
                 return  new ResponseResult<>("","", responseJson);
@@ -297,11 +302,6 @@ public class BookingService {
 
                 List< Map<String, Object> > resultList = (List<Map<String, Object>>) responseJson.get("resultList");
 
-                for(int i=0;i<resultList.size();i++) {
-                    System.out.print(resultList.get(i).get("ciYmd") + "의 재고는 ");
-                    System.out.println(resultList.get(i).get("leaveCnt")+"입니다.");
-                }
-
                 return  new ResponseResult<>("","", responseJson);
 
 
@@ -437,7 +437,6 @@ public class BookingService {
 
         OkHttpClient client = new OkHttpClient().newBuilder().build();
 
-        JSONObject test = new JSONObject();
         JSONObject requestJson = new JSONObject();
         requestJson.put("pkgNo", pkgNo);
         requestJson.put("storeCd", storeCd);
