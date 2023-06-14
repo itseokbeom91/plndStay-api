@@ -6,7 +6,7 @@
 <mapper namespace="com.example.stay.accommodation.onda.mapper.AccomodationMapper">
 
     <select id="insertAccommTotal" parameterType="String" resultType="String">
-        EXEC spONDA_ACCOMM_REGIST #{strPropertyID}, #{strDeleteYn}, #{strViewYn}, #{strType}, #{intDistrict1}, #{intDistrict2}, #{intDistrict3},
+        EXEC spONDA_ACCOMM_REGIST #{strPropertyID}, #{strDeleteYn}, #{strViewYn}, #{strType}, ${intDistrict1}, ${intDistrict2},
             #{strSubject}, #{strLat}, #{strLon}, #{strCheckIn}, #{strCheckOut}, #{strPhone}, #{strFax}, #{strEmail},
             #{strZipCode}, #{strAddr1},#{strAddr2}, #{strDescription}, #{strRsvGuide}, #{strAcmNotice}, #{strImgDatas},
             #{strPenaltyDatas},  #{strKeyWordDatas}, #{strFacilityDatas}, #{strRmtypeDatas}, ''
@@ -17,39 +17,43 @@
     </select>
 
     <select id="updateGoods" parameterType="StockDto" resultType="String">
-        EXEC spGW_GOODS_REGIST_SUPPLIER ${strRatePlanId}, ${intStock}, #{strCheckInDate}, ${intBasicPrice}, ${intSalePrice}, ${intMinStay}, ${intMaxStay}, ''
+        EXEC spGW_STOCK_REGIST #{strRateplanID}, #{strRmtypeID}, #{strDateSales}, ${intStock}, ${intCost}, ${intSales},
+                ${intExtraA}, ${intExtraC}, ${intExtraB}, ${intOmkStock}, ${intOmkSales}, ''
     </select>
 
-    <select id="getRoomAdminCnt" parameterType="String" resultType="int">
-        SELECT ISNULL(MAX(admin_count), 1)
-        FROM test_room_type RT WITH(NOLOCK)
-            JOIN test_condo C WITH(NOLOCK) ON RT.intCondoID = C.intCondoID
-        WHERE C.accomm_id = #{propertyId}
-    </select>
+<!--    <select id="getRoomAdminCnt" parameterType="String" resultType="int">-->
+<!--        SELECT ISNULL(MAX(admin_count), 1)-->
+<!--        FROM test_room_type RT WITH(NOLOCK)-->
+<!--            JOIN test_condo C WITH(NOLOCK) ON RT.intCondoID = C.intCondoID-->
+<!--        WHERE C.accomm_id = #{propertyId}-->
+<!--    </select>-->
 
-    <select id="getAIDByStrPropertyID" parameterType="String" resultType="int">
-        SELECT intAID
-        FROM ACCOMM WITH(NOLOCK)
-        WHERE strPropertyID = ${strPropertyID}
-            AND strType = "OND"
-    </select>
+<!--    <select id="getAIDByStrPropertyID" parameterType="String" resultType="int">-->
+<!--        SELECT intAID-->
+<!--        FROM ACCOMM WITH(NOLOCK)-->
+<!--        WHERE strPropertyID = ${strPropertyID}-->
+<!--            AND strType = "OND"-->
+<!--    </select>-->
 
     <select id="updateStatus" parameterType="String" resultType="String">
         EXEC spONDA_ACCOMM_STATUS_UPDATE #{target}, #{strDeleteYn}, #{strViewYn}, #{propertyId}, #{roomTypeId}, #{ratePlanId}, ''
     </select>
 
-    <select id="getDistrictCodeByStrName" parameterType="String" resultType="String">
-        SELECT TOP 1 intIdx FROM CODE_DISTRICT WITH(NOLOCK)
-        WHERE strName LIKE #{strDistrict}+'%'
+    <select id="getDistrictCode" parameterType="String" resultType="Map">
+        SELECT
+            B.intIdx AS intDistrict1,
+            A.intIdx AS intDistrict2
+        FROM CODE_DISTRICT A WITH(NOLOCK)
+        LEFT JOIN dbo.CODE_DISTRICT B WITH(NOLOCK) ON LEFT(A.strCode,2) = B.strCode
+        WHERE A.strName = #{strCity} AND A.intDepth = 2
+            AND B.strName LIKE #{strRegion} + '%' AND B.intDepth = 1
+            AND A.strDeleteYn = 'N'
     </select>
 
-    <select id="getDistrictCodeByStrName2" parameterType="String" resultType="String">
-        SELECT TOP 1 intIdx FROM CODE_DISTRICT WITH(NOLOCK)
-        WHERE strName2 LIKE #{strDistrict} + '%'
-    </select>
 
     <select id="getStrCodeByStrName" parameterType="String" resultType="String">
-        SELECT strCode FROM CODE_SYSTEM WITH(NOLOCK)
+        SELECT strCode
+        FROM CODE_SYSTEM WITH(NOLOCK)
         WHERE
             strCateCode = #{strCateCode}
             AND strName = #{strName}
