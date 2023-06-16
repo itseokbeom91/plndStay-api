@@ -9,6 +9,7 @@ import com.google.gson.GsonBuilder;
 import okhttp3.*;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -57,40 +58,10 @@ public class BookingService {
                 String responseBody = response.body().string();
                 JSONParser jsonParser = new JSONParser();
                 JSONObject responseJson = (JSONObject) jsonParser.parse(responseBody);
-                System.out.println(responseJson);
 
                 List<Map<String, Object>> resultList = (List<Map<String, Object>>) responseJson.get("resultList");
-                for (int i = 0 ; i<resultList.size() ; i++) {
-                    /*
-                    pkgNo, saleStartDt, curRsvYN, curRsvTime, nights, rmCnt, pkgNm, todaySaleYn, lcalNm, saleEndDT, lcalCd
-                     */
-                    String pkgNo = resultList.get(i).get("pkgNo").toString();
-                    String pkgNm = resultList.get(i).get("pkgNm").toString();
-                    String lcalCd = resultList.get(i).get("lcalCd").toString();
-                    String lcalNm = resultList.get(i).get("lcalNm").toString();
-                    String saleStartDt = resultList.get(i).get("saleStartDt").toString();
-                    String saleEndDT = resultList.get(i).get("saleEndDT").toString();
-                    String curRsvYN = resultList.get(i).get("curRsvYN").toString();
-                    String curRsvTime = resultList.get(i).get("curRsvTime").toString();
-                    String nights = resultList.get(i).get("nights").toString();
+                return new ResponseResult<>(statusCode, msg, responseJson);
 
-                    //pkgData = 패키지구분|^|패키지번호|^|패키지명|^|지역코드|^|지역명|^|판매시작일자|^|판매종료일자|^|즉시판매여부|^|예약가능시간|^|박수|^|최대예약가능객실수|^|roomList
-                    pkgData += "SONO" + "|^|" + pkgNo + "|^|" + pkgNm + "|^|" + lcalCd + "|^|" + lcalNm + "|^|" + saleStartDt + "|^|" + saleEndDT + "|^|"
-                            + curRsvYN + "|^|" + curRsvTime + "|^|" + nights + "|^|"  + "" + "|^|";
-
-                    List<Map<String, Object>> roomList = (List<Map<String, Object>>) resultList.get(i).get("roomList");
-                    for (int j = 0 ; j<roomList.size() ; j++) {
-                        /*
-                        storeCd, storeNm, rmTypeNm, rmTypeCd
-                         */
-                        String storeCd = roomList.get(j).get("storeCd").toString();
-                        String storeNm = roomList.get(j).get("storeNm").toString();
-                        pkgData += storeCd + "|^|" + storeNm + "|^|" + "{{^}}";
-                    }
-                    pkgData += "{{|}}";
-                }
-
-                return  new ResponseResult<>("","", responseJson);
 
             }
 
@@ -407,6 +378,7 @@ public class BookingService {
         String statusCode ="";
         String msg ="";
         String result = new String();
+        String roomData = "";
 
         JSONObject requestJson = new JSONObject();
         requestJson.put("businessId", Constants.sonoRoomId);
@@ -434,45 +406,9 @@ public class BookingService {
                 JSONParser jsonParser = new JSONParser();
                 JSONObject responseJson = (JSONObject) jsonParser.parse(responseBody);
                 List<Map<String, Object>> resultList = (List<Map<String, Object>>) responseJson.get("resultList");
-                for(int i = 0;i<resultList.size();i++) {
-                    //ACCOMM 에 들어갈 정보 처리
-                    String storeNm = resultList.get(i).get("storeNm").toString();
-                    String storeCd = resultList.get(i).get("storeCd").toString();
-                    String maxNights = resultList.get(i).get("stayNights").toString();
-                    String maxRoomCnt = resultList.get(i).get("rmCnt").toString();
-                    List<Map<String, Object>> roomList = (List<Map<String, Object>>) resultList.get(i).get("roomTypeList");
-                    for(int j = 0;j<roomList.size();j++) {
-                        //RMTYPE에 들어갈 정보 처리 minsleep은 1로 고정되어있다
-                        String rmTypeCd = roomList.get(j).get("rmTypeCd").toString();
-                        String rmTypeNm = roomList.get(j).get("rmTypeNm").toString();
-
-                        System.out.println("storeName :: " + storeNm);
-                        System.out.println("storeCd :: " + storeCd);
-                        System.out.println("maxNights :: " + maxNights);
-                        System.out.println("maxRoomCnt :: " + maxRoomCnt);
-                        System.out.println("rmTypeCd :: " + rmTypeCd);
-                        System.out.println("rmTypeNm :: " + rmTypeNm);
-                        System.out.println("");
-
-                        /*
-                        rmTypeCd => strRmtypeID
-                        pkgNo => strRateplanID
-                        rmTypeNm => strSubject
-                        maxNights => intMaxSleep
-
-                         */
-
-
-                    }
-
-                    //TO-DO RMTYPE테이블, ACCOMM테이블 인서트 작업
-                }
 
                 return  new ResponseResult<>("","", responseJson);
 
-
-                //logWriter.add(dates);
-                //logWriter.log(0);
             }
 
         } catch (Exception e) {
@@ -483,6 +419,139 @@ public class BookingService {
         }
 
         return new ResponseResult<>(statusCode, msg, result);
+
+    }
+
+
+    //insert
+    public String insertSONO(HttpServletRequest httpServletRequest) {
+        String result = "";
+
+        ResponseResult packageResponseResult = getPackageList(httpServletRequest);
+        ResponseResult RoomResponseResult = getRoomList(httpServletRequest);
+
+        packageResponseResult.toString();
+        JSONParser jsonParser = new JSONParser();
+        try {
+            String pkgData = "";
+            String roomData = "";
+
+            String accommData = "";
+            String strType = "01";
+            String propertyID = "";
+
+            JSONObject packageResponseJson = (JSONObject) jsonParser.parse(packageResponseResult.getResult().toString());
+            JSONObject roomResponseJson = (JSONObject) jsonParser.parse(RoomResponseResult.getResult().toString());
+            List<Map<String, Object>> packageResultList = (List<Map<String, Object>>) packageResponseJson.get("resultList");
+            List<Map<String, Object>> roomResultList = (List<Map<String, Object>>) roomResponseJson.get("resultList");
+
+            for (int i = 0 ; i<roomResultList.size() ; i++) {
+
+                String pkgNo = (String) roomResultList.get(i).get("pkgNo");
+                String pkgNm = (String) roomResultList.get(i).get("pkgNm");
+                String lcalCd = (String) roomResultList.get(i).get("lcalCd");
+                String lcalNm = (String) roomResultList.get(i).get("lcalNm");
+                String saleStartDt = (String) roomResultList.get(i).get("saleStartDt");
+                String saleEndDT = (String) roomResultList.get(i).get("saleEndDt");
+                String curRsvYN = (String) roomResultList.get(i).get("curRsvYN");
+                String curRsvTime = (String) roomResultList.get(i).get("curRsvTime");
+                String nights = (String) roomResultList.get(i).get("nights");
+
+                //roomData = 삭제여부 |^| 사용여부 |^| 기준인원 |^| 최대인원 |^| 룸데이터 |^| 최소숙박 |^| 최대숙박일 |^| 조식 |^| depth |^| 환불여부
+
+                roomData += "N" + "|^|" + "Y" + "|^|" + "1" + "|^|" + "77" + "|^|";
+
+
+                List<Map<String, Object>> roomList = (List<Map<String, Object>>) roomResultList.get(i).get("roomTypeList");
+
+                for (int j = 0 ; j<roomList.size() ; j++) {
+                    String storeCd = (String) roomList.get(j).get("storeCd");
+                    String storeNm = (String) roomList.get(j).get("storeNm");
+                    String rmTypeCd = (String) roomList.get(j).get("rmTypeCd");
+                    String rmTypeNm = (String) roomList.get(j).get("rmTypeNm");
+
+                    if ( j != roomList.size()-1){
+                        roomData += "" + "|~|" + rmTypeCd + "|~|" + rmTypeNm + "|~|" + "" + "{{^}}";
+                    } else {
+                        roomData += "" + "|~|" + rmTypeCd + "|~|" + rmTypeNm + "|~|" + "" + "|^|";
+                    }
+                }
+                if (i != roomResultList.size()-1){
+                    roomData += "1" + "|^|" +"77" + "|^|" + "" + "|^|" + "1" + "|^|" + "" + "|^|" + "" + "{{|}}";
+                } else {
+                    roomData += "1" + "|^|" +"77" + "|^|" + "" + "|^|" + "1" + "|^|" + "" + "|^|" + "";
+                }
+
+            }
+
+            for (int i = 0 ; i<packageResultList.size() ; i++) {
+                    /*
+                    pkgNo, saleStartDt, curRsvYN, curRsvTime, nights, rmCnt, pkgNm, todaySaleYn, lcalNm, saleEndDT, lcalCd
+                     */
+                String pkgNo = (String) packageResultList.get(i).get("pkgNo");//.toString();
+                String pkgNm = (String) packageResultList.get(i).get("pkgNm");//.toString();
+                String lcalCd = (String) packageResultList.get(i).get("lcalCd");//.toString();
+                String lcalNm = (String) packageResultList.get(i).get("lcalNm");//.toString();
+                String saleStartDt = (String) packageResultList.get(i).get("saleStartDt");//.toString();
+                String saleEndDT = (String) packageResultList.get(i).get("saleEndDt");//.toString();
+                String curRsvYN = (String) packageResultList.get(i).get("curRsvYN");//.toString();
+                String curRsvTime = (String) packageResultList.get(i).get("curRsvTime");//.toString();
+                String nights = (String) packageResultList.get(i).get("nights");//.toString();
+
+                //pkgData = 패키지구분(소노:01)|^|패키지번호|^|패키지명|^|지역코드|^|지역명|^|판매시작일자|^|판매종료일자|^|즉시판매여부|^|예약가능시간|^|박수|^|최대예약가능객실수|^|roomList
+                pkgData += "01" + "|^|" + pkgNo + "|^|" + pkgNm + "|^|" + lcalCd + "|^|" + lcalNm + "|^|" + saleStartDt+ "|^|" + saleEndDT + "|^|"
+                        + curRsvYN + "|^|" + curRsvTime + "|^|" + nights + "|^|"  + "" + "|^|";
+
+                //roomData = 삭제여부 |^| 사용여부 |^| 기준인원 |^| 최대인원 |^| 룸데이터 |^| 최소숙박 |^| 최대숙박일 |^| 조식 |^| depth |^| 환불여부
+
+                roomData += "N" + "|^|" + "Y" + "|^|" + "1" + "|^|" + "77" + "|^|";
+
+                List<Map<String, Object>> pkgRoomList = (List<Map<String, Object>>) packageResultList.get(i).get("roomList");
+
+                for (int j = 0 ; j<pkgRoomList.size() ; j++) {
+                    String storeCd = pkgRoomList.get(j).get("storeCd").toString();
+                    String storeNm = pkgRoomList.get(j).get("storeNm").toString();
+                    String rmTypeCd = pkgRoomList.get(j).get("rmTypeCd").toString();
+                    String rmTypeNm = pkgRoomList.get(j).get("rmTypeNm").toString();
+
+                    if ( j != pkgRoomList.size()-1){
+                        pkgData += storeCd + "|~|" + storeNm + "{{^}}";
+                        roomData += pkgNo + "|~|" + rmTypeCd + "|~|" + rmTypeNm + "|~|" + storeCd + "{{^}}";
+                    } else {
+                        pkgData += storeCd + "|~|" + storeNm;
+                        roomData += pkgNo + "|~|" + rmTypeCd + "|~|" + rmTypeNm + "|~|" + storeCd + "|^|";
+                    }
+                }
+                if (i != packageResultList.size()-1){
+                    pkgData += "{{|}}";
+                    roomData += "1" + "|^|" +"77" + "|^|" + "" + "|^|" + "2" + "|^|" + "" + "|^|" + pkgNm + "{{|}}";
+                } else {
+                    roomData += "1" + "|^|" +"77" + "|^|" + "" + "|^|" + "2" + "|^|" + "" + "|^|" + pkgNm;
+                }
+
+            }
+
+
+
+
+            System.out.println(pkgData);
+            System.out.println(roomData);
+            //System.out.println(accommData);
+
+            //String insertResult = bookingMapper.insertRoom("", "", "", accommData, strType);
+            String insertResult = bookingMapper.insertRoom(pkgData, roomData, "", accommData, strType);
+            System.out.println(insertResult);
+        } catch (ParseException e) {
+            throw new RuntimeException(e);
+        }
+
+
+
+
+        //result = bookingMapper.insertRoom("","","", storeCD, "01");
+
+
+        return result;
 
     }
 
