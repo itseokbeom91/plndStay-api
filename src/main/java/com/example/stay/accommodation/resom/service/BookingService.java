@@ -1,6 +1,6 @@
 package com.example.stay.accommodation.resom.service;
 
-import com.example.stay.accommodation.kumho.mapper.BookingMapper;
+import com.example.stay.accommodation.resom.mapper.BookingMapper;
 import com.example.stay.common.util.Constants;
 import com.example.stay.common.util.LogWriter;
 import com.example.stay.common.util.ResponseResult;
@@ -35,6 +35,8 @@ public class BookingService {
 
         OkHttpClient client = new OkHttpClient().newBuilder().build();
 
+        String pkgData = "";
+
         JSONObject test = new JSONObject();
         JSONObject requestJson = new JSONObject();
         requestJson.put("businessId", Constants.resomId);
@@ -66,27 +68,44 @@ public class BookingService {
                 List<Map<String, Object>> resultList = (List<Map<String, Object>>) responseJson.get("resultList");
                 for (int i = 0;i<resultList.size();i++) {
                     Map<String, Object> packageMap = resultList.get(i);
-                    String var1 = (String) packageMap.get("pkgNo");
-                    String var2 = (String) packageMap.get("pkgNm");
-                    String var3 = (String) packageMap.get("saleStartDt");
-                    String var4 = (String) packageMap.get("saleEndDt");
-                    String var5 = (String) packageMap.get("todaySaleYn");
+                    String pkgNo = (String) packageMap.get("pkgNo");
+                    String pkgNm = (String) packageMap.get("pkgNm");
+                    String saleStartDt = (String) packageMap.get("saleStartDt");
+                    String saleEndDt = (String) packageMap.get("saleEndDt");
+                    String todaySaleYn = (String) packageMap.get("todaySaleYn");
+                    String curRsvYn = (String) packageMap.get("curRsvYN");
+                    String curRsvTime = (String) packageMap.get("curRsvTime");
+                    String nights = (String) packageMap.get("nights");
+                    String maxNights = (String) packageMap.get("maxNights");
+                    String rmCnt = (String) packageMap.get("rmCnt");
+                    String maxRmCnt = (String) packageMap.get("maxRmCnt");
+                    //pkgData = 패키지구분|^|패키지번호|^|패키지명|^|지역코드|^|지역명|^|판매시작일자|^|판매종료일자|^|즉시판매여부|^|예약가능시간|^|박수|^|최대예약가능객실수|^|roomList
+                    pkgData += "RESOM" + "|^|" + pkgNo + "|^|" + pkgNm + "|^|" + "" + "|^|" + "" + "|^|" + saleStartDt + "|^|" +
+                            saleEndDt + "|^|" + curRsvYn + "|^|" + curRsvTime + "|^|" + nights + "|^|" + maxRmCnt + "|^|";
                     List<Map<String, Object>> roomList = (List<Map<String, Object>>) packageMap.get("roomList");
                     for (int j = 0; j<roomList.size();j++) {
-                        Map<String, Object> roomMap = roomList.get(j);
-                        String var6 = (String) roomMap.get("rmTypeCd");
-                        System.out.println( " pkgNo :: " + var1);
-                        System.out.println( " pkgNm :: " + var2);
-                        System.out.println( " saleStartDt :: " + var3);
-                        System.out.println( " saleEndDt :: " + var4);
-                        System.out.println( " todaySaleYn :: " + var5);
-                        System.out.println( " rmTypeCd :: " + var6);
-                        System.out.println("");
-                        //패키지 밀어넣기
+                        String rmTypeCd = (String) roomList.get(i).get("storeCd");
+                        String rmTypeNm = (String) roomList.get(i).get("storeNm");
+                        if (j == roomList.size()-1){
+                            pkgData += rmTypeCd + "|~|" + rmTypeNm;
+                        } else {
+                            pkgData += rmTypeCd + "|~|" + rmTypeNm + "{{^}}";
+                        }
+
 
                     }
-                }
+                    if(i != resultList.size()-1){
+                        pkgData += "{{|}}";
+                    }
 
+
+
+
+                }
+                System.out.println(pkgData);
+
+                //String insertResult = bookingMapper.insertRoom(pkgData, "", "","","");
+                //System.out.println(insertResult);
 
                 return  new ResponseResult<>("","", responseJson);
 
@@ -528,12 +547,12 @@ public class BookingService {
 
                     return new ResponseResult("", "", responseJson);
                 }
-                /*List< Map<String, Object> > resultList = (List<Map<String, Object>>) responseJson.get("resultList");
+                List< Map<String, Object> > resultList = (List<Map<String, Object>>) responseJson.get("resultList");
 
                 for(int i=0;i<resultList.size();i++) {
                     System.out.print(resultList.get(i).get("ciYmd") + "의 원가는 ");
                     System.out.println(resultList.get(i).get("orgRmAmt")+"입니다.");
-                }*/
+                }
 
 
                 return  new ResponseResult<>("","", responseJson);

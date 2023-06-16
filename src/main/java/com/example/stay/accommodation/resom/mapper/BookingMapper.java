@@ -8,5 +8,5 @@ import javax.servlet.http.HttpServletRequest;
 @Repository("resom.BookingMapper")
 public interface BookingMapper {
 
-    String insertPackage(String pkgNo, String nights, String maxNights, String rmCnt, String maxRmCnt, String rmTypeCd);
+    String insertRoom(String strPackageDatas, String strRoomDatas, String strStockDatas, String strPropertyID, String strType);
 }

@@ -67,5 +67,12 @@ public class BookingController {
         return  responseResult;
     }
 
+    @GetMapping("/insertSONO")
+    @ResponseBody
+    public String insertSONO(HttpServletRequest httpServletRequest) {
+        String result = bookingService.insertSONO(httpServletRequest);
+        return result;
+    }
+
 
 }
