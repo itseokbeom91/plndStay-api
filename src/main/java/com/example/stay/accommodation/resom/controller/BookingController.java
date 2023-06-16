@@ -136,4 +136,11 @@ public class BookingController {
         return responseResult;
     }
 
+    @GetMapping("/insertRESOM")
+    @ResponseBody
+    public String insertSONO(HttpServletRequest httpServletRequest) {
+        String result = bookingService.insertRESOM(httpServletRequest);
+        return result;
+    }
+
 }
