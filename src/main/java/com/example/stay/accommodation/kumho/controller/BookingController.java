@@ -61,12 +61,12 @@ public class BookingController {
     }
 
     /**
-     * 잔여 객실 수 조회
+     * 재고 등록 및 수정
      */
-    @GetMapping("getRemainCountList")
+    @GetMapping("updateGoods")
     @ResponseBody
     public ResponseResult getRemainCountList(String fr_date, String to_date, String area, String room_type, HttpServletRequest httpServletRequest){
-                ResponseResult responseResult = bookingService.getRemainCountList(fr_date, to_date, area, room_type, httpServletRequest);
+                ResponseResult responseResult = bookingService.updateGoods(fr_date, to_date, area, room_type, httpServletRequest);
         return responseResult;
     }
 

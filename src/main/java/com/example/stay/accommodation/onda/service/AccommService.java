@@ -82,7 +82,6 @@ public class AccommService {
             for(JSONObject accomm : accommList){
                 String strPropertyID = accomm.get("id").toString();
                 // 시설
-//                Map<String, Object> accommData = setAccommData(strPropertyID);
 
                 JSONObject accommDetailJson = getAccommDetailApi(strPropertyID);
 

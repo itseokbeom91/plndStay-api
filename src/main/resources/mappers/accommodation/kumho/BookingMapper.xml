@@ -38,4 +38,9 @@
         WHERE intBookingID = ${intBookingID}
     </update>
 
+    <select id="updateGoods" resultType="String">
+        EXEC spGW_STOCK_REGIST '', #{strRmtypeID}, #{strPropertyID}, #{dateSales}, ${intStock}, '', '', '', '', '',
+            ${intOmkStock}, '', ''
+    </select>
+
 </mapper>
