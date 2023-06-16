@@ -3,11 +3,16 @@ package com.example.stay.accommodation.hanwha.service;
 import com.example.stay.common.service.CommonService;
 import com.example.stay.common.util.Constants;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
+import org.json.simple.JSONValue;
+import org.json.simple.parser.JSONParser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
+import org.w3c.dom.Node;
 
 import javax.servlet.http.HttpServletRequest;
 import java.net.InetAddress;
@@ -239,12 +244,23 @@ public class HanwhaService {
 
             mainObject.put("Data", dataObject);
 
-            System.out.println(mainObject);
-
+            // API 호출
             JsonNode jsonNode = commonService.callJsonApi("hanwha", mainObject);
 
+            // 통신결과 0:실패, 1:성공
+            JSONObject codeObject = (JSONObject) new JSONParser().parse(jsonNode.get("MessageHeader").get("MSG_DATA_SUB").get(0).toString());
+            String resultCode = codeObject.get("MSG_INDC_CD").toString();
+
+            // 결과값 매핑
+            JSONArray jsonArray = (JSONArray) new JSONParser().parse(jsonNode.get("Data").get("ds_result").toString());
+            if(resultCode.equals("1")){
+                for(Object object : jsonArray){
+                    JSONObject jsonObject = (JSONObject) JSONValue.parse(object.toString());
+                    System.out.println(jsonObject);
+                }
+            }
+
             result = jsonNode.toString();
-            System.out.println(result);
 
         }catch (Exception e){
             e.printStackTrace();
