@@ -11,4 +11,6 @@ public interface BookingMapper {
     String updateBooking(int intBookingID, String strBookingProcess, String strSpBookingId, int intRoomCount);
 
     int updateBookingStatus(int intBookingID, String strBookingProcess);
+
+    String updateGoods(String strRmtypeID, String strPropertyID, String dateSales, int intStock, int intOmkStock);
 }

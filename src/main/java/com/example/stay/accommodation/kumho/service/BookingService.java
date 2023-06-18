@@ -6,6 +6,7 @@ import com.example.stay.common.util.LogWriter;
 import com.example.stay.common.util.ResponseResult;
 import com.example.stay.common.util.XmlUtility;
 import com.example.stay.openMarket.common.dto.BookingDto;
+import org.apache.catalina.util.ToStringUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
@@ -31,9 +32,11 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLDecoder;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 @Service("kumho.BookingService")
 public class BookingService {
@@ -81,6 +84,9 @@ public class BookingService {
             String coupon_year = "*"; // 쿠폰발행년도(무조건 *)
             int coupon_number = 0; // 쿠폰번호(무조건 0)
             String ipark_goodsno = Integer.toString(bookingDto.getIntCondoID()); // 상품코드
+
+            arrive_date = arrive_date.replace("-", "");
+            leave_date = leave_date.replace("-", "");
 
             // 재고확인
             int intRoomCount = getRemainCount(arrive_date, leave_date, area, room_type);
@@ -167,50 +173,145 @@ public class BookingService {
         return remainCount;
     }
 
-    // 잔여 객실 수 조회
-    public ResponseResult getRemainCountList(String fr_date, String to_date, String area, String room_type, HttpServletRequest httpServletRequest){
+    // 재고 등록 및 수정
+    public ResponseResult updateGoods(String fr_date, String to_date, String area, String room_type, HttpServletRequest httpServletRequest){
         LogWriter logWriter = new LogWriter(httpServletRequest.getMethod(), httpServletRequest.getServletPath(), System.currentTimeMillis());
         String statusCode = "200";
         String message = "";
-        MultiValueMap<String, Map> resultMap = new LinkedMultiValueMap<>();
+//        MultiValueMap<String, Map> resultMap = new LinkedMultiValueMap<>();
         try{
-            String kumhoUrl = "inter05.asp?groupid=" + Constants.groupId + "&fr_date=" + fr_date + "&to_date=" + to_date
-                            + "&area=" + area + "&site=" + site + "&room_type=" + room_type;
+            String kumhoUrl = "";
+//            String kumhoUrl = "inter05.asp?groupid=" + Constants.groupId + "&fr_date=" + fr_date + "&to_date=" + to_date
+//                            + "&area=" + area + "&site=" + site + "&room_type=" + room_type;
 
-            Document document = callKumhoAPI(kumhoUrl);
-            if(document != null){
-                NodeList roomList = document.getElementsByTagName("room");
-                for(int i=0; i< roomList.getLength(); i++) {
-                    Map<String, Object> roomMap = new HashMap<>();
-                    Node node = roomList.item(i);
-                    if (node.getNodeType() == Node.ELEMENT_NODE) {
-                        Element element = (Element) node;
+//            String kumhoUrl = "inter05.asp?groupid=100211&fr_date=20151201&to_date=20151231&area=1&site=1&room_type=*";
 
-                        String rdate = xmlUtility.getTagValue("rdate", element).trim();
-                        String msg = URLDecoder.decode(xmlUtility.getTagValue("msg", element), "utf-8");
-                        if(rdate.equals("F")){
-                            message = msg;
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd");
+            Date fromDate = sdf.parse(fr_date);
+            Date toDate = sdf.parse(to_date);
+
+            // 조회한 날짜의 기간 확인 (90일이 넘는지)
+            long sec = (toDate.getTime() - fromDate.getTime()) / 1000;
+            double days =  (sec / (24*60*60));
+            
+            // 90일 이상일 경우
+            if(days > 90){
+                double roopCount = days / 90;
+                roopCount = Math.ceil(((roopCount) * 10)/10.0);
+
+                Date startDate = null;
+                Date endDate = null;
+                for(int i=0; i<roopCount; i++){
+                    Calendar cal = Calendar.getInstance();
+                    if(i == 0){
+                        cal.setTime(fromDate);
+                        cal.add(Calendar.DATE, 90); // fromDate + 90일로 세팅
+                        endDate = cal.getTime();
+
+                        fr_date = sdf.format(fromDate);
+                        to_date = sdf.format(endDate);
+                        kumhoUrl = "inter05.asp?groupid=" + Constants.groupId + "&fr_date=" + fr_date + "&to_date=" + to_date +
+                                "&area=" + area + "&site=" + site + "&room_type=" + room_type;
+
+
+                        // 새로운 날짜 세팅
+                        cal.setTime(fromDate);
+                        cal.add(Calendar.DATE, 90); // fromDate + 90일로 새로운 시작날짜 세팅
+                        startDate = cal.getTime();
+
+                        long diff = toDate.getTime() - startDate.getTime();
+                        TimeUnit time = TimeUnit.DAYS;
+                        long diffDays = time.convert(diff, TimeUnit.MILLISECONDS);
+
+                        if(diffDays > 90){
+                            cal.setTime(startDate);
+                            cal.add(Calendar.DATE, 90); // endDate = startDate + 90일로 세팅
+                            endDate = cal.getTime();
                         }else{
-                            roomMap.put("reservDate", rdate);
-                            roomMap.put("roomtype", xmlUtility.getTagValue("roomtype", element));
-                            roomMap.put("remainCount", xmlUtility.getTagValue("remainCount", element));
+                            cal.setTime(startDate);
+                            cal.add(Calendar.DATE, (int) diffDays); // endDate = startDate + toDate까지 남은일자로 세팅
+                            endDate = cal.getTime();
+                        }
+                    }else{
+                        fr_date = sdf.format(startDate);
+                        to_date = sdf.format(endDate);
+                        kumhoUrl = "inter05.asp?groupid=" + Constants.groupId + "&fr_date=" + fr_date + "&to_date=" + to_date +
+                                "&area=" + area + "&site=" + site + "&room_type=" + room_type;
+
+
+                        // 새로운 날짜 세팅
+                        cal.setTime(startDate);
+                        cal.add(Calendar.DATE, 90); // startDate + 90일로 새로운 시작날짜 세팅
+                        startDate = cal.getTime();
+
+                        long diff = toDate.getTime() - startDate.getTime();
+                        TimeUnit time = TimeUnit.DAYS;
+                        long diffDays = time.convert(diff, TimeUnit.MILLISECONDS);
+
+                        if(diffDays > 90){
+                            cal.setTime(startDate);
+                            cal.add(Calendar.DATE, 90); // endDate = 새로운 startDate + 90일로 세팅
+                            endDate = cal.getTime();
+
+                        }else{
+                            cal.setTime(startDate);
+                            cal.add(Calendar.DATE, (int) diffDays); // endDate = 새로운 startDate + endDate까지 남은일자로 세팅
+                            endDate = cal.getTime();
+                        }
+
+
+                    }
+                }
+            }else{ // 90일 이상이 아닐 경우
+                kumhoUrl = "inter05.asp?groupid=" + Constants.groupId + "&fr_date=" + fr_date + "&to_date=" + to_date +
+                            "&area=" + area + "&site=" + site + "&room_type=" + room_type;
+                Document document = callKumhoAPI(kumhoUrl);
+                if(document != null){
+                    NodeList roomList = document.getElementsByTagName("room");
+                    for(int i=0; i< roomList.getLength(); i++) {
+//                        Map<String, Object> roomMap = new HashMap<>();
+                        Node node = roomList.item(i);
+                        if (node.getNodeType() == Node.ELEMENT_NODE) {
+                            Element element = (Element) node;
+
+                            String rdate = xmlUtility.getTagValue("rdate", element).trim();
+                            String msg = URLDecoder.decode(xmlUtility.getTagValue("msg", element), "utf-8");
+                            if(rdate.equals("F")){
+                                message = msg;
+                            }else{
+                                String strRmtypeID = xmlUtility.getTagValue("roomtype", element);
+
+                                SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+                                String dateSales = dateFormat.format(sdf.parse(rdate));
+
+                                int intStock = Integer.parseInt(xmlUtility.getTagValue("remainCount", element));
+                                int intOmkStock = intStock;
+
+                                String result = bookingMapper.updateGoods(strRmtypeID, area, dateSales, intStock, intOmkStock);
+                                String strResult = result.substring(result.length()-4);
+                                if(strResult.equals("저장완료")){
+                                    message = "재고 등록 및 수정 완료 ";
+                                }else{
+                                    message = "재고 등록 및 수정 실패";
+                                }
+
+                            }
                         }
                     }
-                    resultMap.add("roomMap", roomMap);
+                }else{
+                    message = "재고 조회 실패";
                 }
-            }else{
-                message = "잔여 객실 수 조회 실패";
             }
             logWriter.add(message);
             logWriter.log(0);
         }catch (Exception e){
             e.printStackTrace();
-            message = "잔여 객실 수 조회 실패";
+            message = "재고 조회 실패";
             statusCode = "500";
             logWriter.add("error : " + e.getMessage());
             logWriter.log(0);
         }
-        return new ResponseResult<>(statusCode, message, resultMap);
+        return new ResponseResult<>(statusCode, message);
     }
 
     // 예약 취소
