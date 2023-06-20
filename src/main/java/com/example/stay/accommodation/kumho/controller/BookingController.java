@@ -66,7 +66,7 @@ public class BookingController {
     @GetMapping("updateGoods")
     @ResponseBody
     public ResponseResult getRemainCountList(String fr_date, String to_date, String area, String room_type, HttpServletRequest httpServletRequest){
-                ResponseResult responseResult = bookingService.updateGoods(fr_date, to_date, area, room_type, httpServletRequest);
+            ResponseResult responseResult = bookingService.updateGoods(fr_date, to_date, area, room_type, httpServletRequest);
         return responseResult;
     }
 
