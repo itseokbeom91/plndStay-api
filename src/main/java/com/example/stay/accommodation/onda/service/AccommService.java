@@ -169,6 +169,7 @@ public class AccommService {
 
                 List<String> keywordList = new ArrayList<>();
                 List<String> facilityList = new ArrayList<>();
+                List<String> attractionList = new ArrayList<>();
 
                 if(properties != null){
                     for(Object p : properties){
@@ -198,6 +199,15 @@ public class AccommService {
                     }
                     strKeyWordDatas = strKeyWordDatas.substring(0, strKeyWordDatas.length()-5);
                 }
+
+                String strAttractionDatas = "";
+                if(keywordList != null){
+                    for(int i=0; i<attractionList.size(); i++){
+                        strAttractionDatas += attractionList.get(i) + "{{|}}";
+                    }
+                    strAttractionDatas = strAttractionDatas.substring(0, strAttractionDatas.length()-5);
+                }
+
                 String strFacilityDatas = "";
                 String facility = "";
                 if(facilityList != null){
@@ -368,7 +378,7 @@ public class AccommService {
                 String result = accomodationMapper.insertAccommTotal(strPropertyID, strDeleteYn, strViewYn, strType,
                         intDistrict1, intDistrict2, strSubject, strLat, strLon, strCheckIn, strCheckOut,
                         strPhone, strFax, strEmail, strZipCode, strAddr1, strAddr2, strDescription, strRsvGuide,
-                        strAcmNotice, strImgDatas, strPenaltyDatas, strKeyWordDatas, strFacilityDatas, strRmtypeDatas);
+                        strAcmNotice, strImgDatas, strPenaltyDatas, strKeyWordDatas, strAttractionDatas, strFacilityDatas, strRmtypeDatas);
 
                 if(result.equals("")){
                     message = "시설 등록 완료";
@@ -483,6 +493,7 @@ public class AccommService {
 
             List<String> keywordList = new ArrayList<>();
             List<String> facilityList = new ArrayList<>();
+            List<String> attractionList = new ArrayList<>();
 
             if(properties != null){
                 for(Object p : properties){
@@ -501,7 +512,7 @@ public class AccommService {
             }
             if(attractions != null){
                 for(Object a : attractions){
-                    keywordList.add(a.toString());
+                    attractionList.add(a.toString());
                 }
             }
 
@@ -512,6 +523,15 @@ public class AccommService {
                 }
                 strKeyWordDatas = strKeyWordDatas.substring(0, strKeyWordDatas.length()-5);
             }
+
+            String strAttractionDatas = "";
+            if(keywordList != null){
+                for(int i=0; i<attractionList.size(); i++){
+                    strAttractionDatas += attractionList.get(i) + "{{|}}";
+                }
+                strAttractionDatas = strAttractionDatas.substring(0, strAttractionDatas.length()-5);
+            }
+
             String strFacilityDatas = "";
             String facility = "";
             if(facilityList != null){
@@ -583,7 +603,7 @@ public class AccommService {
             String result = accomodationMapper.insertAccommTotal(strPropertyID, strDeleteYn, strViewYn, strType,
                     intDistrict1, intDistrict2, strSubject, strLat, strLon, strCheckIn, strCheckOut,
                     strPhone, strFax, strEmail, strZipCode, strAddr1, strAddr2, strDescription, strRsvGuide,
-                    strAcmNotice, strImgDatas, strPenaltyDatas, strKeyWordDatas, strFacilityDatas, "");
+                    strAcmNotice, strImgDatas, strPenaltyDatas, strKeyWordDatas, strAttractionDatas, strFacilityDatas, "");
 
             if(result.equals("")){
                 message = "시설 수정 완료";
