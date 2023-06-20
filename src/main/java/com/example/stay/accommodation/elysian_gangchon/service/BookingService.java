@@ -1,9 +1,9 @@
 package com.example.stay.accommodation.elysian_gangchon.service;
 
 import com.example.stay.accommodation.elysian_gangchon.mapper.BookingMapper;
+import com.example.stay.common.util.CommonFunction;
 import com.example.stay.common.util.Constants;
 import com.example.stay.common.util.LogWriter;
-import com.example.stay.common.util.ResponseResult;
 import com.google.gson.JsonObject;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -23,6 +23,8 @@ public class BookingService {
 
     @Autowired
     private BookingMapper bookingMapper;
+
+    CommonFunction commonFunction = new CommonFunction();
 
     // 재고 등록 및 수정
     public String updateGoods(HttpServletRequest httpServletRequest, String pcode, String pcode_seq,
@@ -81,11 +83,8 @@ public class BookingService {
             logWriter.add("error : " + e.getMessage());
             logWriter.log(0);
         }
-        ResponseResult responseResult = new ResponseResult(statusCode, message);
-        String strResult = responseResult.makeReturn(statusCode, message, "result!!!~!");
 
-//        return new ResponseResult<>(statusCode, message);
-        return strResult;
+        return commonFunction.makeReturn(statusCode, message);
     }
 
     public String callElysAPI(String elysUrl){

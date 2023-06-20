@@ -1,10 +1,7 @@
 package com.example.stay.accommodation.onda.service;
 
 import com.example.stay.accommodation.onda.mapper.AccomodationMapper;
-import com.example.stay.common.util.Constants;
-import com.example.stay.common.util.LogWriter;
-import com.example.stay.common.util.ResponseResult;
-import com.example.stay.common.util.UrlResourceDownloader;
+import com.example.stay.common.util.*;
 import com.example.stay.openMarket.common.dto.*;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -43,7 +40,7 @@ public class AccommService {
     Gson gson = new GsonBuilder().setPrettyPrinting().create();
 
     // 시설, 룸타입, ratePlan 등록
-    public ResponseResult insertAccommTotal(HttpServletRequest httpServletRequest){
+    public String insertAccommTotal(HttpServletRequest httpServletRequest){
         LogWriter logWriter = new LogWriter(httpServletRequest.getMethod(), httpServletRequest.getServletPath(), System.currentTimeMillis());
         String statusCode = "200";
         String message = "";
@@ -397,7 +394,8 @@ public class AccommService {
             logWriter.add("error : " + e.getMessage());
             logWriter.log(0);
         }
-        return new ResponseResult<>(statusCode, message);
+        CommonFunction commonFunction = new CommonFunction();
+        return commonFunction.makeReturn(statusCode, message);
     }
 
     // 시설 수정(시설+이미지+취소규정+키워드)
