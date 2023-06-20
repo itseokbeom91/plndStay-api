@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.example.stay.accommodation.elysian_gangchon.mapper.BookingMapper">
+    <select id="updateGoods" resultType="String">
+        EXEC spGW_STOCK_TEMP_REGIST '', #{strRmtypeID}, #{strPropertyID}, #{dateSales}, ${intStock}, '', '', '', '', '',
+        ${intOmkStock}, '', 'C', '49', ''
+    </select>
+
+    <select id="getStrPropertyID" parameterType="String" resultType="String">
+        SELECT strPropertyID
+        FROM ACCOMM A WITH(NOLOCK)
+        INNER JOIN RMTYPE R WITH(NOLOCK) ON R.intAID = A.intAID
+        WHERE R.strRmtypeID = #{strRmtypeID}
+    </select>
+</mapper>

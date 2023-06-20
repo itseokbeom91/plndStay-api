@@ -12,7 +12,7 @@ public interface AccomodationMapper {
                              int intDistrict1, int intDistrict2, String strSubject, String strLat, String strLon,
                              String strCheckIn, String strCheckOut, String strPhone, String strFax, String strEmail, String strZipCode,
                              String strAddr1, String strAddr2, String strDescription, String strRsvGuide, String strAcmNotice,String strImgDatas,
-                             String strPenaltyDatas, String strKeyWordDatas, String strFacilityDatas, String strRmtypeDatas);
+                             String strPenaltyDatas, String strKeyWordDatas, String strAttractionDatas, String strFacilityDatas, String strRmtypeDatas);
 
     String updateRmtype(String strPropertyID, String strType, String strRmtypeDatas);
 

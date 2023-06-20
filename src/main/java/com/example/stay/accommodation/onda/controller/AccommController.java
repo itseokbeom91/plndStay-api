@@ -94,9 +94,8 @@ public class AccommController {
      */
     @GetMapping("insertAccommTotal")
     @ResponseBody       
-    public ResponseResult insertAccommTotal(HttpServletRequest httpServletRequest){
-        ResponseResult responseResult = accommService.insertAccommTotal(httpServletRequest);
-        return responseResult;
+    public String insertAccommTotal(HttpServletRequest httpServletRequest){
+        return accommService.insertAccommTotal(httpServletRequest);
     }
 
 //    /**
@@ -151,7 +150,7 @@ public class AccommController {
      */
     @PutMapping("webhook")
     @ResponseBody
-    public ResponseResult webhook(HttpServletRequest httpServletRequest){
+    public String webhook(HttpServletRequest httpServletRequest){
         LogWriter logWriter = new LogWriter(httpServletRequest.getMethod(), httpServletRequest.getServletPath(), System.currentTimeMillis());
         String message = "";
         String statusCode = "400";
@@ -202,7 +201,9 @@ public class AccommController {
             logWriter.add("error : " + e.getMessage());
             logWriter.log(0);
         }
-        return new ResponseResult<>(statusCode, message);
+
+        CommonFunction commonFunction = new CommonFunction();
+        return commonFunction.makeReturn(statusCode, message);
     }
 
 

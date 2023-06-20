@@ -1,7 +1,6 @@
 package com.example.stay.accommodation.onda.controller;
 
 import com.example.stay.accommodation.onda.service.BookingService;
-import com.example.stay.common.util.ResponseResult;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -25,10 +24,8 @@ public class BookingController {
      */
     @GetMapping("createBooking")
     @ResponseBody
-    public ResponseResult createBooking(int intBookingID, HttpServletRequest httpServletRequest) {
-
-        ResponseResult responseResult = bookingService.createBookingInfo(intBookingID, httpServletRequest);
-        return responseResult;
+    public String createBooking(int intBookingID, HttpServletRequest httpServletRequest) {
+        return bookingService.createBookingInfo(intBookingID, httpServletRequest);
     }
 
     /**
@@ -36,10 +33,8 @@ public class BookingController {
      */
     @GetMapping("cancelBooking")
     @ResponseBody
-    public ResponseResult cancelBooking(int intBookingID, HttpServletRequest httpServletRequest) {
-
-        ResponseResult responseResult = bookingService.cancelBookingInfo(intBookingID, httpServletRequest);
-        return responseResult;
+    public String cancelBooking(int intBookingID, HttpServletRequest httpServletRequest) {
+        return bookingService.cancelBookingInfo(intBookingID, httpServletRequest);
     }
 
     @GetMapping("getCancelPolicy")
