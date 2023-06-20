@@ -1,5 +1,6 @@
 package com.example.stay.accommodation.hanwha.service;
 
+import com.example.stay.accommodation.hanwha.mapper.HanwhaMapper;
 import com.example.stay.common.service.CommonService;
 import com.example.stay.common.util.Constants;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -30,6 +31,8 @@ public class HanwhaService {
     @Autowired
     private CommonService commonService;
 
+    @Autowired
+    private HanwhaMapper hanwhaMapper;
 
 
     /**
@@ -206,6 +209,32 @@ public class HanwhaService {
 
             JsonNode jsonNode = commonService.callJsonApi("hanwha", mainObject);
 
+
+
+            // 통신결과 0:실패, 1:성공
+            JSONObject codeObject = (JSONObject) new JSONParser().parse(jsonNode.get("MessageHeader").get("MSG_DATA_SUB").get(0).toString());
+            String resultCode = codeObject.get("MSG_INDC_CD").toString();
+
+            String resultData = "";
+            JSONArray jsonArray = (JSONArray) new JSONParser().parse(jsonNode.get("Data").get("ds_roomStatus").toString());
+
+            if(resultCode.equals("1")){
+                for(Object object : jsonArray){
+                    JSONObject jsonObject = (JSONObject) JSONValue.parse(object.toString());
+
+                    String strPriceLcd = jsonObject.get("LOC_CD").toString();
+                    String strPriceRMId = jsonObject.get("ROOM_TYPE_CD").toString();
+                    String strPriceDate = jsonObject.get("SESN_DATE").toString();
+
+                    getPrice(strPriceLcd, strPriceRMId, "", strPriceDate);
+
+                }
+            }
+
+            if(resultData.length() > 1){
+                resultData = resultData.substring(0, resultData.length()-5);
+            }
+
             result = jsonNode.toString();
             System.out.println(result);
 
@@ -252,15 +281,78 @@ public class HanwhaService {
             String resultCode = codeObject.get("MSG_INDC_CD").toString();
 
             // 결과값 매핑
+            String resultData = "";
             JSONArray jsonArray = (JSONArray) new JSONParser().parse(jsonNode.get("Data").get("ds_result").toString());
             if(resultCode.equals("1")){
                 for(Object object : jsonArray){
                     JSONObject jsonObject = (JSONObject) JSONValue.parse(object.toString());
                     System.out.println(jsonObject);
+                    resultData += jsonObject.get("LOC_CD") + "|^|";
+                    resultData += jsonObject.get("PAKG_NO") + "|^|";
+                    resultData += jsonObject.get("PAKG_NM") + "|^|";
+                    resultData += jsonObject.get("VALI_PRID_STRT_DATE") + "|^|";
+                    resultData += jsonObject.get("VALI_PRID_END_DATE") + "|^|";
+                    resultData += ((int) Float.parseFloat(jsonObject.get("OVNT_CNT").toString())) + "{{|}}";
                 }
             }
 
+            if(resultData.length() > 1){
+                resultData = resultData.substring(0, resultData.length()-5);
+            }
+
+            result = hanwhaMapper.packageList(resultData);
+
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+
+        return result;
+    }
+
+
+    /**
+     * 일별 객실료 조회
+     * @param strAccommId
+     * @param strRoomTypeId
+     * @param strPackageCode
+     * @param strStartDate
+     * @return
+     */
+    public String getPrice(String strAccommId, String strRoomTypeId, String strPackageCode, String strStartDate){ // 일별객실료조회 : 07
+
+        String result = "";
+
+        try {
+            JSONObject mainObject = getCommonHeader("07");
+            JSONObject dataObject = new JSONObject();
+            JSONObject detailObject = new JSONObject();
+
+
+            detailObject.put("CUST_NO", Constants.hanwhaCustNo);
+            detailObject.put("CONT_NO", Constants.hanwhaContNo);
+            detailObject.put("LOC_CD", strAccommId);
+            detailObject.put("ROOM_TYPE_CD", strRoomTypeId);
+            detailObject.put("PAKG_NO", strPackageCode);
+            detailObject.put("ARRV_DATE", strStartDate);
+            detailObject.put("OVNT_CNT", "1");
+            detailObject.put("RSRV_ROOM_CNT", "1");
+            detailObject.put("MEMB_NO", "");
+            detailObject.put("RSRV_LOC_DIV_CD", "C");
+
+
+            List<Object> dataList = new ArrayList<>();
+            dataList.add(detailObject);
+
+            dataObject.put("ds_search", dataList);
+
+            mainObject.put("Data", dataObject);
+
+            System.out.println(mainObject);
+
+            JsonNode jsonNode = commonService.callJsonApi("hanwha", mainObject);
+
             result = jsonNode.toString();
+            System.out.println(result);
 
         }catch (Exception e){
             e.printStackTrace();
@@ -322,7 +414,7 @@ public class HanwhaService {
         }else if(type.equals("02")) {                               // 02 : 예약 취소
             RECV_SVC_CD = "HBSREMPRR9902";
             INTF_ID = "LCB00HBSREMPRR9902";
-        }else if(type.equals("03")){                                // 03 : 예약 조히
+        }else if(type.equals("03")){                                // 03 : 예약 조회
             RECV_SVC_CD = "HBSREMPRR9903";
             INTF_ID = "LCB00HBSREMPRR9903";
         }else if(type.equals("05")){                                // 05 : 캐파조회
@@ -331,6 +423,9 @@ public class HanwhaService {
         }else if(type.equals("06")){                                // 06 : 패키지목록조회
             RECV_SVC_CD = "HBSREMPRR9906";
             INTF_ID = "LCB00HBSREMPRR9906";
+        }else if(type.equals("07")){                                // 07 : 일별객실료조회
+            RECV_SVC_CD = "HBSREMPRR9907";
+            INTF_ID = "LCB00HBSREMPRR9907";
         }else if(type.equals("08")){                                // 08 : 패키지구성조회
             RECV_SVC_CD = "HBSREMPRR9931";
             INTF_ID = "LCB00HBSREMPRR9931";

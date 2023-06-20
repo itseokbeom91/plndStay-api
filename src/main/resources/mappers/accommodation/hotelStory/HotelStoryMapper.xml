@@ -33,7 +33,7 @@
     </select>-->
 
     <select id="insertStock" resultType="String">
-        EXEC PLNDSTAY.dbo.spGW_STOCK_REGIST #{strRatePlanId}, #{strRoomTypeId}, #{strDate}, ${intStock}, ${intBasicPrice}, ${intSalePrice}, 0, 0, 0, ${intStock}, ${intOMKPrice}, ''
+        EXEC PLNDSTAY.dbo.spGW_STOCK_TEMP_REGIST #{strRatePlanId}, #{strRoomTypeId}, #{strDate}, ${intStock}, ${intBasicPrice}, ${intSalePrice}, 0, 0, 0, ${intStock}, ${intOMKPrice}, ''
     </select>
 
     <select id="getbooking" resultType="com.example.stay.accommodation.hotelStory.dto.BookingDto">
