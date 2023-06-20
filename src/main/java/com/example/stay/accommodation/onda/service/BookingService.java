@@ -1,9 +1,9 @@
 package com.example.stay.accommodation.onda.service;
 
 import com.example.stay.accommodation.onda.mapper.BookingMapper;
+import com.example.stay.common.util.CommonFunction;
 import com.example.stay.common.util.Constants;
 import com.example.stay.common.util.LogWriter;
-import com.example.stay.common.util.ResponseResult;
 import com.example.stay.openMarket.common.dto.BookingDto;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -30,6 +30,8 @@ public class BookingService {
 
     @Autowired
     private BookingMapper bookingMapper;
+
+    CommonFunction commonFunction = new CommonFunction();
 
     Gson gson = new GsonBuilder().setPrettyPrinting().create();
 
@@ -106,7 +108,7 @@ public class BookingService {
 //    }
 
     // 온다에 예약정보 전송데이터 생성
-    public ResponseResult createBookingInfo(int intBookingID, HttpServletRequest httpServletRequest){
+    public String createBookingInfo(int intBookingID, HttpServletRequest httpServletRequest){
         LogWriter logWriter = new LogWriter(httpServletRequest.getMethod(), httpServletRequest.getServletPath(), System.currentTimeMillis());
 
         String statusCode = "200";
@@ -238,7 +240,7 @@ public class BookingService {
         }
 
 
-        return new ResponseResult<>(statusCode, message);
+        return commonFunction.makeReturn(statusCode, message);
     }
 
     public boolean createBooking(String propertyId, JSONObject requestJson, int intCondoID, int intRoomID, int intRateID, long stayDays){
@@ -381,7 +383,7 @@ public class BookingService {
     }
 
 
-    public ResponseResult cancelBookingInfo(int intBookingID, HttpServletRequest httpServletRequest){
+    public String cancelBookingInfo(int intBookingID, HttpServletRequest httpServletRequest){
         LogWriter logWriter = new LogWriter(httpServletRequest.getMethod(), httpServletRequest.getServletPath(), System.currentTimeMillis());
 
         String statusCode = "200";
@@ -431,7 +433,7 @@ public class BookingService {
             logWriter.add("error : " + e.getMessage());
             logWriter.log(0);
         }
-        return new ResponseResult<>(statusCode, message);
+        return commonFunction.makeReturn(statusCode, message);
     }
 
     // 예약 취소

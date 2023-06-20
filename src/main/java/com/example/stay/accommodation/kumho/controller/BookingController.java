@@ -1,7 +1,6 @@
 package com.example.stay.accommodation.kumho.controller;
 
 import com.example.stay.accommodation.kumho.service.BookingService;
-import com.example.stay.common.util.ResponseResult;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -22,10 +21,8 @@ public class BookingController {
      */
     @GetMapping("createBooking")
     @ResponseBody
-    public ResponseResult createBooking(int intBookingID, HttpServletRequest httpServletRequest) {
-
-        ResponseResult responseResult = bookingService.createBooking(intBookingID, httpServletRequest);
-        return responseResult;
+    public String createBooking(int intBookingID, HttpServletRequest httpServletRequest) {
+        return bookingService.createBooking(intBookingID, httpServletRequest);
     }
 
     /**
@@ -33,10 +30,8 @@ public class BookingController {
      */
     @GetMapping("cancelBooking")
     @ResponseBody
-    public ResponseResult cancelBooking(int intBookingID, HttpServletRequest httpServletRequest) {
-
-        ResponseResult responseResult = bookingService.cancelBooking(intBookingID, httpServletRequest);
-        return responseResult;
+    public String cancelBooking(int intBookingID, HttpServletRequest httpServletRequest) {
+        return bookingService.cancelBooking(intBookingID, httpServletRequest);
     }
 
     /**
@@ -44,10 +39,8 @@ public class BookingController {
      */
     @GetMapping("getReservationStatus")
     @ResponseBody
-    public ResponseResult getReservationStatus(int intBookingID, HttpServletRequest httpServletRequest) {
-
-        ResponseResult responseResult = bookingService.getReservationStatus(intBookingID, httpServletRequest);
-        return responseResult;
+    public String getReservationStatus(int intBookingID, HttpServletRequest httpServletRequest) {
+        return bookingService.getReservationStatus(intBookingID, httpServletRequest);
     }
 
     /**
@@ -55,19 +48,17 @@ public class BookingController {
      */
     @GetMapping("getReservations")
     @ResponseBody
-    public ResponseResult getReservations(String fr_date, String to_date, HttpServletRequest httpServletRequest){
-        ResponseResult responseResult = bookingService.getReservations(fr_date, to_date, httpServletRequest);
-        return responseResult;
+    public String getReservations(String fr_date, String to_date, HttpServletRequest httpServletRequest){
+        return bookingService.getReservations(fr_date, to_date, httpServletRequest);
     }
 
     /**
-     * 잔여 객실 수 조회
+     * 재고 등록 및 수정
      */
-    @GetMapping("getRemainCountList")
+    @GetMapping("updateGoods")
     @ResponseBody
-    public ResponseResult getRemainCountList(String fr_date, String to_date, String area, String room_type, HttpServletRequest httpServletRequest){
-                ResponseResult responseResult = bookingService.getRemainCountList(fr_date, to_date, area, room_type, httpServletRequest);
-        return responseResult;
+    public String getRemainCountList(String fr_date, String to_date, String area, String room_type, HttpServletRequest httpServletRequest){
+        return bookingService.updateGoods(fr_date, to_date, area, room_type, httpServletRequest);
     }
 
 //    @GetMapping("getRemainCount")
