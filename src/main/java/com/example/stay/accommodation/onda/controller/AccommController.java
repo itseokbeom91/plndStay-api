@@ -98,25 +98,37 @@ public class AccommController {
         return accommService.insertAccommTotal(httpServletRequest);
     }
 
-//    /**
-//     * 시설(시설+이미지+취소규정) 수정
-//     * @param propertyId
-//     */
-//    @GetMapping("updateAccomm")
-//    public void updateAccomm(String propertyId){
-//        accommService.updateAccomm(propertyId);
-//    }
+    /**
+     * 시설(시설+이미지+취소규정) 수정
+     * @param propertyId
+     */
+    @GetMapping("updateAccomm")
+    public String updateAccomm(String propertyId){
 
-//    /**
-//     * 룸타입, ratePlan 등록 및 수정
-//     * @param strPropertyID
-//     * @param strRmtypeID
-//     */
-//    @GetMapping("updateRmtype")
-//    public void updateRmtype(String strPropertyID, String strRmtypeID, String strRateplanID){
-////        String strRateplanID = "";
-//        accommService.updateRmtype(strPropertyID, strRmtypeID, strRateplanID);
-//    }
+        JSONObject jsonObject =  accommService.updateAccomm(propertyId);
+        String code = jsonObject.get("statusCode").toString();
+        String message = jsonObject.get("message").toString();
+
+        CommonFunction commonFunction = new CommonFunction();
+        return commonFunction.makeReturn(code, message);
+    }
+
+    /**
+     * 룸타입, ratePlan 등록 및 수정
+     * @param strPropertyID
+     * @param strRmtypeID
+     * @param strRateplanID
+     */
+    @GetMapping("updateRmtype")
+    public String updateRmtype(String strPropertyID, String strRmtypeID, @Nullable String strRateplanID){
+
+        JSONObject jsonObject =  accommService.updateRmtype(strPropertyID, strRmtypeID, strRateplanID);
+        String code = jsonObject.get("statusCode").toString();
+        String message = jsonObject.get("message").toString();
+
+        CommonFunction commonFunction = new CommonFunction();
+        return commonFunction.makeReturn(code, message);
+    }
 
     /**
      * 특정 패키지의 재고 및 요금 정보 가져와서 insert or update
@@ -126,23 +138,23 @@ public class AccommController {
         accommService.updateGoods(strRateplanID, strRmtypeID, from, to);
     }
 
-    /**
-     * WEBHOOK AuthKey 발급
-     */
-    @GetMapping("webhookAuth")
-    public String webhookAuth(){
-        String authKey = "";
-        try{
-            StringEncrypter encrypter = new StringEncrypter("leezeno.com", "condo24.com");
-
-            authKey = encrypter.encrypt("onda_AuthKey_Regist");
-            System.out.println("authKey : " + authKey);
-
-        }catch (Exception e){
-            e.printStackTrace();
-        }
-        return authKey;
-    }
+//    /**
+//     * WEBHOOK AuthKey 발급
+//     */
+//    @GetMapping("webhookAuth")
+//    public String webhookAuth(){
+//        String authKey = "";
+//        try{
+//            StringEncrypter encrypter = new StringEncrypter("leezeno.com", "condo24.com");
+//
+//            authKey = encrypter.encrypt("onda_AuthKey_Regist");
+//            System.out.println("authKey : " + authKey);
+//
+//        }catch (Exception e){
+//            e.printStackTrace();
+//        }
+//        return authKey;
+//    }
 
 
     /**
@@ -150,10 +162,11 @@ public class AccommController {
      */
     @PutMapping("webhook")
     @ResponseBody
-    public String webhook(HttpServletRequest httpServletRequest){
+    public JSONObject webhook(HttpServletRequest httpServletRequest){
         LogWriter logWriter = new LogWriter(httpServletRequest.getMethod(), httpServletRequest.getServletPath(), System.currentTimeMillis());
         String message = "";
         String statusCode = "400";
+        JSONObject returnJson = new JSONObject();
 
         try{
             String authKey = httpServletRequest.getHeader("Authorization");
@@ -202,8 +215,9 @@ public class AccommController {
             logWriter.log(0);
         }
 
-        CommonFunction commonFunction = new CommonFunction();
-        return commonFunction.makeReturn(statusCode, message);
+        returnJson.put("statusCode", statusCode);
+        returnJson.put("message", message);
+        return returnJson;
     }
 
 
