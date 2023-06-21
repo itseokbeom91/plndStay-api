@@ -177,11 +177,11 @@ public class HanwhaService {
 
     /**
      * 캐파조회
-     * @param strAccommId
+     * @param strLcdId
      * @param strRoomTypeId
      * @return
      */
-    public String getCapa(String strAccommId, String strRoomTypeId, String strStartDate, String strEndDate){ // 캐파조회 : 05
+    public String getCapa(String strLcdId, String strRoomTypeId, String strStartDate, String strEndDate, String strPackageCode){ // 캐파조회 : 05
 
         String result = "";
 
@@ -193,8 +193,9 @@ public class HanwhaService {
 
             detailObject.put("CUST_NO", Constants.hanwhaCustNo);
             detailObject.put("CONT_NO", Constants.hanwhaContNo);
-            detailObject.put("LOC_CD", strAccommId);
+            detailObject.put("LOC_CD", strLcdId);
             detailObject.put("ROOM_TYPE_CD", strRoomTypeId);
+            detailObject.put("PAKG_NO", strPackageCode);
             detailObject.put("STRT_DATE", strStartDate);
             detailObject.put("END_DATE", strEndDate);
 
@@ -226,7 +227,10 @@ public class HanwhaService {
                     String strPriceRMId = jsonObject.get("ROOM_TYPE_CD").toString();
                     String strPriceDate = jsonObject.get("SESN_DATE").toString();
 
-                    getPrice(strPriceLcd, strPriceRMId, "", strPriceDate);
+                    int[] intPriceData = getPrice(strPriceLcd, strPriceRMId, strPackageCode, strPriceDate);
+                    System.out.println(intPriceData[0] +" / "+ intPriceData[1]);
+//                    JSONObject priceObject = (JSONObject) JSONValue.parse(strPriceData);
+                    //System.out.println(priceObject);
 
                 }
             }
@@ -318,9 +322,11 @@ public class HanwhaService {
      * @param strStartDate
      * @return
      */
-    public String getPrice(String strAccommId, String strRoomTypeId, String strPackageCode, String strStartDate){ // 일별객실료조회 : 07
+    public int[] getPrice(String strAccommId, String strRoomTypeId, String strPackageCode, String strStartDate){ // 일별객실료조회 : 07
 
         String result = "";
+        int intSalePrice = 0; // 판매가
+        int intOrigPrice = 0; // 공급가
 
         try {
             JSONObject mainObject = getCommonHeader("07");
@@ -347,18 +353,66 @@ public class HanwhaService {
 
             mainObject.put("Data", dataObject);
 
-            System.out.println(mainObject);
+            //System.out.println(mainObject);
 
             JsonNode jsonNode = commonService.callJsonApi("hanwha", mainObject);
 
+            // 통신결과 0:실패, 1:성공
+            JSONObject codeObject = (JSONObject) new JSONParser().parse(jsonNode.get("MessageHeader").get("MSG_DATA_SUB").get(0).toString());
+            String resultCode = codeObject.get("MSG_INDC_CD").toString();
+
+            // 결과값 매핑
+            String roomResult = "";
+            String pakgResult = "";
+            JSONArray roomArray = new JSONArray();
+            JSONArray pakgArray = new JSONArray();
+
+
+            if(jsonNode.get("Data").has("ds_result")){
+                roomResult = jsonNode.get("Data").get("ds_result").toString();
+                roomArray = (JSONArray) new JSONParser().parse(roomResult);
+
+            }
+            if(jsonNode.get("Data").has("ds_pakgAdiSvcList")){
+                pakgResult = jsonNode.get("Data").get("ds_pakgAdiSvcList").toString();
+                pakgArray = (JSONArray) new JSONParser().parse(pakgResult);
+
+            }
+
+            if(resultCode.equals("1")){
+                if(roomArray.size() > 0 ){
+                    for(Object object : roomArray){
+                        JSONObject jsonObject = (JSONObject) JSONValue.parse(object.toString());
+                        System.out.println(jsonObject.get("CALC_ROOM_RATE"));
+                        System.out.println(jsonObject.get("ORIG_ROOM_RATE"));
+
+                        intSalePrice += (int) (Float.parseFloat(jsonObject.get("CALC_ROOM_RATE").toString()));
+                        intOrigPrice += (int) (Float.parseFloat(jsonObject.get("ORIG_ROOM_RATE").toString()));
+                    }
+                }
+                if(pakgArray.size() > 0 ){
+                    for(Object object : pakgArray){
+                        JSONObject jsonObject = (JSONObject) JSONValue.parse(object.toString());
+                        System.out.println(jsonObject.get("CALC_SVC_RATE"));
+                        System.out.println(jsonObject.get("ORIG_SVC_RATE"));
+
+                        intSalePrice += (int) (Float.parseFloat(jsonObject.get("CALC_SVC_RATE").toString()));
+                        intOrigPrice += (int) (Float.parseFloat(jsonObject.get("ORIG_SVC_RATE").toString()));
+                    }
+                }
+
+            }
+
+            System.out.println("판매가 다 더한 값 " + intSalePrice);
+            System.out.println("공급가 다 더한 값 " + intOrigPrice);
             result = jsonNode.toString();
-            System.out.println(result);
+            //System.out.println(result);
 
         }catch (Exception e){
             e.printStackTrace();
         }
 
-        return result;
+        return new int[]{intSalePrice, intOrigPrice};
     }
 
 
@@ -454,13 +508,13 @@ public class HanwhaService {
 
             // ip 주소 구하기
             String ipAdress = getClientIP();
-            System.out.println(ipAdress);
+            //System.out.println(ipAdress);
 
             // 현재시간 구하기(yyyyMMddHHmmss)
             Date date = new Date();
             SimpleDateFormat format = new SimpleDateFormat("yyyyMMddHHmmssSSS");
             String nowtime = format.format(date);
-            System.out.println(nowtime);
+            //System.out.println(nowtime);
 
 
             systemObject.put("TMSG_VER_DV_CD", "01");
@@ -508,29 +562,29 @@ public class HanwhaService {
     public static String getClientIP() {
         HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest();
         String ip = request.getHeader("X-Forwarded-For");
-        System.out.println("> X-FORWARDED-FOR : " + ip);
+        //System.out.println("> X-FORWARDED-FOR : " + ip);
 
         if (ip == null) {
             ip = request.getHeader("Proxy-Client-IP");
-            System.out.println("> Proxy-Client-IP : " + ip);
+            //System.out.println("> Proxy-Client-IP : " + ip);
         }
         if (ip == null) {
             ip = request.getHeader("WL-Proxy-Client-IP");
-            System.out.println(">  WL-Proxy-Client-IP : " + ip);
+            //System.out.println(">  WL-Proxy-Client-IP : " + ip);
         }
         if (ip == null) {
             ip = request.getHeader("HTTP_CLIENT_IP");
-            System.out.println("> HTTP_CLIENT_IP : " + ip);
+            //System.out.println("> HTTP_CLIENT_IP : " + ip);
         }
         if (ip == null) {
             ip = request.getHeader("HTTP_X_FORWARDED_FOR");
-            System.out.println("> HTTP_X_FORWARDED_FOR : " + ip);
+            //System.out.println("> HTTP_X_FORWARDED_FOR : " + ip);
         }
         if (ip == null) {
             ip = request.getRemoteAddr();
-            System.out.println("> getRemoteAddr : "+ip);
+            //System.out.println("> getRemoteAddr : "+ip);
         }
-        System.out.println("> Result : IP Address : "+ip);
+        //System.out.println("> Result : IP Address : "+ip);
 
         return ip;
     }
