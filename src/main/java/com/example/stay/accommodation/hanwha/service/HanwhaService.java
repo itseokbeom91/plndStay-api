@@ -40,7 +40,7 @@ public class HanwhaService {
      * @param
      * @return
      */
-    public String booking(String strBookingID){ // 예약요청 : 01
+    public String booking(String strPackNo, String strLocCd, String strRMCd, String strDate, String strRoomCnt, String strStaycnt, String strName, String strPhone){ // 예약요청 : 01
 
         String result = "";
 
@@ -50,23 +50,23 @@ public class HanwhaService {
             JSONObject detailObject = new JSONObject();
 
 
-            detailObject.put("O", Constants.hanwhaCustNo);
+            detailObject.put("CUST_NO", Constants.hanwhaCustNo);
             detailObject.put("MEMB_NO", "");
             detailObject.put("CUST_IDNT_NO", "");
             detailObject.put("CONT_NO", Constants.hanwhaContNo);
-            detailObject.put("PAKG_NO", "");
+            detailObject.put("PAKG_NO", strPackNo);
             detailObject.put("CPON_NO", "");
-            detailObject.put("LOC_CD", "0101");
-            detailObject.put("ROOM_TYPE_CD", "FAM");
+            detailObject.put("LOC_CD", strLocCd);
+            detailObject.put("ROOM_TYPE_CD", strRMCd);
             detailObject.put("RSRV_LOC_DIV_CD", "C");
-            detailObject.put("ARRV_DATE", "20231010");
-            detailObject.put("RSRV_ROOM_CNT", "1");
-            detailObject.put("OVNT_CNT", "1");
-            detailObject.put("INHS_CUST_NM", "개발테스트");
+            detailObject.put("ARRV_DATE", strDate); //20231010
+            detailObject.put("RSRV_ROOM_CNT", strRoomCnt); // 객실 수
+            detailObject.put("OVNT_CNT", strStaycnt); // 몇박
+            detailObject.put("INHS_CUST_NM", strName);
             detailObject.put("INHS_CUST_TEL_NO2", "010");
             detailObject.put("INHS_CUST_TEL_NO3", "8633");
             detailObject.put("INHS_CUST_TEL_NO4", "1776");
-            detailObject.put("RSRV_CUST_NM", "테스트개발");
+            detailObject.put("RSRV_CUST_NM", strName);
             detailObject.put("RSRV_CUST_TEL_NO2", "010");
             detailObject.put("RSRV_CUST_TEL_NO3", "8633");
             detailObject.put("RSRV_CUST_TEL_NO4", "1776");
@@ -234,6 +234,9 @@ public class HanwhaService {
 
                 }
             }
+            /**
+             ***** RMTYPE과 PACKAGE_LIST의 중간 table 생성 후 작업 *****
+             */
 
             if(resultData.length() > 1){
                 resultData = resultData.substring(0, resultData.length()-5);
