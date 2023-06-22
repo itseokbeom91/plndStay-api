@@ -45,33 +45,33 @@ public class AccommService {
         String statusCode = "200";
         String message = "";
         // 전체 숙소 리스트 불러오기
-//        List<JSONObject> accommList = getAccommListApi(Constants.ondaPath + "properties?status=all");
+        List<JSONObject> accommList = getAccommListApi(Constants.ondaPath + "properties?status=all");
         try{
 
-            String testAccommList = "{\n" +
-                    "      \"id\": \"54207\",\n" +
-                    "      \"name\": \"채널 테스트&숙소(테스트계정)\",\n" +
-                    "      \"status\": \"enabled\",\n" +
-                    "      \"updated_at\": \"2023-06-09T01:55:50+09:00\"\n" +
-                    "    }";
-
-            String testAccommList2 = "{\n" +
-                    "      \"id\": \"130517\",\n" +
-                    "      \"name\": \"에드워드호텔(거제 호텔상상)\",\n" +
-                    "      \"status\": \"enabled\",\n" +
-                    "      \"updated_at\": \"2023-06-09T02:05:27+09:00\"\n" +
-                    "    }";
-            JSONParser jsonParser = new JSONParser();
-
-            Object obj = jsonParser.parse(testAccommList);
-            JSONObject jsonObj = (JSONObject) obj;
-
-            Object obj2 = jsonParser.parse(testAccommList2);
-            JSONObject jsonObj2 = (JSONObject) obj2;
-
-            List<JSONObject> accommList = new LinkedList<>();
-            accommList.add(jsonObj);
-            accommList.add(jsonObj2);
+//            String testAccommList = "{\n" +
+//                    "      \"id\": \"54207\",\n" +
+//                    "      \"name\": \"채널 테스트&숙소(테스트계정)\",\n" +
+//                    "      \"status\": \"enabled\",\n" +
+//                    "      \"updated_at\": \"2023-06-09T01:55:50+09:00\"\n" +
+//                    "    }";
+//
+//            String testAccommList2 = "{\n" +
+//                    "      \"id\": \"130517\",\n" +
+//                    "      \"name\": \"에드워드호텔(거제 호텔상상)\",\n" +
+//                    "      \"status\": \"enabled\",\n" +
+//                    "      \"updated_at\": \"2023-06-09T02:05:27+09:00\"\n" +
+//                    "    }";
+//            JSONParser jsonParser = new JSONParser();
+//
+//            Object obj = jsonParser.parse(testAccommList);
+//            JSONObject jsonObj = (JSONObject) obj;
+//
+//            Object obj2 = jsonParser.parse(testAccommList2);
+//            JSONObject jsonObj2 = (JSONObject) obj2;
+//
+//            List<JSONObject> accommList = new LinkedList<>();
+//            accommList.add(jsonObj);
+//            accommList.add(jsonObj2);
 
 
 
@@ -399,10 +399,12 @@ public class AccommService {
     }
 
     // 시설 수정(시설+이미지+취소규정+키워드)
-    public boolean updateAccomm(String strPropertyID){
+    public JSONObject updateAccomm(String strPropertyID){
         LogWriter logWriter = new LogWriter(System.currentTimeMillis());
+        String statusCode = "200";
         String message = "";
         boolean updateResult = false;
+        JSONObject resultJson = new JSONObject();
         try{
 
             JSONObject accommDetailJson = getAccommDetailApi(strPropertyID);
@@ -614,19 +616,25 @@ public class AccommService {
             logWriter.add(message);
             logWriter.log(0);
         }catch (Exception e){
-            e.printStackTrace();
+            statusCode = "500";
 
             logWriter.add("error : " + e.getMessage());
             logWriter.log(0);
         }
-        return updateResult;
+
+        resultJson.put("statusCode", statusCode);
+        resultJson.put("message", message);
+        resultJson.put("updateResult", updateResult);
+        return resultJson;
     }
 
     // 룸타입+옵션 등록 및 수정
-    public boolean updateRmtype(String strPropertyID, String strRmtypeID, String strRateplanID){
+    public JSONObject updateRmtype(String strPropertyID, String strRmtypeID, String strRateplanID){
         LogWriter logWriter = new LogWriter(System.currentTimeMillis());
+        String statusCode = "200";
         String message = "";
         boolean updateResult = false;
+        JSONObject resultJson = new JSONObject();
         try{
             String strRmtypeDatas = "";
             JSONObject roomDetailJson = getRoomTypeDetail(strPropertyID, strRmtypeID);
@@ -763,13 +771,17 @@ public class AccommService {
             }
             logWriter.add(message);
             logWriter.log(0);
+
         }catch (Exception e){
-            e.printStackTrace();
+            statusCode = "500";
 
             logWriter.add("error : " + e.getMessage());
             logWriter.log(0);
         }
-        return updateResult;
+        resultJson.put("statusCode", statusCode);
+        resultJson.put("message", message);
+        resultJson.put("updateResult", updateResult);
+        return resultJson;
     }
 
 
@@ -952,7 +964,8 @@ public class AccommService {
 
                 if(target.equals("property")){
                     String strPropertyID = event_detail.get("property_id").toString();
-                    result = updateAccomm(strPropertyID);
+                    JSONObject updateJson = updateAccomm(strPropertyID);
+                    result = (boolean) updateJson.get("updateResult");
                 }else if(target.equals("roomtype") || target.equals("rateplan")){
                     // roomType & ratePlane은 DB구조상 데이터 조합해서 넣어야하기 때문에 같이 수정
                     String strPropertyID = event_detail.get("property_id").toString();
@@ -961,7 +974,8 @@ public class AccommService {
                     if(target.equals("rateplan")){
                         strRateplanID = event_detail.get("rateplan_id").toString();
                     }
-                    result = updateRmtype(strPropertyID, strRmtypeID, strRateplanID);
+                    JSONObject updateJson = updateRmtype(strPropertyID, strRmtypeID, strRateplanID);
+                    result = (boolean) updateJson.get("updateResult");
                 }
             }else if(event_type.equals("status_updated")){
                 JSONObject event_detail = (JSONObject) bodyJson.get("event_detail");
@@ -1006,9 +1020,9 @@ public class AccommService {
                     int intCost = Integer.parseInt(event_detail.get("basic_price").toString());
                     int intSales = Integer.parseInt(event_detail.get("sale_price").toString());
 
-                    int intExtraA = Integer.parseInt(event_detail.get("extra_adult").toString());
-                    int intExtraC= Integer.parseInt(event_detail.get("extra_child").toString());
-                    int intExtraB = Integer.parseInt(event_detail.get("extra_infant").toString());
+//                    int intExtraA = Integer.parseInt(event_detail.get("extra_adult").toString());
+//                    int intExtraC= Integer.parseInt(event_detail.get("extra_child").toString());
+//                    int intExtraB = Integer.parseInt(event_detail.get("extra_infant").toString());
 
                     int intOmkStock = intStock;
                     double doubleOmkSales = 0;
@@ -1035,7 +1049,7 @@ public class AccommService {
 
                     // 있으면 업데이트 없으면 생성
                     String goodsResult = accomodationMapper.updateGoods(strRateplanID, strRmtypeID, strDateSales, intStock,
-                            intCost, intSales, intExtraA, intExtraC, intExtraB, intOmkStock, doubleOmkSales);
+                            intCost, intSales, 0, 0, 0, intOmkStock, doubleOmkSales);
 
                     String strResult = goodsResult.substring(goodsResult.length()-4);
                     if(strResult.equals("저장완료")){

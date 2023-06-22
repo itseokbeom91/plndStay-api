@@ -18,7 +18,7 @@
 
     <select id="updateGoods" parameterType="StockDto" resultType="String">
         EXEC spGW_STOCK_TEMP_REGIST #{strRateplanID}, #{strRmtypeID}, '', #{strDateSales}, ${intStock}, ${intCost}, ${intSales},
-                ${intExtraA}, ${intExtraC}, ${intExtraB}, ${intOmkStock}, ${intOmkSales}, ''
+                ${intExtraA}, ${intExtraC}, ${intExtraB}, ${intOmkStock}, ${intOmkSales}, 'OND', '', ''
     </select>
 
 <!--    <select id="getRoomAdminCnt" parameterType="String" resultType="int">-->
