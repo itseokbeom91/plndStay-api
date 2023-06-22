@@ -24,7 +24,7 @@ public interface HotelStoryMapper {
 
     //String insertGoods(String strRatePlanID, int intStock, String strDate, int intBasicPrice, int intSalePrice);
 
-    String insertStock(String strRatePlanId, String strRoomTypeId, String strDate, int intStock, int intBasicPrice, int intSalePrice, int intOMKPrice);
+    String insertStock(String strRatePlanId, String strRoomTypeId, String propertyId, String strDate, int intStock, int intBasicPrice, int intSalePrice, int intOMKPrice);
 
     BookingDto getbooking(int intBookingID);
 

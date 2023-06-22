@@ -756,6 +756,7 @@ public class APIHotelstoryService {
                 if (node.getNodeType() == Node.ELEMENT_NODE) {
 
                     Element element = (Element) node;
+                    String propertyId = xmlUtility.getTagValue("PropertyId", element).toString();
                     String strRatePlanId = xmlUtility.getTagValue("RatePlanId", element).toString();
                     String strRoomTypeId = xmlUtility.getTagValue("RoomTypeId", element).toString();
 
@@ -803,7 +804,7 @@ public class APIHotelstoryService {
 
                             // 프로시저 실행
                             //hotelStoryMapper.insertGoods(strRatePlanId, intStock, strDate, intBasicPrice, intSalePrice);
-                            hotelStoryMapper.insertStock(strRatePlanId, strRoomTypeId, strDate, intStock, intBasicPrice, intSalePrice, intOMKPrice);
+                            hotelStoryMapper.insertStock(strRatePlanId, strRoomTypeId, propertyId, strDate, intStock, intBasicPrice, intSalePrice, intOMKPrice);
                         }
                     }
                 }
