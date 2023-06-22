@@ -1032,7 +1032,7 @@ public class BookingService {
                     String dateSales = (String) packStatusList.get(j).get("ciYmd");
                     String intStock = packStatusList.get(j).get("leaveCnt").toString();
                     String moneyCost = String.valueOf(packAmountList.get(j).get("orgRmAmt"));
-                    String moneySales = String.valueOf(packAmountList.get(j).get("orgRmAmt")); //리솜은 원가에서 13%정도 붙인다고함
+                    String moneySales = String.valueOf(packAmountList.get(j).get("orgRmAmt")); // TO-DO 리솜은 원가에서 13%정도 붙인다고함 관리자단에서 수정할지 여기서 수정할지는 차후
                     String rmTypeCd = String.valueOf(packStatusList.get(j).get("rmTypeCd"));
                     packageStockDatas += dateSales + "|^|" + intStock + "|^|" + moneyCost + "|^|" + moneySales + "|^|" + pkgNo + "|^|" + rmTypeCd;
                     if (j != packStatusList.size()-1) {

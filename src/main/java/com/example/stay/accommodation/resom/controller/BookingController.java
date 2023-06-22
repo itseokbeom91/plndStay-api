@@ -13,11 +13,7 @@ public class BookingController {
 
     @Autowired
     BookingService bookingService = new BookingService();
-    
-    @GetMapping("/call")
-    public void main(){
-        System.out.println("정상 호출 성공");
-    }
+
 
     @GetMapping("/getPackageList")
     @ResponseBody
