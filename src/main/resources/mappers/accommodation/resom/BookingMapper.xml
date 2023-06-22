@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.example.stay.accommodation.resom.mapper.BookingMapper">
+
+    <select id="insertRoom" parameterType="String" resultType="String">
+        EXEC PLNDSTAY.dbo.spRESOM_ACCOMM_REGIST #{strPackageDatas},  #{strRoomDatas}, #{strStockDatas}, #{strAccommDatas}, #{strType}, ''
+    </select>
+
+    <select id="getPackageCodeAndStoreCode" parameterType="String" resultType="hashmap">
+        SELECT strPkgCode
+             , strStoreCode
+        FROM PLNDSTAY.dbo.PACKAGE_LIST
+        WHERE strType = 'RE'
+    </select>
+
+</mapper>
