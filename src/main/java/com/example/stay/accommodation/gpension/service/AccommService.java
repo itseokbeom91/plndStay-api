@@ -8,10 +8,7 @@ import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.springframework.stereotype.Service;
 
-import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Base64;
-import java.util.Base64.Encoder;
 import java.util.List;
 import java.util.Map;
 
@@ -52,15 +49,15 @@ public class AccommService {
 
                 for (int i = 0 ; i < resultList.size() ; i++) {
                     JSONObject resultJson = new JSONObject();
-                    resultJson.put("pension_addr1", new String(Base64Encoder.decode((String) resultList.get(i).get("pension_addr1"))));
-                    resultJson.put("pension_addr2", new String(Base64Encoder.decode((String) resultList.get(i).get("pension_addr2"))));
-                    resultJson.put("pension_name", new String(Base64Encoder.decode((String) resultList.get(i).get("pension_name"))));
+                    resultJson.put("pension_addr1", base64Decode((String) resultList.get(i).get("pension_addr1")));
+                    resultJson.put("pension_addr2", base64Decode((String) resultList.get(i).get("pension_addr2")));
+                    resultJson.put("pension_name", base64Decode((String) resultList.get(i).get("pension_name")));
                     resultJson.put("pension_id", resultList.get(i).get("pension_id"));
                     resultJson.put("lati", resultList.get(i).get("lati"));
                     resultJson.put("longi", resultList.get(i).get("longi"));
                     resultJson.put("manage_type", resultList.get(i).get("manage_type"));
 //                    System.out.print("pension_addr1 ::: ");
-//                    System.out.println(new String(Base64Encoder.decode((String) resultList.get(i).get("pension_addr1"))));
+//                    System.out.println(base64Decode((String) resultList.get(i).get("pension_addr1")));
 //                    System.out.print("pension_id ::: ");
 //                    System.out.println(resultList.get(i).get("pension_id"));
 //                    System.out.print("lati ::: ");
@@ -68,11 +65,11 @@ public class AccommService {
 //                    System.out.print("longi ::: ");
 //                    System.out.println(resultList.get(i).get("longi"));
 //                    System.out.print("pension_name ::: ");
-//                    System.out.println(new String(Base64Encoder.decode((String) resultList.get(i).get("pension_name"))));
+//                    System.out.println(base64Decode((String) resultList.get(i).get("pension_name")));
 //                    System.out.print("manage_type ::: ");
 //                    System.out.println(resultList.get(i).get("manage_type"));
 //                    System.out.print("pension_addr2 ::: ");
-//                    System.out.println(new String(Base64Encoder.decode((String) resultList.get(i).get("pension_addr2"))));
+//                    System.out.println(base64Decode((String) resultList.get(i).get("pension_addr2")));
 //                    System.out.println("==========================================================");
 //                    System.out.println("==========================================================");
                     resultListMap.add(resultJson);
@@ -81,22 +78,6 @@ public class AccommService {
                     JSONObject statJson = (JSONObject) jsonParser.parse(statResult);
                     JSONObject resultJson2 = (JSONObject) statJson.get("result");
                     JSONObject resultJson3 = (JSONObject) resultJson2.get("result");
-
-                }
-                Object pensionAddr1 = resultListMap.get(2).get("pension_addr1");
-                if (pensionAddr1.equals("경북")) {
-
-                } else if (pensionAddr1.equals("경남")) {
-
-                } else if (pensionAddr1.equals("전북")) {
-
-                } else if (pensionAddr1.equals("전남")) {
-
-                } else if (pensionAddr1.equals("충북")) {
-
-                } else if (pensionAddr1.equals("충남")) {
-
-                } else if (pensionAddr1.equals("강원특별자치도")) {
 
                 }
                 return  commonFunction.makeReturn("", "", resultListMap);
@@ -182,7 +163,7 @@ public class AccommService {
     }
 
     public String base64Decode(String s) throws Exception {
-        return new String(Base64Encoder.decode(s));
+        return base64Decode(s);
     }
 
 }
