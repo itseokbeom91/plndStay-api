@@ -108,6 +108,7 @@ public class SpavisService {
             conn.setRequestProperty("Content-Type", "application/xml");
             conn.setRequestProperty("Accept-Charset", "UTF-8");
 
+            LogWriter logWriter = new LogWriter(conn.getRequestMethod(), conn.getURL().toString(), startTime);
             if(conn.getResponseCode() == 200){
                 method = conn.getRequestMethod();
                 strUrl = conn.getURL().toString();
@@ -126,7 +127,6 @@ public class SpavisService {
 
             conn.disconnect();
 
-            LogWriter logWriter = new LogWriter(conn.getRequestMethod(), conn.getURL().toString(), startTime);
             logWriter.add(message);
             logWriter.log(0);
         }catch (Exception e){

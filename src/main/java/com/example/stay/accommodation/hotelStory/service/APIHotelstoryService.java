@@ -2,14 +2,12 @@ package com.example.stay.accommodation.hotelStory.service;
 
 import com.example.stay.accommodation.hotelStory.dto.BookingDto;
 import com.example.stay.accommodation.hotelStory.mapper.HotelStoryMapper;
-import com.example.stay.accommodation.onda.mapper.AccomodationMapper;
+import com.example.stay.accommodation.onda.mapper.AccommMapper;
 import com.example.stay.common.util.Constants;
 import com.example.stay.common.util.UrlResourceDownloader;
 import com.example.stay.common.util.XmlUtility;
 import com.example.stay.openMarket.common.dto.CancelInfoDto;
-import com.example.stay.openMarket.common.dto.ContentsPhotoDto;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.relational.core.sql.In;
 import org.springframework.stereotype.Service;
 import org.springframework.util.MultiValueMap;
 import org.w3c.dom.Document;
@@ -20,14 +18,9 @@ import org.xml.sax.InputSource;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamResult;
 import java.io.File;
 import java.io.OutputStreamWriter;
 import java.io.StringReader;
-import java.io.StringWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.file.Files;
@@ -35,9 +28,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 @Service
@@ -50,7 +40,7 @@ public class APIHotelstoryService {
     private HotelStoryMapper hotelStoryMapper;
 
     @Autowired
-    private AccomodationMapper accomodationMapper;
+    private AccommMapper accomodationMapper;
 
 
     /**

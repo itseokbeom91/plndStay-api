@@ -5,8 +5,8 @@ import org.springframework.stereotype.Repository;
 
 import java.util.Map;
 
-@Repository
-public interface AccomodationMapper {
+@Repository("onda.AccommMapper")
+public interface AccommMapper {
 
     String insertAccommTotal(String strPropertyID, String strDeleteYn, String strViewYn, String strType,
                              int intDistrict1, int intDistrict2, String strSubject, String strLat, String strLon,
