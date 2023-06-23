@@ -12,7 +12,7 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 
-@Controller
+@Controller("onda.BookingController")
 @RequestMapping("/onda/booking/*")
 public class BookingController {
 
