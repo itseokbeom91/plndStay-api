@@ -429,7 +429,7 @@ public class HanwhaService {
         String result = "";
 
         try {
-            JSONObject mainObject = getCommonHeader("06");
+            JSONObject mainObject = getCommonHeader("08");
             JSONObject dataObject = new JSONObject();
             JSONObject detailObject = new JSONObject();
 
