@@ -22,4 +22,11 @@ public class SpavisController {
     public String checkCouponStatus(HttpServletRequest httpServletRequest, String couponNo){
         return spavisService.checkCouponStatus(httpServletRequest, couponNo);
     }
+
+    // 티켓 주문
+    @GetMapping("orderTicket")
+    @ResponseBody
+    public String orderTicket(HttpServletRequest httpServletRequest, int intBookingIdx){
+        return spavisService.orderTicket(httpServletRequest, intBookingIdx);
+    }
 }
