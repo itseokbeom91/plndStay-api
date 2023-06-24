@@ -1,10 +1,7 @@
 package com.example.stay.accommodation.kumho.service;
 
 import com.example.stay.accommodation.kumho.mapper.BookingMapper;
-import com.example.stay.common.util.Constants;
-import com.example.stay.common.util.LogWriter;
-import com.example.stay.common.util.ResponseResult;
-import com.example.stay.common.util.XmlUtility;
+import com.example.stay.common.util.*;
 import com.example.stay.openMarket.common.dto.BookingDto;
 import org.apache.catalina.util.ToStringUtil;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,10 +44,12 @@ public class BookingService {
     @Autowired
     private XmlUtility xmlUtility;
 
+    CommonFunction commonFunction = new CommonFunction();
+
     private String site = "1"; // 현재 무조건 1
 
     // 예약
-    public ResponseResult createBooking(int intBookingID, HttpServletRequest httpServletRequest){
+    public String createBooking(int intBookingID, HttpServletRequest httpServletRequest){
         LogWriter logWriter = new LogWriter(httpServletRequest.getMethod(), httpServletRequest.getServletPath(), System.currentTimeMillis());
         String statusCode = "200";
         String message = "";
@@ -88,102 +87,87 @@ public class BookingService {
             arrive_date = arrive_date.replace("-", "");
             leave_date = leave_date.replace("-", "");
 
-            // 재고확인
-            int intRoomCount = getRemainCount(arrive_date, leave_date, area, room_type);
-            if(intRoomCount == -1){
-                message = "재고확인 실패";
-            }else{
-                if(intRoomCount >= room_count){
-                    String kumhoUrl = "inter01.asp?ipark_resno=" + ipark_resno + "&area=" + area
-                            + "&site=" + site + "&arrive_date=" + arrive_date + "&leave_date=" + leave_date
-                            + "&nights_count=" + nights_count + "&groupid=" + Constants.groupId + "&event_div=" + event_div
-                            + "&morning_aqua=" + morning_aqua + "&use_name=" + use_name + "use_phone=" + use_phone
-                            + "&use_cell_phone=" + use_cell_phone + "&morning_div=" + morning_div + "&room_type=" + room_type
-                            + "&room_count=" + room_count + "&person_count=" + person_count + "&coupon_year=" + coupon_year
-                            + "&coupon_number=" + coupon_number + "&ipark_goodsno=" + ipark_goodsno;
+            // 예약
+            String kumhoUrl = "inter01.asp?ipark_resno=" + ipark_resno + "&area=" + area
+                    + "&site=" + site + "&arrive_date=" + arrive_date + "&leave_date=" + leave_date
+                    + "&nights_count=" + nights_count + "&groupid=" + Constants.groupId + "&event_div=" + event_div
+                    + "&morning_aqua=" + morning_aqua + "&use_name=" + use_name + "use_phone=" + use_phone
+                    + "&use_cell_phone=" + use_cell_phone + "&morning_div=" + morning_div + "&room_type=" + room_type
+                    + "&room_count=" + room_count + "&person_count=" + person_count + "&coupon_year=" + coupon_year
+                    + "&coupon_number=" + coupon_number + "&ipark_goodsno=" + ipark_goodsno;
 
 //                    String kumhoUrl = "inter01.asp?ipark_resno=INT2015081804&area=4&site=1&arrive_date=20230915&leave_date=20230917&nights_count=2&groupid=210010&event_div=0&morning_aqua=0&use_name=KMK-%EB%A3%B8%EC%98%A8%EB%A6%AC&use_phone=7469&use_cell_phone=01071050426&morning_div=N&room_type=27A&room_count=1&person_count=5&coupon_year=*&coupon_number=0&ipark_goodsno=0129O01";
 
+            Document document = callKumhoAPI(kumhoUrl);
+            // response 처리
+            if(document != null){
+                String resultCode = document.getElementsByTagName("resultCode").item(0).getChildNodes().item(0).getNodeValue();
+                String strSpBookingId = document.getElementsByTagName("reserv_number").item(0).getChildNodes().item(0).getNodeValue();
+                String resultMsg = document.getElementsByTagName("resultMsg").item(0).getChildNodes().item(0).getNodeValue();
 
-                    Document document = callKumhoAPI(kumhoUrl);
-                    // response 처리
-                    if(document != null){
-                        String resultCode = document.getElementsByTagName("resultCode").item(0).getChildNodes().item(0).getNodeValue();
-                        String strSpBookingId = document.getElementsByTagName("reserv_number").item(0).getChildNodes().item(0).getNodeValue();
-                        String resultMsg = document.getElementsByTagName("resultMsg").item(0).getChildNodes().item(0).getNodeValue();
-
-                        // 금호측에 예약이 완료됐으면 우리 DB 상태값 업데이트
-                        if(resultCode.equals("S")){
-                            String result = bookingMapper.updateBooking(intBookingID, "4", strSpBookingId, room_count);
-                            if(result.equals("저장완료")){
-                                message = "예약완료";
-                            }else{
-                                message = "예약실패";
-                            }
-                        }else{
-                            message = resultMsg;
-                        }
+                // 금호측에 예약이 완료됐으면 우리 DB 상태값 업데이트
+                if(resultCode.equals("S")){
+                    String result = bookingMapper.updateBooking(intBookingID, "4", strSpBookingId, room_count);
+                    if(result.equals("저장완료")){
+                        message = "예약완료";
                     }else{
-                        message = "금호 API 호출 실패";
+                        message = "예약실패";
                     }
+                }else{
+                    message = resultMsg;
                 }
-        else{
-                    message = "예약불가 - 재고없음";
-                }
+            }else{
+                message = "금호 API 호출 실패";
             }
+
             logWriter.add("intBookingID : " + intBookingID + " -> " + message);
             logWriter.log(0);
         }catch (Exception e){
-            e.printStackTrace();
             message = "예약 실패";
             statusCode = "500";
             logWriter.add("error : " + e.getMessage());
             logWriter.log(0);
         }
-        return new ResponseResult<>(statusCode, message);
+        return commonFunction.makeReturn(statusCode, message);
     }
 
     // 예약 시 잔여 객실 수 조회
-    public int getRemainCount(String fr_date, String to_date, String area, String room_type){
-        int remainCount = 0;
-        try{
-            String kumhoUrl = "inter05.asp?groupid=" + Constants.groupId + "&fr_date=" + fr_date + "&to_date=" + to_date
-                            + "&area=" + area + "&site=" + site + "&room_type=" + room_type;
-
-            Document document = callKumhoAPI(kumhoUrl);
-            if(document != null){
-                NodeList roomList = document.getElementsByTagName("room");
-                for(int i=0; i< roomList.getLength(); i++) {
-                    Node node = roomList.item(i);
-                    if (node.getNodeType() == Node.ELEMENT_NODE) {
-                        Element element = (Element) node;
-
-                        String rdate = xmlUtility.getTagValue("rdate", element).trim();
-                        if(rdate.equals("F")){
-                            remainCount = -1;
-                        }else{
-                            remainCount = Integer.parseInt(xmlUtility.getTagValue("remainCount", element));
-                        }
-                    }
-                }
-            }
-        }catch (Exception e){
-            e.printStackTrace();
-        }
-        return remainCount;
-    }
+//    public int getRemainCount(String fr_date, String to_date, String area, String room_type){
+//        int remainCount = 0;
+//        try{
+//            String kumhoUrl = "inter05.asp?groupid=" + Constants.groupId + "&fr_date=" + fr_date + "&to_date=" + to_date
+//                            + "&area=" + area + "&site=" + site + "&room_type=" + room_type;
+//
+//            Document document = callKumhoAPI(kumhoUrl);
+//            if(document != null){
+//                NodeList roomList = document.getElementsByTagName("room");
+//                for(int i=0; i< roomList.getLength(); i++) {
+//                    Node node = roomList.item(i);
+//                    if (node.getNodeType() == Node.ELEMENT_NODE) {
+//                        Element element = (Element) node;
+//
+//                        String rdate = xmlUtility.getTagValue("rdate", element).trim();
+//                        if(rdate.equals("F")){
+//                            remainCount = -1;
+//                        }else{
+//                            remainCount = Integer.parseInt(xmlUtility.getTagValue("remainCount", element));
+//                        }
+//                    }
+//                }
+//            }
+//        }catch (Exception e){
+//            e.printStackTrace();
+//        }
+//        return remainCount;
+//    }
 
     // 재고 등록 및 수정
-    public ResponseResult updateGoods(String fr_date, String to_date, String area, String room_type, HttpServletRequest httpServletRequest){
+    public String updateGoods(String fr_date, String to_date, String area, String room_type, HttpServletRequest httpServletRequest){
         LogWriter logWriter = new LogWriter(httpServletRequest.getMethod(), httpServletRequest.getServletPath(), System.currentTimeMillis());
         String statusCode = "200";
         String message = "";
-//        MultiValueMap<String, Map> resultMap = new LinkedMultiValueMap<>();
         try{
             String kumhoUrl = "";
-//            String kumhoUrl = "inter05.asp?groupid=" + Constants.groupId + "&fr_date=" + fr_date + "&to_date=" + to_date
-//                            + "&area=" + area + "&site=" + site + "&room_type=" + room_type;
-
 //            String kumhoUrl = "inter05.asp?groupid=100211&fr_date=20151201&to_date=20151231&area=1&site=1&room_type=*";
 
             SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd");
@@ -193,7 +177,10 @@ public class BookingService {
             // 조회한 날짜의 기간 확인 (90일이 넘는지)
             long sec = (toDate.getTime() - fromDate.getTime()) / 1000;
             double days =  (sec / (24*60*60));
-            
+
+            int failCount = 0; // 재고 등록 및 수정에 실패한 경우 카운트
+
+            // 날짜 세팅
             // 90일 이상일 경우
             if(days > 90){
                 double roopCount = days / 90;
@@ -201,6 +188,7 @@ public class BookingService {
 
                 Date startDate = null;
                 Date endDate = null;
+                Loop1 :
                 for(int i=0; i<roopCount; i++){
                     Calendar cal = Calendar.getInstance();
                     if(i == 0){
@@ -212,7 +200,6 @@ public class BookingService {
                         to_date = sdf.format(endDate);
                         kumhoUrl = "inter05.asp?groupid=" + Constants.groupId + "&fr_date=" + fr_date + "&to_date=" + to_date +
                                 "&area=" + area + "&site=" + site + "&room_type=" + room_type;
-
 
                         // 새로운 날짜 세팅
                         cal.setTime(fromDate);
@@ -238,7 +225,6 @@ public class BookingService {
                         kumhoUrl = "inter05.asp?groupid=" + Constants.groupId + "&fr_date=" + fr_date + "&to_date=" + to_date +
                                 "&area=" + area + "&site=" + site + "&room_type=" + room_type;
 
-
                         // 새로운 날짜 세팅
                         cal.setTime(startDate);
                         cal.add(Calendar.DATE, 90); // startDate + 90일로 새로운 시작날짜 세팅
@@ -258,19 +244,56 @@ public class BookingService {
                             cal.add(Calendar.DATE, (int) diffDays); // endDate = 새로운 startDate + endDate까지 남은일자로 세팅
                             endDate = cal.getTime();
                         }
+                    }
 
+                    // API 호출
+                    Document document = callKumhoAPI(kumhoUrl);
+                    if(document != null){
+                        NodeList roomList = document.getElementsByTagName("room");
+                        for(int j=0; j< roomList.getLength(); j++) {
+                            Node node = roomList.item(j);
+                            if (node.getNodeType() == Node.ELEMENT_NODE) {
+                                Element element = (Element) node;
 
+                                String rdate = xmlUtility.getTagValue("rdate", element).trim();
+                                String msg = URLDecoder.decode(xmlUtility.getTagValue("msg", element), "utf-8");
+                                if(rdate.equals("F")){
+                                    message = msg;
+                                    failCount += 1;
+                                    break Loop1;
+                                }else{
+                                    String strRmtypeID = xmlUtility.getTagValue("roomtype", element);
+
+                                    SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+                                    String dateSales = dateFormat.format(sdf.parse(rdate));
+
+                                    int intStock = Integer.parseInt(xmlUtility.getTagValue("remainCount", element));
+                                    int intOmkStock = intStock;
+
+                                    String result = bookingMapper.updateGoods(strRmtypeID, area, dateSales, intStock, intOmkStock);
+                                    String strResult = result.substring(result.length()-4);
+                                    if(!strResult.equals("저장완료")){
+                                        failCount += 1;
+                                    }
+                                }
+                            }
+                        }
+                    }else{
+                        message = "재고 조회 실패";
+                        logWriter.add(message);
+                        failCount += 1;
+                        break Loop1;
                     }
                 }
             }else{ // 90일 이상이 아닐 경우
                 kumhoUrl = "inter05.asp?groupid=" + Constants.groupId + "&fr_date=" + fr_date + "&to_date=" + to_date +
                             "&area=" + area + "&site=" + site + "&room_type=" + room_type;
+                // API 호출
                 Document document = callKumhoAPI(kumhoUrl);
                 if(document != null){
                     NodeList roomList = document.getElementsByTagName("room");
-                    for(int i=0; i< roomList.getLength(); i++) {
-//                        Map<String, Object> roomMap = new HashMap<>();
-                        Node node = roomList.item(i);
+                    for(int j=0; j< roomList.getLength(); j++) {
+                        Node node = roomList.item(j);
                         if (node.getNodeType() == Node.ELEMENT_NODE) {
                             Element element = (Element) node;
 
@@ -278,6 +301,8 @@ public class BookingService {
                             String msg = URLDecoder.decode(xmlUtility.getTagValue("msg", element), "utf-8");
                             if(rdate.equals("F")){
                                 message = msg;
+                                failCount += 1;
+                                break;
                             }else{
                                 String strRmtypeID = xmlUtility.getTagValue("roomtype", element);
 
@@ -289,33 +314,38 @@ public class BookingService {
 
                                 String result = bookingMapper.updateGoods(strRmtypeID, area, dateSales, intStock, intOmkStock);
                                 String strResult = result.substring(result.length()-4);
-                                if(strResult.equals("저장완료")){
-                                    message = "재고 등록 및 수정 완료 ";
-                                }else{
-                                    message = "재고 등록 및 수정 실패";
+                                if(!strResult.equals("저장완료")){
+                                    failCount += 1;
                                 }
-
                             }
                         }
                     }
                 }else{
                     message = "재고 조회 실패";
+                    logWriter.add(message);
+                    failCount += 1;
                 }
             }
+
+            if(failCount == 0){
+                message = "재고 등록 및 수정 완료";
+            }else{
+                message += " 재고 등록 및 수정 실패";
+            }
+
             logWriter.add(message);
             logWriter.log(0);
         }catch (Exception e){
-            e.printStackTrace();
             message = "재고 조회 실패";
             statusCode = "500";
             logWriter.add("error : " + e.getMessage());
             logWriter.log(0);
         }
-        return new ResponseResult<>(statusCode, message);
+        return commonFunction.makeReturn(statusCode, message);
     }
 
     // 예약 취소
-    public ResponseResult cancelBooking(int intBookingID, HttpServletRequest httpServletRequest){
+    public String cancelBooking(int intBookingID, HttpServletRequest httpServletRequest){
         LogWriter logWriter = new LogWriter(httpServletRequest.getMethod(), httpServletRequest.getServletPath(), System.currentTimeMillis());
         String statusCode = "200";
         String message = "";
@@ -354,17 +384,16 @@ public class BookingService {
             logWriter.add("intBookingID : " + intBookingID + " -> " + message);
             logWriter.log(0);
         }catch (Exception e){
-            e.printStackTrace();
             message = "예약 취소 실패";
             statusCode = "500";
             logWriter.add("error : " + e.getMessage());
             logWriter.log(0);
         }
-        return new ResponseResult<>(statusCode, message);
+        return commonFunction.makeReturn(statusCode, message);
     }
 
     // 예약현황 조회
-    public ResponseResult getReservationStatus(int intBookingID, HttpServletRequest httpServletRequest){
+    public String getReservationStatus(int intBookingID, HttpServletRequest httpServletRequest){
         LogWriter logWriter = new LogWriter(httpServletRequest.getMethod(), httpServletRequest.getServletPath(), System.currentTimeMillis());
         String statusCode = "200";
         String message = "";
@@ -433,18 +462,17 @@ public class BookingService {
             logWriter.add(message);
             logWriter.log(0);
         }catch (Exception e){
-            e.printStackTrace();
             message = "예약 조회 실패";
             statusCode = "500";
             logWriter.add("error : " + e.getMessage());
             logWriter.log(0);
         }
 
-        return new ResponseResult<>(statusCode, message, resultMap);
+        return commonFunction.makeReturn(statusCode, message, resultMap);
     }
 
     // 예약 대사자료 조회
-    public ResponseResult getReservations(String fr_date, String to_date ,HttpServletRequest httpServletRequest){
+    public String getReservations(String fr_date, String to_date ,HttpServletRequest httpServletRequest){
         LogWriter logWriter = new LogWriter(httpServletRequest.getMethod(), httpServletRequest.getServletPath(), System.currentTimeMillis());
         String statusCode = "200";
         String message = "";
@@ -515,14 +543,13 @@ public class BookingService {
             logWriter.add(message);
             logWriter.log(0);
         }catch (Exception e){
-            e.printStackTrace();
             message = "예약 조회 실패";
             statusCode = "500";
             logWriter.add("error : " + e.getMessage());
             logWriter.log(0);
         }
 
-        return new ResponseResult<>(statusCode, message, resultMap);
+        return commonFunction.makeReturn(statusCode, message, resultMap);
     }
 
     // 금호 api 호출
@@ -565,7 +592,6 @@ public class BookingService {
         }catch (Exception e){
             document = null;
 
-            e.printStackTrace();
             LogWriter logWriter = new LogWriter(method, strUrl, startTime);
             logWriter.add("error : " + e.getMessage());
             logWriter.log(0);

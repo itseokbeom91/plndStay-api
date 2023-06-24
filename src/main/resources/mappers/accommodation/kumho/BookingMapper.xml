@@ -39,8 +39,8 @@
     </update>
 
     <select id="updateGoods" resultType="String">
-        EXEC spGW_STOCK_REGIST '', #{strRmtypeID}, #{strPropertyID}, #{dateSales}, ${intStock}, '', '', '', '', '',
-            ${intOmkStock}, '', ''
+        EXEC spGW_STOCK_TEMP_REGIST '', #{strRmtypeID}, #{strPropertyID}, #{dateSales}, ${intStock}, '', '', '', '', '',
+            ${intOmkStock}, '', 'C', '04',''
     </select>
 
 </mapper>

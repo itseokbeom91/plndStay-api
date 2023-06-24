@@ -24,6 +24,16 @@ public class CommonService {
         String strUrl = "";
         if(strOmk.equals("hanwha")){
             strUrl = Constants.hanwhaUrl;
+        }else if(strOmk.equals("YPBStock")){
+            strUrl = Constants.ypUrl+"/yobiss-api/api/cr/rmsrv/RmsrvAgencyApi/getRsrvMm";
+        }else if(strOmk.equals("YPBBooking")){
+            strUrl = Constants.ypUrl+"/yobiss-api/api/cr/rmsrv/RmsrvAgencyApi/joinSalesPkgRsrvInfo";
+        }else if(strOmk.equals("YPBBookingInfo")){
+            strUrl = Constants.ypUrl+"/yobiss-api/api/cr/rmsrv/RmsrvAgencyApi/getSalesRsrvList";
+        }else if(strOmk.equals("YPBBookingCancel")){
+            strUrl = Constants.ypUrl+"/yobiss-api/api/cr/rmsrv/RmsrvAgencyApi/joinSalesPkgRsrvCncl";
+        }else if(strOmk.equals("YPBBookingList")){
+            strUrl = Constants.ypUrl+"/yobiss-api/api/cr/rmsrv/RmsrvAgencyApi/getArrvRsrvList";
         }
         URL url = new URL(strUrl);
 
@@ -45,9 +55,12 @@ public class CommonService {
 
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             conn.setRequestMethod("POST");
-            conn.setRequestProperty("Content-Type", "application/json");
+            conn.setRequestProperty("Content-Type", "application/json;charset=UTF-8");
             conn.setRequestProperty("Accept", "application/json");
             conn.setRequestProperty("Accept-Charset", "UTF-8");
+            if(strOmk.substring(0,3).equals("YPB")){
+                conn.setRequestProperty("X-Yobiss-AuthToken", Constants.ypTokenKey);
+            }
             conn.setDoOutput(true);
 
             if(!object.isEmpty()){
@@ -70,6 +83,7 @@ public class CommonService {
             }
 
             conn.disconnect();
+            System.out.println(result);
 
         } catch (Exception e){
             e.printStackTrace();
@@ -79,19 +93,4 @@ public class CommonService {
 
     }
 
-    // Authorization 반환
-    public String returnAuthorization(String strOmk){
-        String result = "";
-
-        try {
-//            if(strOmk.equals("hanwha")){
-//                result = Constants.hanwhaIP;
-//            }
-
-        }catch (Exception e){
-            e.printStackTrace();
-        }
-
-        return result;
-    }
 }

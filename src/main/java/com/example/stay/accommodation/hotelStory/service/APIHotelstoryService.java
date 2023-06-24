@@ -2,14 +2,12 @@ package com.example.stay.accommodation.hotelStory.service;
 
 import com.example.stay.accommodation.hotelStory.dto.BookingDto;
 import com.example.stay.accommodation.hotelStory.mapper.HotelStoryMapper;
-import com.example.stay.accommodation.onda.mapper.AccomodationMapper;
+import com.example.stay.accommodation.onda.mapper.AccommMapper;
 import com.example.stay.common.util.Constants;
 import com.example.stay.common.util.UrlResourceDownloader;
 import com.example.stay.common.util.XmlUtility;
 import com.example.stay.openMarket.common.dto.CancelInfoDto;
-import com.example.stay.openMarket.common.dto.ContentsPhotoDto;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.relational.core.sql.In;
 import org.springframework.stereotype.Service;
 import org.springframework.util.MultiValueMap;
 import org.w3c.dom.Document;
@@ -20,14 +18,9 @@ import org.xml.sax.InputSource;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamResult;
 import java.io.File;
 import java.io.OutputStreamWriter;
 import java.io.StringReader;
-import java.io.StringWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.file.Files;
@@ -35,9 +28,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 @Service
@@ -50,7 +40,7 @@ public class APIHotelstoryService {
     private HotelStoryMapper hotelStoryMapper;
 
     @Autowired
-    private AccomodationMapper accomodationMapper;
+    private AccommMapper accomodationMapper;
 
 
     /**
@@ -363,10 +353,10 @@ public class APIHotelstoryService {
             /*result += hotelStoryMapper.insertAccommtotal(strPropertyId, strPropertyName, strAddress, strPhone, strNumRooms, strLocation, strHomePageUrl, strCheckInTime, strCheckOutTime
                     , strLongitude, strLatitude, strCity, strPropertyDescription, strTrafficInformation, strRoomInformation, imgData, cancelData, roomTypeData);*/
 
-            result += hotelStoryMapper.insertProperty(strPropertyId, strLocation, strCity, strPropertyName, strLatitude, strLongitude, strStarRating, strNumRooms, strCheckInTime, strCheckOutTime, strPhone, strAddress, strHomePageUrl
+            String procResult = hotelStoryMapper.insertProperty(strPropertyId, strLocation, strCity, strPropertyName, strLatitude, strLongitude, strStarRating, strNumRooms, strCheckInTime, strCheckOutTime, strPhone, strAddress, strHomePageUrl
                     , strPropertyDescription, strTrafficInformation, strRsvGuide, imgData, cancelData, roomTypeData, addData);
 
-
+            System.out.println(procResult);
 
 
             result = result.replace("<br>", "\n");
@@ -756,7 +746,9 @@ public class APIHotelstoryService {
                 if (node.getNodeType() == Node.ELEMENT_NODE) {
 
                     Element element = (Element) node;
+                    String propertyId = xmlUtility.getTagValue("PropertyId", element).toString();
                     String strRatePlanId = xmlUtility.getTagValue("RatePlanId", element).toString();
+                    String strRoomTypeId = xmlUtility.getTagValue("RoomTypeId", element).toString();
 
                     NodeList dateList = document.getElementsByTagName("Date");
                     for(int j=0; j<dateList.getLength(); j++){
@@ -772,22 +764,37 @@ public class APIHotelstoryService {
                             LocalDate date = LocalDate.of(Integer.parseInt(spiDate[0].toString()),Integer.parseInt(spiDate[1].toString()),Integer.parseInt(spiDate[2].toString()));
                             DayOfWeek week = date.getDayOfWeek();
                             int intWeek = week.getValue();  // 1: 월요일, 7: 일요일
-                            //System.out.println(intWeek);
 
-                            // 평일 8%, 금,토 10% 마진 남기기
+
+                            /** 요금 구하기 */
+                            // 오픈마켓 일~금 9%, 토 10% 마진
                             int intBasicPrice = Integer.parseInt(dateElement.getAttribute("Price").toString());
+                            int intOMKPrice = intBasicPrice;
+                            if(intWeek == 6){
+                                intOMKPrice = (int) Math.round(intBasicPrice*1.1);
+                            }else{
+                                intOMKPrice = (int) Math.round(intBasicPrice*1.09);
+                            }
+                            // 10원 단위 절사
+                            intOMKPrice = intOMKPrice - (intOMKPrice%10);
+
+                            // 판매가 마진 구하기
+                            // 우선 원가와 동일하게
                             int intSalePrice = intBasicPrice;
                             if(intWeek == 5 || intWeek == 6){
-                                intSalePrice = (int) Math.round(intBasicPrice*1.1);
+                                intSalePrice = (int) Math.round(intBasicPrice*1);
                             }else{
-                                intSalePrice = (int) Math.round(intBasicPrice*1.08);
+                                intSalePrice = (int) Math.round(intBasicPrice*1);
                             }
                             // 10원 단위 절사
                             intSalePrice = intSalePrice - (intSalePrice%10);
+
+
                             int intStock = Integer.parseInt(dateElement.getAttribute("Allotment").toString());
 
                             // 프로시저 실행
-                            hotelStoryMapper.insertGoods(strRatePlanId, intStock, strDate, intBasicPrice, intSalePrice);
+                            //hotelStoryMapper.insertGoods(strRatePlanId, intStock, strDate, intBasicPrice, intSalePrice);
+                            hotelStoryMapper.insertStock(strRatePlanId, strRoomTypeId, propertyId, strDate, intStock, intBasicPrice, intSalePrice, intOMKPrice);
                         }
                     }
                 }
@@ -823,6 +830,9 @@ public class APIHotelstoryService {
 
                         Node provinceNode = cityElement.getParentNode().getParentNode();
                         String propertyName = ((Element) provinceNode).getElementsByTagName("PropertyName").item(0).getTextContent();
+                        if(propertyName.equals("제주도")){
+                            propertyName = "제주특별자치도";
+                        }
 
 
                         return new String[]{cityName, propertyName};

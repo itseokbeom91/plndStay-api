@@ -28,8 +28,12 @@
         , #{strHomePageUrl}, #{strPropertyDescription}, #{strTrafficInformation}, #{strRsvGuide}, #{imgData}, #{cancelData}, #{roomTypeData}, #{addData}, ''
     </select>
 
-    <select id="insertGoods" resultType="String">
+    <!--<select id="insertGoods" resultType="String">
         EXEC spGW_GOODS_REGIST_SUPPLIER #{strRatePlanID}, ${intStock}, #{strDate}, ${intBasicPrice}, ${intSalePrice}, 0, 0, ''
+    </select>-->
+
+    <select id="insertStock" resultType="String">
+        EXEC PLNDSTAY.dbo.spGW_STOCK_TEMP_REGIST #{strRatePlanId}, #{strRoomTypeId}, #{propertyId}, #{strDate}, ${intStock}, ${intBasicPrice}, ${intSalePrice}, 0, 0, 0, ${intStock}, ${intOMKPrice}, 'HS', '', ''
     </select>
 
     <select id="getbooking" resultType="com.example.stay.accommodation.hotelStory.dto.BookingDto">
