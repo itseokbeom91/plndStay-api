@@ -14,21 +14,51 @@ public class AccommController {
     @Autowired
     AccommService accommService = new AccommService();
 
-    @GetMapping("/gpList")
+    @GetMapping("/getPensionList")
     @ResponseBody
     public String getPensionList(){
         return accommService.getPensionList();
     }
 
-    @GetMapping("/gpInfo")
+    @GetMapping("/getPensionInfo")
     @ResponseBody
     public String getPensionInfo(String pensionId){
         return accommService.getPensionInfo(pensionId);
     }
 
-    @GetMapping("/gpStatus")
+    @GetMapping("/getPensionStatus")
     @ResponseBody
     public String getPensionStatus(String pensionId, String sDate, String eDate){
         return accommService.getPensionStatus(pensionId, sDate, eDate);
+    }
+
+    @GetMapping("/getPensionDailyInfo")
+    @ResponseBody
+    public String getPensionDailyInfo(String pensionId, String sDate, String eDate){
+        return accommService.getPensionDailyInfo(pensionId, sDate, eDate);
+    }
+
+    @GetMapping("/getPensionMainList")
+    @ResponseBody
+    public String getPensionMainList(String pensionId){
+        return accommService.getPensionMainList(pensionId);
+    }
+
+    @GetMapping("/getRoomInfo")
+    @ResponseBody
+    public String getRoomInfo(String pensionId, String roomId){
+        return accommService.getRoomInfo(pensionId, roomId);
+    }
+
+    @GetMapping("/getRoomPriceInfo")
+    @ResponseBody
+    public String getRoomPriceInfo(String pensionId){
+        return accommService.getRoomPriceInfo(pensionId);
+    }
+
+    @GetMapping("/insertGP")
+    @ResponseBody
+    public String insertAccomm(){
+        return accommService.insertGP();
     }
 }
