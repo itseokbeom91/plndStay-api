@@ -40,8 +40,8 @@ public class AccommController {
 
     @GetMapping("/getPensionMainList")
     @ResponseBody
-    public String getPensionMainList(String pensionId){
-        return accommService.getPensionMainList(pensionId);
+    public String getPensionMainList(){
+        return accommService.getPensionMainList();
     }
 
     @GetMapping("/getRoomInfo")
@@ -54,6 +54,12 @@ public class AccommController {
     @ResponseBody
     public String getRoomPriceInfo(String pensionId){
         return accommService.getRoomPriceInfo(pensionId);
+    }
+
+    @GetMapping("/getPensionModList")
+    @ResponseBody
+    public String getPensionModList(String lastDate){
+        return accommService.getPensionModList(lastDate);
     }
 
     @GetMapping("/insertGP")
