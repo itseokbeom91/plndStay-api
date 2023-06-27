@@ -27,7 +27,7 @@ import java.io.InputStreamReader;
 import java.net.URLDecoder;
 import java.util.*;
 
-@Controller
+@Controller("onda.AccommController")
 @RequestMapping("/onda/accomm/*")
 public class AccommController {
 

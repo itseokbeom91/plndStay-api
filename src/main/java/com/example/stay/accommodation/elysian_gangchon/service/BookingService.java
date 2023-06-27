@@ -24,14 +24,14 @@ import java.util.Map;
 @Service("elysian_gangchon.BookingService")
 public class BookingService {
 
-    @Autowired
-    private BookingMapper bookingMapper;
+//    @Autowired
+//    private BookingMapper bookingMapper;
 
     CommonFunction commonFunction = new CommonFunction();
 
     // 재고 등록 및 수정
     public String updateGoods(HttpServletRequest httpServletRequest, String pcode, String pcode_seq,
-                                      String sdate, String edate, String strRmtypeID){
+                              String sdate, String edate, String strRmtypeID){
         LogWriter logWriter = new LogWriter(httpServletRequest.getMethod(), httpServletRequest.getServletPath(), System.currentTimeMillis());
         String statusCode = "200";
         String message = "";

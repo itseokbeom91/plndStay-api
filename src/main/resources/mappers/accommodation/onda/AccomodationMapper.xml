@@ -3,7 +3,7 @@
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper namespace="com.example.stay.accommodation.onda.mapper.AccomodationMapper">
+<mapper namespace="com.example.stay.accommodation.onda.mapper.AccommMapper">
 
     <select id="insertAccommTotal" parameterType="String" resultType="String">
         EXEC spONDA_ACCOMM_REGIST #{strPropertyID}, #{strDeleteYn}, #{strViewYn}, #{strType}, ${intDistrict1}, ${intDistrict2},

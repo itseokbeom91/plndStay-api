@@ -36,7 +36,7 @@ public class SpavisService {
 
             Document document = callSpavisAPI(spavisUrl);
             if(document != null){
-                String coupon_no = document.getElementsByTagName("coupon_no").item(0).getChildNodes().item(0).getNodeValue();
+                String coupon_no = document.getElementsByTagName("rtn_coupon_no").item(0).getChildNodes().item(0).getNodeValue();
                 String successYn = document.getElementsByTagName("rtn_div").item(0).getChildNodes().item(0).getNodeValue();
                 String returnMessage = document.getElementsByTagName("rtn_msg").item(0).getChildNodes().item(0).getNodeValue();
                 if(successYn.equals("S")){
@@ -60,12 +60,31 @@ public class SpavisService {
             }else{
                 message = "아산 스파비스 API 호출 실패";
             }
-            
+
             logWriter.add(message);
             logWriter.log(0);
         }catch (Exception e){
             statusCode = "500";
             message = "쿠폰 사용여부 조회 실패";
+            logWriter.add("error : " + e.getMessage());
+            logWriter.log(0);
+        }
+
+        CommonFunction commonFunction = new CommonFunction();
+        return commonFunction.makeReturn(statusCode, message);
+    }
+
+    // 티켓 주문
+    public String orderTicket(HttpServletRequest httpServletRequest, int intBookingIdx){
+        LogWriter logWriter = new LogWriter(httpServletRequest.getMethod(), httpServletRequest.getServletPath(), System.currentTimeMillis());
+        String statusCode = "200";
+        String message = "";
+
+        try{
+//            String spavisUrl = "social_interface/couponif03.asp?order_no=" + intBookingIdx;
+        }catch (Exception e){
+            statusCode = "500";
+            message = "티켓 주문 실패";
             logWriter.add("error : " + e.getMessage());
             logWriter.log(0);
         }
@@ -89,6 +108,7 @@ public class SpavisService {
             conn.setRequestProperty("Content-Type", "application/xml");
             conn.setRequestProperty("Accept-Charset", "UTF-8");
 
+            LogWriter logWriter = new LogWriter(conn.getRequestMethod(), conn.getURL().toString(), startTime);
             if(conn.getResponseCode() == 200){
                 method = conn.getRequestMethod();
                 strUrl = conn.getURL().toString();
@@ -107,7 +127,6 @@ public class SpavisService {
 
             conn.disconnect();
 
-            LogWriter logWriter = new LogWriter(conn.getRequestMethod(), conn.getURL().toString(), startTime);
             logWriter.add(message);
             logWriter.log(0);
         }catch (Exception e){

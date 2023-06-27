@@ -1,41 +1,32 @@
 package com.example.stay.accommodation.onda.service;
 
-import com.example.stay.accommodation.onda.mapper.AccomodationMapper;
+import com.example.stay.accommodation.onda.mapper.AccommMapper;
 import com.example.stay.common.util.*;
-import com.example.stay.openMarket.common.dto.*;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.google.gson.JsonObject;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
-import okhttp3.ResponseBody;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.text.SimpleDateFormat;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.util.*;
 
-@Service
+@Service("onda.AccommService")
 public class AccommService {
 
     @Autowired
-    private AccomodationMapper accomodationMapper;
+    private AccommMapper accommMapper;
 
     Gson gson = new GsonBuilder().setPrettyPrinting().create();
 
@@ -101,6 +92,7 @@ public class AccommService {
                 regionMap.put("전남", "전라남도");
                 regionMap.put("경북", "경상북도");
                 regionMap.put("경남", "경상남도");
+                regionMap.put("제주도", "제주특별자치도");
 
                 Iterator<String> keys = regionMap.keySet().iterator();
                 while(keys.hasNext()){
@@ -112,7 +104,7 @@ public class AccommService {
 
                 String strCity = address.get("city").toString();
 
-                Map<String, Integer> districtMap = accomodationMapper.getDistrictCode(strRegion, strCity);
+                Map<String, Integer> districtMap = accommMapper.getDistrictCode(strRegion, strCity);
                 int intDistrict1 = districtMap.get("intDistrict1");
                 int intDistrict2 = districtMap.get("intDistrict2");
 
@@ -217,7 +209,7 @@ public class AccommService {
                             facilityList.set(i, "마트/편의점");
                         }
 
-                        facility = accomodationMapper.getStrCodeByStrName("ACCOMM_ADD_FAC", facilityList.get(i));
+                        facility = accommMapper.getStrCodeByStrName("ACCOMM_ADD_FAC", facilityList.get(i));
 
                         strFacilityDatas += facility + "{{|}}";
                     }
@@ -225,7 +217,7 @@ public class AccommService {
                     strFacilityDatas = strFacilityDatas.substring(0, strFacilityDatas.length()-5);
                 }
 
-                String strType = accomodationMapper.getStrCodeByStrName("ACCOMM_TYPE", "온다");
+                String strType = accommMapper.getStrCodeByStrName("ACCOMM_TYPE", "온다");
 
                 // 이미지------------------------------------------------------------------------------------------------
                 // CONTENTS_PHOTO, ACCOMM_PHOTO 테이블에 INSERT
@@ -359,7 +351,7 @@ public class AccommService {
                         boolean breakfastYn = (boolean) mealJson.get("breakfast");
                         String strBreakFastCode = "";
                         if(breakfastYn){
-                            strBreakFastCode = accomodationMapper.getStrCodeByStrName("RM_ICON", "조식");
+                            strBreakFastCode = accommMapper.getStrCodeByStrName("RM_ICON", "조식");
                         }
 
                         strRmtypeDatas += strRmtypeData + strRatePlanId + "|^|" + intMinSleep + "|^|" + intMaxSleep + "|^|" +
@@ -372,7 +364,7 @@ public class AccommService {
                     strRmtypeDatas = strRmtypeDatas.substring(0, strRmtypeDatas.length()-5);
                 }
 
-                String result = accomodationMapper.insertAccommTotal(strPropertyID, strDeleteYn, strViewYn, strType,
+                String result = accommMapper.insertAccommTotal(strPropertyID, strDeleteYn, strViewYn, strType,
                         intDistrict1, intDistrict2, strSubject, strLat, strLon, strCheckIn, strCheckOut,
                         strPhone, strFax, strEmail, strZipCode, strAddr1, strAddr2, strDescription, strRsvGuide,
                         strAcmNotice, strImgDatas, strPenaltyDatas, strKeyWordDatas, strAttractionDatas, strFacilityDatas, strRmtypeDatas);
@@ -428,6 +420,7 @@ public class AccommService {
             regionMap.put("전남", "전라남도");
             regionMap.put("경북", "경상북도");
             regionMap.put("경남", "경상남도");
+            regionMap.put("제주도", "제주특별자치도");
 
             Iterator<String> keys = regionMap.keySet().iterator();
             while(keys.hasNext()){
@@ -439,7 +432,7 @@ public class AccommService {
 
             String strCity = address.get("city").toString();
 
-            Map<String, Integer> districtMap = accomodationMapper.getDistrictCode(strRegion, strCity);
+            Map<String, Integer> districtMap = accommMapper.getDistrictCode(strRegion, strCity);
             int intDistrict1 = districtMap.get("intDistrict1");
             int intDistrict2 = districtMap.get("intDistrict2");
 
@@ -544,7 +537,7 @@ public class AccommService {
                         facilityList.set(i, "마트/편의점");
                     }
 
-                    facility = accomodationMapper.getStrCodeByStrName("ACCOMM_ADD_FAC", facilityList.get(i));
+                    facility = accommMapper.getStrCodeByStrName("ACCOMM_ADD_FAC", facilityList.get(i));
 
                     strFacilityDatas += facility + "{{|}}";
                 }
@@ -552,7 +545,7 @@ public class AccommService {
                 strFacilityDatas = strFacilityDatas.substring(0, strFacilityDatas.length()-5);
             }
 
-            String strType = accomodationMapper.getStrCodeByStrName("ACCOMM_TYPE", "온다");
+            String strType = accommMapper.getStrCodeByStrName("ACCOMM_TYPE", "온다");
 
             // 이미지------------------------------------------------------------------------------------------------
             // CONTENTS_PHOTO, ACCOMM_PHOTO 테이블에 INSERT
@@ -600,7 +593,7 @@ public class AccommService {
             }
             strPenaltyDatas = strPenaltyDatas.substring(0, strPenaltyDatas.length()-5);
 
-            String result = accomodationMapper.insertAccommTotal(strPropertyID, strDeleteYn, strViewYn, strType,
+            String result = accommMapper.insertAccommTotal(strPropertyID, strDeleteYn, strViewYn, strType,
                     intDistrict1, intDistrict2, strSubject, strLat, strLon, strCheckIn, strCheckOut,
                     strPhone, strFax, strEmail, strZipCode, strAddr1, strAddr2, strDescription, strRsvGuide,
                     strAcmNotice, strImgDatas, strPenaltyDatas, strKeyWordDatas, strAttractionDatas, strFacilityDatas, "");
@@ -717,7 +710,7 @@ public class AccommService {
                     boolean breakfastYn = (boolean) mealJson.get("breakfast");
                     String strBreakFastCode = "";
                     if(breakfastYn){
-                        strBreakFastCode = accomodationMapper.getStrCodeByStrName("RM_ICON", "조식");
+                        strBreakFastCode = accommMapper.getStrCodeByStrName("RM_ICON", "조식");
                     }
 
                     strRmtypeDatas += strRmtypeData + strRatePlanId + "|^|" + intMinSleep + "|^|" + intMaxSleep + "|^|" +
@@ -751,16 +744,16 @@ public class AccommService {
                 boolean breakfastYn = (boolean) mealJson.get("breakfast");
                 String strBreakFastCode = "";
                 if(breakfastYn){
-                    strBreakFastCode = accomodationMapper.getStrCodeByStrName("RM_ICON", "조식");
+                    strBreakFastCode = accommMapper.getStrCodeByStrName("RM_ICON", "조식");
                 }
 
                 strRmtypeDatas = strRmtypeData + strRateplanID + "|^|" + intMinSleep + "|^|" + intMaxSleep + "|^|" +
                         strBreakFastCode + "|^|" + strDepth + "|^|" + strRefundYn + "|^|" + strRmImgDatas;
             }
 
-            String strType = accomodationMapper.getStrCodeByStrName("ACCOMM_TYPE", "온다");
+            String strType = accommMapper.getStrCodeByStrName("ACCOMM_TYPE", "온다");
 
-            String result = accomodationMapper.updateRmtype(strPropertyID, strType, strRmtypeDatas);
+            String result = accommMapper.updateRmtype(strPropertyID, strType, strRmtypeDatas);
 
             if(result.equals("")){
                 message = "객실 등록 및 수정 완료";
@@ -853,7 +846,7 @@ public class AccommService {
                     }
 
 
-                    String result = accomodationMapper.updateGoods(strRateplanID, strRmtypeID, strDateSales, intStock,
+                    String result = accommMapper.updateGoods(strRateplanID, strRmtypeID, strDateSales, intStock,
                             intCost, intSales, intExtraA, intExtraC, intExtraB, intOmkStock, doubleOmkSales);
 
                     String strResult = result.substring(result.length()-4);
@@ -1003,7 +996,7 @@ public class AccommService {
                 String strDeleteYn = statusMap.get("strDeleteYn");
                 String strViewYn = statusMap.get("strIngYn");
 
-                String updateStatusresult = accomodationMapper.updateStatus(target, strDeleteYn, strViewYn, strPropertyID, strRmtypeID, strRateplanID);
+                String updateStatusresult = accommMapper.updateStatus(target, strDeleteYn, strViewYn, strPropertyID, strRmtypeID, strRateplanID);
                 if(!updateStatusresult.equals("")){
                     result = true;
                 }
@@ -1048,7 +1041,7 @@ public class AccommService {
                     }
 
                     // 있으면 업데이트 없으면 생성
-                    String goodsResult = accomodationMapper.updateGoods(strRateplanID, strRmtypeID, strDateSales, intStock,
+                    String goodsResult = accommMapper.updateGoods(strRateplanID, strRmtypeID, strDateSales, intStock,
                             intCost, intSales, 0, 0, 0, intOmkStock, doubleOmkSales);
 
                     String strResult = goodsResult.substring(goodsResult.length()-4);
