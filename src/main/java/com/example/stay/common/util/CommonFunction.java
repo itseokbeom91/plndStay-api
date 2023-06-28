@@ -1,6 +1,17 @@
 package com.example.stay.common.util;
 
+import okhttp3.*;
 import org.json.simple.JSONObject;
+import org.w3c.dom.Document;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.xml.sax.InputSource;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import java.io.StringReader;
+import java.net.URL;
+import java.net.URLEncoder;
 
 public class CommonFunction<T> {
 
@@ -82,5 +93,46 @@ public class CommonFunction<T> {
             return "";
         }
 
+    }
+
+    /*
+    주소로 신우편번호(5자리) 가져오기
+    !상세주소로만 조회할것!
+     */
+    public String getNewAddressCodeByAddress(String address){
+
+        try{
+            StringBuilder urlBuilder = new StringBuilder("http://openapi.epost.go.kr/postal/retrieveNewAdressAreaCdSearchAllService/retrieveNewAdressAreaCdSearchAllService/getNewAddressListAreaCdSearchAll"); /*URL*/
+            urlBuilder.append("?" + URLEncoder.encode("ServiceKey","UTF-8") + "=" + Constants.openApiKey); /*Service Key 개인키로 차후 변경요망*/
+            urlBuilder.append("&" + URLEncoder.encode("srchwrd","UTF-8") + "=" + URLEncoder.encode(address, "UTF-8")); /*검색어  추후 address 받아서 넣기 */
+            URL url = new URL(urlBuilder.toString());
+            OkHttpClient client = new OkHttpClient().newBuilder()
+                    .build();
+            MediaType mediaType = MediaType.parse("application/json;");
+            RequestBody body = RequestBody.create(mediaType, "");
+            Request request = new Request.Builder()
+                    .url(url)
+                    .get()
+                    .build();
+            Response response = client.newCall(request).execute();
+
+            StringBuffer buffer = new StringBuffer();
+            buffer.append(response.body().string());
+            DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+            DocumentBuilder builder = factory.newDocumentBuilder();
+            Document document = builder.parse(new InputSource(new StringReader(buffer.toString())));
+
+            NodeList tags = document.getElementsByTagName("newAddressListAreaCdSearchAll");
+            Node tagtext = tags.item(0).getFirstChild().getLastChild();
+            String tagvalue = tagtext.getNodeValue();
+
+            System.out.println(tagvalue);
+
+            return tagvalue;
+
+        } catch (Exception e){
+            e.printStackTrace();
+            return makeReturn("", e.getMessage());
+        }
     }
 }
