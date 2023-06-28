@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.example.stay.accommodation.yongpyong_beache.mapper.YPBMapper">
+
+    <select id="packageList" resultType="string">
+        exec PLNDSTAY.dbo.spHW_PACKAGE_REGIST #{PackageData}, ''
+    </select>
+
+    <select id="insertStock" resultType="String">
+        EXEC PLNDSTAY.dbo.spGW_STOCK_TEMP_REGIST #{strProertyId}, 'C', #{strCateCode}, #{strRoomTypeId}, '', #{strPackageCode}, #{strStockData}, ''
+    </select>
+
+</mapper>

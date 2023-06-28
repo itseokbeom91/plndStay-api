@@ -15,7 +15,7 @@ import java.util.List;
 @Service("wellihilli.AccommService")
 public class AccommService {
 
-    // °´½Ç Á¤º¸ Á¶È¸
+    // ê°ì‹¤ ì •ë³´ ì¡°íšŒ
     public List<JSONObject> getRoomType(){
         String message = "";
         List<JSONObject> roomTypeList = new ArrayList<>();
@@ -33,7 +33,7 @@ public class AccommService {
             if(conn.getResponseCode() == 200){
                 
             }else{
-                message = "°´½Ç Á¤º¸ Á¶È¸ ½ÇÆĞ";
+                message = "ê°ì‹¤ ì •ë³´ ì¡°íšŒ ì‹¤íŒ¨";
             }
 
             logWriter.add(message);
