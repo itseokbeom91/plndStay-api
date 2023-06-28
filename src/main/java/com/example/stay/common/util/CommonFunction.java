@@ -123,7 +123,7 @@ public class CommonFunction<T> {
             Document document = builder.parse(new InputSource(new StringReader(buffer.toString())));
 
             NodeList tags = document.getElementsByTagName("newAddressListAreaCdSearchAll");
-            Node tagtext = tags.item(0).getFirstChild().getLastChild();
+            Node tagtext = tags.item(0).getFirstChild().getFirstChild();
             String tagvalue = tagtext.getNodeValue();
 
             System.out.println(tagvalue);
