@@ -5,8 +5,7 @@
 
 <mapper namespace="com.example.stay.accommodation.elysian_gangchon.mapper.BookingMapper">
     <select id="updateGoods" resultType="String">
-        EXEC spGW_STOCK_TEMP_REGIST '', #{strRmtypeID}, #{strPropertyID}, #{dateSales}, ${intStock}, '', '', '', '', '',
-        ${intOmkStock}, '', 'C', '49', ''
+        EXEC spGW_STOCK_TEMP_REGIST #{strPropertyID}, 'C', '49', #{strRmtypeID}, '', '', #{strStockDatas}, ''
     </select>
 
     <select id="getStrPropertyID" parameterType="String" resultType="String">

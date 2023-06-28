@@ -17,9 +17,23 @@
     </select>
 
     <select id="updateGoods" parameterType="StockDto" resultType="String">
-        EXEC spGW_STOCK_TEMP_REGIST #{strRateplanID}, #{strRmtypeID}, '', #{strDateSales}, ${intStock}, ${intCost}, ${intSales},
-                ${intExtraA}, ${intExtraC}, ${intExtraB}, ${intOmkStock}, ${intOmkSales}, 'OND', '', ''
+        EXEC spGW_STOCK_TEMP_REGIST #{strPropertyID}, 'OND', '', #{strRmtypeID}, #{strRateplanID}, '', #{strStockDatas}, ''
     </select>
+
+    <select id="webhookUpdateGoods" parameterType="StockDto" resultType="String">
+        EXEC spONDA_STOCK_TEMP_REGIST #{strStockDatas}, ''
+    </select>
+
+    <select id="getPropertyIDNRmtypeID" parameterType="String" resultType="Map">
+        SELECT
+            A.strPropertyID,
+            R.strRmtypeID
+        FROM ACCOMM A WITH(NOLOCK)
+        INNER JOIN RMTYPE R WITH(NOLOCK) ON R.intAID = A.intAID
+        WHERE R.strRateplanID = #{strRateplanID}
+    </select>
+
+
 
 <!--    <select id="getRoomAdminCnt" parameterType="String" resultType="int">-->
 <!--        SELECT ISNULL(MAX(admin_count), 1)-->
