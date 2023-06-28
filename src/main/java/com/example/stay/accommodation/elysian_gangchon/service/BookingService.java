@@ -24,8 +24,8 @@ import java.util.Map;
 @Service("elysian_gangchon.BookingService")
 public class BookingService {
 
-//    @Autowired
-//    private BookingMapper bookingMapper;
+    @Autowired
+    private BookingMapper bookingMapper;
 
     CommonFunction commonFunction = new CommonFunction();
 
@@ -44,10 +44,13 @@ public class BookingService {
             if(strResponse != null && !strResponse.equals("")){
                 int failCount = 0; // 재고 등록 및 수정에 실패한 경우 카운트
 
+                String strPropertyID = bookingMapper.getStrPropertyID(strRmtypeID);
+
+                String strStockDatas = "";
                 String[] responseArr = strResponse.split("#");
                 for(String arr : responseArr){
                     String[] dataArr = arr.split(";");
-                    String apiStatus = dataArr[0];
+//                    String apiStatus = dataArr[0];
 //                    String pkgCode = dataArr[1];
 
                     String dateSales = dataArr[2];
@@ -55,24 +58,29 @@ public class BookingService {
                     SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
                     dateSales = sdf.format(simpleDateFormat.parse(dateSales));
 
-                    String avail = dataArr[3];
+//                    String avail = dataArr[3];
                     int intStock = Integer.parseInt(dataArr[4]);
                     int intOmkStock = intStock;
 
-//                    String strPropertyID = bookingMapper.getStrPropertyID(strRmtypeID);
-//                    String result = bookingMapper.updateGoods(strRmtypeID, strPropertyID, dateSales, intStock, intOmkStock);
-//
-//                    String strResult = result.substring(result.length()-4);
-//                    if(!strResult.equals("저장완료")){
-//                        failCount += 1;
-//                    }
-                }
+                    int moneyCost = 0, moneySales = 0, moneyExtraA = 0, moneyExtraB = 0, moneyExtraC = 0, moneyOmkSales = 0;
 
-                if(failCount == 0){
+
+
+                    strStockDatas += dateSales + "|^|" + intStock + "|^|" + moneyCost + "|^|" + moneySales + "|^|"
+                            + moneyExtraA + "|^|" + moneyExtraC + "|^|" + moneyExtraB + "|^|" + intOmkStock + "|^|"  + moneyOmkSales+ "{{|}}";
+
+                }
+                strStockDatas = strStockDatas.substring(0, strStockDatas.length()-5);
+
+                String result = bookingMapper.updateGoods(strPropertyID, strRmtypeID, strStockDatas);
+                String strResult = result.substring(result.length()-4);
+
+                if(strResult.equals("저장완료")){
                     message = "재고 등록 및 수정 완료";
                 }else{
                     message = " 재고 등록 및 수정 실패";
                 }
+
             }else{
                 message = "엘리시안 API 호출 실패";
             }
@@ -137,8 +145,8 @@ public class BookingService {
             String bdate  = "20230807";
             int cnt  = 1;
             String tseq  = "980";
-            String DH_CODE1 = "1006";
-            String DH_CODE2 = "1030";
+            String DH_CODE1 = "1030";
+            String DH_CODE2 = "9999";
             String PASS = "1234";
             String AMT_YN = "N";
 
@@ -150,7 +158,7 @@ public class BookingService {
                 String strResponse = callElysAPI(elysUrl);
 
                 if(strResponse != null && !strResponse.equals("")){
-                    if(strResponse.substring(0,4).equals("error")){
+                    if(strResponse.substring(0,5).equals("ERROR")){
                         message = strResponse;
                     }else{
                         message = "예약 성공";

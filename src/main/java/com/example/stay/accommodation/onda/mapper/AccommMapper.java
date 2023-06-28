@@ -16,12 +16,15 @@ public interface AccommMapper {
 
     String updateRmtype(String strPropertyID, String strType, String strRmtypeDatas);
 
-    String updateGoods(String strRateplanID, String strRmtypeID, String strDateSales, int intStock, int intCost, int intSales,
-                       int intExtraA, int intExtraC, int intExtraB, int intOmkStock, double intOmkSales);
+    String updateGoods(String strPropertyID, String strRmtypeID, String strRateplanID, String strStockDatas);
 
-    int getRoomAdminCnt(String intCondoId);
+    String webhookUpdateGoods(String strStockDatas);
 
-    int getAIDByStrPropertyID(String strPropertyID);
+    Map<String, String> getPropertyIDNRmtypeID(String strRmtypeID);
+
+//    int getRoomAdminCnt(String intCondoId);
+//
+//    int getAIDByStrPropertyID(String strPropertyID);
 
     String updateStatus(String target, String strDeleteYn, String strViewYn, String propertyId, String roomTypeId, String ratePlanId);
 

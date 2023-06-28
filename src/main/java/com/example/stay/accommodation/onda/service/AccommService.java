@@ -12,6 +12,8 @@ import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.File;
@@ -27,6 +29,8 @@ public class AccommService {
 
     @Autowired
     private AccommMapper accommMapper;
+
+    CommonFunction commonFunction = new CommonFunction();
 
     Gson gson = new GsonBuilder().setPrettyPrinting().create();
 
@@ -779,7 +783,8 @@ public class AccommService {
 
 
     // 특정 패키지의 재고 및 요금 정보 가져와서 insert or update
-    public void updateGoods(String strRateplanID, String strRmtypeID, String from, String to){
+    public String updateGoods(String strRateplanID, String from, String to){
+        String statusCode = "200";
         String message = "";
 
         OkHttpClient client = new OkHttpClient();
@@ -810,6 +815,7 @@ public class AccommService {
                     inventoryList.add(jsonObject);
                 }
 
+                String strStockDatas = "";
                 for(Object inventories : inventoryList){
                     JSONObject inventoryJson = (JSONObject) inventories;
 
@@ -845,21 +851,26 @@ public class AccommService {
                         doubleOmkSales = intSales * saturday;
                     }
 
+                    strStockDatas += strDateSales + "|^|" + intStock + "|^|" + intCost + "|^|" + intSales + "|^|"
+                            + intExtraA + "|^|" + intExtraC + "|^|" + intExtraB + "|^|" + intOmkStock + "|^|"  + doubleOmkSales+ "{{|}}";
+                }
 
-                    String result = accommMapper.updateGoods(strRateplanID, strRmtypeID, strDateSales, intStock,
-                            intCost, intSales, intExtraA, intExtraC, intExtraB, intOmkStock, doubleOmkSales);
+                Map<String, String> idMap = accommMapper.getPropertyIDNRmtypeID(strRateplanID);
+                String strPropertyID = idMap.get("strPropertyID");
+                String strRmtypeID = idMap.get("strRmtypeID");
 
-                    String strResult = result.substring(result.length()-4);
-                    if(strResult.equals("저장완료")){
-                        message = "재고 등록/수정 완료";
-                    }else{
-                        logWriter.add(result);
-                        message = "재고 등록/수정 실패";
-                    }
+                String result = accommMapper.updateGoods(strPropertyID, strRmtypeID, strRateplanID, strStockDatas);
+                String strResult = result.substring(result.length()-4);
+                if(strResult.equals("저장완료")){
+                    message = "재고 등록/수정 완료";
+                }else{
+                    logWriter.add(result);
+                    message = "재고 등록/수정 실패";
                 }
 
             }else{
-                message = "response code : " + response.code();
+                logWriter.add("ONDA response code : " + response.code());
+                message = "재고 등록/수정 실패";
             }
             logWriter.add(message);
             logWriter.log(0);
@@ -869,6 +880,8 @@ public class AccommService {
             logWriter.add("error : " + e.getMessage());
             logWriter.log(0);
         }
+
+        return commonFunction.makeReturn(statusCode, message);
     }
 
     // CONTENTS_PHOTO, CONDO_PHOTO에 INSERT
@@ -1002,6 +1015,9 @@ public class AccommService {
                 }
             }else if(event_type.equals("inventory_updated")){
                 JSONArray eventDetailsArr = (JSONArray) bodyJson.get("event_details");
+
+                String strStockDatas = "";
+                int failCount = 0;
                 for(int i=0; i<eventDetailsArr.size(); i++){
                     JSONObject event_detail = (JSONObject) eventDetailsArr.get(i);
 
@@ -1012,10 +1028,6 @@ public class AccommService {
                     String strDateSales = event_detail.get("date").toString();
                     int intCost = Integer.parseInt(event_detail.get("basic_price").toString());
                     int intSales = Integer.parseInt(event_detail.get("sale_price").toString());
-
-//                    int intExtraA = Integer.parseInt(event_detail.get("extra_adult").toString());
-//                    int intExtraC= Integer.parseInt(event_detail.get("extra_child").toString());
-//                    int intExtraB = Integer.parseInt(event_detail.get("extra_infant").toString());
 
                     int intOmkStock = intStock;
                     double doubleOmkSales = 0;
@@ -1040,22 +1052,23 @@ public class AccommService {
                         doubleOmkSales = intSales * saturday;
                     }
 
-                    // 있으면 업데이트 없으면 생성
-                    String goodsResult = accommMapper.updateGoods(strRateplanID, strRmtypeID, strDateSales, intStock,
-                            intCost, intSales, 0, 0, 0, intOmkStock, doubleOmkSales);
+                    int intExtraA = 0, intExtraC = 0, intExtraB = 0;
 
-                    String strResult = goodsResult.substring(goodsResult.length()-4);
-                    if(strResult.equals("저장완료")){
-                        result = true;
-                    }else{
-                        logWriter.add(goodsResult);
-                    }
+                    strStockDatas += strRmtypeID + "|^|" +strRateplanID  + "|^|" + strDateSales + "|^|" + intStock + "|^|" + intCost + "|^|" + intSales + "|^|"
+                            + intExtraA + "|^|" + intExtraC + "|^|" + intExtraB + "|^|" + intOmkStock + "|^|"  + doubleOmkSales + "{{|}}";
+                }
+                strStockDatas = strStockDatas.substring(0, strStockDatas.length()-5);
+
+                // 있으면 업데이트 없으면 생성
+                String updateResult = accommMapper.webhookUpdateGoods(strStockDatas);
+                String strResult = updateResult.substring(updateResult.length()-4);
+                if(strResult.equals("저장완료")){
+                    result = true;
                 }
             }
+            logWriter.add("webhook process result : " + result);
             logWriter.log(0);
         }catch (Exception e){
-            e.printStackTrace();
-
             logWriter.add("error : " + e.getMessage());
             logWriter.log(0);
         }
