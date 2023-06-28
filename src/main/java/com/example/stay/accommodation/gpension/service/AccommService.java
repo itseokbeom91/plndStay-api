@@ -393,6 +393,7 @@ public class AccommService {
                 String pensionTheme = (String) pensionInfoJson.get("theme");
                 String pensionWebsite = (String) pensionInfoJson.get("homepage");
                 String pensionRoomCnt = (String) pensionInfoJson.get("room_cnt");
+                String pensionZip = (String) pensionInfoJson.get("pension_zip");
 
                 List<Map<String, Object>> facImgList = (List<Map<String, Object>>) pensionInfoJson.get("fac_img");
                 List<Map<String, Object>> extImgList = (List<Map<String, Object>>) pensionInfoJson.get("ext_img");
@@ -408,16 +409,16 @@ public class AccommService {
                 }
                 String strImgList ="";
                 for (Map<String, Object> facImgMap : facImgList) {
-                    System.out.println(facImgMap);
+//                    System.out.println(facImgMap);
                     strImgList += accommPhotoContentsReg((String) facImgMap.get("img"), pensionId, "");
 
                 }
                 for (Map<String, Object> extImgMap : extImgList) {
-                    System.out.println(extImgMap);
+//                    System.out.println(extImgMap);
                     strImgList += accommPhotoContentsReg((String) extImgMap.get("img"), pensionId, "");
                 }
                 for (Map<String, Object> mainImgMap : mainImgList) {
-                    System.out.println(mainImgMap);
+//                    System.out.println(mainImgMap);
                     strImgList += accommPhotoContentsReg((String) mainImgMap.get("img"), pensionId, "");
                 }
                 strImgList += "{{^}}";
@@ -440,6 +441,7 @@ public class AccommService {
                     String basicPeople = (String) roomMap.get("basic_people");
                     String roomType = (String) roomMap.get("room_type");
                     String roomItem = (String) roomMap.get("room_item");
+                    roomItem = roomItem.replaceAll("\\r\\n", "");
                     List<Map<String, Object>> roomImgDatas = (List<Map<String, Object>>) roomMap.get("room_img");
                     if (roomImgDatas == null) {
                         roomImgDatas = new ArrayList<>();
@@ -455,8 +457,7 @@ public class AccommService {
 
                     roomListDataTmp.add(roomMap);
 
-                    strRoomData += roomId + "|^|" + roomName + "|^|" + maxPeople + "|^|" + basicPeople + "|^|" + roomType + " " + roomItem + "|^|" + strRoomImgData + "{{|}}";
-                    System.out.println("여기에요!!! ::: " + strRoomImgData);
+                    strRoomData += pensionId + "|^|" + roomId + "|^|" + roomName + "|^|" + maxPeople + "|^|" + basicPeople + "|^|" + roomType + roomItem.trim() + "|^|"/* + strRoomImgData*/ + "{{|}}";
                 }
                 pensionJson.put("room_data", roomListDataTmp);
 
@@ -465,17 +466,19 @@ public class AccommService {
                 //펜션ID, 펜션명, 지역코드1, 지역코드2, 위도, 경도, 전화번호, 주소, 체크인시간, 체크아웃시간, 홈페이지주소, 판매가능객실수, 취소규정, 펜션이미지(부대시설, 전경, 메인)
                 strAccommData += pensionId + "|^|" + pensionName + "|^|" + districtCode1 + "|^|" + districtCode2 + "|^|" + lati + "|^|" + longi + "|^|"
                         + pensionTel + "|^|" + pensionAddr + "|^|" + pensionCheckIn + "|^|" + pensionCheckOut + "|^|" + pensionWebsite + "|^|" + pensionRoomCnt + "|^|"
-                        + strPenaltyData + "|^|" + strImgList + "{{|}}";
+                        + "" + "|^|" + "" + "{{|}}";
 //                System.out.println("여기에요!!! ::: " + strImgList);
             }
 
             strAccommData = strAccommData.substring(0, strAccommData.length()-5);
             strRoomData = strRoomData.substring(0, strRoomData.length()-5);
 
-            System.out.println(strAccommData);
+//            System.out.println(strAccommData);
             System.out.println(strRoomData);
 
 //            String insertResult = accommMapper.insertAccommTotal(strAccommData, strRoomData, strStockData, "GP");
+            String insertResult = accommMapper.insertAccommTotal(strAccommData, strRoomData, "", "GP");
+            System.out.println(insertResult);
 
             return commonFunction.makeReturn("", "", responseJson);
         } catch (Exception e) {

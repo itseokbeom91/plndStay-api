@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.example.stay.accommodation.gpension.mapper.AccommMapper">
+
+    <select id="insertAccommTotal" parameterType="String" resultType="String">
+        EXEC PLNDSTAY.dbo.spGP_ACCOMM_REGIST #{strPensionDatas},  #{strRoomDatas}, #{strStockDatas}, #{strType}, ''
+    </select>
+
+    <select id="getDistrictCodeWithStr" resultType="String">
+        SELECT strCode
+        FROM [PLNDSTAY].[dbo].[CODE_DISTRICT] WITH(NOLOCK)
+        WHERE strName LIKE #{strDistrict2} AND strDeleteYn = 'N' AND strCode LIKE #{strDistrict1} + '%'
+    </select>
+</mapper>

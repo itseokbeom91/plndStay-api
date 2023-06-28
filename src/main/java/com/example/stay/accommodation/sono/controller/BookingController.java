@@ -78,6 +78,10 @@ public class BookingController {
         return bookingService.getStockAndInsert(httpServletRequest);
     }
 
-
+    @GetMapping("/settlement")
+    @ResponseBody
+    public String getSettlement(String stndDt) {
+        return bookingService.getSettlement(stndDt);
+    }
 
 }

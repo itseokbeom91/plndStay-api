@@ -12,9 +12,6 @@ public interface AccommMapper {
 //    To-Do 객실 INSERT
 
     String insertAccommTotal(String strPensionDatas, String strRoomDatas, String strStockDatas, String strType);
-
-    String insertRoom(String strPackageDatas, String strRoomDatas, String strStockDatas, String strAccommDatas, String strType);
-
     String getDistrictCodeWithStr(String strDistrict1, String strDistrict2);
 
 }

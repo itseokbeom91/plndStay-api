@@ -1,6 +1,7 @@
 package com.example.stay.accommodation.gpension.controller;
 
 import com.example.stay.accommodation.gpension.service.AccommService;
+import com.example.stay.common.util.CommonFunction;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -66,5 +67,12 @@ public class AccommController {
     @ResponseBody
     public String insertAccomm(){
         return accommService.insertGP();
+    }
+
+    @GetMapping("/testAdd")
+    @ResponseBody
+    public String testAdd(String address){
+        CommonFunction commonFunction = new CommonFunction();
+        return commonFunction.getNewAddressCodeByAddress(address);
     }
 }
