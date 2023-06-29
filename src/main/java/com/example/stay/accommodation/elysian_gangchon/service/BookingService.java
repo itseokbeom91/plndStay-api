@@ -62,12 +62,12 @@ public class BookingService {
                     int intStock = Integer.parseInt(dataArr[4]);
                     int intOmkStock = intStock;
 
-                    int moneyCost = 0, moneySales = 0, moneyExtraA = 0, moneyExtraB = 0, moneyExtraC = 0, moneyOmkSales = 0;
+                    int intCost = 0, intSales = 0, intExtraA = 0, intExtraB = 0, intExtraC = 0, intOmkSales = 0;
 
 
 
-                    strStockDatas += dateSales + "|^|" + intStock + "|^|" + moneyCost + "|^|" + moneySales + "|^|"
-                            + moneyExtraA + "|^|" + moneyExtraC + "|^|" + moneyExtraB + "|^|" + intOmkStock + "|^|"  + moneyOmkSales+ "{{|}}";
+                    strStockDatas += dateSales + "|^|" + intStock + "|^|" + intCost + "|^|" + intSales + "|^|"
+                            + intExtraA + "|^|" + intExtraC + "|^|" + intExtraB + "|^|" + intOmkStock + "|^|"  + intOmkSales+ "{{|}}";
 
                 }
                 strStockDatas = strStockDatas.substring(0, strStockDatas.length()-5);

@@ -108,9 +108,9 @@ public class AccommService {
 
                 String strCity = address.get("city").toString();
 
-                Map<String, Integer> districtMap = accommMapper.getDistrictCode(strRegion, strCity);
-                int intDistrict1 = districtMap.get("intDistrict1");
-                int intDistrict2 = districtMap.get("intDistrict2");
+                Map<String, String> districtMap = accommMapper.getDistrictCode(strRegion, strCity);
+                String strDistrict1 = districtMap.get("strDistrict1");
+                String strDistrict2 = districtMap.get("strDistrict2");
 
                 String address1 = address.get("address1").toString();
                 String address2 = address.get("address2").toString();
@@ -369,7 +369,7 @@ public class AccommService {
                 }
 
                 String result = accommMapper.insertAccommTotal(strPropertyID, strDeleteYn, strViewYn, strType,
-                        intDistrict1, intDistrict2, strSubject, strLat, strLon, strCheckIn, strCheckOut,
+                        strDistrict1, strDistrict2, strSubject, strLat, strLon, strCheckIn, strCheckOut,
                         strPhone, strFax, strEmail, strZipCode, strAddr1, strAddr2, strDescription, strRsvGuide,
                         strAcmNotice, strImgDatas, strPenaltyDatas, strKeyWordDatas, strAttractionDatas, strFacilityDatas, strRmtypeDatas);
 
@@ -436,9 +436,9 @@ public class AccommService {
 
             String strCity = address.get("city").toString();
 
-            Map<String, Integer> districtMap = accommMapper.getDistrictCode(strRegion, strCity);
-            int intDistrict1 = districtMap.get("intDistrict1");
-            int intDistrict2 = districtMap.get("intDistrict2");
+            Map<String, String> districtMap = accommMapper.getDistrictCode(strRegion, strCity);
+            String strDistrict1 = districtMap.get("strDistrict1");
+            String strDistrict2 = districtMap.get("strDistrict2");
 
             String address1 = address.get("address1").toString();
             String address2 = address.get("address2").toString();
@@ -598,7 +598,7 @@ public class AccommService {
             strPenaltyDatas = strPenaltyDatas.substring(0, strPenaltyDatas.length()-5);
 
             String result = accommMapper.insertAccommTotal(strPropertyID, strDeleteYn, strViewYn, strType,
-                    intDistrict1, intDistrict2, strSubject, strLat, strLon, strCheckIn, strCheckOut,
+                    strDistrict1, strDistrict2, strSubject, strLat, strLon, strCheckIn, strCheckOut,
                     strPhone, strFax, strEmail, strZipCode, strAddr1, strAddr2, strDescription, strRsvGuide,
                     strAcmNotice, strImgDatas, strPenaltyDatas, strKeyWordDatas, strAttractionDatas, strFacilityDatas, "");
 
