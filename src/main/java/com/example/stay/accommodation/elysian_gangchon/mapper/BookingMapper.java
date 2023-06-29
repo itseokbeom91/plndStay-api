@@ -4,7 +4,7 @@ import org.springframework.stereotype.Repository;
 
 @Repository("elysian_gangchon.BookingMapper")
 public interface BookingMapper {
-    String updateGoods(String strPropertyID, String strRmtypeID, String strStockDatas);
+    String updateGoods(int intAID, int intRmIdx, String strStockDatas);
 
-    String getStrPropertyID(String strRmtypeID);
+    int getIntAID(int intRmIdx);
 }

@@ -617,6 +617,7 @@ public class AccommService {
 
             logWriter.add("error : " + e.getMessage());
             logWriter.log(0);
+            e.printStackTrace();
         }
 
         resultJson.put("statusCode", statusCode);
@@ -774,6 +775,7 @@ public class AccommService {
 
             logWriter.add("error : " + e.getMessage());
             logWriter.log(0);
+            e.printStackTrace();
         }
         resultJson.put("statusCode", statusCode);
         resultJson.put("message", message);
@@ -783,9 +785,13 @@ public class AccommService {
 
 
     // 특정 패키지의 재고 및 요금 정보 가져와서 insert or update
-    public String updateGoods(String strRateplanID, String from, String to){
+    public String updateGoods(int intRmIdx, String from, String to){
         String statusCode = "200";
         String message = "";
+
+        Map<String, Object> map = accommMapper.getStrRateplanIDNIntAID(intRmIdx);
+        String strRateplanID = map.get("strRateplanID").toString();
+        int intAID = Integer.parseInt(map.get("intAID").toString());
 
         OkHttpClient client = new OkHttpClient();
 
@@ -855,11 +861,7 @@ public class AccommService {
                             + intExtraA + "|^|" + intExtraC + "|^|" + intExtraB + "|^|" + intOmkStock + "|^|"  + doubleOmkSales+ "{{|}}";
                 }
 
-                Map<String, String> idMap = accommMapper.getPropertyIDNRmtypeID(strRateplanID);
-                String strPropertyID = idMap.get("strPropertyID");
-                String strRmtypeID = idMap.get("strRmtypeID");
-
-                String result = accommMapper.updateGoods(strPropertyID, strRmtypeID, strRateplanID, strStockDatas);
+                String result = accommMapper.updateGoods(intAID, intRmIdx, strStockDatas);
                 String strResult = result.substring(result.length()-4);
                 if(strResult.equals("저장완료")){
                     message = "재고 등록/수정 완료";
@@ -1017,7 +1019,6 @@ public class AccommService {
                 JSONArray eventDetailsArr = (JSONArray) bodyJson.get("event_details");
 
                 String strStockDatas = "";
-                int failCount = 0;
                 for(int i=0; i<eventDetailsArr.size(); i++){
                     JSONObject event_detail = (JSONObject) eventDetailsArr.get(i);
 
@@ -1069,6 +1070,8 @@ public class AccommService {
             logWriter.add("webhook process result : " + result);
             logWriter.log(0);
         }catch (Exception e){
+            e.printStackTrace();
+
             logWriter.add("error : " + e.getMessage());
             logWriter.log(0);
         }

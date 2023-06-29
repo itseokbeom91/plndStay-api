@@ -137,8 +137,8 @@ public class AccommController {
      */
     @GetMapping("updateGoods")
     @ResponseBody
-    public String updateGoods(String strRateplanID, String from, String to){
-        return accommService.updateGoods(strRateplanID, from, to);
+    public String updateGoods(int intRmIdx, String from, String to){
+        return accommService.updateGoods(intRmIdx, from, to);
     }
 
 //    /**

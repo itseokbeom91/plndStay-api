@@ -17,7 +17,7 @@
     </select>
 
     <select id="updateGoods" parameterType="StockDto" resultType="String">
-        EXEC spGW_STOCK_TEMP_REGIST #{strPropertyID}, 'OND', '', #{strRmtypeID}, #{strRateplanID}, '', #{strStockDatas}, ''
+        EXEC spGW_STOCK_TEMP_REGIST ${intAID}, ${intRmIdx}, '', #{strStockDatas}, ''
     </select>
 
     <select id="webhookUpdateGoods" parameterType="StockDto" resultType="String">
@@ -33,6 +33,13 @@
         WHERE R.strRateplanID = #{strRateplanID}
     </select>
 
+    <select id="getStrRateplanIDNIntAID" parameterType="int" resultType="Map">
+        SELECT
+            strRateplanID,
+            intAID
+        FROM RMTYPE
+        WHERE intIdx = ${intRmIdx}
+    </select>
 
 
 <!--    <select id="getRoomAdminCnt" parameterType="String" resultType="int">-->
