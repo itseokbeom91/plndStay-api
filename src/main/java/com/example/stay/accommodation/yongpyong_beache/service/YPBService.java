@@ -1,18 +1,29 @@
 package com.example.stay.accommodation.yongpyong_beache.service;
 
+import com.example.stay.accommodation.yongpyong_beache.mapper.YPBMapper;
 import com.example.stay.common.service.CommonService;
 import com.fasterxml.jackson.databind.JsonNode;
+import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
+import org.json.simple.JSONValue;
+import org.json.simple.parser.JSONParser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 
 @Service
 public class YPBService {
 
     @Autowired
-    CommonService commonService;
+    private CommonService commonService;
 
-    public String getStock(){
+    @Autowired
+    private YPBMapper ypbMapper;
+
+    public String getStock(String strProertyId, String strLcdCode, String strRoomTypeCode, String startDate, String endDate, String strPackageCode){
 
         String result = "";
 
@@ -21,14 +32,21 @@ public class YPBService {
             JSONObject mainObject = getCommonHeader("stock");
             JSONObject dataObject = new JSONObject();
 
-            dataObject.put("brch_cd", "11"); // 용평 : 11 / 비체 : 22
-            dataObject.put("outlet_cd", "223001"); // 영업장 코드
-            dataObject.put("room_type_cd", "");
-            dataObject.put("from_date", "20230623");
-            dataObject.put("to_date", "20230714");
+            String strCustNo = "1199719"; // default 용평
+            String strCateCode = "37"; // default 용평
+            if(strProertyId.equals("22")){ // 비체
+                strCustNo = "1178413";
+                strCateCode = "38";
+            }
+
+            dataObject.put("brch_cd", strProertyId); // 용평 : 11 / 비체 : 22
+            dataObject.put("outlet_cd", strLcdCode); // 영업장 코드
+            dataObject.put("room_type_cd", strRoomTypeCode); // 룸타입 제외 가능
+            dataObject.put("from_date", startDate);
+            dataObject.put("to_date", endDate);
             dataObject.put("rsvpl_type_cd", "07"); // condo24
-            dataObject.put("pkg_cd", "MOP2330");
-            dataObject.put("cust_no", "1199719"); // 용평 : 1199719 / 비체 : 1178413
+            dataObject.put("pkg_cd", strPackageCode);
+            dataObject.put("cust_no", strCustNo); // 용평 : 1199719 / 비체 : 1178413
 
             mainObject.put("DATA", dataObject);
 
@@ -36,8 +54,51 @@ public class YPBService {
 
             JsonNode jsonNode = commonService.callJsonApi("YPBStock", mainObject);
 
+
+            // 통신결과 0:실패, 1:성공
+            JSONObject codeObject = (JSONObject) new JSONParser().parse(jsonNode.get("HEADER").toString());
+            String resultCode = codeObject.get("statusCode").toString();
+
+            JSONArray jsonArray = (JSONArray) new JSONParser().parse(jsonNode.get("DATA").toString());
+
+
+            // roomType 별로 데이터 담을 map
+            HashMap<String, String> stockMap = new HashMap<String, String>();
+
+            if(resultCode.equals("1")){
+
+                for(Object object : jsonArray){
+                    JSONObject jsonObject = (JSONObject) JSONValue.parse(object.toString());
+
+                    String strDate = jsonObject.get("yyyymmdd").toString();
+                    int intStock = Integer.parseInt(jsonObject.get("able_rms").toString());
+                    String strRoomTypeId = jsonObject.get("room_type_cd").toString();
+
+                    // key 값에 roomTypeId 없으면 생성
+                    if(!stockMap.containsKey(strRoomTypeId)){
+                        stockMap.put(strRoomTypeId, "");
+                    }
+
+                    String mapValue = stockMap.get(strRoomTypeId);
+                    mapValue += strDate + "|^|" + intStock + "|^|0|^|0|^|0|^|0|^|0|^|" + intStock + "|^|0{{|}}";
+                    stockMap.put(strRoomTypeId, mapValue);
+
+                }
+
+                for(String key : stockMap.keySet()){
+                    String strRoomTypeId = key;
+                    String strStockDatas = stockMap.get(key);
+                    if(strStockDatas.length() > 1){
+                        strStockDatas = strStockDatas.substring(0, strStockDatas.length()-5);
+                    }
+                    System.out.println(strStockDatas);
+                    ypbMapper.insertStock(strProertyId, strCateCode, strRoomTypeId, strPackageCode, strStockDatas);
+                }
+
+            }
+
             result = jsonNode.toString();
-            System.out.println(result);
+            //System.out.println(result);
 
         }catch (Exception e){
             e.printStackTrace();

@@ -6,7 +6,7 @@
 <mapper namespace="com.example.stay.accommodation.onda.mapper.AccommMapper">
 
     <select id="insertAccommTotal" parameterType="String" resultType="String">
-        EXEC spONDA_ACCOMM_REGIST #{strPropertyID}, #{strDeleteYn}, #{strViewYn}, #{strType}, ${intDistrict1}, ${intDistrict2},
+        EXEC spONDA_ACCOMM_REGIST #{strPropertyID}, #{strDeleteYn}, #{strViewYn}, #{strType}, #{strDistrict1}, #{strDistrict2},
             #{strSubject}, #{strLat}, #{strLon}, #{strCheckIn}, #{strCheckOut}, #{strPhone}, #{strFax}, #{strEmail},
             #{strZipCode}, #{strAddr1},#{strAddr2}, #{strDescription}, #{strRsvGuide}, #{strAcmNotice}, #{strImgDatas},
             #{strPenaltyDatas},  #{strKeyWordDatas}, #{strAttractionDatas}, #{strFacilityDatas}, #{strRmtypeDatas}, ''
@@ -17,9 +17,23 @@
     </select>
 
     <select id="updateGoods" parameterType="StockDto" resultType="String">
-        EXEC spGW_STOCK_TEMP_REGIST #{strRateplanID}, #{strRmtypeID}, '', #{strDateSales}, ${intStock}, ${intCost}, ${intSales},
-                ${intExtraA}, ${intExtraC}, ${intExtraB}, ${intOmkStock}, ${intOmkSales}, 'OND', '', ''
+        EXEC spGW_STOCK_TEMP_REGIST #{strPropertyID}, 'OND', '', #{strRmtypeID}, #{strRateplanID}, '', #{strStockDatas}, ''
     </select>
+
+    <select id="webhookUpdateGoods" parameterType="StockDto" resultType="String">
+        EXEC spONDA_STOCK_TEMP_REGIST #{strStockDatas}, ''
+    </select>
+
+    <select id="getPropertyIDNRmtypeID" parameterType="String" resultType="Map">
+        SELECT
+            A.strPropertyID,
+            R.strRmtypeID
+        FROM ACCOMM A WITH(NOLOCK)
+        INNER JOIN RMTYPE R WITH(NOLOCK) ON R.intAID = A.intAID
+        WHERE R.strRateplanID = #{strRateplanID}
+    </select>
+
+
 
 <!--    <select id="getRoomAdminCnt" parameterType="String" resultType="int">-->
 <!--        SELECT ISNULL(MAX(admin_count), 1)-->
@@ -41,8 +55,8 @@
 
     <select id="getDistrictCode" parameterType="String" resultType="Map">
         SELECT
-            B.intIdx AS intDistrict1,
-            A.intIdx AS intDistrict2
+            B.strCode AS intDistrict1,
+            A.strCode AS intDistrict2
         FROM CODE_DISTRICT A WITH(NOLOCK)
         LEFT JOIN dbo.CODE_DISTRICT B WITH(NOLOCK) ON LEFT(A.strCode,2) = B.strCode
         WHERE A.strName = #{strCity} AND A.intDepth = 2

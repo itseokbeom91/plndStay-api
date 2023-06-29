@@ -3,10 +3,13 @@ package com.example.stay.accommodation.wellihilli.service;
 import com.example.stay.common.util.CommonFunction;
 import com.example.stay.common.util.Constants;
 import com.example.stay.common.util.LogWriter;
+import okhttp3.Response;
 import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
 import org.springframework.stereotype.Service;
 
 import javax.servlet.http.HttpServletRequest;
+import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
@@ -15,14 +18,17 @@ import java.util.List;
 @Service("wellihilli.AccommService")
 public class AccommService {
 
-    // ∞¥Ω« ¡§∫∏ ¡∂»∏
+    // Í∞ùÏã§ Ï†ïÎ≥¥ Ï°∞Ìöå
     public List<JSONObject> getRoomType(){
         String message = "";
         List<JSONObject> roomTypeList = new ArrayList<>();
 
-        LogWriter logWriter = new LogWriter("GET", "url", System.currentTimeMillis());
+        LogWriter logWriter = new LogWriter("GET", "https://vapi.wellihillipark.com:8070/api/facilities/condo_room/list", System.currentTimeMillis());
         try{
-            URL url = new URL("url");
+            /**
+             * TODO : Î¶¨ÌÑ¥Í∞í ÌôïÏù∏ ÌõÑ Ìò∏Ï∂ú Î©îÏÑúÎìúÎ°ú ÎπºÍ∏∞
+             */
+            URL url = new URL("https://vapi.wellihillipark.com:8070/api/facilities/condo_room/list");
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             conn.setRequestMethod("GET");
             conn.setConnectTimeout(10000);
@@ -33,7 +39,7 @@ public class AccommService {
             if(conn.getResponseCode() == 200){
                 
             }else{
-                message = "∞¥Ω« ¡§∫∏ ¡∂»∏ Ω«∆–";
+                message = "Í∞ùÏã§ Ï†ïÎ≥¥ Ï°∞Ìöå Ïã§Ìå®";
             }
 
             logWriter.add(message);
@@ -54,4 +60,44 @@ public class AccommService {
         CommonFunction commonFunction = new CommonFunction();
         return commonFunction.makeReturn(statusCode, message);
     }
+
+    public JSONObject callWellihilliAPI(String method, String wellihilliUrl, String strPostBody){
+        JSONObject jsonObject = new JSONObject();
+        String message = "";
+        LogWriter logWriter = new LogWriter(method, Constants.wellihilliUrl + wellihilliUrl, System.currentTimeMillis());
+        try{
+            URL url = new URL(Constants.wellihilliUrl + wellihilliUrl);
+            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+            conn.setRequestMethod(method);
+            conn.setConnectTimeout(10000);
+            conn.setReadTimeout(10000);
+            conn.setRequestProperty("Content-Type", "application/json");
+            conn.setRequestProperty("Accept-Charset", "UTF-8");
+            if(strPostBody != null && !strPostBody.equals("")){
+                conn.setDoOutput(true);
+                OutputStreamWriter writer = new OutputStreamWriter(conn.getOutputStream(), "UTF-8");
+                writer.write(strPostBody);
+                writer.close();
+
+                logWriter.addRequest(strPostBody);
+            }
+
+            if(conn.getResponseCode() == 200){
+
+            }else{
+                message = "Í∞ùÏã§ Ï†ïÎ≥¥ Ï°∞Ìöå Ïã§Ìå®";
+            }
+
+            logWriter.add(message);
+            logWriter.log(0);
+        }catch (Exception e){
+            logWriter.add("error : " + e.getMessage());
+            logWriter.log(0);
+        }
+
+        return jsonObject;
+    }
+
+    
+
 }

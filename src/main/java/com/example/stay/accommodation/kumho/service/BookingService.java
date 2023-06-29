@@ -168,7 +168,6 @@ public class BookingService {
         String message = "";
         try{
             String kumhoUrl = "";
-//            String kumhoUrl = "inter05.asp?groupid=100211&fr_date=20151201&to_date=20151231&area=1&site=1&room_type=*";
 
             SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd");
             Date fromDate = sdf.parse(fr_date);
@@ -178,7 +177,10 @@ public class BookingService {
             long sec = (toDate.getTime() - fromDate.getTime()) / 1000;
             double days =  (sec / (24*60*60));
 
-            int failCount = 0; // 재고 등록 및 수정에 실패한 경우 카운트
+            // 금호는 strPropertyID를 따로 주지 않아서 strPropertyID = area로 ACCOMM에 INSERT함
+            String strPropertyID = area;
+            String strRmtypeID = "";
+            String strStockDatas = "";
 
             // 날짜 세팅
             // 90일 이상일 경우
@@ -259,10 +261,9 @@ public class BookingService {
                                 String msg = URLDecoder.decode(xmlUtility.getTagValue("msg", element), "utf-8");
                                 if(rdate.equals("F")){
                                     message = msg;
-                                    failCount += 1;
                                     break Loop1;
                                 }else{
-                                    String strRmtypeID = xmlUtility.getTagValue("roomtype", element);
+                                    strRmtypeID = xmlUtility.getTagValue("roomtype", element);
 
                                     SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
                                     String dateSales = dateFormat.format(sdf.parse(rdate));
@@ -270,18 +271,28 @@ public class BookingService {
                                     int intStock = Integer.parseInt(xmlUtility.getTagValue("remainCount", element));
                                     int intOmkStock = intStock;
 
-                                    String result = bookingMapper.updateGoods(strRmtypeID, area, dateSales, intStock, intOmkStock);
-                                    String strResult = result.substring(result.length()-4);
-                                    if(!strResult.equals("저장완료")){
-                                        failCount += 1;
-                                    }
+                                    int intCost = 0, intSales = 0, intExtraA = 0, intExtraB = 0, intExtraC = 0, intOmkSales = 0;
+
+                                    strStockDatas += dateSales + "|^|" + intStock + "|^|" + intCost + "|^|" + intSales + "|^|"
+                                            + intExtraA + "|^|" + intExtraC + "|^|" + intExtraB + "|^|" + intOmkStock + "|^|"  + intOmkSales+ "{{|}}";
+
+
                                 }
                             }
+                        }
+                        strStockDatas = strStockDatas.substring(0, strStockDatas.length()-5);
+
+                        String result = bookingMapper.updateGoods(strPropertyID, strRmtypeID, strStockDatas);
+                        String strResult = result.substring(result.length()-4);
+
+                        if(strResult.equals("저장완료")){
+                            message = "재고 등록 및 수정 완료";
+                        }else{
+                            message = "재고 등록 및 수정 실패";
                         }
                     }else{
                         message = "재고 조회 실패";
                         logWriter.add(message);
-                        failCount += 1;
                         break Loop1;
                     }
                 }
@@ -301,10 +312,9 @@ public class BookingService {
                             String msg = URLDecoder.decode(xmlUtility.getTagValue("msg", element), "utf-8");
                             if(rdate.equals("F")){
                                 message = msg;
-                                failCount += 1;
                                 break;
                             }else{
-                                String strRmtypeID = xmlUtility.getTagValue("roomtype", element);
+                                strRmtypeID = xmlUtility.getTagValue("roomtype", element);
 
                                 SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
                                 String dateSales = dateFormat.format(sdf.parse(rdate));
@@ -312,31 +322,33 @@ public class BookingService {
                                 int intStock = Integer.parseInt(xmlUtility.getTagValue("remainCount", element));
                                 int intOmkStock = intStock;
 
-                                String result = bookingMapper.updateGoods(strRmtypeID, area, dateSales, intStock, intOmkStock);
-                                String strResult = result.substring(result.length()-4);
-                                if(!strResult.equals("저장완료")){
-                                    failCount += 1;
-                                }
+                                int intCost = 0, intSales = 0, intExtraA = 0, intExtraB = 0, intExtraC = 0, intOmkSales = 0;
+
+                                strStockDatas += dateSales + "|^|" + intStock + "|^|" + intCost + "|^|" + intSales + "|^|"
+                                        + intExtraA + "|^|" + intExtraC + "|^|" + intExtraB + "|^|" + intOmkStock + "|^|"  + intOmkSales+ "{{|}}";
                             }
                         }
+                    }
+                    strStockDatas = strStockDatas.substring(0, strStockDatas.length()-5);
+
+                    String result = bookingMapper.updateGoods(strPropertyID, strRmtypeID, strStockDatas);
+                    String strResult = result.substring(result.length()-4);
+
+                    if(strResult.equals("저장완료")){
+                        message = "재고 등록 및 수정 완료";
+                    }else{
+                        message = "재고 등록 및 수정 실패";
                     }
                 }else{
                     message = "재고 조회 실패";
                     logWriter.add(message);
-                    failCount += 1;
                 }
-            }
-
-            if(failCount == 0){
-                message = "재고 등록 및 수정 완료";
-            }else{
-                message += " 재고 등록 및 수정 실패";
             }
 
             logWriter.add(message);
             logWriter.log(0);
         }catch (Exception e){
-            message = "재고 조회 실패";
+            message = "재고 등록 및 수정 실패";
             statusCode = "500";
             logWriter.add("error : " + e.getMessage());
             logWriter.log(0);
