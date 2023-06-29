@@ -15,8 +15,14 @@ public class AccommController {
     @Autowired
     private AccommService accommService;
 
+    @GetMapping("getRoomType")
+    public void insertRoomType(){
+        accommService.getRoomType();
+    }
+
     @GetMapping("insertRoomType")
     public String insertRoomType(HttpServletRequest httpServletRequest){
         return accommService.insertRoomType(httpServletRequest);
     }
+
 }
