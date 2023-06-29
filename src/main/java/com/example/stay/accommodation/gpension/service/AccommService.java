@@ -309,10 +309,16 @@ public class AccommService {
         }
     }
 
-    //정보변경 내역 조회
+//    정보변경 내역 조회 (변경내역 조회하여 삭제된 숙소의 경우 ACCOMM테이블에 삭제여부, 노출여부 변경시켜줘야함)
+//    변경된 항목은 일 배치를 통해 수정되니 제휴중단된 항목에 대해서만 삭제/노출 여부 변경
     public String getPensionModList(String lastDate){
         OkHttpClient client = new OkHttpClient().newBuilder().build();
         String requestURI = "?";
+        Date nowDate = new Date();
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+        if (lastDate == null || lastDate.equals("")) {
+            lastDate = dateFormat.format(nowDate).toString();
+        }
         requestURI += "auth_key=" + Constants.gpAuth + "&detail_yn=Y" + "&last_date=" + lastDate;
         Request request = new Request.Builder()
                 .url(Constants.gpPath + "pension_mod_list.php" + requestURI)
@@ -326,7 +332,19 @@ public class AccommService {
                 String responseBody = response.body().string();
                 JSONParser jsonParser = new JSONParser();
                 JSONObject responseJson = (JSONObject) jsonParser.parse(responseBody);
+                List<Map<String, Object>> pensionDeleteList = (List<Map<String, Object>>) responseJson.get("pension_del_list");
+                List<Map<String, Object>> roomDeleteList = (List<Map<String, Object>>) responseJson.get("room_del_list");
+                for (Map<String, Object> map : pensionDeleteList) {
+                    String pensionId = (String) map.get("pension_id");
+                    accommMapper.updateDelPension(pensionId);
+                }
+                for (Map<String, Object> map : roomDeleteList) {
+                    String pensionId = (String) map.get("pension_id");
+                    String roomId = (String) map.get("room_id");
+                    accommMapper.updateDelRoom(pensionId, roomId);
+                }
                 return commonFunction.makeReturn("", "", responseJson);
+
             } else {
                 return commonFunction.makeReturn("", "", "");
             }
@@ -344,7 +362,6 @@ public class AccommService {
         String strRoomData = "";
         String strStockData = "";
         Date nowDate = new Date();
-        int nowDate2 = new Date().getMonth();
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
         try {
             JSONParser jsonParser = new JSONParser();
@@ -352,7 +369,7 @@ public class AccommService {
             List<Map<String, Object>> responseList = (List<Map<String, Object>>) responseJson.get("result");
             for (Map<String, Object> map : responseList) {
 
-                String districtCode2 = accommMapper.getDistrictCodeWithStr( addressToDistrictCode(map.get("pension_addr1").toString()), (String) map.get("pension_addr2"));
+                String districtCode2 = accommMapper.getDistrictCodeWithStr( commonFunction.addressToDistrictCode(map.get("pension_addr1").toString()), (String) map.get("pension_addr2"));
                 String districtCode1 = districtCode2.substring(0, 2);
                 String pensionId = (String) map.get("pension_id");
                 String pensionName = (String) map.get("pension_name");
@@ -393,7 +410,7 @@ public class AccommService {
                 String pensionTheme = (String) pensionInfoJson.get("theme");
                 String pensionWebsite = (String) pensionInfoJson.get("homepage");
                 String pensionRoomCnt = (String) pensionInfoJson.get("room_cnt");
-                String pensionZip = (String) pensionInfoJson.get("pension_zip");
+                String pensionZip = commonFunction.getZipcodeByParcelAddress(pensionAddr);
 
                 List<Map<String, Object>> facImgList = (List<Map<String, Object>>) pensionInfoJson.get("fac_img");
                 List<Map<String, Object>> extImgList = (List<Map<String, Object>>) pensionInfoJson.get("ext_img");
@@ -422,7 +439,7 @@ public class AccommService {
                     strImgList += accommPhotoContentsReg((String) mainImgMap.get("img"), pensionId, "");
                 }
                 strImgList += "{{^}}";
-//                accommPhotoContentsReg
+
                 List<Map<String, Object>> cancelList = (List<Map<String, Object>>) pensionJson.get("cancel_data");
                 String strPenaltyData = "";
 
@@ -461,13 +478,11 @@ public class AccommService {
                 }
                 pensionJson.put("room_data", roomListDataTmp);
 
-
-
+                System.out.println(pensionZip);
                 //펜션ID, 펜션명, 지역코드1, 지역코드2, 위도, 경도, 전화번호, 주소, 체크인시간, 체크아웃시간, 홈페이지주소, 판매가능객실수, 취소규정, 펜션이미지(부대시설, 전경, 메인)
                 strAccommData += pensionId + "|^|" + pensionName + "|^|" + districtCode1 + "|^|" + districtCode2 + "|^|" + lati + "|^|" + longi + "|^|"
                         + pensionTel + "|^|" + pensionAddr + "|^|" + pensionCheckIn + "|^|" + pensionCheckOut + "|^|" + pensionWebsite + "|^|" + pensionRoomCnt + "|^|"
-                        + "" + "|^|" + "" + "{{|}}";
-//                System.out.println("여기에요!!! ::: " + strImgList);
+                        + strPenaltyData + "|^|" + strImgList + "|^|" + pensionZip + "{{|}}";
             }
 
             strAccommData = strAccommData.substring(0, strAccommData.length()-5);
@@ -477,12 +492,12 @@ public class AccommService {
             System.out.println(strRoomData);
 
 //            String insertResult = accommMapper.insertAccommTotal(strAccommData, strRoomData, strStockData, "GP");
-            String insertResult = accommMapper.insertAccommTotal(strAccommData, strRoomData, "", "GP");
+            String insertResult = accommMapper.insertAccommTotal(strAccommData, "", "", "GP");
             System.out.println(insertResult);
 
-            return commonFunction.makeReturn("", "", responseJson);
+            return commonFunction.makeReturn("", insertResult);
         } catch (Exception e) {
-            return commonFunction.makeReturn(String.valueOf(e), e.getMessage(), "");
+            return commonFunction.makeReturn(String.valueOf(e), e.getMessage());
         }
 
 
@@ -546,50 +561,6 @@ public class AccommService {
             e.printStackTrace();
         }
         return strAccommPhotoContent;
-    }
-
-    /*
-    한글 지역명을 코드로
-    지역이 같아도 지역명이 다른경우가 있어 매칭 선처리
-    ex) 강원, 강원특별자치도, 강원도 => 42
-     */
-    public String addressToDistrictCode(String address) {
-        String result = "";
-        if ("서울".equals(address) || "서울시".equals(address) || "서울특별시".equals(address)) {
-            result = "11";
-        } else if ( "부산".equals(address) ||  "부산시".equals(address) || "부산광역시".equals(address)) {
-            result = "26";
-        } else if ( "대구".equals(address) ||  "대구시".equals(address) || "대구광역시".equals(address)) {
-            result = "27";
-        } else if ( "인천".equals(address) ||  "인천시".equals(address) || "인천광역시".equals(address)) {
-            result = "28";
-        } else if ( "광주".equals(address) ||  "광주시".equals(address) || "광주광역시".equals(address)) {
-            result = "29";
-        } else if ( "대전".equals(address) ||  "대전시".equals(address) || "대전광역시".equals(address)) {
-            result = "30";
-        } else if ( "울산".equals(address) ||  "울산시".equals(address) || "울산광역시".equals(address)) {
-            result = "31";
-        } else if ( "경기".equals(address) ||  "경기도".equals(address)) {
-            result = "41";
-        } else if ( "강원".equals(address) ||  "강원도".equals(address) || "강원특별자치도".equals(address)) {
-            result = "42";
-        } else if ( "충북".equals(address) ||  "충청북도".equals(address)) {
-            result = "43";
-        } else if ( "충남".equals(address) ||  "충청남도".equals(address)) {
-            result = "44";
-        } else if ( "전북".equals(address) ||  "전라북도".equals(address)) {
-            result = "45";
-        } else if ( "전남".equals(address) ||  "전라남도".equals(address)) {
-            result = "46";
-        } else if ( "경북".equals(address) ||  "경상북도".equals(address)) {
-            result = "47";
-        } else if ( "경남".equals(address) ||  "경상남도".equals(address)) {
-            result = "48";
-        } else if ( "제주".equals(address) ||  "제주도".equals(address) || "제주특별자치도".equals(address)) {
-            result = "50";
-        }
-
-        return result;
     }
 
 }

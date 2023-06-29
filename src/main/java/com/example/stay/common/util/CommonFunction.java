@@ -2,6 +2,7 @@ package com.example.stay.common.util;
 
 import okhttp3.*;
 import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -12,6 +13,8 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import java.io.StringReader;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.util.List;
+import java.util.Map;
 
 public class CommonFunction<T> {
 
@@ -96,43 +99,44 @@ public class CommonFunction<T> {
     }
 
     /*
+    지번 주소 => 우편번호
     주소로 신우편번호(5자리) 가져오기
-    !상세주소로만 조회할것!
+    !상세주소로만 조회할것! 상세주소가 아니면 관련된 모든 우편번호중 첫번째 항목을 SET하니 오출력 가능성 있음
      */
-    public String getNewAddressCodeByAddress(String address){
-
-        try{
-            StringBuilder urlBuilder = new StringBuilder("http://openapi.epost.go.kr/postal/retrieveNewAdressAreaCdSearchAllService/retrieveNewAdressAreaCdSearchAllService/getNewAddressListAreaCdSearchAll"); /*URL*/
-            urlBuilder.append("?" + URLEncoder.encode("ServiceKey","UTF-8") + "=" + Constants.openApiKey); /*Service Key 개인키로 차후 변경요망*/
-            urlBuilder.append("&" + URLEncoder.encode("srchwrd","UTF-8") + "=" + URLEncoder.encode(address, "UTF-8")); /*검색어  추후 address 받아서 넣기 */
-            URL url = new URL(urlBuilder.toString());
-            OkHttpClient client = new OkHttpClient().newBuilder()
-                    .build();
-            MediaType mediaType = MediaType.parse("application/json;");
-            RequestBody body = RequestBody.create(mediaType, "");
-            Request request = new Request.Builder()
-                    .url(url)
-                    .get()
-                    .build();
+    public String getZipcodeByParcelAddress(String parcelAddress){
+        OkHttpClient client = new OkHttpClient().newBuilder()
+                .build();
+        String requestUrl = "http://api.vworld.kr/req/search?service=search&request=search&version=2.0&crs=EPSG:900913&size=10&page=1&type=address&category=parcel&format=json&errorformat=json";
+        requestUrl += "&query=" + parcelAddress;
+        requestUrl += "&key=" + Constants.vWorldApiSecretKey;
+        MediaType mediaType = MediaType.parse("text/plain");
+        RequestBody body = RequestBody.create(mediaType, "");
+        Request request = new Request.Builder()
+                .url(requestUrl)
+                .get()
+                .build();
+        try {
             Response response = client.newCall(request).execute();
+            if (response.isSuccessful()) {
+                //response 파싱
+                String responseBody = response.body().string();
+                JSONParser jsonParser = new JSONParser();
+                JSONObject responseJson = (JSONObject) jsonParser.parse(responseBody);
+                responseJson = ( JSONObject ) responseJson.get("response");
+                responseJson = ( JSONObject ) responseJson.get("result");
+                List<Map<String, Object>> itemList = ( List<Map<String, Object> > ) responseJson.get("items");
+                JSONObject address = ( JSONObject ) itemList.get(0).get("address");
+                System.out.println(address.get("zipcode").toString());
+                return address.get("zipcode").toString();
 
-            StringBuffer buffer = new StringBuffer();
-            buffer.append(response.body().string());
-            DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-            DocumentBuilder builder = factory.newDocumentBuilder();
-            Document document = builder.parse(new InputSource(new StringReader(buffer.toString())));
 
-            NodeList tags = document.getElementsByTagName("newAddressListAreaCdSearchAll");
-            Node tagtext = tags.item(0).getFirstChild().getFirstChild();
-            String tagvalue = tagtext.getNodeValue();
-
-            System.out.println(tagvalue);
-
-            return tagvalue;
-
+            } else {
+                return makeReturn(String.valueOf(response.code()), response.message());
+            }
         } catch (Exception e){
             e.printStackTrace();
-            return makeReturn("", e.getMessage());
+            return makeReturn(e.toString(), e.getMessage());
         }
+
     }
 }

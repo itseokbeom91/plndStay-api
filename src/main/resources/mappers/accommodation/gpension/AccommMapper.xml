@@ -14,4 +14,23 @@
         FROM [PLNDSTAY].[dbo].[CODE_DISTRICT] WITH(NOLOCK)
         WHERE strName LIKE #{strDistrict2} AND strDeleteYn = 'N' AND strCode LIKE #{strDistrict1} + '%'
     </select>
+
+    <update id="updateDelPension">
+        UPDATE RMTYPE SET
+                          strDelYn = 'Y',
+                          strIngYn = 'N'
+        WHERE intAID = (SELECT intAID FROM ACCOMM WHERE strPropertyID = #{pensionID})
+
+        UPDATE ACCOMM SET
+                          strDelYn = 'Y',
+                          strIngYn = 'N'
+        WHERE strPropertyID = #{pensionID}
+    </update>
+
+    <update id="updateDelRoom">
+        UPDATE RMTYPE SET
+                          strDelYn = 'Y',
+                          strIngYn = 'N'
+        WHERE strRmtypeID = #{roomID} AND intAID = (SELECT intAID FROM ACCOMM WHERE strPropertyID = #{pensionID})
+    </update>
 </mapper>
