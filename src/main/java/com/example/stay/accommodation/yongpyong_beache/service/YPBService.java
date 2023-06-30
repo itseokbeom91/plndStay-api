@@ -2,6 +2,7 @@ package com.example.stay.accommodation.yongpyong_beache.service;
 
 import com.example.stay.accommodation.yongpyong_beache.mapper.YPBMapper;
 import com.example.stay.common.service.CommonService;
+import com.example.stay.common.util.CommonFunction;
 import com.fasterxml.jackson.databind.JsonNode;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
@@ -20,6 +21,8 @@ public class YPBService {
 
     @Autowired
     private CommonService commonService;
+
+    CommonFunction commonFunction = new CommonFunction();
 
     @Autowired
     private YPBMapper ypbMapper;
@@ -63,7 +66,8 @@ public class YPBService {
 
             System.out.println(mainObject);
 
-            JsonNode jsonNode = commonService.callJsonApi("YPB", "stock", mainObject);
+//            JsonNode jsonNode = commonService.callJsonApi("YPB", "stock", mainObject);
+            JsonNode jsonNode = commonFunction.callJsonApi("YPB", "stock", mainObject, "", "POST");
 
 
             // 통신결과 0:실패, 1:성공
@@ -74,6 +78,7 @@ public class YPBService {
 
 
             // roomType 별로 데이터 담을 map
+            // rommType 여러개 받을 경우 대비해서 만들었지만... intRmIdx로 가져오는거로 봐뀌어서 roomType 하나만 사용해서 넣게될듯....
             HashMap<String, String> stockMap = new HashMap<String, String>();
 
             if(resultCode.equals("1")){
@@ -147,7 +152,8 @@ public class YPBService {
 
             System.out.println(mainObject);
 
-            JsonNode jsonNode = commonService.callJsonApi("YPB", "booking", mainObject);
+//            JsonNode jsonNode = commonService.callJsonApi("YPB", "booking", mainObject);
+            JsonNode jsonNode = commonFunction.callJsonApi("YPB", "booking", mainObject, "", "POST");
 
             result = jsonNode.toString();
             System.out.println(result);
@@ -185,7 +191,8 @@ public class YPBService {
 
             System.out.println(mainObject);
 
-            JsonNode jsonNode = commonService.callJsonApi("YPB", "bookingInfo", mainObject);
+//            JsonNode jsonNode = commonService.callJsonApi("YPB", "bookingInfo", mainObject);
+            JsonNode jsonNode = commonFunction.callJsonApi("YPB", "bookingInfo", mainObject, "", "POST");
 
             result = jsonNode.toString();
             System.out.println(result);
@@ -225,7 +232,8 @@ public class YPBService {
 
             System.out.println(mainObject);
 
-            JsonNode jsonNode = commonService.callJsonApi("YPB", "bookingCancel", mainObject);
+//            JsonNode jsonNode = commonService.callJsonApi("YPB", "bookingCancel", mainObject);
+            JsonNode jsonNode = commonFunction.callJsonApi("YPB", "bookingCancel", mainObject, "", "POST");
 
             result = jsonNode.toString();
             System.out.println(result);
@@ -257,7 +265,8 @@ public class YPBService {
 
             System.out.println(mainObject);
 
-            JsonNode jsonNode = commonService.callJsonApi("YPB", "bookingList", mainObject);
+//            JsonNode jsonNode = commonService.callJsonApi("YPB", "bookingList", mainObject);
+            JsonNode jsonNode = commonFunction.callJsonApi("YPB", "bookingList", mainObject, "", "POST");
 
             result = jsonNode.toString();
             System.out.println(result);

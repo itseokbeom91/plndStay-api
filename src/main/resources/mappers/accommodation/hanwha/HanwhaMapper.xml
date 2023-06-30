@@ -9,4 +9,16 @@
         exec PLNDSTAY.dbo.spHW_PACKAGE_REGIST #{PackageData}, ''
     </select>
 
+    <select id="getRmID" resultType="string">
+        SELECT strRmtypeID FROM RMTYPE WITH(NOLOCK) WHERE intIdx = ${intRmIdx} AND intAID = ${intAID}
+    </select>
+
+    <select id="getPkgLcdID" resultType="map">
+        SELECT strPkgCode, strLocalCode FROM PLNDSTAY.dbo.PACKAGE_INFO WITH(NOLOCK) WHERE intIdx = ${intPkgIdx}
+    </select>
+
+    <select id="insertStock" resultType="String">
+        EXEC PLNDSTAY.dbo.spGW_STOCK_TEMP_REGIST ${intAID}, ${intRmIdx}, #{strPackageCode}, #{strStockData}, ''
+    </select>
+
 </mapper>
