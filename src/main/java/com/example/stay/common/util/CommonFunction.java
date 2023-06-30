@@ -4,13 +4,17 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import okhttp3.*;
 import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.List;
+import java.util.Map;
 
 public class CommonFunction<T> {
 
@@ -126,5 +130,48 @@ public class CommonFunction<T> {
         }
 
         return jsonNode;
+    }
+
+
+    /*
+    지번 주소 => 우편번호
+    주소로 신우편번호(5자리) 가져오기
+    !상세주소로만 조회할것! 상세주소가 아니면 관련된 모든 우편번호중 첫번째 항목을 SET하니 오출력 가능성 있음
+     */
+    public String getZipcodeByParcelAddress(String parcelAddress){
+        OkHttpClient client = new OkHttpClient().newBuilder()
+                .build();
+        String requestUrl = "http://api.vworld.kr/req/search?service=search&request=search&version=2.0&crs=EPSG:900913&size=10&page=1&type=address&category=parcel&format=json&errorformat=json";
+        requestUrl += "&query=" + parcelAddress;
+        requestUrl += "&key=" + Constants.vWorldApiSecretKey;
+        MediaType mediaType = MediaType.parse("text/plain");
+        RequestBody body = RequestBody.create(mediaType, "");
+        Request request = new Request.Builder()
+                .url(requestUrl)
+                .get()
+                .build();
+        try {
+            Response response = client.newCall(request).execute();
+            if (response.isSuccessful()) {
+                //response 파싱
+                String responseBody = response.body().string();
+                JSONParser jsonParser = new JSONParser();
+                JSONObject responseJson = (JSONObject) jsonParser.parse(responseBody);
+                responseJson = ( JSONObject ) responseJson.get("response");
+                responseJson = ( JSONObject ) responseJson.get("result");
+                List<Map<String, Object>> itemList = ( List<Map<String, Object> > ) responseJson.get("items");
+                JSONObject address = ( JSONObject ) itemList.get(0).get("address");
+                System.out.println(address.get("zipcode").toString());
+                return address.get("zipcode").toString();
+
+
+            } else {
+                return makeReturn(String.valueOf(response.code()), response.message());
+            }
+        } catch (Exception e){
+            e.printStackTrace();
+            return makeReturn(e.toString(), e.getMessage());
+        }
+
     }
 }
