@@ -120,12 +120,13 @@ public class AccommController {
      * @param strPropertyID
      * @param strRmtypeID
      * @param strRateplanID
+     * @return
      */
     @GetMapping("updateRmtype")
     @ResponseBody
-    public String updateRmtype(String strPropertyID, String strRmtypeID, @Nullable String strRateplanID){
+    public String updateRmtype(String strPropertyID, String strRmtypeID, @Nullable String strRateplanID, HttpServletRequest httpServletRequest){
 
-        JSONObject jsonObject =  accommService.updateRmtype(strPropertyID, strRmtypeID, strRateplanID);
+        JSONObject jsonObject =  accommService.updateRmtype(strPropertyID, strRmtypeID, strRateplanID, httpServletRequest);
         String code = jsonObject.get("statusCode").toString();
         String message = jsonObject.get("message").toString();
 
@@ -137,8 +138,8 @@ public class AccommController {
      */
     @GetMapping("updateGoods")
     @ResponseBody
-    public String updateGoods(String strRateplanID, String from, String to){
-        return accommService.updateGoods(strRateplanID, from, to);
+    public String updateGoods(int intRmIdx, String from, String to){
+        return accommService.updateGoods(intRmIdx, from, to);
     }
 
 //    /**

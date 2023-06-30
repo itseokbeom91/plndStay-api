@@ -39,7 +39,19 @@
     </update>
 
     <select id="updateGoods" resultType="String">
-        EXEC spGW_STOCK_TEMP_REGIST #{strPropertyID}, 'C', '04', #{strRmtypeID}, '', '', #{strStockDatas}, ''
+        EXEC spGW_STOCK_TEMP_REGIST #{intAID}, #{intRmIdx}, '', #{strStockDatas}, ''
     </select>
 
+    <select id="getRmtypeIDNIntAID" parameterType="int" resultType="Map">
+        SELECT strRmtypeID, intAID
+        FROM RMTYPE
+        WHERE intIdx = ${intRmIdx}
+    </select>
+
+    <select id="getStrLocalCode" resultType="String">
+        SELECT strLocalCode
+        FROM ACM_LOCAL_INFO
+        WHERE intAID = ${intAID}
+            AND strRmCode = #{strRmtypeID}
+    </select>
 </mapper>

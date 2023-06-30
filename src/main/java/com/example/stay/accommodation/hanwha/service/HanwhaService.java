@@ -81,7 +81,7 @@ public class HanwhaService {
 
             System.out.println(mainObject);
 
-//            JsonNode jsonNode = commonService.callJsonApi("hanwha", mainObject);
+//            JsonNode jsonNode = commonService.callJsonApi("hanwha", "", mainObject);
 //
 //            result = jsonNode.toString();
 //            System.out.println(result);
@@ -119,7 +119,7 @@ public class HanwhaService {
 
             System.out.println(mainObject);
 
-            JsonNode jsonNode = commonService.callJsonApi("hanwha", mainObject);
+            JsonNode jsonNode = commonService.callJsonApi("hanwha", "", mainObject);
 
             result = jsonNode.toString();
             System.out.println(result);
@@ -162,7 +162,7 @@ public class HanwhaService {
 
             System.out.println(mainObject);
 
-            JsonNode jsonNode = commonService.callJsonApi("hanwha", mainObject);
+            JsonNode jsonNode = commonService.callJsonApi("hanwha", "", mainObject);
 
             result = jsonNode.toString();
             System.out.println(result);
@@ -208,7 +208,7 @@ public class HanwhaService {
 
             System.out.println(mainObject);
 
-            JsonNode jsonNode = commonService.callJsonApi("hanwha", mainObject);
+            JsonNode jsonNode = commonService.callJsonApi("hanwha", "", mainObject);
 
 
 
@@ -281,7 +281,7 @@ public class HanwhaService {
             mainObject.put("Data", dataObject);
 
             // API 호출
-            JsonNode jsonNode = commonService.callJsonApi("hanwha", mainObject);
+            JsonNode jsonNode = commonService.callJsonApi("hanwha", "", mainObject);
 
             // 통신결과 0:실패, 1:성공
             JSONObject codeObject = (JSONObject) new JSONParser().parse(jsonNode.get("MessageHeader").get("MSG_DATA_SUB").get(0).toString());
@@ -358,7 +358,7 @@ public class HanwhaService {
 
             //System.out.println(mainObject);
 
-            JsonNode jsonNode = commonService.callJsonApi("hanwha", mainObject);
+            JsonNode jsonNode = commonService.callJsonApi("hanwha", "", mainObject);
 
             // 통신결과 0:실패, 1:성공
             JSONObject codeObject = (JSONObject) new JSONParser().parse(jsonNode.get("MessageHeader").get("MSG_DATA_SUB").get(0).toString());
@@ -445,7 +445,7 @@ public class HanwhaService {
 
             System.out.println(mainObject);
 
-            JsonNode jsonNode = commonService.callJsonApi("hanwha", mainObject);
+            JsonNode jsonNode = commonService.callJsonApi("hanwha", "", mainObject);
 
             result = jsonNode.toString();
             System.out.println(result);

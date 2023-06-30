@@ -20,8 +20,8 @@ public class BookingController {
     // 재고 등록 및 수정
     @RequestMapping("updateGoods")
     @ResponseBody
-    public String updateGoods(HttpServletRequest httpServletRequest, String pcode, String pcode_seq, String sdate, String edate, String strRmtypeID){
-        return bookingService.updateGoods(httpServletRequest, pcode, pcode_seq, sdate, edate, strRmtypeID);
+    public String updateGoods(HttpServletRequest httpServletRequest, String sdate, String edate, int intRmIdx){
+        return bookingService.updateGoods(httpServletRequest, sdate, edate, intRmIdx);
     }
 
     // 예약

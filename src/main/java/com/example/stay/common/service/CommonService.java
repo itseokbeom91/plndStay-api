@@ -18,27 +18,30 @@ import java.util.Scanner;
 public class CommonService {
 
     // json API 호출
-    public JsonNode callJsonApi(String strOmk, JSONObject object) throws Exception{
+    public JsonNode callJsonApi(String strAccomm, String strType, JSONObject object) throws Exception{
 
         // API 호출 정보
         String strUrl = "";
-        if(strOmk.equals("hanwha")){
+        if(strAccomm.equals("hanwha")){
             strUrl = Constants.hanwhaUrl;
-        }else if(strOmk.equals("YPBStock")){
-            strUrl = Constants.ypUrl+"/yobiss-api/api/cr/rmsrv/RmsrvAgencyApi/getRsrvMm";
-        }else if(strOmk.equals("YPBBooking")){
-            strUrl = Constants.ypUrl+"/yobiss-api/api/cr/rmsrv/RmsrvAgencyApi/joinSalesPkgRsrvInfo";
-        }else if(strOmk.equals("YPBBookingInfo")){
-            strUrl = Constants.ypUrl+"/yobiss-api/api/cr/rmsrv/RmsrvAgencyApi/getSalesRsrvList";
-        }else if(strOmk.equals("YPBBookingCancel")){
-            strUrl = Constants.ypUrl+"/yobiss-api/api/cr/rmsrv/RmsrvAgencyApi/joinSalesPkgRsrvCncl";
-        }else if(strOmk.equals("YPBBookingList")){
-            strUrl = Constants.ypUrl+"/yobiss-api/api/cr/rmsrv/RmsrvAgencyApi/getArrvRsrvList";
+        }else if(strAccomm.equals("YPB")){
+            if(strType.equals("stock")){
+                strUrl = Constants.ypUrl+"getRsrvMm";
+            }else if(strType.equals("booking")){
+                strUrl = Constants.ypUrl+"joinSalesPkgRsrvInfo";
+            }else if(strType.equals("bookingInfo")){
+                strUrl = Constants.ypUrl+"getSalesRsrvList";
+            }else if(strType.equals("bookingCancel")){
+                strUrl = Constants.ypUrl+"joinSalesPkgRsrvCncl";
+            }else if(strType.equals("bookingList")){
+                strUrl = Constants.ypUrl+"getArrvRsrvList";
+            }
+
         }
         URL url = new URL(strUrl);
 
         // API 호출
-        String response = ConnectionApi(url, strOmk, object);
+        String response = ConnectionApi(url, strAccomm, object);
 
         // JSON 파싱
         ObjectMapper objectMapper = new ObjectMapper();
@@ -48,7 +51,7 @@ public class CommonService {
     }
 
     // API 호출
-    public String ConnectionApi(URL url, String strOmk, JSONObject object){
+    public String ConnectionApi(URL url, String strAccomm, JSONObject object){
         String result = "";
 
         try {
@@ -58,7 +61,7 @@ public class CommonService {
             conn.setRequestProperty("Content-Type", "application/json;charset=UTF-8");
             conn.setRequestProperty("Accept", "application/json");
             conn.setRequestProperty("Accept-Charset", "UTF-8");
-            if(strOmk.substring(0,3).equals("YPB")){
+            if(strAccomm.equals("YPB")){
                 conn.setRequestProperty("X-Yobiss-AuthToken", Constants.ypTokenKey);
             }
             conn.setDoOutput(true);

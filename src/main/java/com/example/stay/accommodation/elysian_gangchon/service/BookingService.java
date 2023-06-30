@@ -30,21 +30,21 @@ public class BookingService {
     CommonFunction commonFunction = new CommonFunction();
 
     // 재고 등록 및 수정
-    public String updateGoods(HttpServletRequest httpServletRequest, String pcode, String pcode_seq,
-                              String sdate, String edate, String strRmtypeID){
+    public String updateGoods(HttpServletRequest httpServletRequest, String sdate, String edate, int intRmIdx){
         LogWriter logWriter = new LogWriter(httpServletRequest.getMethod(), httpServletRequest.getServletPath(), System.currentTimeMillis());
         String statusCode = "200";
         String message = "";
 
         try{
+            String pcode = "90004884";
+            String pcode_seq = "1";
+
             String elysUrl = "type=SB&pcode=" + pcode + "&pcode_seq=" + pcode_seq + "&sdate=" + sdate + "&edate=" + edate;
 
             String strResponse = callElysAPI(elysUrl);
 
             if(strResponse != null && !strResponse.equals("")){
-                int failCount = 0; // 재고 등록 및 수정에 실패한 경우 카운트
-
-                String strPropertyID = bookingMapper.getStrPropertyID(strRmtypeID);
+                int intAID = bookingMapper.getIntAID(intRmIdx);
 
                 String strStockDatas = "";
                 String[] responseArr = strResponse.split("#");
@@ -64,15 +64,13 @@ public class BookingService {
 
                     int intCost = 0, intSales = 0, intExtraA = 0, intExtraB = 0, intExtraC = 0, intOmkSales = 0;
 
-
-
                     strStockDatas += dateSales + "|^|" + intStock + "|^|" + intCost + "|^|" + intSales + "|^|"
                             + intExtraA + "|^|" + intExtraC + "|^|" + intExtraB + "|^|" + intOmkStock + "|^|"  + intOmkSales+ "{{|}}";
 
                 }
                 strStockDatas = strStockDatas.substring(0, strStockDatas.length()-5);
 
-                String result = bookingMapper.updateGoods(strPropertyID, strRmtypeID, strStockDatas);
+                String result = bookingMapper.updateGoods(intAID, intRmIdx, strStockDatas);
                 String strResult = result.substring(result.length()-4);
 
                 if(strResult.equals("저장완료")){
@@ -92,6 +90,7 @@ public class BookingService {
             statusCode = "500";
             logWriter.add("error : " + e.getMessage());
             logWriter.log(0);
+            e.printStackTrace();
         }
 
         return commonFunction.makeReturn(statusCode, message);
@@ -178,6 +177,7 @@ public class BookingService {
             statusCode = "500";
             logWriter.add("error : " + e.getMessage());
             logWriter.log(0);
+            e.printStackTrace();
         }
         return commonFunction.makeReturn(statusCode, message);
     }
@@ -217,6 +217,7 @@ public class BookingService {
             statusCode = "500";
             logWriter.add("error : " + e.getMessage());
             logWriter.log(0);
+            e.printStackTrace();
         }
         return commonFunction.makeReturn(statusCode, message);
     }
@@ -251,6 +252,7 @@ public class BookingService {
             statusCode = "500";
             logWriter.add("error : " + e.getMessage());
             logWriter.log(0);
+            e.printStackTrace();
         }
         return commonFunction.makeReturn(statusCode, message);
     }
@@ -302,6 +304,7 @@ public class BookingService {
             LogWriter logWriter = new LogWriter(method, strUrl, startTime);
             logWriter.add("error : " + e.getMessage());
             logWriter.log(0);
+            e.printStackTrace();
         }
         return strResponse;
     }
@@ -360,6 +363,7 @@ public class BookingService {
 //            LogWriter logWriter = new LogWriter(method, strUrl, startTime);
 //            logWriter.add("error : " + e.getMessage());
 //            logWriter.log(0);
+//    e.printStackTrace();
 //        }
 //        return strResponse;
 //    }
