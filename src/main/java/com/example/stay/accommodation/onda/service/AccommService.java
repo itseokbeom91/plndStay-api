@@ -11,6 +11,7 @@ import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
@@ -39,43 +40,55 @@ public class AccommService {
         LogWriter logWriter = new LogWriter(httpServletRequest.getMethod(), httpServletRequest.getServletPath(), System.currentTimeMillis());
         String statusCode = "200";
         String message = "";
-        // 전체 숙소 리스트 불러오기
-        List<JSONObject> accommList = getAccommListApi(Constants.ondaPath + "properties?status=all");
+
+        // 전체 숙소 리스트 조회
+//        String accommListUrl = "properties?status=all";
+//        JSONObject accommListJson = callOndaAPI(accommListUrl);
+//
+//        List<JSONObject> accommList = new ArrayList<>();
+//        JSONArray accommArray = (JSONArray) accommListJson.get("properties");
+//        for(int i=0; i<accommArray.size(); i++){
+//            JSONObject jsonObject = (JSONObject) accommArray.get(i);
+//            accommList.add(jsonObject);
+//        }
+
         try{
 
-//            String testAccommList = "{\n" +
-//                    "      \"id\": \"54207\",\n" +
-//                    "      \"name\": \"채널 테스트&숙소(테스트계정)\",\n" +
-//                    "      \"status\": \"enabled\",\n" +
-//                    "      \"updated_at\": \"2023-06-09T01:55:50+09:00\"\n" +
-//                    "    }";
-//
-//            String testAccommList2 = "{\n" +
-//                    "      \"id\": \"130517\",\n" +
-//                    "      \"name\": \"에드워드호텔(거제 호텔상상)\",\n" +
-//                    "      \"status\": \"enabled\",\n" +
-//                    "      \"updated_at\": \"2023-06-09T02:05:27+09:00\"\n" +
-//                    "    }";
-//            JSONParser jsonParser = new JSONParser();
-//
-//            Object obj = jsonParser.parse(testAccommList);
-//            JSONObject jsonObj = (JSONObject) obj;
-//
-//            Object obj2 = jsonParser.parse(testAccommList2);
-//            JSONObject jsonObj2 = (JSONObject) obj2;
-//
-//            List<JSONObject> accommList = new LinkedList<>();
-//            accommList.add(jsonObj);
-//            accommList.add(jsonObj2);
+            String testAccommList = "{\n" +
+                    "      \"id\": \"54207\",\n" +
+                    "      \"name\": \"채널 테스트&숙소(테스트계정)\",\n" +
+                    "      \"status\": \"enabled\",\n" +
+                    "      \"updated_at\": \"2023-06-09T01:55:50+09:00\"\n" +
+                    "    }";
+
+            String testAccommList2 = "{\n" +
+                    "      \"id\": \"130517\",\n" +
+                    "      \"name\": \"에드워드호텔(거제 호텔상상)\",\n" +
+                    "      \"status\": \"enabled\",\n" +
+                    "      \"updated_at\": \"2023-06-09T02:05:27+09:00\"\n" +
+                    "    }";
+            JSONParser jsonParser = new JSONParser();
+
+            Object obj = jsonParser.parse(testAccommList);
+            JSONObject jsonObj = (JSONObject) obj;
+
+            Object obj2 = jsonParser.parse(testAccommList2);
+            JSONObject jsonObj2 = (JSONObject) obj2;
+
+            List<JSONObject> accommList = new LinkedList<>();
+            accommList.add(jsonObj);
+            accommList.add(jsonObj2);
 
 
 
 
             for(JSONObject accomm : accommList){
                 String strPropertyID = accomm.get("id").toString();
-                // 시설
-
-                JSONObject accommDetailJson = getAccommDetailApi(strPropertyID);
+                
+                // 시설 상세정보 조회
+                String accommDetailUrl = "properties/" + strPropertyID;
+                JSONObject acmDetailJson = callOndaAPI(accommDetailUrl);
+                JSONObject accommDetailJson = (JSONObject) acmDetailJson.get("property");
 
                 String strSubject = "";
                 if(accommDetailJson.get("name") != null){
@@ -108,9 +121,9 @@ public class AccommService {
 
                 String strCity = address.get("city").toString();
 
-                Map<String, Integer> districtMap = accommMapper.getDistrictCode(strRegion, strCity);
-                int intDistrict1 = districtMap.get("intDistrict1");
-                int intDistrict2 = districtMap.get("intDistrict2");
+                Map<String, String> districtMap = accommMapper.getDistrictCode(strRegion, strCity);
+                String strDistrict1 = districtMap.get("strDistrict1");
+                String strDistrict2 = districtMap.get("strDistrict2");
 
                 String address1 = address.get("address1").toString();
                 String address2 = address.get("address2").toString();
@@ -181,12 +194,12 @@ public class AccommService {
                 }
                 if(attractions != null){
                     for(Object a : attractions){
-                        keywordList.add(a.toString());
+                        attractionList.add(a.toString());
                     }
                 }
 
                 String strKeyWordDatas = "";
-                if(keywordList != null){
+                if(!keywordList.isEmpty()){
                     for(int i=0; i<keywordList.size(); i++){
                         strKeyWordDatas += keywordList.get(i) + "{{|}}";
                     }
@@ -194,7 +207,7 @@ public class AccommService {
                 }
 
                 String strAttractionDatas = "";
-                if(keywordList != null){
+                if(!attractionList.isEmpty()){
                     for(int i=0; i<attractionList.size(); i++){
                         strAttractionDatas += attractionList.get(i) + "{{|}}";
                     }
@@ -203,7 +216,7 @@ public class AccommService {
 
                 String strFacilityDatas = "";
                 String facility = "";
-                if(facilityList != null){
+                if(!facilityList.isEmpty()){
                     for(int i=0; i<facilityList.size(); i++){
 
                         if(facilityList.get(i).equals("수화물 보관")){
@@ -269,15 +282,24 @@ public class AccommService {
                 }
                 strPenaltyDatas = strPenaltyDatas.substring(0, strPenaltyDatas.length()-5);
 
+                // 룸타입 리스트 조회
+                String roomTypeListUrl = "properties/" + strPropertyID + "/roomtypes";
+                JSONObject roomTypeListJson = callOndaAPI(roomTypeListUrl);
 
+                JSONArray roomtypeArray = (JSONArray) roomTypeListJson.get("roomtypes");
+                List<JSONObject> roomTypeList = new ArrayList<>();
+                for(int i=0; i<roomtypeArray.size(); i++){
+                    JSONObject jsonObject = (JSONObject) roomtypeArray.get(i);
+                    roomTypeList.add(jsonObject);
+                }
 
-                // 룸타입
-                List<JSONObject> roomTypeList = getRoomTypeListApi(strPropertyID);
                 String strRmtypeDatas = "";
                 for (JSONObject roomType : roomTypeList) {
                     String strRmtypeID = roomType.get("id").toString();
 
-                    JSONObject roomDetailJson = getRoomTypeDetail(strPropertyID, strRmtypeID);
+                    String roomDetailUrl = "properties/" + strPropertyID + "/roomtypes/" + strRmtypeID;
+                    JSONObject rmDetailJson = callOndaAPI(roomDetailUrl);
+                    JSONObject roomDetailJson = (JSONObject) rmDetailJson.get("roomtype");
 
                     JSONObject capacity = (JSONObject) roomDetailJson.get("capacity");
                     int intQuanStd = Integer.parseInt(capacity.get("standard").toString());
@@ -324,12 +346,24 @@ public class AccommService {
                     String strRmtypeData = strRmDeleteYn + "|^|" + strIngYn  + "|^|" + intQuanStd + "|^|" +
                             intQuanMax + "|^|" + strRmSubject + "|^|" + strRmDescription + "|^|" + strRmtypeID + "|^|";
 
-                    List<JSONObject> ratePlanList = getRatePlanList(strPropertyID, strRmtypeID);
+                    // rateplan 리스트 조회
+                    String ratePlanListUrl = "properties/" + strPropertyID + "/roomtypes/" + strRmtypeID + "/rateplans";
+                    JSONObject ratePlanJson = callOndaAPI(ratePlanListUrl);
+
+                    JSONArray ratePlanArray = (JSONArray) ratePlanJson.get("rateplans");
+                    List<JSONObject> ratePlanList = new ArrayList<>();
+                    for(int i=0; i<ratePlanArray.size(); i++){
+                        JSONObject jsonObject = (JSONObject) ratePlanArray.get(i);
+                        ratePlanList.add(jsonObject);
+                    }
 
                     for(JSONObject ratePlan : ratePlanList){
                         String strRatePlanId = ratePlan.get("id").toString();
 
-                        JSONObject ratePlanDtlJson = getRatePlanDetail(strPropertyID, strRmtypeID, strRatePlanId);
+                        // ratePlan 상세정보 조회
+                        String ratePlanDtlUrl = "properties/" + strPropertyID + "/roomtypes/" + strRmtypeID + "/rateplans/" + strRatePlanId;
+                        JSONObject ratePlanDetailJson = callOndaAPI(ratePlanDtlUrl);
+                        JSONObject ratePlanDtlJson = (JSONObject) ratePlanDetailJson.get("rateplan");
 
                         JSONObject lengthOfStay = (JSONObject) ratePlanDtlJson.get("length_of_stay");
                         int intMinSleep = Integer.parseInt(lengthOfStay.get("min").toString());
@@ -369,7 +403,7 @@ public class AccommService {
                 }
 
                 String result = accommMapper.insertAccommTotal(strPropertyID, strDeleteYn, strViewYn, strType,
-                        intDistrict1, intDistrict2, strSubject, strLat, strLon, strCheckIn, strCheckOut,
+                        strDistrict1, strDistrict2, strSubject, strLat, strLon, strCheckIn, strCheckOut,
                         strPhone, strFax, strEmail, strZipCode, strAddr1, strAddr2, strDescription, strRsvGuide,
                         strAcmNotice, strImgDatas, strPenaltyDatas, strKeyWordDatas, strAttractionDatas, strFacilityDatas, strRmtypeDatas);
 
@@ -402,8 +436,10 @@ public class AccommService {
         boolean updateResult = false;
         JSONObject resultJson = new JSONObject();
         try{
-
-            JSONObject accommDetailJson = getAccommDetailApi(strPropertyID);
+            // 시설 상세정보 조회
+            String accommDetailUrl = "properties/" + strPropertyID;
+            JSONObject acmDetailJson = callOndaAPI(accommDetailUrl);
+            JSONObject accommDetailJson = (JSONObject) acmDetailJson.get("property");
 
             String strSubject = "";
             if(accommDetailJson.get("name") != null){
@@ -436,9 +472,9 @@ public class AccommService {
 
             String strCity = address.get("city").toString();
 
-            Map<String, Integer> districtMap = accommMapper.getDistrictCode(strRegion, strCity);
-            int intDistrict1 = districtMap.get("intDistrict1");
-            int intDistrict2 = districtMap.get("intDistrict2");
+            Map<String, String> districtMap = accommMapper.getDistrictCode(strRegion, strCity);
+            String strDistrict1 = districtMap.get("strDistrict1");
+            String strDistrict2 = districtMap.get("strDistrict2");
 
             String address1 = address.get("address1").toString();
             String address2 = address.get("address2").toString();
@@ -514,7 +550,7 @@ public class AccommService {
             }
 
             String strKeyWordDatas = "";
-            if(keywordList != null){
+            if(!keywordList.isEmpty()){
                 for(int i=0; i<keywordList.size(); i++){
                     strKeyWordDatas += keywordList.get(i) + "{{|}}";
                 }
@@ -522,7 +558,7 @@ public class AccommService {
             }
 
             String strAttractionDatas = "";
-            if(keywordList != null){
+            if(!attractionList.isEmpty()){
                 for(int i=0; i<attractionList.size(); i++){
                     strAttractionDatas += attractionList.get(i) + "{{|}}";
                 }
@@ -531,7 +567,7 @@ public class AccommService {
 
             String strFacilityDatas = "";
             String facility = "";
-            if(facilityList != null){
+            if(!facilityList.isEmpty()){
                 for(int i=0; i<facilityList.size(); i++){
 
                     if(facilityList.get(i).equals("수화물 보관")){
@@ -598,7 +634,7 @@ public class AccommService {
             strPenaltyDatas = strPenaltyDatas.substring(0, strPenaltyDatas.length()-5);
 
             String result = accommMapper.insertAccommTotal(strPropertyID, strDeleteYn, strViewYn, strType,
-                    intDistrict1, intDistrict2, strSubject, strLat, strLon, strCheckIn, strCheckOut,
+                    strDistrict1, strDistrict2, strSubject, strLat, strLon, strCheckIn, strCheckOut,
                     strPhone, strFax, strEmail, strZipCode, strAddr1, strAddr2, strDescription, strRsvGuide,
                     strAcmNotice, strImgDatas, strPenaltyDatas, strKeyWordDatas, strAttractionDatas, strFacilityDatas, "");
 
@@ -617,6 +653,7 @@ public class AccommService {
 
             logWriter.add("error : " + e.getMessage());
             logWriter.log(0);
+            e.printStackTrace();
         }
 
         resultJson.put("statusCode", statusCode);
@@ -626,15 +663,18 @@ public class AccommService {
     }
 
     // 룸타입+옵션 등록 및 수정
-    public JSONObject updateRmtype(String strPropertyID, String strRmtypeID, String strRateplanID){
-        LogWriter logWriter = new LogWriter(System.currentTimeMillis());
+    public JSONObject updateRmtype(String strPropertyID, String strRmtypeID, String strRateplanID, HttpServletRequest httpServletRequest){
+        LogWriter logWriter = new LogWriter(httpServletRequest.getMethod(), httpServletRequest.getServletPath(), System.currentTimeMillis());
         String statusCode = "200";
         String message = "";
         boolean updateResult = false;
         JSONObject resultJson = new JSONObject();
         try{
             String strRmtypeDatas = "";
-            JSONObject roomDetailJson = getRoomTypeDetail(strPropertyID, strRmtypeID);
+
+            String roomDetailUrl = "properties/" + strPropertyID + "/roomtypes/" + strRmtypeID;
+            JSONObject rmDetailJson = callOndaAPI(roomDetailUrl);
+            JSONObject roomDetailJson = (JSONObject) rmDetailJson.get("roomtype");
 
             JSONObject capacity = (JSONObject) roomDetailJson.get("capacity");
             int intQuanStd = Integer.parseInt(capacity.get("standard").toString());
@@ -683,12 +723,24 @@ public class AccommService {
 
             // strRateplanID가 특정되어있으면 반복문X
             if(strRateplanID.equals("")){
-                List<JSONObject> ratePlanList = getRatePlanList(strPropertyID, strRmtypeID);
+                // rateplan 리스트 조회
+                String ratePlanListUrl = "properties/" + strPropertyID + "/roomtypes/" + strRmtypeID + "/rateplans";
+                JSONObject ratePlanJson = callOndaAPI(ratePlanListUrl);
+
+                JSONArray ratePlanArray = (JSONArray) ratePlanJson.get("rateplans");
+                List<JSONObject> ratePlanList = new ArrayList<>();
+                for(int i=0; i<ratePlanArray.size(); i++){
+                    JSONObject jsonObject = (JSONObject) ratePlanArray.get(i);
+                    ratePlanList.add(jsonObject);
+                }
 
                 for(JSONObject ratePlan : ratePlanList){
                     String strRatePlanId = ratePlan.get("id").toString();
 
-                    JSONObject ratePlanDtlJson = getRatePlanDetail(strPropertyID, strRmtypeID, strRatePlanId);
+                    // ratePlan 상세정보 조회
+                    String ratePlanDtlUrl = "properties/" + strPropertyID + "/roomtypes/" + strRmtypeID + "/rateplans/" + strRatePlanId;
+                    JSONObject ratePlanDetailJson = callOndaAPI(ratePlanDtlUrl);
+                    JSONObject ratePlanDtlJson = (JSONObject) ratePlanDetailJson.get("rateplan");
 
                     JSONObject lengthOfStay = (JSONObject) ratePlanDtlJson.get("length_of_stay");
                     int intMinSleep = Integer.parseInt(lengthOfStay.get("min").toString());
@@ -722,7 +774,10 @@ public class AccommService {
                 }
                 strRmtypeDatas = strRmtypeDatas.substring(0, strRmtypeDatas.length()-5);
             }else{
-                JSONObject ratePlanDtlJson = getRatePlanDetail(strPropertyID, strRmtypeID, strRateplanID);
+                // ratePlan 상세정보 조회
+                String ratePlanDtlUrl = "properties/" + strPropertyID + "/roomtypes/" + strRmtypeID + "/rateplans/" + strRateplanID;
+                JSONObject ratePlanDetailJson = callOndaAPI(ratePlanDtlUrl);
+                JSONObject ratePlanDtlJson = (JSONObject) ratePlanDetailJson.get("rateplan");
 
                 JSONObject lengthOfStay = (JSONObject) ratePlanDtlJson.get("length_of_stay");
                 int intMinSleep = Integer.parseInt(lengthOfStay.get("min").toString());
@@ -774,6 +829,7 @@ public class AccommService {
 
             logWriter.add("error : " + e.getMessage());
             logWriter.log(0);
+            e.printStackTrace();
         }
         resultJson.put("statusCode", statusCode);
         resultJson.put("message", message);
@@ -783,9 +839,13 @@ public class AccommService {
 
 
     // 특정 패키지의 재고 및 요금 정보 가져와서 insert or update
-    public String updateGoods(String strRateplanID, String from, String to){
+    public String updateGoods(int intRmIdx, String from, String to){
         String statusCode = "200";
         String message = "";
+
+        Map<String, Object> map = accommMapper.getStrRateplanIDNIntAID(intRmIdx);
+        String strRateplanID = map.get("strRateplanID").toString();
+        int intAID = Integer.parseInt(map.get("intAID").toString());
 
         OkHttpClient client = new OkHttpClient();
 
@@ -855,11 +915,7 @@ public class AccommService {
                             + intExtraA + "|^|" + intExtraC + "|^|" + intExtraB + "|^|" + intOmkStock + "|^|"  + doubleOmkSales+ "{{|}}";
                 }
 
-                Map<String, String> idMap = accommMapper.getPropertyIDNRmtypeID(strRateplanID);
-                String strPropertyID = idMap.get("strPropertyID");
-                String strRmtypeID = idMap.get("strRmtypeID");
-
-                String result = accommMapper.updateGoods(strPropertyID, strRmtypeID, strRateplanID, strStockDatas);
+                String result = accommMapper.updateGoods(intAID, intRmIdx, strStockDatas);
                 String strResult = result.substring(result.length()-4);
                 if(strResult.equals("저장완료")){
                     message = "재고 등록/수정 완료";
@@ -980,7 +1036,7 @@ public class AccommService {
                     if(target.equals("rateplan")){
                         strRateplanID = event_detail.get("rateplan_id").toString();
                     }
-                    JSONObject updateJson = updateRmtype(strPropertyID, strRmtypeID, strRateplanID);
+                    JSONObject updateJson = updateRmtype(strPropertyID, strRmtypeID, strRateplanID, httpServletRequest);
                     result = (boolean) updateJson.get("updateResult");
                 }
             }else if(event_type.equals("status_updated")){
@@ -1017,7 +1073,6 @@ public class AccommService {
                 JSONArray eventDetailsArr = (JSONArray) bodyJson.get("event_details");
 
                 String strStockDatas = "";
-                int failCount = 0;
                 for(int i=0; i<eventDetailsArr.size(); i++){
                     JSONObject event_detail = (JSONObject) eventDetailsArr.get(i);
 
@@ -1069,27 +1124,29 @@ public class AccommService {
             logWriter.add("webhook process result : " + result);
             logWriter.log(0);
         }catch (Exception e){
+            e.printStackTrace();
+
             logWriter.add("error : " + e.getMessage());
             logWriter.log(0);
         }
         return result;
     }
 
-
-    public List<JSONObject> getAccommListApi(String path){
-        List<JSONObject> accommList = new ArrayList<>();
+    public JSONObject callOndaAPI(String url){
+        JSONObject responseJson = new JSONObject();
         String message = "";
 
         OkHttpClient client = new OkHttpClient();
 
         Request request = new Request.Builder()
-                .url(path)
+                .url(Constants.ondaPath + url)
                 .get()
                 .addHeader("accept", "application/json")
                 .addHeader("Authorization", Constants.ondaAuth)
                 .build();
 
-            LogWriter logWriter = new LogWriter(request.method(), request.url().toString(), System.currentTimeMillis());
+        LogWriter logWriter = new LogWriter(request.method(), request.url().toString(), System.currentTimeMillis());
+
         try {
             Response response = client.newCall(request).execute();
             if(response.isSuccessful()){
@@ -1097,140 +1154,7 @@ public class AccommService {
                 String responseBody = response.body().string();
 
                 JSONParser jsonParser = new JSONParser();
-                JSONObject responseJson = (JSONObject) jsonParser.parse(responseBody);
-                message = gson.toJson(responseJson);
-
-                JSONArray accommArray = (JSONArray) responseJson.get("properties");
-
-                for(int i=0; i<accommArray.size(); i++){
-                    JSONObject jsonObject = (JSONObject) accommArray.get(i);
-                    accommList.add(jsonObject);
-                }
-            }else{
-                message = "response code : " + response.code();
-            }
-            logWriter.add(message);
-            logWriter.log(0);
-        }catch (Exception e){
-            e.printStackTrace();
-
-            logWriter.add("error : " + e.getMessage());
-            logWriter.log(0);
-        }
-        return accommList;
-    }
-
-    public JSONObject getAccommDetailApi(String property_id){
-        JSONObject jsonObject = new JSONObject();
-        String message = "";
-
-        OkHttpClient client = new OkHttpClient();
-
-        Request request = new Request.Builder()
-                .url(Constants.ondaPath + "properties/" + property_id)
-                .get()
-                .addHeader("accept", "application/json")
-                .addHeader("Authorization", Constants.ondaAuth)
-                .build();
-
-        LogWriter logWriter = new LogWriter(request.method(), request.url().toString(), System.currentTimeMillis());
-        try{
-            Response response = client.newCall(request).execute();
-
-            if(response.isSuccessful()){
-                // response 파싱
-                String responseBody = response.body().string();
-
-                JSONParser jsonParser = new JSONParser();
-                JSONObject responseJson = (JSONObject) jsonParser.parse(responseBody);
-                jsonObject = (JSONObject) responseJson.get("property");
-
-                message = gson.toJson(responseJson);
-            }else{
-                message = "response code : " + response.code();
-            }
-            logWriter.add(message);
-            logWriter.log(0);
-        }catch (Exception e){
-            e.printStackTrace();
-
-            logWriter.add("error : " + e.getMessage());
-            logWriter.log(0);
-        }
-        return jsonObject;
-    }
-
-    public List<JSONObject> getRoomTypeListApi(String property_id){
-        List<JSONObject> roomTypeList = new ArrayList<>();
-        String message = "";
-
-        OkHttpClient client = new OkHttpClient();
-
-        Request request = new Request.Builder()
-                .url(Constants.ondaPath + "properties/" + property_id + "/roomtypes")
-                .get()
-                .addHeader("accept", "application/json")
-                .addHeader("Authorization", Constants.ondaAuth)
-                .build();
-
-        LogWriter logWriter = new LogWriter(request.method(), request.url().toString(), System.currentTimeMillis());
-        try{
-            Response response = client.newCall(request).execute();
-
-            if(response.isSuccessful()){
-                // response 파싱
-                String responseBody = response.body().string();
-
-                JSONParser jsonParser = new JSONParser();
-                JSONObject responseJson = (JSONObject) jsonParser.parse(responseBody);
-
-                message = gson.toJson(responseJson);
-
-                JSONArray roomtypeArray = (JSONArray) responseJson.get("roomtypes");
-
-                for(int i=0; i<roomtypeArray.size(); i++){
-                    JSONObject jsonObject = (JSONObject) roomtypeArray.get(i);
-                    roomTypeList.add(jsonObject);
-                }
-            }else{
-                message = "response code : " + response.code();
-            }
-            logWriter.add(message);
-            logWriter.log(0);
-        }catch (Exception e){
-            e.printStackTrace();
-
-            logWriter.add("error : " + e.getMessage());
-            logWriter.log(0);
-        }
-        return roomTypeList;
-    }
-
-    public JSONObject getRoomTypeDetail(String property_id, String roomtype_id){
-        JSONObject jsonObject = new JSONObject();
-        String message = "";
-
-        OkHttpClient client = new OkHttpClient();
-
-        Request request = new Request.Builder()
-                .url(Constants.ondaPath + "properties/" + property_id + "/roomtypes/" + roomtype_id)
-                .get()
-                .addHeader("accept", "application/json")
-                .addHeader("Authorization", Constants.ondaAuth)
-                .build();
-
-        LogWriter logWriter = new LogWriter(request.method(), request.url().toString(), System.currentTimeMillis());
-        try{
-            Response response = client.newCall(request).execute();
-
-            if(response.isSuccessful()){
-                // response 파싱
-                String responseBody = response.body().string();
-
-                JSONParser jsonParser = new JSONParser();
-                JSONObject responseJson = (JSONObject) jsonParser.parse(responseBody);
-                jsonObject = (JSONObject) responseJson.get("roomtype");
-
+                responseJson = (JSONObject) jsonParser.parse(responseBody);
                 message = gson.toJson(responseJson);
 
             }else{
@@ -1244,92 +1168,264 @@ public class AccommService {
             logWriter.add("error : " + e.getMessage());
             logWriter.log(0);
         }
-        return jsonObject;
+        return responseJson;
     }
 
-    public List<JSONObject> getRatePlanList(String property_id, String roomtype_id){
-        List<JSONObject> packageList = new ArrayList<>();
-        String message = "";
 
-        OkHttpClient client = new OkHttpClient();
+//    public List<JSONObject> getAccommListApi(String path){
+//        List<JSONObject> accommList = new ArrayList<>();
+//        String message = "";
+//
+//        OkHttpClient client = new OkHttpClient();
+//
+//        Request request = new Request.Builder()
+//                .url(path)
+//                .get()
+//                .addHeader("accept", "application/json")
+//                .addHeader("Authorization", Constants.ondaAuth)
+//                .build();
+//
+//            LogWriter logWriter = new LogWriter(request.method(), request.url().toString(), System.currentTimeMillis());
+//        try {
+//            Response response = client.newCall(request).execute();
+//            if(response.isSuccessful()){
+//                // response 파싱
+//                String responseBody = response.body().string();
+//
+//                JSONParser jsonParser = new JSONParser();
+//                JSONObject responseJson = (JSONObject) jsonParser.parse(responseBody);
+//                message = gson.toJson(responseJson);
+//
+//                JSONArray accommArray = (JSONArray) responseJson.get("properties");
+//
+//                for(int i=0; i<accommArray.size(); i++){
+//                    JSONObject jsonObject = (JSONObject) accommArray.get(i);
+//                    accommList.add(jsonObject);
+//                }
+//            }else{
+//                message = "response code : " + response.code();
+//            }
+//            logWriter.add(message);
+//            logWriter.log(0);
+//        }catch (Exception e){
+//            e.printStackTrace();
+//
+//            logWriter.add("error : " + e.getMessage());
+//            logWriter.log(0);
+//        }
+//        return accommList;
+//    }
 
-        Request request = new Request.Builder()
-                .url(Constants.ondaPath + "properties/" + property_id + "/roomtypes/" + roomtype_id + "/rateplans")
-                .get()
-                .addHeader("accept", "application/json")
-                .addHeader("Authorization", Constants.ondaAuth)
-                .build();
+//    public JSONObject getAccommDetailApi(String property_id){
+//        JSONObject jsonObject = new JSONObject();
+//        String message = "";
+//
+//        OkHttpClient client = new OkHttpClient();
+//
+//        Request request = new Request.Builder()
+//                .url(Constants.ondaPath + "properties/" + property_id)
+//                .get()
+//                .addHeader("accept", "application/json")
+//                .addHeader("Authorization", Constants.ondaAuth)
+//                .build();
+//
+//        LogWriter logWriter = new LogWriter(request.method(), request.url().toString(), System.currentTimeMillis());
+//        try{
+//            Response response = client.newCall(request).execute();
+//
+//            if(response.isSuccessful()){
+//                // response 파싱
+//                String responseBody = response.body().string();
+//
+//                JSONParser jsonParser = new JSONParser();
+//                JSONObject responseJson = (JSONObject) jsonParser.parse(responseBody);
+//                jsonObject = (JSONObject) responseJson.get("property");
+//
+//                message = gson.toJson(responseJson);
+//            }else{
+//                message = "response code : " + response.code();
+//            }
+//            logWriter.add(message);
+//            logWriter.log(0);
+//        }catch (Exception e){
+//            e.printStackTrace();
+//
+//            logWriter.add("error : " + e.getMessage());
+//            logWriter.log(0);
+//        }
+//        return jsonObject;
+//    }
 
-        LogWriter logWriter = new LogWriter(request.method(), request.url().toString(), System.currentTimeMillis());
-        try{
-            Response response = client.newCall(request).execute();
+//    public List<JSONObject> getRoomTypeListApi(String property_id){
+//        List<JSONObject> roomTypeList = new ArrayList<>();
+//        String message = "";
+//
+//        OkHttpClient client = new OkHttpClient();
+//
+//        Request request = new Request.Builder()
+//                .url(Constants.ondaPath + "properties/" + property_id + "/roomtypes")
+//                .get()
+//                .addHeader("accept", "application/json")
+//                .addHeader("Authorization", Constants.ondaAuth)
+//                .build();
+//
+//        LogWriter logWriter = new LogWriter(request.method(), request.url().toString(), System.currentTimeMillis());
+//        try{
+//            Response response = client.newCall(request).execute();
+//
+//            if(response.isSuccessful()){
+//                // response 파싱
+//                String responseBody = response.body().string();
+//
+//                JSONParser jsonParser = new JSONParser();
+//                JSONObject responseJson = (JSONObject) jsonParser.parse(responseBody);
+//
+//                message = gson.toJson(responseJson);
+//
+//                JSONArray roomtypeArray = (JSONArray) responseJson.get("roomtypes");
+//
+//                for(int i=0; i<roomtypeArray.size(); i++){
+//                    JSONObject jsonObject = (JSONObject) roomtypeArray.get(i);
+//                    roomTypeList.add(jsonObject);
+//                }
+//            }else{
+//                message = "response code : " + response.code();
+//            }
+//            logWriter.add(message);
+//            logWriter.log(0);
+//        }catch (Exception e){
+//            e.printStackTrace();
+//
+//            logWriter.add("error : " + e.getMessage());
+//            logWriter.log(0);
+//        }
+//        return roomTypeList;
+//    }
 
-            if(response.isSuccessful()){
-                // response 파싱
-                String responseBody = response.body().string();
+//    public JSONObject getRoomTypeDetail(String property_id, String roomtype_id){
+//        JSONObject jsonObject = new JSONObject();
+//        String message = "";
+//
+//        OkHttpClient client = new OkHttpClient();
+//
+//        Request request = new Request.Builder()
+//                .url(Constants.ondaPath + "properties/" + property_id + "/roomtypes/" + roomtype_id)
+//                .get()
+//                .addHeader("accept", "application/json")
+//                .addHeader("Authorization", Constants.ondaAuth)
+//                .build();
+//
+//        LogWriter logWriter = new LogWriter(request.method(), request.url().toString(), System.currentTimeMillis());
+//        try{
+//            Response response = client.newCall(request).execute();
+//
+//            if(response.isSuccessful()){
+//                // response 파싱
+//                String responseBody = response.body().string();
+//
+//                JSONParser jsonParser = new JSONParser();
+//                JSONObject responseJson = (JSONObject) jsonParser.parse(responseBody);
+//                jsonObject = (JSONObject) responseJson.get("roomtype");
+//
+//                message = gson.toJson(responseJson);
+//
+//            }else{
+//                message = "response code : " + response.code();
+//            }
+//            logWriter.add(message);
+//            logWriter.log(0);
+//        }catch (Exception e){
+//            e.printStackTrace();
+//
+//            logWriter.add("error : " + e.getMessage());
+//            logWriter.log(0);
+//        }
+//        return jsonObject;
+//    }
 
-                JSONParser jsonParser = new JSONParser();
-                JSONObject responseJson = (JSONObject) jsonParser.parse(responseBody);
+//    public List<JSONObject> getRatePlanList(String property_id, String roomtype_id){
+//        List<JSONObject> packageList = new ArrayList<>();
+//        String message = "";
+//
+//        OkHttpClient client = new OkHttpClient();
+//
+//        Request request = new Request.Builder()
+//                .url(Constants.ondaPath + "properties/" + property_id + "/roomtypes/" + roomtype_id + "/rateplans")
+//                .get()
+//                .addHeader("accept", "application/json")
+//                .addHeader("Authorization", Constants.ondaAuth)
+//                .build();
+//
+//        LogWriter logWriter = new LogWriter(request.method(), request.url().toString(), System.currentTimeMillis());
+//        try{
+//            Response response = client.newCall(request).execute();
+//
+//            if(response.isSuccessful()){
+//                // response 파싱
+//                String responseBody = response.body().string();
+//
+//                JSONParser jsonParser = new JSONParser();
+//                JSONObject responseJson = (JSONObject) jsonParser.parse(responseBody);
+//
+//                message = gson.toJson(responseJson);
+//
+//                JSONArray packageArray = (JSONArray) responseJson.get("rateplans");
+//
+//                for(int i=0; i<packageArray.size(); i++){
+//                    JSONObject jsonObject = (JSONObject) packageArray.get(i);
+//                    packageList.add(jsonObject);
+//                }
+//            }else{
+//                message = "response code : " + response.code();
+//            }
+//            logWriter.add(message);
+//            logWriter.log(0);
+//        }catch (Exception e){
+//            e.printStackTrace();
+//
+//            logWriter.add("error : " + e.getMessage());
+//            logWriter.log(0);
+//        }
+//        return packageList;
+//    }
 
-                message = gson.toJson(responseJson);
-
-                JSONArray packageArray = (JSONArray) responseJson.get("rateplans");
-
-                for(int i=0; i<packageArray.size(); i++){
-                    JSONObject jsonObject = (JSONObject) packageArray.get(i);
-                    packageList.add(jsonObject);
-                }
-            }else{
-                message = "response code : " + response.code();
-            }
-            logWriter.add(message);
-            logWriter.log(0);
-        }catch (Exception e){
-            e.printStackTrace();
-
-            logWriter.add("error : " + e.getMessage());
-            logWriter.log(0);
-        }
-        return packageList;
-    }
-
-    public JSONObject getRatePlanDetail(String property_id, String roomtype_id, String rateplan_id){
-        JSONObject jsonObject = new JSONObject();
-        String message = "";
-
-        OkHttpClient client = new OkHttpClient();
-
-        Request request = new Request.Builder()
-                .url(Constants.ondaPath + "properties/" + property_id + "/roomtypes/" + roomtype_id + "/rateplans/" + rateplan_id)
-                .get()
-                .addHeader("accept", "application/json")
-                .addHeader("Authorization", Constants.ondaAuth)
-                .build();
-
-        LogWriter logWriter = new LogWriter(request.method(), request.url().toString(), System.currentTimeMillis());
-        try{
-            Response response = client.newCall(request).execute();
-            if(response.isSuccessful()){
-                // response 파싱
-                String responseBody = response.body().string();
-
-                JSONParser jsonParser = new JSONParser();
-                JSONObject responseJson = (JSONObject) jsonParser.parse(responseBody);
-                jsonObject = (JSONObject) responseJson.get("rateplan");
-
-                message = gson.toJson(responseJson);
-            }else{
-                message = "response code : " + response.code();
-            }
-            logWriter.add(message);
-            logWriter.log(0);
-        }catch (Exception e){
-            e.printStackTrace();
-
-            logWriter.add("error : " + e.getMessage());
-            logWriter.log(0);
-        }
-        return jsonObject;
-    }
+//    public JSONObject getRatePlanDetail(String property_id, String roomtype_id, String rateplan_id){
+//        JSONObject jsonObject = new JSONObject();
+//        String message = "";
+//
+//        OkHttpClient client = new OkHttpClient();
+//
+//        Request request = new Request.Builder()
+//                .url(Constants.ondaPath + "properties/" + property_id + "/roomtypes/" + roomtype_id + "/rateplans/" + rateplan_id)
+//                .get()
+//                .addHeader("accept", "application/json")
+//                .addHeader("Authorization", Constants.ondaAuth)
+//                .build();
+//
+//        LogWriter logWriter = new LogWriter(request.method(), request.url().toString(), System.currentTimeMillis());
+//        try{
+//            Response response = client.newCall(request).execute();
+//            if(response.isSuccessful()){
+//                // response 파싱
+//                String responseBody = response.body().string();
+//
+//                JSONParser jsonParser = new JSONParser();
+//                JSONObject responseJson = (JSONObject) jsonParser.parse(responseBody);
+//                jsonObject = (JSONObject) responseJson.get("rateplan");
+//
+//                message = gson.toJson(responseJson);
+//            }else{
+//                message = "response code : " + response.code();
+//            }
+//            logWriter.add(message);
+//            logWriter.log(0);
+//        }catch (Exception e){
+//            e.printStackTrace();
+//
+//            logWriter.add("error : " + e.getMessage());
+//            logWriter.log(0);
+//        }
+//        return jsonObject;
+//    }
 
 }

@@ -127,6 +127,7 @@ public class BookingService {
             statusCode = "500";
             logWriter.add("error : " + e.getMessage());
             logWriter.log(0);
+            e.printStackTrace();
         }
         return commonFunction.makeReturn(statusCode, message);
     }
@@ -162,7 +163,7 @@ public class BookingService {
 //    }
 
     // 재고 등록 및 수정
-    public String updateGoods(String fr_date, String to_date, String area, String room_type, HttpServletRequest httpServletRequest){
+    public String updateGoods(String fr_date, String to_date, int intRmIdx, HttpServletRequest httpServletRequest){
         LogWriter logWriter = new LogWriter(httpServletRequest.getMethod(), httpServletRequest.getServletPath(), System.currentTimeMillis());
         String statusCode = "200";
         String message = "";
@@ -177,9 +178,12 @@ public class BookingService {
             long sec = (toDate.getTime() - fromDate.getTime()) / 1000;
             double days =  (sec / (24*60*60));
 
-            // 금호는 strPropertyID를 따로 주지 않아서 strPropertyID = area로 ACCOMM에 INSERT함
-            String strPropertyID = area;
-            String strRmtypeID = "";
+            Map<String, Object> map = bookingMapper.getRmtypeIDNIntAID(intRmIdx);
+            String strRmtypeID = map.get("strRmtypeID").toString();
+            int intAID = Integer.parseInt(map.get("intAID").toString());
+
+            String strLocalCode = bookingMapper.getStrLocalCode(intAID, strRmtypeID);
+
             String strStockDatas = "";
 
             // 날짜 세팅
@@ -201,7 +205,7 @@ public class BookingService {
                         fr_date = sdf.format(fromDate);
                         to_date = sdf.format(endDate);
                         kumhoUrl = "inter05.asp?groupid=" + Constants.groupId + "&fr_date=" + fr_date + "&to_date=" + to_date +
-                                "&area=" + area + "&site=" + site + "&room_type=" + room_type;
+                                "&area=" + strLocalCode + "&site=" + site + "&room_type=" + strRmtypeID;
 
                         // 새로운 날짜 세팅
                         cal.setTime(fromDate);
@@ -225,7 +229,7 @@ public class BookingService {
                         fr_date = sdf.format(startDate);
                         to_date = sdf.format(endDate);
                         kumhoUrl = "inter05.asp?groupid=" + Constants.groupId + "&fr_date=" + fr_date + "&to_date=" + to_date +
-                                "&area=" + area + "&site=" + site + "&room_type=" + room_type;
+                                "&area=" + strLocalCode + "&site=" + site + "&room_type=" + strRmtypeID;
 
                         // 새로운 날짜 세팅
                         cal.setTime(startDate);
@@ -271,10 +275,10 @@ public class BookingService {
                                     int intStock = Integer.parseInt(xmlUtility.getTagValue("remainCount", element));
                                     int intOmkStock = intStock;
 
-                                    int moneyCost = 0, moneySales = 0, moneyExtraA = 0, moneyExtraB = 0, moneyExtraC = 0, moneyOmkSales = 0;
+                                    int intCost = 0, intSales = 0, intExtraA = 0, intExtraB = 0, intExtraC = 0, intOmkSales = 0;
 
-                                    strStockDatas += dateSales + "|^|" + intStock + "|^|" + moneyCost + "|^|" + moneySales + "|^|"
-                                            + moneyExtraA + "|^|" + moneyExtraC + "|^|" + moneyExtraB + "|^|" + intOmkStock + "|^|"  + moneyOmkSales+ "{{|}}";
+                                    strStockDatas += dateSales + "|^|" + intStock + "|^|" + intCost + "|^|" + intSales + "|^|"
+                                            + intExtraA + "|^|" + intExtraC + "|^|" + intExtraB + "|^|" + intOmkStock + "|^|"  + intOmkSales+ "{{|}}";
 
 
                                 }
@@ -282,7 +286,7 @@ public class BookingService {
                         }
                         strStockDatas = strStockDatas.substring(0, strStockDatas.length()-5);
 
-                        String result = bookingMapper.updateGoods(strPropertyID, strRmtypeID, strStockDatas);
+                        String result = bookingMapper.updateGoods(intAID, intRmIdx, strStockDatas);
                         String strResult = result.substring(result.length()-4);
 
                         if(strResult.equals("저장완료")){
@@ -293,12 +297,11 @@ public class BookingService {
                     }else{
                         message = "재고 조회 실패";
                         logWriter.add(message);
-                        break Loop1;
                     }
                 }
             }else{ // 90일 이상이 아닐 경우
                 kumhoUrl = "inter05.asp?groupid=" + Constants.groupId + "&fr_date=" + fr_date + "&to_date=" + to_date +
-                            "&area=" + area + "&site=" + site + "&room_type=" + room_type;
+                            "&area=" + strLocalCode + "&site=" + site + "&room_type=" + strRmtypeID;
                 // API 호출
                 Document document = callKumhoAPI(kumhoUrl);
                 if(document != null){
@@ -322,16 +325,16 @@ public class BookingService {
                                 int intStock = Integer.parseInt(xmlUtility.getTagValue("remainCount", element));
                                 int intOmkStock = intStock;
 
-                                int moneyCost = 0, moneySales = 0, moneyExtraA = 0, moneyExtraB = 0, moneyExtraC = 0, moneyOmkSales = 0;
+                                int intCost = 0, intSales = 0, intExtraA = 0, intExtraB = 0, intExtraC = 0, intOmkSales = 0;
 
-                                strStockDatas += dateSales + "|^|" + intStock + "|^|" + moneyCost + "|^|" + moneySales + "|^|"
-                                        + moneyExtraA + "|^|" + moneyExtraC + "|^|" + moneyExtraB + "|^|" + intOmkStock + "|^|"  + moneyOmkSales+ "{{|}}";
+                                strStockDatas += dateSales + "|^|" + intStock + "|^|" + intCost + "|^|" + intSales + "|^|"
+                                        + intExtraA + "|^|" + intExtraC + "|^|" + intExtraB + "|^|" + intOmkStock + "|^|"  + intOmkSales+ "{{|}}";
                             }
                         }
                     }
                     strStockDatas = strStockDatas.substring(0, strStockDatas.length()-5);
 
-                    String result = bookingMapper.updateGoods(strPropertyID, strRmtypeID, strStockDatas);
+                    String result = bookingMapper.updateGoods(intAID, intRmIdx, strStockDatas);
                     String strResult = result.substring(result.length()-4);
 
                     if(strResult.equals("저장완료")){
@@ -341,7 +344,6 @@ public class BookingService {
                     }
                 }else{
                     message = "재고 조회 실패";
-                    logWriter.add(message);
                 }
             }
 
@@ -352,6 +354,7 @@ public class BookingService {
             statusCode = "500";
             logWriter.add("error : " + e.getMessage());
             logWriter.log(0);
+            e.printStackTrace();
         }
         return commonFunction.makeReturn(statusCode, message);
     }
@@ -400,6 +403,7 @@ public class BookingService {
             statusCode = "500";
             logWriter.add("error : " + e.getMessage());
             logWriter.log(0);
+            e.printStackTrace();
         }
         return commonFunction.makeReturn(statusCode, message);
     }
@@ -478,6 +482,7 @@ public class BookingService {
             statusCode = "500";
             logWriter.add("error : " + e.getMessage());
             logWriter.log(0);
+            e.printStackTrace();
         }
 
         return commonFunction.makeReturn(statusCode, message, resultMap);
@@ -559,6 +564,7 @@ public class BookingService {
             statusCode = "500";
             logWriter.add("error : " + e.getMessage());
             logWriter.log(0);
+            e.printStackTrace();
         }
 
         return commonFunction.makeReturn(statusCode, message, resultMap);
@@ -607,6 +613,7 @@ public class BookingService {
             LogWriter logWriter = new LogWriter(method, strUrl, startTime);
             logWriter.add("error : " + e.getMessage());
             logWriter.log(0);
+            e.printStackTrace();
         }
 
         return document;

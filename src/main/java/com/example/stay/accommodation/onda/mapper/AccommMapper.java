@@ -9,18 +9,20 @@ import java.util.Map;
 public interface AccommMapper {
 
     String insertAccommTotal(String strPropertyID, String strDeleteYn, String strViewYn, String strType,
-                             int intDistrict1, int intDistrict2, String strSubject, String strLat, String strLon,
+                             String strDistrict1, String strDistrict2, String strSubject, String strLat, String strLon,
                              String strCheckIn, String strCheckOut, String strPhone, String strFax, String strEmail, String strZipCode,
                              String strAddr1, String strAddr2, String strDescription, String strRsvGuide, String strAcmNotice,String strImgDatas,
                              String strPenaltyDatas, String strKeyWordDatas, String strAttractionDatas, String strFacilityDatas, String strRmtypeDatas);
 
     String updateRmtype(String strPropertyID, String strType, String strRmtypeDatas);
 
-    String updateGoods(String strPropertyID, String strRmtypeID, String strRateplanID, String strStockDatas);
+    String updateGoods(int intAID, int intRmIdx, String strStockDatas);
 
     String webhookUpdateGoods(String strStockDatas);
 
-    Map<String, String> getPropertyIDNRmtypeID(String strRmtypeID);
+//    Map<String, String> getPropertyIDNRmtypeID(String strRmtypeID);
+
+    Map<String, Object> getStrRateplanIDNIntAID(int intRmIdx);
 
 //    int getRoomAdminCnt(String intCondoId);
 //
@@ -28,7 +30,7 @@ public interface AccommMapper {
 
     String updateStatus(String target, String strDeleteYn, String strViewYn, String propertyId, String roomTypeId, String ratePlanId);
 
-    Map<String, Integer> getDistrictCode(String strRegion, String strCity);
+    Map<String, String> getDistrictCode(String strRegion, String strCity);
 
     String getStrCodeByStrName(String strCateCode, String strName);
 
