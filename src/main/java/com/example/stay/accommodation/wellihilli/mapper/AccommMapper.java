@@ -4,5 +4,6 @@ import org.springframework.stereotype.Repository;
 
 @Repository("wellihilli.AccommMapper")
 public interface AccommMapper {
+    String updateRmtype(String strRoomDatas);
 
 }
