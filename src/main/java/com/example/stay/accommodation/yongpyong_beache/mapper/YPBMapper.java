@@ -2,8 +2,14 @@ package com.example.stay.accommodation.yongpyong_beache.mapper;
 
 import org.springframework.stereotype.Repository;
 
+import java.util.Map;
+
 @Repository
 public interface YPBMapper {
 
-    String insertStock(String strProertyId, String strCateCode, String strRoomTypeId, String strPackageCode, String strStockData);
+    Map<String, String> getAcmRmID(int intAID, int intRmIdx);
+
+    Map<String, String> getPkgLcdID(int intPkgIdx);
+
+    String insertStock(int intAID, int intRmIdx, String strPackageCode, String strStockData);
 }

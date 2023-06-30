@@ -14,9 +14,9 @@ public class YPBController {
     private YPBService ypbService;
 
     @GetMapping("/stock")
-    public void getStock(String proertyId, String lcdCode, String roomTypeCode, String startDate, String endDate, String packageCode){
+    public void getStock(int intAID, int intRmIdx, int intPkgIdx, String startDate, String endDate){
 
-        ypbService.getStock(proertyId, lcdCode, roomTypeCode, startDate, endDate, packageCode);
+        ypbService.getStock(intAID, intRmIdx, intPkgIdx, startDate, endDate);
 
     }
 

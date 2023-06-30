@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class YPBService {
@@ -23,7 +24,7 @@ public class YPBService {
     @Autowired
     private YPBMapper ypbMapper;
 
-    public String getStock(String strProertyId, String strLcdCode, String strRoomTypeCode, String startDate, String endDate, String strPackageCode){
+    public String getStock(int intAID, int intRmIdx, int intPkgIdx, String startDate, String endDate){
 
         String result = "";
 
@@ -31,6 +32,16 @@ public class YPBService {
 
             JSONObject mainObject = getCommonHeader("stock");
             JSONObject dataObject = new JSONObject();
+
+            Map<String, String> acmRmMap = ypbMapper.getAcmRmID(intAID, intRmIdx);
+            Map<String, String> pkgLcdMap = ypbMapper.getPkgLcdID(intPkgIdx);
+            System.out.println(acmRmMap);
+            System.out.println(pkgLcdMap);
+            String strProertyId = acmRmMap.get("strPropertyID").toString();
+            String strRoomTypeCode = acmRmMap.get("strRmtypeID").toString();
+            String strLcdCode = pkgLcdMap.get("strLocalCode").toString();
+            String strPackageCode = pkgLcdMap.get("strPkgCode").toString();
+
 
             String strCustNo = "1199719"; // default 용평
             String strCateCode = "37"; // default 용평
@@ -52,7 +63,7 @@ public class YPBService {
 
             System.out.println(mainObject);
 
-            JsonNode jsonNode = commonService.callJsonApi("YPBStock", mainObject);
+            JsonNode jsonNode = commonService.callJsonApi("YPB", "stock", mainObject);
 
 
             // 통신결과 0:실패, 1:성공
@@ -92,13 +103,15 @@ public class YPBService {
                         strStockDatas = strStockDatas.substring(0, strStockDatas.length()-5);
                     }
                     System.out.println(strStockDatas);
-                    ypbMapper.insertStock(strProertyId, strCateCode, strRoomTypeId, strPackageCode, strStockDatas);
+                    ypbMapper.insertStock(intAID, intRmIdx, strPackageCode, strStockDatas);
                 }
 
             }
 
             result = jsonNode.toString();
             //System.out.println(result);
+
+
 
         }catch (Exception e){
             e.printStackTrace();
@@ -134,7 +147,7 @@ public class YPBService {
 
             System.out.println(mainObject);
 
-            JsonNode jsonNode = commonService.callJsonApi("YPBBooking", mainObject);
+            JsonNode jsonNode = commonService.callJsonApi("YPB", "booking", mainObject);
 
             result = jsonNode.toString();
             System.out.println(result);
@@ -172,7 +185,7 @@ public class YPBService {
 
             System.out.println(mainObject);
 
-            JsonNode jsonNode = commonService.callJsonApi("YPBBookingInfo", mainObject);
+            JsonNode jsonNode = commonService.callJsonApi("YPB", "bookingInfo", mainObject);
 
             result = jsonNode.toString();
             System.out.println(result);
@@ -212,7 +225,7 @@ public class YPBService {
 
             System.out.println(mainObject);
 
-            JsonNode jsonNode = commonService.callJsonApi("YPBBookingCancel", mainObject);
+            JsonNode jsonNode = commonService.callJsonApi("YPB", "bookingCancel", mainObject);
 
             result = jsonNode.toString();
             System.out.println(result);
@@ -244,7 +257,7 @@ public class YPBService {
 
             System.out.println(mainObject);
 
-            JsonNode jsonNode = commonService.callJsonApi("YPBBookingList", mainObject);
+            JsonNode jsonNode = commonService.callJsonApi("YPB", "bookingList", mainObject);
 
             result = jsonNode.toString();
             System.out.println(result);
