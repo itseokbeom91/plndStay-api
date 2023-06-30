@@ -5,6 +5,8 @@
 
 <mapper namespace="com.example.stay.accommodation.gpension.mapper.AccommMapper">
     <select id="getBookingInfoFromBookingIdx">
-
+--         SELECT /* 예약 ID*/
+--         FROM /* 예약_테이블*/
+--         WHERE '예약' = #{intBookingIdx}
     </select>
 </mapper>

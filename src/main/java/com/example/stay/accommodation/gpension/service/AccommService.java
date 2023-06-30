@@ -101,7 +101,6 @@ public class AccommService {
                 //response 파싱
                 String responseBody = response.body().string();
 
-
                 JSONParser jsonParser = new JSONParser();
                 JSONObject responseJson = (JSONObject) jsonParser.parse(responseBody);
 //                responseJson = (JSONObject) responseJson.get("result");
