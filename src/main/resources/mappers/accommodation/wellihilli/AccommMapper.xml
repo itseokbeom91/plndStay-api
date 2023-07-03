@@ -7,4 +7,14 @@
     <select id="updateRmtype" parameterType="String" resultType="String">
         EXEC spWHP_RMTYPE_UPDATE #{strRoomDatas}, ''
     </select>
+
+    <select id="getStrRmtypeID" parameterType="int" resultType="String">
+        SELECT strRmtypeID
+        FROM RMTYPE
+        WHERE intIdx = ${intRmIdx}
+    </select>
+
+    <select id="updateGoods" resultType="String">
+        EXEC spONDAnWHP_STOCK_TEMP_REGIST 'WHP', #{strStockDatas}, ''
+    </select>
 </mapper>

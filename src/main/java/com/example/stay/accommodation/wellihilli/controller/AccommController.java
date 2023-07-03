@@ -22,4 +22,10 @@ public class AccommController {
         return accommService.insertRoomType(httpServletRequest);
     }
 
+    @GetMapping("updateGoods")
+    @ResponseBody
+    public String updateGoods(HttpServletRequest httpServletRequest, int intRmIdx, String startDate, String endDate){
+        return accommService.updateGoods(httpServletRequest, intRmIdx, startDate, endDate);
+    }
+
 }
