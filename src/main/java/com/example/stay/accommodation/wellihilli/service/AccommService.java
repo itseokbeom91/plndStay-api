@@ -101,6 +101,8 @@ public class AccommService {
                 }else{
                     message = updateResult;
                 }
+            }else{
+                message = "객실 등록 및 수정 실패 - api 응답 코드 : " + code;
             }
 
             logWriter.add(message);
@@ -212,6 +214,8 @@ public class AccommService {
                     message = "재고 등록/수정 실패";
                 }
 
+            }else{
+                message = "재고 등록/수정 실패 - api 응답 코드 : " + code;
             }
             logWriter.add(message);
             logWriter.log(0);
