@@ -112,5 +112,10 @@ public class BookingController {
     public String getStockAndInsert(HttpServletRequest httpServletRequest) {
         return bookingService.getStockAndInsert(httpServletRequest);
     }
+    @GetMapping("/test")
+    @ResponseBody
+    public String getPackageStatusMonth(String pkgNo, String storeCd, String sDate, String nights){
+        return bookingService.getPackageStatusMonth(pkgNo, storeCd, sDate, nights);
+    }
 
 }
