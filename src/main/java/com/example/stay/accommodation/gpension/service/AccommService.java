@@ -69,12 +69,12 @@ public class AccommService {
                     resultJson.put("manage_type", resultList.get(i).get("manage_type"));
                     resultListMap.add(resultJson);
                 }
-                return  commonFunction.makeReturn("200", "OK", resultListMap);
+                return  commonFunction.makeReturn("jsonp",String.valueOf(response.code()), response.message(), resultListMap);
             } else {
-                return commonFunction.makeReturn(String.valueOf(response.code()), response.message(), result);
+                return commonFunction.makeReturn("jsonp",String.valueOf(response.code()), response.message(), result);
             }
         } catch (Exception e) {
-            return commonFunction.makeReturn(String.valueOf(e),e.getMessage());
+            return commonFunction.makeReturn("jsonp",String.valueOf(e),e.getMessage());
         }
 
     }
@@ -129,7 +129,7 @@ public class AccommService {
                     roomListDataTmp.add(roomMap);
                 }
                 responseJson.put("room_data", roomListDataTmp);
-                return commonFunction.makeReturn("", "", responseJson);
+                return commonFunction.makeReturn("jsonp","", "", responseJson);
             }
 
 
@@ -137,7 +137,7 @@ public class AccommService {
             throw new RuntimeException(e);
         }
 
-        return commonFunction.makeReturn("", "");
+        return commonFunction.makeReturn("jsonp","", "");
     }
 
     public String getPensionStatus(String pensionId, String sDate, String eDate) {
@@ -175,16 +175,16 @@ public class AccommService {
 //                    System.out.println(roomMap.get("room_id"));
 //                    System.out.println(base64Decode((String) roomMap.get("room_name")));
                     }
-                    return commonFunction.makeReturn("200", "OK", responseJson);
+                    return commonFunction.makeReturn("jsonp","200", "OK", responseJson);
 
                 } else {
-                    return commonFunction.makeReturn(String.valueOf(response.code()), response.message(), resultJson);
+                    return commonFunction.makeReturn("jsonp",String.valueOf(response.code()), response.message(), resultJson);
                 }
             } else {
-                return commonFunction.makeReturn(String.valueOf(response.code()), response.message(), "");
+                return commonFunction.makeReturn("jsonp",String.valueOf(response.code()), response.message(), "");
             }
         } catch (Exception e) {
-            return commonFunction.makeReturn(String.valueOf(e), e.getMessage());
+            return commonFunction.makeReturn("jsonp",String.valueOf(e), e.getMessage());
         }
 
     }
@@ -213,12 +213,12 @@ public class AccommService {
                 String responseBody = response.body().string();
                 JSONParser jsonParser = new JSONParser();
                 JSONObject responseJson = (JSONObject) jsonParser.parse(responseBody);
-                return commonFunction.makeReturn("", "", responseJson);
+                return commonFunction.makeReturn("jsonp","", "", responseJson);
             } else {
-                return commonFunction.makeReturn("", "", "");
+                return commonFunction.makeReturn("jsonp","", "", "");
             }
         } catch (Exception e) {
-            return commonFunction.makeReturn(e.toString(), e.getMessage(), "");
+            return commonFunction.makeReturn("jsonp",e.toString(), e.getMessage(), "");
         }
 
     }
@@ -239,12 +239,12 @@ public class AccommService {
                 String responseBody = response.body().string();
                 JSONParser jsonParser = new JSONParser();
                 JSONObject responseJson = (JSONObject) jsonParser.parse(responseBody);
-                return commonFunction.makeReturn("", "", responseJson);
+                return commonFunction.makeReturn("jsonp","", "", responseJson);
             } else {
-                return commonFunction.makeReturn("", "", "");
+                return commonFunction.makeReturn("jsonp","", "", "");
             }
         } catch (Exception e) {
-            return commonFunction.makeReturn("", "", "");
+            return commonFunction.makeReturn("jsonp","", "", "");
         }
     }
 
@@ -264,12 +264,12 @@ public class AccommService {
                 String responseBody = response.body().string();
                 JSONParser jsonParser = new JSONParser();
                 JSONObject responseJson = (JSONObject) jsonParser.parse(responseBody);
-                return commonFunction.makeReturn("", "", responseJson);
+                return commonFunction.makeReturn("jsonp","", "", responseJson);
             } else {
-                return commonFunction.makeReturn("", "", "");
+                return commonFunction.makeReturn("jsonp","", "", "");
             }
         } catch (Exception e) {
-            return commonFunction.makeReturn("", "", "");
+            return commonFunction.makeReturn("jsonp","", "", "");
         }
     }
 
@@ -299,12 +299,12 @@ public class AccommService {
                     scheduleTmp.add(map);
                 }
                 responseJson.put("schedule_data", scheduleTmp);
-                return commonFunction.makeReturn("", "", responseJson);
+                return commonFunction.makeReturn("jsonp", "", "", responseJson);
             } else {
-                return commonFunction.makeReturn("", "", "");
+                return commonFunction.makeReturn("jsonp","", "", "");
             }
         } catch (Exception e) {
-            return commonFunction.makeReturn("", "", "");
+            return commonFunction.makeReturn("jsonp","", "", "");
         }
     }
 
@@ -473,7 +473,7 @@ public class AccommService {
 
                     roomListDataTmp.add(roomMap);
 
-                    strRoomData += pensionId + "|^|" + roomId + "|^|" + roomName + "|^|" + maxPeople + "|^|" + basicPeople + "|^|" + roomType + roomItem.trim() + "|^|"/* + strRoomImgData*/ + "{{|}}";
+                    strRoomData += pensionId + "|^|" + roomId + "|^|" + roomName + "|^|" + maxPeople + "|^|" + basicPeople + "|^|" + roomType + roomItem.trim() + "|^|" + strRoomImgData + "{{|}}";
                 }
                 pensionJson.put("room_data", roomListDataTmp);
 
@@ -490,8 +490,8 @@ public class AccommService {
 //            System.out.println(strAccommData);
             System.out.println(strRoomData);
 
+            String insertResult = accommMapper.insertAccommTotal("", "", "", "GP");
 //            String insertResult = accommMapper.insertAccommTotal(strAccommData, strRoomData, strStockData, "GP");
-            String insertResult = accommMapper.insertAccommTotal(strAccommData, "", "", "GP");
             System.out.println(insertResult);
 
             return commonFunction.makeReturn("", insertResult);

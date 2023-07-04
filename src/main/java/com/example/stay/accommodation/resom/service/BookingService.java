@@ -100,7 +100,7 @@ public class BookingService {
                 }
 
 
-                return  commonFunction.makeReturn("", "", responseJson);
+                return  commonFunction.makeReturn("jsonp","", "", responseJson);
             }
         } catch (Exception e) {
             System.out.println("e ::: 에러 출력! == " + e);
@@ -109,7 +109,7 @@ public class BookingService {
 
         }
 
-        return commonFunction.makeReturn("", "");
+        return commonFunction.makeReturn("jsonp","", "");
 
     }
 
@@ -147,7 +147,7 @@ public class BookingService {
                 JSONObject responseJson = (JSONObject) jsonParser.parse(responseBody);
                 System.out.println(responseJson);
 
-                return  commonFunction.makeReturn("","", responseJson);
+                return  commonFunction.makeReturn("jsonp","","", responseJson);
             }
         } catch (Exception e) {
             System.out.println("e ::: 에러 출력! == " + e);
@@ -156,7 +156,7 @@ public class BookingService {
 
         }
 
-        return commonFunction.makeReturn("", "");
+        return commonFunction.makeReturn("jsonp","", "");
 
     }
 
@@ -195,7 +195,7 @@ public class BookingService {
                 JSONObject responseJson = (JSONObject) jsonParser.parse(responseBody);
                 System.out.println(responseJson);
 
-                return  commonFunction.makeReturn("","", responseJson);
+                return  commonFunction.makeReturn("jsonp","","", responseJson);
             }
         } catch (Exception e) {
             System.out.println("e ::: 에러 출력! == " + e);
@@ -204,7 +204,7 @@ public class BookingService {
 
         }
 
-        return commonFunction.makeReturn("", "");
+        return commonFunction.makeReturn("jsonp","", "");
 
     }
 
@@ -245,7 +245,7 @@ public class BookingService {
                 JSONObject responseJson = (JSONObject) jsonParser.parse(responseBody);
                 System.out.println(responseJson);
 
-                return  commonFunction.makeReturn("","", responseJson);
+                return  commonFunction.makeReturn("jsonp","","", responseJson);
             }
         } catch (Exception e) {
             System.out.println("e ::: 에러 출력! == " + e);
@@ -254,7 +254,7 @@ public class BookingService {
 
         }
 
-        return commonFunction.makeReturn("", "");
+        return commonFunction.makeReturn("jsonp","", "");
 
     }
 
@@ -298,7 +298,7 @@ public class BookingService {
 
                 List< Map<String, Object> > resultList = (List<Map<String, Object>>) responseJson.get("resultList");
 
-                return  commonFunction.makeReturn("","", responseJson);
+                return  commonFunction.makeReturn("jsonp","","", responseJson);
             }
         } catch (Exception e) {
             System.out.println("e ::: 에러 출력! == " + e);
@@ -307,7 +307,7 @@ public class BookingService {
 
         }
 
-        return commonFunction.makeReturn("", "");
+        return commonFunction.makeReturn("jsonp","", "");
 
     }
 
@@ -350,7 +350,7 @@ public class BookingService {
                 JSONObject responseJson = (JSONObject) jsonParser.parse(responseBody);
                 System.out.println(responseJson);
 
-                return  commonFunction.makeReturn("","", responseJson);
+                return  commonFunction.makeReturn("jsonp","","", responseJson);
             }
         } catch (Exception e) {
             System.out.println("e ::: 에러 출력! == " + e);
@@ -360,7 +360,7 @@ public class BookingService {
 
         }
 
-        return commonFunction.makeReturn("", "");
+        return commonFunction.makeReturn("jsonp","", "");
 
     }
 
@@ -402,7 +402,7 @@ public class BookingService {
                 JSONObject responseJson = (JSONObject) jsonParser.parse(responseBody);
                 System.out.println(responseJson);
 
-                return  commonFunction.makeReturn("","", responseJson);
+                return  commonFunction.makeReturn("jsonp","","", responseJson);
             }
         } catch (Exception e) {
             System.out.println("e ::: 에러 출력! == " + e);
@@ -411,7 +411,7 @@ public class BookingService {
 
         }
 
-        return commonFunction.makeReturn("", "");
+        return commonFunction.makeReturn("jsonp","", "");
 
     }
 
@@ -451,7 +451,7 @@ public class BookingService {
                 JSONObject responseJson = (JSONObject) jsonParser.parse(responseBody);
                 System.out.println(responseJson);
 
-                return  commonFunction.makeReturn("","", responseJson);
+                return  commonFunction.makeReturn("jsonp","","", responseJson);
             }
         } catch (Exception e) {
             System.out.println("e ::: 에러 출력! == " + e);
@@ -460,7 +460,7 @@ public class BookingService {
 
         }
 
-        return commonFunction.makeReturn("", "");
+        return commonFunction.makeReturn("jsonp","", "");
 
     }
 
@@ -506,7 +506,7 @@ public class BookingService {
                     System.out.println("이곳에 조회실패시에 대한 로직 구현 필요!");
 
 
-                    return commonFunction.makeReturn("", "", responseJson);
+                    return commonFunction.makeReturn("jsonp","", "", responseJson);
                 }
                 List< Map<String, Object> > resultList = (List<Map<String, Object>>) responseJson.get("resultList");
 
@@ -516,7 +516,7 @@ public class BookingService {
                 }
 
 
-                return  commonFunction.makeReturn("","", responseJson);
+                return  commonFunction.makeReturn("jsonp","","", responseJson);
             }
         } catch (Exception e) {
             System.out.println("e ::: 에러 출력! == " + e);
@@ -525,7 +525,7 @@ public class BookingService {
 
         }
 
-        return commonFunction.makeReturn("", "");
+        return commonFunction.makeReturn("jsonp","", "");
 
     }
 
@@ -568,7 +568,7 @@ public class BookingService {
                 JSONObject responseJson = (JSONObject) jsonParser.parse(responseBody);
                 System.out.println(responseJson);
 
-                return  commonFunction.makeReturn("","", responseJson);
+                return  commonFunction.makeReturn("jsonp","","", responseJson);
             }
         } catch (Exception e) {
             System.out.println("e ::: 에러 출력! == " + e);
@@ -577,7 +577,7 @@ public class BookingService {
 
         }
 
-        return commonFunction.makeReturn("", "");
+        return commonFunction.makeReturn("jsonp","", "");
 
     }
 
@@ -633,7 +633,7 @@ public class BookingService {
                 JSONParser jsonParser = new JSONParser();
                 JSONObject responseJson = (JSONObject) jsonParser.parse(responseBody);
                 if(responseJson.get("resultCode").toString().equals("0000")){
-                    return  commonFunction.makeReturn("","", responseJson);
+                    return  commonFunction.makeReturn("jsonp","","", responseJson);
                     //TO-DO 예약성공시 아래에 DB update 로직 추가
                 } else {
                     //예약 실패시
@@ -648,7 +648,7 @@ public class BookingService {
 
         }
 
-        return commonFunction.makeReturn("", "");
+        return commonFunction.makeReturn("jsonp","", "");
 
     }
 
@@ -700,7 +700,7 @@ public class BookingService {
                 JSONObject responseJson = (JSONObject) jsonParser.parse(responseBody);
                 System.out.println(responseJson);
 
-                return  commonFunction.makeReturn("","", responseJson);
+                return  commonFunction.makeReturn("jsonp","","", responseJson);
             }
         } catch (Exception e) {
             System.out.println("e ::: 에러 출력! == " + e);
@@ -709,7 +709,7 @@ public class BookingService {
 
         }
 
-        return commonFunction.makeReturn("", "");
+        return commonFunction.makeReturn("jsonp","", "");
 
     }
 
@@ -751,7 +751,7 @@ public class BookingService {
                 JSONObject responseJson = (JSONObject) jsonParser.parse(responseBody);
                 System.out.println(responseJson);
 
-                return  commonFunction.makeReturn("","", responseJson);
+                return  commonFunction.makeReturn("jsonp","","", responseJson);
 
             }
         } catch (Exception e) {
@@ -761,7 +761,7 @@ public class BookingService {
 
         }
 
-        return commonFunction.makeReturn("", "");
+        return commonFunction.makeReturn("jsonp","", "");
 
     }
 
@@ -800,13 +800,13 @@ public class BookingService {
                 System.out.println(responseJson);
                 if(responseJson.get("resultCode").toString().equals("0000")){
                     //예약조회의 경우 rsvList로 반환됨 참고 요망
-                    return  commonFunction.makeReturn("","", responseJson);
+                    return  commonFunction.makeReturn("jsonp","","", responseJson);
 
                 } else {
 
                 }
 
-                return  commonFunction.makeReturn("","", responseJson);
+                return  commonFunction.makeReturn("jsonp","","", responseJson);
 
             } else {
                 //response 파싱
@@ -815,7 +815,7 @@ public class BookingService {
                 JSONParser jsonParser = new JSONParser();
                 JSONObject responseJson = (JSONObject) jsonParser.parse(responseBody);
                 System.out.println(responseJson);
-                return  commonFunction.makeReturn("","", responseJson);
+                return  commonFunction.makeReturn("jsonp","","", responseJson);
 
             }
         } catch (Exception e) {
@@ -825,7 +825,7 @@ public class BookingService {
 
         }
 
-        return commonFunction.makeReturn("", "");
+        return commonFunction.makeReturn("jsonp","", "");
 
     }
 
@@ -867,7 +867,7 @@ public class BookingService {
                 JSONObject responseJson = (JSONObject) jsonParser.parse(responseBody);
                 System.out.println(responseJson);
 
-                return  commonFunction.makeReturn("","", responseJson);
+                return  commonFunction.makeReturn("jsonp","","", responseJson);
 
             }
         } catch (Exception e) {
@@ -877,7 +877,7 @@ public class BookingService {
 
         }
 
-        return commonFunction.makeReturn("", "");
+        return commonFunction.makeReturn("jsonp","", "");
 
     }
 
@@ -914,7 +914,7 @@ public class BookingService {
                 JSONObject responseJson = (JSONObject) jsonParser.parse(responseBody);
                 System.out.println(responseJson);
 
-                return  commonFunction.makeReturn("","", responseJson);
+                return  commonFunction.makeReturn("jsonp","","", responseJson);
 
             } else {
 
@@ -931,7 +931,7 @@ public class BookingService {
 
         }
 
-        return commonFunction.makeReturn("", "");
+        return commonFunction.makeReturn("jsonp","", "");
 
     }
 
@@ -974,7 +974,7 @@ public class BookingService {
                 System.out.println(responseJson);
                 //TO-DO 이용자정보 변경 성공시 예약테이블 수정해야함
 
-                return  commonFunction.makeReturn("","", responseJson);
+                return  commonFunction.makeReturn("jsonp","","", responseJson);
 
             }
         } catch (Exception e) {
@@ -984,7 +984,7 @@ public class BookingService {
 
         }
 
-        return commonFunction.makeReturn("", "");
+        return commonFunction.makeReturn("jsonp","", "");
 
     }
 
@@ -1048,10 +1048,10 @@ public class BookingService {
             System.out.println(packageStockDatas);
 //            String insertResult = bookingMapper.insertRoom("", "", packageStockDatas, "", strType);
 //            stockResultJson.put("insertResult", insertResult);
-            return commonFunction.makeReturn("", "", stockResultJson);
+            return commonFunction.makeReturn("jsonp","", "", stockResultJson);
 
         } catch (Exception e) {
-            return commonFunction.makeReturn(e.toString(), e.getMessage());
+            return commonFunction.makeReturn("jsonp",e.toString(), e.getMessage());
         }
     }
 
@@ -1153,7 +1153,7 @@ public class BookingService {
             System.out.println(accommData);
             result = insertResult;
             resultResponseJson.put("insertResult", result);
-            return commonFunction.makeReturn("", "", resultResponseJson);
+            return commonFunction.makeReturn("jsonp","", "", resultResponseJson);
         } catch (ParseException e) {
             throw new RuntimeException(e);
         }
