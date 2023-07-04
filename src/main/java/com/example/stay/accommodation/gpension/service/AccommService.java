@@ -342,7 +342,7 @@ public class AccommService {
                     String roomId = (String) map.get("room_id");
                     accommMapper.updateDelRoom(pensionId, roomId);
                 }
-                return commonFunction.makeReturn("", "", responseJson);
+                return commonFunction.makeReturn("", "", "",  responseJson);
 
             } else {
                 return commonFunction.makeReturn("", "", "");
@@ -494,9 +494,9 @@ public class AccommService {
 //            String insertResult = accommMapper.insertAccommTotal(strAccommData, strRoomData, strStockData, "GP");
             System.out.println(insertResult);
 
-            return commonFunction.makeReturn("", insertResult);
+            return commonFunction.makeReturn("","", insertResult);
         } catch (Exception e) {
-            return commonFunction.makeReturn(String.valueOf(e), e.getMessage());
+            return commonFunction.makeReturn("", String.valueOf(e), e.getMessage());
         }
 
 
