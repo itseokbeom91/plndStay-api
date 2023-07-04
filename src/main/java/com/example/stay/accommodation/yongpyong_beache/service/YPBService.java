@@ -29,6 +29,8 @@ public class YPBService {
 
     public String getStock(int intAID, int intRmIdx, int intPkgIdx, String startDate, String endDate){
 
+        String statusCode = "200";
+        String message = "";
         String result = "";
 
         try {
@@ -102,32 +104,39 @@ public class YPBService {
                 }
 
                 for(String key : stockMap.keySet()){
-                    String strRoomTypeId = key;
                     String strStockDatas = stockMap.get(key);
                     if(strStockDatas.length() > 1){
                         strStockDatas = strStockDatas.substring(0, strStockDatas.length()-5);
                     }
                     System.out.println(strStockDatas);
-                    ypbMapper.insertStock(intAID, intRmIdx, strPackageCode, strStockDatas);
+                    result = ypbMapper.insertStock(intAID, intRmIdx, strPackageCode, strStockDatas);
+                }
+                String strResult = result.substring(result.length()-4);
+                if(strResult.equals("저장완료")){
+                    message = "재고 등록 및 수정 완료";
+                }else{
+                    message = " 재고 등록 및 수정 실패";
                 }
 
+            }else{
+                message = "호출 실패";
             }
-
-            result = jsonNode.toString();
-            //System.out.println(result);
-
 
 
         }catch (Exception e){
+            message = "재고 등록 및 수정 실패";
+            statusCode = "500";
             e.printStackTrace();
         }
 
-        return result;
+        return commonFunction.makeReturn(statusCode, message);
     }
 
 
     public String booking(){
 
+        String statusCode = "200";
+        String message = "";
         String result = "";
 
         try {
@@ -155,19 +164,36 @@ public class YPBService {
 //            JsonNode jsonNode = commonService.callJsonApi("YPB", "booking", mainObject);
             JsonNode jsonNode = commonFunction.callJsonApi("YPB", "booking", mainObject, "", "POST");
 
+            // 통신결과 0:실패, 1:성공
+            JSONObject codeObject = (JSONObject) new JSONParser().parse(jsonNode.get("HEADER").toString());
+            String resultCode = codeObject.get("statusCode").toString();
+
+            JSONArray jsonArray = (JSONArray) new JSONParser().parse(jsonNode.get("DATA").toString());
+
+            if(resultCode.equals("1")){
+                // 프로시저 작업 해야함
+                message = "예약 완료";
+            }else{
+                message = "호출 실패";
+            }
+
             result = jsonNode.toString();
             System.out.println(result);
 
         }catch (Exception e){
+            message = "재고 등록 및 수정 실패";
+            statusCode = "500";
             e.printStackTrace();
         }
 
-        return result;
+        return commonFunction.makeReturn(statusCode, message);
     }
 
 
     public String getBookingInfo(){
 
+        String statusCode = "200";
+        String message = "";
         String result = "";
 
         try {
@@ -194,20 +220,37 @@ public class YPBService {
 //            JsonNode jsonNode = commonService.callJsonApi("YPB", "bookingInfo", mainObject);
             JsonNode jsonNode = commonFunction.callJsonApi("YPB", "bookingInfo", mainObject, "", "POST");
 
-            result = jsonNode.toString();
-            System.out.println(result);
+            // 통신결과 0:실패, 1:성공
+            JSONObject codeObject = (JSONObject) new JSONParser().parse(jsonNode.get("HEADER").toString());
+            String resultCode = codeObject.get("statusCode").toString();
+
+            JSONObject resultObject = (JSONObject) new JSONParser().parse(jsonNode.get("DATA").toString());
+
+            if(resultCode.equals("1")){
+
+                System.out.println(resultObject);
+                result = resultObject.toJSONString();
+                message = "예약 완료";
+            }else{
+                message = "호출 실패";
+            }
+
 
         }catch (Exception e){
+            message = "예약 조회 실패";
+            statusCode = "500";
             e.printStackTrace();
         }
 
-        return result;
+        return commonFunction.makeReturn(statusCode, message, result);
 
     }
 
 
     public String bookingCancel(){
 
+        String statusCode = "200";
+        String message = "";
         String result = "";
 
         try {
@@ -239,10 +282,12 @@ public class YPBService {
             System.out.println(result);
 
         }catch (Exception e){
+            message = "예약 취소 실패";
+            statusCode = "500";
             e.printStackTrace();
         }
 
-        return result;
+        return commonFunction.makeReturn(statusCode, message);
 
     }
 

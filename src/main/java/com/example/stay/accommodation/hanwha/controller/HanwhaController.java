@@ -35,9 +35,9 @@ public class HanwhaController {
     }
 
     @GetMapping("/booking")
-    public void booking(String packNo, String locCd, String RMCd, String startDate, String roomCnt, String staycnt, String name, String phone){
+    public void booking(String packNo, String locCd, String RMCd, String startDate, String roomCnt, String staycnt, String reserveName, String reservePhone, String stayName, String stayPhone){
 
-        hanwhaService.booking(packNo, locCd, RMCd, startDate, roomCnt, staycnt, name, phone);
+        hanwhaService.booking(packNo, locCd, RMCd, startDate, roomCnt, staycnt, reserveName, reservePhone, stayName, stayPhone);
 
     }
 
