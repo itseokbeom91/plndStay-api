@@ -46,6 +46,8 @@ public class HanwhaService {
      */
     public String booking(String strPackNo, String strLocCd, String strRMCd, String strDate, String strRoomCnt, String strStaycnt, String strReserveName, String strReservePhone, String strStayName, String strStayPhone){ // 예약요청 : 01
 
+        String statusCode = "200";
+        String message = "";
         String result = "";
 
         try {
@@ -123,10 +125,12 @@ public class HanwhaService {
 //            System.out.println(result);
 
         }catch (Exception e){
+            message = "예약 실패";
+            statusCode = "500";
             e.printStackTrace();
         }
 
-        return result;
+        return commonFunction.makeReturn("json", statusCode, message);
     }
 
     /**
@@ -135,6 +139,8 @@ public class HanwhaService {
      */
     public String bookingCancel(){ // 예약취소 : 02
 
+        String statusCode = "200";
+        String message = "";
         String result = "";
 
         try {
@@ -162,21 +168,25 @@ public class HanwhaService {
             System.out.println(result);
 
         }catch (Exception e){
+            message = "예약 취소 실패";
+            statusCode = "500";
             e.printStackTrace();
         }
 
-        return result;
+        return commonFunction.makeReturn("json", statusCode, message);
     }
 
     // 예약조회시 예약확정코드 RR : 확정예약, RC : 취소
     // test 예약넘버 : 2308799080
 
     /**
-     * 예약 죄회
+     * 예약 조회
      * @return
      */
     public String bookingInfo(){ // 예약조회 : 03
 
+        String statusCode = "200";
+        String message = "";
         String result = "";
 
         try {
@@ -206,10 +216,12 @@ public class HanwhaService {
             System.out.println(result);
 
         }catch (Exception e){
+            message = "예약 조회 실패";
+            statusCode = "500";
             e.printStackTrace();
         }
 
-        return result;
+        return commonFunction.makeReturn("json", statusCode, message);
     }
 
 
@@ -224,6 +236,8 @@ public class HanwhaService {
      */
     public String getCapa(int intAID, int intRmIdx, int intPkgIdx, String strStartDate, String strEndDate){ // 캐파조회 : 05
 
+        String statusCode = "200";
+        String message = "";
         String result = "";
 
         try {
@@ -284,7 +298,17 @@ public class HanwhaService {
                 if(strStockDatas.length() > 1){
                     strStockDatas = strStockDatas.substring(0, strStockDatas.length()-5);
                 }
-                hanwhaMapper.insertStock(intAID, intRmIdx, strPackageCode, strStockDatas);
+
+                result = hanwhaMapper.insertStock(intAID, intRmIdx, strPackageCode, strStockDatas);
+
+                String strResult = result.substring(result.length()-4);
+                if(strResult.equals("저장완료")){
+                    message = "재고 등록 및 수정 완료";
+                }else{
+                    message = " 재고 등록 및 수정 실패";
+                }
+            }else{
+                message = "호출 실패";
             }
 
 
@@ -292,10 +316,12 @@ public class HanwhaService {
             System.out.println(result);
 
         }catch (Exception e){
+            message = "재고 등록 실패";
+            statusCode = "500";
             e.printStackTrace();
         }
 
-        return result;
+        return commonFunction.makeReturn("json", statusCode, message);
     }
 
     /**
@@ -306,6 +332,8 @@ public class HanwhaService {
      */
     public String getPackageList(String strAccommId, String strStartDate){ // 패키지 목록 조회 : 06
 
+        String statusCode = "200";
+        String message = "";
         String result = "";
 
         try {
@@ -348,19 +376,31 @@ public class HanwhaService {
                     resultData += jsonObject.get("VALI_PRID_END_DATE") + "|^|";
                     resultData += ((int) Float.parseFloat(jsonObject.get("OVNT_CNT").toString())) + "{{|}}";
                 }
+
+                if(resultData.length() > 1){
+                    resultData = resultData.substring(0, resultData.length()-5);
+                }
+
+                result = hanwhaMapper.packageList(resultData);
+
+                if(result.equals("저장완료")){
+                    message = "피키지 등록 완료";
+                }else{
+                    message = " 패키지 등록 실패";
+                }
+
+            }else{
+                message = "호출 실패";
             }
 
-            if(resultData.length() > 1){
-                resultData = resultData.substring(0, resultData.length()-5);
-            }
-
-            result = hanwhaMapper.packageList(resultData);
 
         }catch (Exception e){
+            message = "패키지 목록 조회 실패";
+            statusCode = "500";
             e.printStackTrace();
         }
 
-        return result;
+        return commonFunction.makeReturn("json", statusCode, message);
     }
 
 

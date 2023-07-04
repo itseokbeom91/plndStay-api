@@ -129,7 +129,7 @@ public class YPBService {
             e.printStackTrace();
         }
 
-        return commonFunction.makeReturn(statusCode, message);
+        return commonFunction.makeReturn("json", statusCode, message);
     }
 
 
@@ -186,7 +186,7 @@ public class YPBService {
             e.printStackTrace();
         }
 
-        return commonFunction.makeReturn(statusCode, message);
+        return commonFunction.makeReturn("json", statusCode, message);
     }
 
 
@@ -242,7 +242,7 @@ public class YPBService {
             e.printStackTrace();
         }
 
-        return commonFunction.makeReturn(statusCode, message, result);
+        return commonFunction.makeReturn("json", statusCode, message, result);
 
     }
 
@@ -287,7 +287,7 @@ public class YPBService {
             e.printStackTrace();
         }
 
-        return commonFunction.makeReturn(statusCode, message);
+        return commonFunction.makeReturn("json", statusCode, message);
 
     }
 
