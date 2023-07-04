@@ -9,4 +9,10 @@
 --         FROM /* 예약_테이블*/
 --         WHERE '예약' = #{intBookingIdx}
     </select>
+
+    <select id="getMaxpeopleByroomId">
+        SELECT intQuanMax
+        FROM PLNDSTAY.dbo.RMTYPE
+        WHERE intAID = #{pensionID} AND strRmtypeID = #{roomID}
+    </select>
 </mapper>
