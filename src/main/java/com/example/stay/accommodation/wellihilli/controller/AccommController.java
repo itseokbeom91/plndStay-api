@@ -18,14 +18,14 @@ public class AccommController {
 
     @GetMapping("insertRoomType")
     @ResponseBody
-    public String insertRoomType(HttpServletRequest httpServletRequest){
-        return accommService.insertRoomType(httpServletRequest);
+    public String insertRoomType(String dataType, HttpServletRequest httpServletRequest){
+        return accommService.insertRoomType(dataType, httpServletRequest);
     }
 
     @GetMapping("updateGoods")
     @ResponseBody
-    public String updateGoods(HttpServletRequest httpServletRequest, int intRmIdx, String startDate, String endDate){
-        return accommService.updateGoods(httpServletRequest, intRmIdx, startDate, endDate);
+    public String updateGoods(String dataType, HttpServletRequest httpServletRequest, int intRmIdx, String startDate, String endDate){
+        return accommService.updateGoods(dataType, httpServletRequest, intRmIdx, startDate, endDate);
     }
 
 }

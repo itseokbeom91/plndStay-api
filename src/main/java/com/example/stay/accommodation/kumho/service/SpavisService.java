@@ -32,7 +32,7 @@ public class SpavisService {
     private XmlUtility xmlUtility;
 
     // 쿠폰 사용여부 조회 - 1개씩
-    public String checkCouponStatus(HttpServletRequest httpServletRequest, String couponNo){
+    public String checkCouponStatus(String dataType, HttpServletRequest httpServletRequest, String couponNo){
         LogWriter logWriter = new LogWriter(httpServletRequest.getMethod(), httpServletRequest.getServletPath(), System.currentTimeMillis());
         String statusCode = "200";
         String message = "";
@@ -88,13 +88,13 @@ public class SpavisService {
         }
 
         CommonFunction commonFunction = new CommonFunction();
-        return commonFunction.makeReturn(statusCode, message);
+        return commonFunction.makeReturn(dataType, statusCode, message);
     }
 
 
 
     // 쿠폰 사용여부 조회 - 여러개(동기)
-    public String checkCouponListStatus(HttpServletRequest httpServletRequest){
+    public String checkCouponListStatus(String dataType, HttpServletRequest httpServletRequest){
         LogWriter logWriter = new LogWriter(httpServletRequest.getMethod(), httpServletRequest.getServletPath(), System.currentTimeMillis());
         String statusCode = "200";
         String message = "";
@@ -164,7 +164,7 @@ public class SpavisService {
         }
 
         CommonFunction commonFunction = new CommonFunction();
-        return commonFunction.makeReturn(statusCode, message);
+        return commonFunction.makeReturn(dataType, statusCode, message);
     }
 
     // 쿠폰 사용여부 조회 - 여러개(비동기)
@@ -210,7 +210,7 @@ public class SpavisService {
 
 
     // 티켓 주문
-    public String orderTicket(HttpServletRequest httpServletRequest, int intBookingIdx){
+    public String orderTicket(String dataType, HttpServletRequest httpServletRequest, int intBookingIdx){
         LogWriter logWriter = new LogWriter(httpServletRequest.getMethod(), httpServletRequest.getServletPath(), System.currentTimeMillis());
         String statusCode = "200";
         String message = "";
@@ -225,7 +225,7 @@ public class SpavisService {
         }
 
         CommonFunction commonFunction = new CommonFunction();
-        return commonFunction.makeReturn(statusCode, message);
+        return commonFunction.makeReturn(dataType, statusCode, message);
     }
 
     public Document callSpavisAPI(String spavisUrl){

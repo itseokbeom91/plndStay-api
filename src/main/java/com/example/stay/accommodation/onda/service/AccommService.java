@@ -36,7 +36,7 @@ public class AccommService {
     Gson gson = new GsonBuilder().setPrettyPrinting().create();
 
     // 시설, 룸타입, ratePlan 등록
-    public String insertAccommTotal(HttpServletRequest httpServletRequest){
+    public String insertAccommTotal(String dataType, HttpServletRequest httpServletRequest){
         LogWriter logWriter = new LogWriter(httpServletRequest.getMethod(), httpServletRequest.getServletPath(), System.currentTimeMillis());
         String statusCode = "200";
         String message = "";
@@ -425,7 +425,7 @@ public class AccommService {
             logWriter.log(0);
         }
         CommonFunction commonFunction = new CommonFunction();
-        return commonFunction.makeReturn(statusCode, message);
+        return commonFunction.makeReturn(dataType, statusCode, message);
     }
 
     // 시설 수정(시설+이미지+취소규정+키워드)
@@ -839,7 +839,7 @@ public class AccommService {
 
 
     // 특정 패키지의 재고 및 요금 정보 가져와서 insert or update
-    public String updateGoods(int intRmIdx, String from, String to){
+    public String updateGoods(String dataType, int intRmIdx, String from, String to){
         String statusCode = "200";
         String message = "";
 
@@ -942,7 +942,7 @@ public class AccommService {
             logWriter.log(0);
         }
 
-        return commonFunction.makeReturn(statusCode, message);
+        return commonFunction.makeReturn(dataType, statusCode, message);
     }
 
     // CONTENTS_PHOTO, CONDO_PHOTO에 INSERT

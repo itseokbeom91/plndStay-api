@@ -137,7 +137,7 @@ public class AccommService {
             throw new RuntimeException(e);
         }
 
-        return commonFunction.makeReturn("", "");
+        return commonFunction.makeReturn("json", "", "");
     }
 
     public String getPensionStatus(String pensionId, String sDate, String eDate) {

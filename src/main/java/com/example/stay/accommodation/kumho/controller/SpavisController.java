@@ -28,21 +28,21 @@ public class SpavisController {
     // 쿠폰 사용여부 조회 - 1개씩
     @GetMapping("checkCouponStatus")
     @ResponseBody
-    public String checkCouponStatus(HttpServletRequest httpServletRequest, String couponNo){
-        return spavisService.checkCouponStatus(httpServletRequest, couponNo);
+    public String checkCouponStatus(String dataType, HttpServletRequest httpServletRequest, String couponNo){
+        return spavisService.checkCouponStatus(dataType, httpServletRequest, couponNo);
     }
 
     // 쿠폰 사용여부 조회 - 여러개(동기)
     @GetMapping("checkCouponListStatus")
     @ResponseBody
-    public String checkCouponListStatus(HttpServletRequest httpServletRequest){
-        return spavisService.checkCouponListStatus(httpServletRequest);
+    public String checkCouponListStatus(String dataType, HttpServletRequest httpServletRequest){
+        return spavisService.checkCouponListStatus(dataType, httpServletRequest);
     }
 
     // 쿠폰 사용여부 조회 - 여러개(비동기)
     @GetMapping("checkCouponListStatus2")
     @ResponseBody
-    public String checkCouponListStatus2(HttpServletRequest httpServletRequest){
+    public String checkCouponListStatus2(String dataType, HttpServletRequest httpServletRequest){
         LogWriter logWriter = new LogWriter(httpServletRequest.getMethod(), httpServletRequest.getServletPath(), System.currentTimeMillis());
         String statusCode = "200";
         String message = "";
@@ -75,14 +75,14 @@ public class SpavisController {
         logWriter.log(0);
 
         CommonFunction commonFunction = new CommonFunction();
-        return commonFunction.makeReturn(statusCode, message);
+        return commonFunction.makeReturn(dataType, statusCode, message);
     }
 
     // 티켓 주문
     @GetMapping("orderTicket")
     @ResponseBody
-    public String orderTicket(HttpServletRequest httpServletRequest, int intBookingIdx){
-        return spavisService.orderTicket(httpServletRequest, intBookingIdx);
+    public String orderTicket(String dataType, HttpServletRequest httpServletRequest, int intBookingIdx){
+        return spavisService.orderTicket(dataType, httpServletRequest, intBookingIdx);
     }
 
 

@@ -49,7 +49,7 @@ public class BookingService {
     private String site = "1"; // 현재 무조건 1
 
     // 예약
-    public String createBooking(int intBookingID, HttpServletRequest httpServletRequest){
+    public String createBooking(String dataType, int intBookingID, HttpServletRequest httpServletRequest){
         LogWriter logWriter = new LogWriter(httpServletRequest.getMethod(), httpServletRequest.getServletPath(), System.currentTimeMillis());
         String statusCode = "200";
         String message = "";
@@ -129,7 +129,7 @@ public class BookingService {
             logWriter.log(0);
             e.printStackTrace();
         }
-        return commonFunction.makeReturn(statusCode, message);
+        return commonFunction.makeReturn(dataType, statusCode, message);
     }
 
     // 예약 시 잔여 객실 수 조회
@@ -163,7 +163,7 @@ public class BookingService {
 //    }
 
     // 재고 등록 및 수정
-    public String updateGoods(String fr_date, String to_date, int intRmIdx, HttpServletRequest httpServletRequest){
+    public String updateGoods(String dataType, String fr_date, String to_date, int intRmIdx, HttpServletRequest httpServletRequest){
         LogWriter logWriter = new LogWriter(httpServletRequest.getMethod(), httpServletRequest.getServletPath(), System.currentTimeMillis());
         String statusCode = "200";
         String message = "";
@@ -359,11 +359,11 @@ public class BookingService {
             logWriter.log(0);
             e.printStackTrace();
         }
-        return commonFunction.makeReturn(statusCode, message);
+        return commonFunction.makeReturn(dataType, statusCode, message);
     }
 
     // 예약 취소
-    public String cancelBooking(int intBookingID, HttpServletRequest httpServletRequest){
+    public String cancelBooking(String dataType, int intBookingID, HttpServletRequest httpServletRequest){
         LogWriter logWriter = new LogWriter(httpServletRequest.getMethod(), httpServletRequest.getServletPath(), System.currentTimeMillis());
         String statusCode = "200";
         String message = "";
@@ -408,11 +408,11 @@ public class BookingService {
             logWriter.log(0);
             e.printStackTrace();
         }
-        return commonFunction.makeReturn(statusCode, message);
+        return commonFunction.makeReturn(dataType, statusCode, message);
     }
 
     // 예약현황 조회
-    public String getReservationStatus(int intBookingID, HttpServletRequest httpServletRequest){
+    public String getReservationStatus(String dataType, int intBookingID, HttpServletRequest httpServletRequest){
         LogWriter logWriter = new LogWriter(httpServletRequest.getMethod(), httpServletRequest.getServletPath(), System.currentTimeMillis());
         String statusCode = "200";
         String message = "";
@@ -488,11 +488,11 @@ public class BookingService {
             e.printStackTrace();
         }
 
-        return commonFunction.makeReturn(statusCode, message, resultMap);
+        return commonFunction.makeReturn(dataType, statusCode, message, resultMap);
     }
 
     // 예약 대사자료 조회
-    public String getReservations(String fr_date, String to_date ,HttpServletRequest httpServletRequest){
+    public String getReservations(String dataType, String fr_date, String to_date ,HttpServletRequest httpServletRequest){
         LogWriter logWriter = new LogWriter(httpServletRequest.getMethod(), httpServletRequest.getServletPath(), System.currentTimeMillis());
         String statusCode = "200";
         String message = "";
@@ -570,7 +570,7 @@ public class BookingService {
             e.printStackTrace();
         }
 
-        return commonFunction.makeReturn(statusCode, message, resultMap);
+        return commonFunction.makeReturn(dataType, statusCode, message, resultMap);
     }
 
     // 금호 api 호출
