@@ -18,7 +18,7 @@ import java.util.Map;
 
 public class CommonFunction<T> {
 
-    public String makeReturn(String statusCode, String message){
+    public String makeReturn(String returnType, String statusCode, String message){
 
         String strResult = "";
         try{
@@ -26,7 +26,13 @@ public class CommonFunction<T> {
             jsonObject.put("code", statusCode);
             jsonObject.put("message", message);
 
-            strResult = Constants.jsonpCallback + "(" + jsonObject.toJSONString() + ")";
+            if(returnType.equals("json")){
+                strResult = jsonObject.toJSONString();
+            }else if(returnType.equals("jsonp")){
+                strResult = Constants.jsonpCallback + "(" + jsonObject.toJSONString() + ")";
+            }else if(returnType.equals("화면출력???")){
+                strResult = "?????????";
+            }
 
         }catch (Exception e){
             e.printStackTrace();
@@ -35,7 +41,7 @@ public class CommonFunction<T> {
         return strResult;
     }
 
-    public String makeReturn(String statusCode, String message, T result){
+    public String makeReturn(String returnType, String statusCode, String message, T result){
 
         String strResult = "";
         try{
@@ -44,7 +50,13 @@ public class CommonFunction<T> {
             jsonObject.put("message", message);
             jsonObject.put("result", result);
 
-            strResult = Constants.jsonpCallback + "(" + jsonObject.toJSONString() + ")";
+            if(returnType.equals("json")){
+                strResult = jsonObject.toJSONString();
+            }else if(returnType.equals("jsonp")){
+                strResult = Constants.jsonpCallback + "(" + jsonObject.toJSONString() + ")";
+            }else if(returnType.equals("화면출력???")){
+                strResult = "?????????";
+            }
 
         }catch (Exception e){
             e.printStackTrace();
@@ -208,11 +220,11 @@ public class CommonFunction<T> {
 
 
             } else {
-                return makeReturn(String.valueOf(response.code()), response.message());
+                return makeReturn("json", String.valueOf(response.code()), response.message());
             }
         } catch (Exception e){
             e.printStackTrace();
-            return makeReturn(e.toString(), e.getMessage());
+            return makeReturn("json", e.toString(), e.getMessage());
         }
 
     }
