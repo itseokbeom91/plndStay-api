@@ -6,8 +6,9 @@
 <mapper namespace="com.example.stay.accommodation.kumho.mapper.SpavisMapper">
     <select id="couponList" resultType="String">
         SELECT ticketNo FROM ASAN_TICKET_CONDO
-        WHERE CONVERT(DATE,regdate) >= CONVERT(DATE,'2021-01-01')
-        AND strUseYn = 'N'
+--         WHERE CONVERT(DATE,regdate) >= CONVERT(DATE,'2021-01-01')
+--         AND strUseYn = 'N'
+        WHERE ticketNo LIKE 'S2021%'
     </select>
 
     <update id="updateCouponDates" parameterType="String">

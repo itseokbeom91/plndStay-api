@@ -16,16 +16,16 @@ public class AccommController {
     @Autowired
     private AccommService accommService;
 
-    @GetMapping("getRoomType")
-    @ResponseBody
-    public void insertRoomType(){
-        accommService.getRoomType();
-    }
-
     @GetMapping("insertRoomType")
     @ResponseBody
     public String insertRoomType(HttpServletRequest httpServletRequest){
         return accommService.insertRoomType(httpServletRequest);
+    }
+
+    @GetMapping("updateGoods")
+    @ResponseBody
+    public String updateGoods(HttpServletRequest httpServletRequest, int intRmIdx, String startDate, String endDate){
+        return accommService.updateGoods(httpServletRequest, intRmIdx, startDate, endDate);
     }
 
 }

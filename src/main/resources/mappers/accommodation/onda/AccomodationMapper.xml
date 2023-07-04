@@ -21,7 +21,7 @@
     </select>
 
     <select id="webhookUpdateGoods" parameterType="StockDto" resultType="String">
-        EXEC spONDA_STOCK_TEMP_REGIST #{strStockDatas}, ''
+        EXEC spONDAnWHP_STOCK_TEMP_REGIST 'OND', #{strStockDatas}, ''
     </select>
 
     <select id="getPropertyIDNRmtypeID" parameterType="String" resultType="Map">
@@ -62,8 +62,8 @@
 
     <select id="getDistrictCode" parameterType="String" resultType="Map">
         SELECT
-            B.strCode AS intDistrict1,
-            A.strCode AS intDistrict2
+            B.strCode AS strDistrict1,
+            A.strCode AS strDistrict2
         FROM CODE_DISTRICT A WITH(NOLOCK)
         LEFT JOIN dbo.CODE_DISTRICT B WITH(NOLOCK) ON LEFT(A.strCode,2) = B.strCode
         WHERE A.strName = #{strCity} AND A.intDepth = 2

@@ -273,6 +273,9 @@ public class BookingService {
                                     String dateSales = dateFormat.format(sdf.parse(rdate));
 
                                     int intStock = Integer.parseInt(xmlUtility.getTagValue("remainCount", element));
+                                    if(intStock < 0){
+                                        intStock = 0;
+                                    }
                                     int intOmkStock = intStock;
 
                                     int intCost = 0, intSales = 0, intExtraA = 0, intExtraB = 0, intExtraC = 0, intOmkSales = 0;

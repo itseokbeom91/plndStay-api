@@ -898,6 +898,9 @@ public class AccommService {
                     LocalDate date = LocalDate.of(year, month, day);
                     DayOfWeek dayOfWeek = date.getDayOfWeek();
 
+                    /**
+                     * 임시
+                     */
                     double weekday = 1.09; // 일~목
                     double friday = 1.09; // 금
                     double saturday = 1.1; // 토
@@ -914,6 +917,8 @@ public class AccommService {
                     strStockDatas += strDateSales + "|^|" + intStock + "|^|" + intCost + "|^|" + intSales + "|^|"
                             + intExtraA + "|^|" + intExtraC + "|^|" + intExtraB + "|^|" + intOmkStock + "|^|"  + doubleOmkSales+ "{{|}}";
                 }
+
+                strStockDatas = strStockDatas.substring(0, strStockDatas.length()-5);
 
                 String result = accommMapper.updateGoods(intAID, intRmIdx, strStockDatas);
                 String strResult = result.substring(result.length()-4);
@@ -1094,6 +1099,9 @@ public class AccommService {
                     LocalDate date = LocalDate.of(year, month, day);
                     DayOfWeek dayOfWeek = date.getDayOfWeek();
 
+                    /**
+                     * 임시
+                     */
                     double weekday = 1.09; // 일~목
                     double friday = 1.09; // 금
                     double saturday = 1.1; // 토

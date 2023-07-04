@@ -630,6 +630,64 @@ public class BookingService {
         }
     }
 
+    public String getSettlement(String stndDt){
+        OkHttpClient client = new OkHttpClient().newBuilder().build();
+
+        String statusCode ="";
+        String msg ="";
+        String result = new String();
+        String pkgData = "";
+
+        JSONObject requestJson = new JSONObject();
+        requestJson.put("businessId", Constants.sonoPackId);
+        requestJson.put("language", Constants.sonoLanguage);
+        requestJson.put("type", "S");
+        requestJson.put("stndDt", stndDt);
+        String contents = requestJson.toJSONString();
+        MediaType mediaType = MediaType.parse("application/json");
+        RequestBody body = RequestBody.create(mediaType, contents);
+
+        Request request = new Request.Builder()
+                .url(Constants.sonoPackPath + "/settlementNopkgNo")
+                .method("POST", body)
+                .addHeader("X-AUTH-TOKEN", Constants.sonoPackAuth)
+                .addHeader("Content-Type", "application/json")
+                .build();
+
+//        LogWriter logWriter = new LogWriter(request.method(), request.url().toString(), startTime);
+
+        try {
+            Response response = client.newCall(request).execute();
+
+            if(response.isSuccessful()) {
+                //response 파싱
+                String responseBody = response.body().string();
+                JSONParser jsonParser = new JSONParser();
+                JSONObject responseJson = (JSONObject) jsonParser.parse(responseBody);
+
+                List<Map<String, Object>> resultList = (List<Map<String, Object>>) responseJson.get("resultList");
+                return commonFunction.makeReturn(statusCode, msg, responseJson);
+
+
+            } else {
+
+                //response 파싱
+                String responseBody = response.body().string();
+                JSONParser jsonParser = new JSONParser();
+                JSONObject responseJson = (JSONObject) jsonParser.parse(responseBody);
+
+                List<Map<String, Object>> resultList = (List<Map<String, Object>>) responseJson.get("resultList");
+                return commonFunction.makeReturn(statusCode, msg, responseJson);
+            }
+
+        } catch (Exception e) {
+            System.out.println("e ::: 에러 출력! == " + e);
+            System.out.println(e.getMessage());
+            System.out.println("responseJson ::: 에러 출력!");
+            return commonFunction.makeReturn(e.toString(), e.getMessage());
+        }
+    }
+
 
     //insert
     //패키지, 룸, 시설정보
