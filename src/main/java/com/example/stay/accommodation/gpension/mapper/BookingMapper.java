@@ -6,5 +6,6 @@ import java.util.Map;
 
 @Repository("gpension.BookingMapper")
 public interface BookingMapper {
-    Map<String , Object> getBookingInfoFromBookingIdx(int intBookingIdx);
+    Map<String , Object> getBookingInfoFromBookingIdx(String BookingIdx);
+    int getMaxpeopleByroomId(String pensionID, String roomID);
 }
