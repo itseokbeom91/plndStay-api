@@ -28,18 +28,18 @@ public class BookingController {
 
     @GetMapping("/createBooking")
     @ResponseBody
-    public String createBooking(int intBookingIdx) {
-        return bookingService.createBooking(intBookingIdx);
+    public String createBooking(String BookingIdx) {
+        return bookingService.createBooking(BookingIdx);
     }
     @GetMapping("/checkBooking")
     @ResponseBody
-    public String confirmBooking(int intBookingIdx) {
-        return bookingService.confirmBooking(intBookingIdx);
+    public String confirmBooking(String BookingIdx) {
+        return bookingService.confirmBooking(BookingIdx);
     }
     @GetMapping("/cancelBooking")
     @ResponseBody
-    public String cancelBooking(int intBookingIdx) {
-        return bookingService.cancelBooking(intBookingIdx);
+    public String cancelBooking(String BookingIdx) {
+        return bookingService.cancelBooking(BookingIdx);
     }
     @GetMapping("/searchRoom")
     @ResponseBody
@@ -48,7 +48,7 @@ public class BookingController {
     }
     @GetMapping("/searchOrder")
     @ResponseBody
-    public String searchOrder(int intBookingIdx) {
-        return bookingService.searchOrder(intBookingIdx);
+    public String searchOrder(String BookingIdx) {
+        return bookingService.searchOrder(BookingIdx);
     }
 }
