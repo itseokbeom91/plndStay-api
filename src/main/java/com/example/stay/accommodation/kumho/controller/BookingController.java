@@ -21,8 +21,8 @@ public class BookingController {
      */
     @GetMapping("createBooking")
     @ResponseBody
-    public String createBooking(int intBookingID, HttpServletRequest httpServletRequest) {
-        return bookingService.createBooking(intBookingID, httpServletRequest);
+    public String createBooking(String dataType, int intBookingID, HttpServletRequest httpServletRequest) {
+        return bookingService.createBooking(dataType, intBookingID, httpServletRequest);
     }
 
     /**
@@ -30,8 +30,8 @@ public class BookingController {
      */
     @GetMapping("cancelBooking")
     @ResponseBody
-    public String cancelBooking(int intBookingID, HttpServletRequest httpServletRequest) {
-        return bookingService.cancelBooking(intBookingID, httpServletRequest);
+    public String cancelBooking(String dataType, int intBookingID, HttpServletRequest httpServletRequest) {
+        return bookingService.cancelBooking(dataType, intBookingID, httpServletRequest);
     }
 
     /**
@@ -39,8 +39,8 @@ public class BookingController {
      */
     @GetMapping("getReservationStatus")
     @ResponseBody
-    public String getReservationStatus(int intBookingID, HttpServletRequest httpServletRequest) {
-        return bookingService.getReservationStatus(intBookingID, httpServletRequest);
+    public String getReservationStatus(String dataType, int intBookingID, HttpServletRequest httpServletRequest) {
+        return bookingService.getReservationStatus(dataType, intBookingID, httpServletRequest);
     }
 
     /**
@@ -48,8 +48,8 @@ public class BookingController {
      */
     @GetMapping("getReservations")
     @ResponseBody
-    public String getReservations(String fr_date, String to_date, HttpServletRequest httpServletRequest){
-        return bookingService.getReservations(fr_date, to_date, httpServletRequest);
+    public String getReservations(String dataType, String fr_date, String to_date, HttpServletRequest httpServletRequest){
+        return bookingService.getReservations(dataType, fr_date, to_date, httpServletRequest);
     }
 
     /**
@@ -57,8 +57,8 @@ public class BookingController {
      */
     @GetMapping("updateGoods")
     @ResponseBody
-    public String getRemainCountList(String fr_date, String to_date, int intRmIdx, HttpServletRequest httpServletRequest){
-        return bookingService.updateGoods(fr_date, to_date, intRmIdx, httpServletRequest);
+    public String getRemainCountList(String dataType, String fr_date, String to_date, int intRmIdx, HttpServletRequest httpServletRequest){
+        return bookingService.updateGoods(dataType, fr_date, to_date, intRmIdx, httpServletRequest);
     }
 
 //    @GetMapping("getRemainCount")

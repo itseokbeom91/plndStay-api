@@ -96,8 +96,8 @@ public class AccommController {
      */
     @GetMapping("insertAccommTotal")
     @ResponseBody
-    public String insertAccommTotal(HttpServletRequest httpServletRequest){
-        return accommService.insertAccommTotal(httpServletRequest);
+    public String insertAccommTotal(String dataType, HttpServletRequest httpServletRequest){
+        return accommService.insertAccommTotal(dataType, httpServletRequest);
     }
 
     /**
@@ -106,13 +106,13 @@ public class AccommController {
      */
     @GetMapping("updateAccomm")
     @ResponseBody
-    public String updateAccomm(String propertyId){
+    public String updateAccomm(String dataType, String propertyId){
 
         JSONObject jsonObject =  accommService.updateAccomm(propertyId);
         String code = jsonObject.get("statusCode").toString();
         String message = jsonObject.get("message").toString();
 
-        return commonFunction.makeReturn(code, message);
+        return commonFunction.makeReturn(dataType, code, message);
     }
 
     /**
@@ -124,13 +124,13 @@ public class AccommController {
      */
     @GetMapping("updateRmtype")
     @ResponseBody
-    public String updateRmtype(String strPropertyID, String strRmtypeID, @Nullable String strRateplanID, HttpServletRequest httpServletRequest){
+    public String updateRmtype(String dataType, String strPropertyID, String strRmtypeID, @Nullable String strRateplanID, HttpServletRequest httpServletRequest){
 
         JSONObject jsonObject =  accommService.updateRmtype(strPropertyID, strRmtypeID, strRateplanID, httpServletRequest);
         String code = jsonObject.get("statusCode").toString();
         String message = jsonObject.get("message").toString();
 
-        return commonFunction.makeReturn(code, message);
+        return commonFunction.makeReturn(dataType, code, message);
     }
 
     /**
@@ -138,8 +138,8 @@ public class AccommController {
      */
     @GetMapping("updateGoods")
     @ResponseBody
-    public String updateGoods(int intRmIdx, String from, String to){
-        return accommService.updateGoods(intRmIdx, from, to);
+    public String updateGoods(String dataType, int intRmIdx, String from, String to){
+        return accommService.updateGoods(dataType, intRmIdx, from, to);
     }
 
 //    /**

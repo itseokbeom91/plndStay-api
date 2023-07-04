@@ -41,7 +41,7 @@ public class AccommService {
 
 
     // 객실 정보 조회
-    public String insertRoomType(HttpServletRequest httpServletRequest){
+    public String insertRoomType(String dataType, HttpServletRequest httpServletRequest){
         String statusCode = "200";
         String message = "";
 
@@ -113,11 +113,11 @@ public class AccommService {
             logWriter.add("error : " + e.getMessage());
             logWriter.log(0);
         }
-        return commonFunction.makeReturn(statusCode, message);
+        return commonFunction.makeReturn(dataType, statusCode, message);
     }
 
     // 재고 및 예약가능여부 조회
-    public String updateGoods(HttpServletRequest httpServletRequest, int intRmIdx, String startDate, String endDate){
+    public String updateGoods(String dataType, HttpServletRequest httpServletRequest, int intRmIdx, String startDate, String endDate){
         String statusCode  = "200";
         String message = "";
         LogWriter logWriter = new LogWriter(httpServletRequest.getMethod(), httpServletRequest.getServletPath(), System.currentTimeMillis());
@@ -125,7 +125,6 @@ public class AccommService {
         try{
             String strUrl = Constants.whpUrl + ":8070/api/vapi/reservation/calendar?s_vendor_code=" + Constants.whpVendorCode +
                             "&sresrm=C&s_arrday=" + startDate + "&s_today=" + endDate;
-//                    + "&s_vendor_gb=" + "F";
             String method = "GET";
 
             JsonNode jsonNode = commonFunction.callJsonApi("", "", new JSONObject(), strUrl, method);
@@ -226,7 +225,7 @@ public class AccommService {
             logWriter.add("error : " + e.getMessage());
             logWriter.log(0);
         }
-        return commonFunction.makeReturn(statusCode, message);
+        return commonFunction.makeReturn(dataType, statusCode, message);
     }
 
 

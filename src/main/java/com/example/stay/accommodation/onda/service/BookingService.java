@@ -108,7 +108,7 @@ public class BookingService {
 //    }
 
     // 온다에 예약정보 전송데이터 생성
-    public String createBookingInfo(int intBookingID, HttpServletRequest httpServletRequest){
+    public String createBookingInfo(String dataType, int intBookingID, HttpServletRequest httpServletRequest){
         LogWriter logWriter = new LogWriter(httpServletRequest.getMethod(), httpServletRequest.getServletPath(), System.currentTimeMillis());
 
         String statusCode = "200";
@@ -240,7 +240,7 @@ public class BookingService {
         }
 
 
-        return commonFunction.makeReturn(statusCode, message);
+        return commonFunction.makeReturn(dataType, statusCode, message);
     }
 
     public boolean createBooking(String propertyId, JSONObject requestJson, int intCondoID, int intRoomID, int intRateID, long stayDays){
@@ -383,7 +383,7 @@ public class BookingService {
     }
 
 
-    public String cancelBookingInfo(int intBookingID, HttpServletRequest httpServletRequest){
+    public String cancelBookingInfo(String dataType, int intBookingID, HttpServletRequest httpServletRequest){
         LogWriter logWriter = new LogWriter(httpServletRequest.getMethod(), httpServletRequest.getServletPath(), System.currentTimeMillis());
 
         String statusCode = "200";
@@ -433,7 +433,7 @@ public class BookingService {
             logWriter.add("error : " + e.getMessage());
             logWriter.log(0);
         }
-        return commonFunction.makeReturn(statusCode, message);
+        return commonFunction.makeReturn(dataType, statusCode, message);
     }
 
     // 예약 취소
