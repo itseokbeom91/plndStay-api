@@ -4,36 +4,20 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="com.example.stay.accommodation.hotelStory.mapper.HotelStoryMapper">
-<!--
-    <select id="insertAccomm" resultType="string">
-        exec dbo.spGW_CONDO_REGIST_SUPPLIER 0, #{strPropertyId}, 'HS', #{strPropertyName}, '', #{strAddress}, '', #{strPhone}, '', #{strNumRooms}, '', #{strLocation}, #{strHomePageUrl}, #{strCheckInTime}, #{strCheckOutTime}
-                                            , 'Y', #{strLongitude}, #{strLatitude}, '', #{strCity}, '', #{strPropertyDescription}, #{strTrafficInformation}, #{strRoomInformation}, '', ''
-    </select>
 
-    <select id="insertRoomType" resultType="string">
-        exec dbo.spGW_ROOMTYPE_REGIST_SUPPLIER 0, #{strRoomTypeName}, #{intAID}, #{intMinPersons}, #{intMaxPersons}, #{strRoomTypeId}, #{intStep}, #{strIngYn}, #{strText1}, #{strText2}, ''
-    </select>
-
-    <select id="insertRatePlan" resultType="string">
-        exec dbo.spGW_RATEPLAN_REGIST_SUPPLIER 0, #{intAID}, #{strAccommId}, #{intToconIdx}, #{strRoomTypeId}, #{strRatePlanId}, #{strRatePlanName}, #{strBedTypeCode}, #{strMealCode}, #{intMinPersons}, #{intMaxPersons}, #{intPrice}, ''
-    </select>
-
-    <select id="insertAccommtotal" resultType="string">
-        exec dbo.spGW_CONDO_REGIST_TOTAL #{strPropertyId}, 'HS', #{strPropertyName}, '', #{strAddress}, '', #{strPhone}, '', #{strNumRooms}, '', #{strLocation}, #{strHomePageUrl}, #{strCheckInTime}, #{strCheckOutTime}
-        , 'Y', #{strLongitude}, #{strLatitude}, '', #{strCity}, '', #{strPropertyDescription}, #{strTrafficInformation}, #{strRoomInformation}, '', #{imgData}, #{cancelData}, #{roomTypeData},''
-    </select>
--->
     <select id="insertProperty" resultType="string">
         exec PLNDSTAY.dbo.spHS_ACCOMM_REGIST #{strPropertyId}, 'HS', #{strLocation}, #{strCity}, #{strPropertyName}, #{strLatitude}, #{strLongitude}, #{strStarRating}, #{strNumRooms}, #{strCheckInTime}, #{strCheckOutTime}, #{strPhone}, #{strAddress}
         , #{strHomePageUrl}, #{strPropertyDescription}, #{strTrafficInformation}, #{strRsvGuide}, #{imgData}, #{cancelData}, #{roomTypeData}, #{addData}, ''
     </select>
 
-    <!--<select id="insertGoods" resultType="String">
-        EXEC spGW_GOODS_REGIST_SUPPLIER #{strRatePlanID}, ${intStock}, #{strDate}, ${intBasicPrice}, ${intSalePrice}, 0, 0, ''
-    </select>-->
+    <select id="getAcmRmIdx" resultType="map">
+        SELECT RM.intAID, RM.intIdx FROM RMTYPE RM WITH(NOLOCK)
+        INNER JOIN ACCOMM ACM WITH(NOLOCK) ON RM.intAID = ACM.intAID
+        WHERE ACM.strPropertyID = #{strPropertyId} AND RM.strRmtypeID = #{strRoomTypeId} AND RM.strRateplanID = #{strRatePlanId}
+    </select>
 
     <select id="insertStock" resultType="String">
-        EXEC PLNDSTAY.dbo.spGW_STOCK_TEMP_REGIST #{strRatePlanId}, #{strRoomTypeId}, #{propertyId}, #{strDate}, ${intStock}, ${intBasicPrice}, ${intSalePrice}, 0, 0, 0, ${intStock}, ${intOMKPrice}, 'HS', '', ''
+        EXEC PLNDSTAY.dbo.spGW_STOCK_TEMP_REGIST ${intAID}, ${intRmIdx}, '', #{strStockDatas}, ''
     </select>
 
     <select id="getbooking" resultType="com.example.stay.accommodation.hotelStory.dto.BookingDto">
