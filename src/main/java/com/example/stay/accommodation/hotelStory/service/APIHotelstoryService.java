@@ -45,9 +45,6 @@ public class APIHotelstoryService {
     @Autowired
     private HotelStoryMapper hotelStoryMapper;
 
-    @Autowired
-    private AccommMapper accomodationMapper;
-
 
     public String getAccomm(String strAccommID){
 
@@ -59,7 +56,7 @@ public class APIHotelstoryService {
             System.out.println("API 호출 시작");
 
             // propertyList 불러오기
-            Document document = xmlUtility.HotelStoryAPIList("propertyList",strAccommID);
+            Document document = HotelStoryAPIList("propertyList",strAccommID);
 
 
             // roomTypeListMap, ratePlanListMap 담을 map 생성
@@ -83,12 +80,12 @@ public class APIHotelstoryService {
                     Element eElement = (Element) node;
 
                     // roomTypeList 불러오기
-                    Document requestRoomTypeList = xmlUtility.HotelStoryAPIList("roomTypeList",xmlUtility.getTagValue("PropertyId", eElement));
+                    Document requestRoomTypeList = HotelStoryAPIList("roomTypeList",xmlUtility.getTagValue("PropertyId", eElement));
 
                     // RatePlanList 불러오기
                     long rpStart = System.currentTimeMillis();
                     //System.out.println("API 호출 시작");
-                    Document requestRatePlanList = xmlUtility.HotelStoryAPIList("RatePlanList",xmlUtility.getTagValue("PropertyId", eElement));
+                    Document requestRatePlanList = HotelStoryAPIList("RatePlanList",xmlUtility.getTagValue("PropertyId", eElement));
                     //System.out.println(xmlUtility.parsingXml(requestRatePlanList));
 
                     // 10개 단위 콘솔 출력
@@ -239,7 +236,7 @@ public class APIHotelstoryService {
             result += "Latitude = " + xmlUtility.getTagValue("Latitude", tagElement) + "<br>";
             result += "Longitude = " + xmlUtility.getTagValue("Longitude", tagElement) + "<br>";
             String cityCode = xmlUtility.getTagValue("CityCode", tagElement);
-            Document cityDocument = xmlUtility.HotelStoryAPIList("CityList","");
+            Document cityDocument = HotelStoryAPIList("CityList","");
             result += "Location = " + getCityNameByCode(cityDocument, cityCode)[1] + "<br>";
             result += "city = " + getCityNameByCode(cityDocument, cityCode)[0] + "<br>";
             result += "HomePageUrl = " + xmlUtility.getTagValue("HomePageUrl", tagElement) + "<br>";
@@ -318,12 +315,13 @@ public class APIHotelstoryService {
             /**
              * 취소규정 데이터 insert
              */
-            CancelInfoDto cancelInfoDto = new CancelInfoDto();
-            cancelInfoDto.setStrCname(strPropertyName);
-            cancelInfoDto.setIntCid(intAID);
 
-            String cancelData = "";
+            String cancelDatas = "";
             NodeList cancelList = tagElement.getElementsByTagName("CancelPenalty");
+
+            // 성수기 요금 표 안줄 때 비수기꺼로 넣기 위함(반대의 경우도 적용)
+            int intOpsCnt = 0; // 성수기 요금표 수
+            int intOofCnt = 0; // 비수기 요금표 수
             for(int i=0; i<cancelList.getLength(); i++){
                 Node node = cancelList.item(i);
 
@@ -332,12 +330,13 @@ public class APIHotelstoryService {
 
                     String strCnFlag = "OPS";
                     if(element.getAttribute("Type").equals("1")){ // 비성수기
-                        cancelInfoDto.setStrCnFlag("OOF");
                         strCnFlag = "OOF";
+                        intOofCnt += 1;
                     }else{
-                        cancelInfoDto.setStrCnFlag("OPS");
+                        intOpsCnt += 1;
                     }
 
+                    int intDateCnt = 0; // 비어있는 날짜 수수료 넣기 위함
                     NodeList infoList = element.getElementsByTagName("Deadline");
                     for(int j=0; j<infoList.getLength(); j++){
                         Node infoNode = infoList.item(j);
@@ -345,18 +344,40 @@ public class APIHotelstoryService {
                         if(infoNode.getNodeType() == Node.ELEMENT_NODE){
                             Element infoElement = (Element) infoNode;
 
-                            cancelInfoDto.setIntCnDcnt(Integer.parseInt(infoElement.getAttribute("Date")));
-                            cancelInfoDto.setIntCnPer(Integer.parseInt(infoElement.getAttribute("value")));
-                            //accomodationMapper.cancelInfoReg(cancelInfoDto);
-                            cancelData += strCnFlag +"|^|"+ infoElement.getAttribute("Date") +"|^|"+ infoElement.getAttribute("value") + "{{|}}";
+                            if(intDateCnt != 0){ // 처음 제외
+                                int intSubCnt = Integer.parseInt(infoElement.getAttribute("Date")) - intDateCnt;
+
+                                // 앞의 날짜와 이틀 이상 차이날 때
+                                if(intSubCnt > 1){
+                                    for(int c=1; c<intSubCnt; c++){
+                                        cancelDatas += strCnFlag +"|^|"+ (intDateCnt+1) +"|^|"+ infoElement.getAttribute("value") + "{{|}}";
+                                    }
+                                }
+                            }
+                            cancelDatas += strCnFlag +"|^|"+ infoElement.getAttribute("Date") +"|^|"+ infoElement.getAttribute("value") + "{{|}}";
+
+                            intDateCnt = Integer.parseInt(infoElement.getAttribute("Date"));
+
                         }
                     }
 
                 }
             }
-            if(cancelData.length() > 1){
-                cancelData = cancelData.substring(0, cancelData.length()-5);
+
+            // 비수기, 성수기 중 하나만 보내줄 때
+            if(intOpsCnt + intOofCnt == 1){
+                if(intOpsCnt == 0){
+                    cancelDatas += cancelDatas.replace("OOF", "OPS");
+                }else if(intOofCnt == 0){
+                    cancelDatas += cancelDatas.replace("OPS", "OOF");
+                }
             }
+
+            if(cancelDatas.length() > 1){
+                cancelDatas = cancelDatas.substring(0, cancelDatas.length()-5);
+            }
+
+            System.out.println(cancelDatas);
 
 
             /**
@@ -472,8 +493,6 @@ public class APIHotelstoryService {
                                 ratePlanData = ratePlanData.substring(0, ratePlanData.length()-5);
                             }
 
-
-
                             roomTypeData += strRoomTypeName +"|^|"+ intMinPersons +"|^|"+ intMaxPersons +"|^|"+ strRoomTypeId +"|^|"+ step +"|^|"+ strIngYn +"|^|"+ strText +"|^|"+ ratePlanData +"{{|}}"; // strRoomInformation
                             //System.out.println(strRoomInformation);
                         }else{
@@ -489,11 +508,10 @@ public class APIHotelstoryService {
             }
 
             // 프로시저 돌려
-
-            String procResult = hotelStoryMapper.insertProperty(strPropertyId, strLocation, strCity, strPropertyName, strLatitude, strLongitude, strStarRating, strNumRooms, strCheckInTime, strCheckOutTime, strPhone, strAddress, strHomePageUrl
-                    , strPropertyDescription, strTrafficInformation, strRsvGuide, imgData, cancelData, roomTypeData, addData);
-
-            System.out.println(procResult);
+//            String procResult = hotelStoryMapper.insertProperty(strPropertyId, strLocation, strCity, strPropertyName, strLatitude, strLongitude, strStarRating, strNumRooms, strCheckInTime, strCheckOutTime, strPhone, strAddress, strHomePageUrl
+//                    , strPropertyDescription, strTrafficInformation, strRsvGuide, imgData, cancelData, roomTypeData, addData);
+//
+//            System.out.println(procResult);
 
 
             result = result.replace("<br>", "\n");
@@ -980,6 +998,81 @@ public class APIHotelstoryService {
         }
 
         return result;
+    }
+
+
+    /**
+     * 호텔스토리 API 가져오기
+     * @param type
+     * @param strAccommID
+     * @return xml
+     * @throws Exception
+     */
+    public Document HotelStoryAPIList(String type, String strAccommID) throws Exception{
+
+        // roomTypeList 인지 ratePlanList 인지 구분
+        String requestType = "";
+        if(type == "propertyList") {
+            requestType = "RequestPropertyList";
+        }else if(type == "roomTypeList"){
+            requestType = "RequestRoomTypeList";
+        }else if(type == "RatePlanList"){
+            requestType = "RequestRatePlanList";
+        }else if(type == "CityList"){
+            requestType = "RequestProvinceCityList";
+        }
+
+        // API 호출 정보
+        String sysHotelStoryID = Constants.hotelStoryID;
+        String sysHotelStoryAuthKey = Constants.hotelStoryAuthKey;
+        URL url = new URL("https://b2b.hotelstory.com/API/api.php");
+
+        // API 호출
+        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+        conn.setRequestMethod("POST");
+        conn.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
+        conn.setDoOutput(true);
+
+        String sysApiContent = "    <"+requestType+">";
+        sysApiContent += "              <Auth>";
+        sysApiContent += "                  <AuthId>"+sysHotelStoryID+"</AuthId>";
+        sysApiContent += "                  <AuthKey>"+sysHotelStoryAuthKey+"</AuthKey>";
+        sysApiContent += "              </Auth>";
+        if(strAccommID == null || strAccommID == "" || strAccommID.length() == 0){ /* porpertyId 없을때는 비워두고 호출(RequestPropertyList일때만임.) */ }else{
+            sysApiContent += "          <PropertyId>"+strAccommID+"</PropertyId>";
+        }
+        sysApiContent += "          </"+requestType+">";
+
+        OutputStreamWriter writer = new OutputStreamWriter(conn.getOutputStream(), "UTF-8");
+        writer.write(sysApiContent);
+        writer.close();
+
+        // 코드실행시간 출력
+        /*
+        long APIEnd = System.currentTimeMillis();
+        if(type == "propertyList") {
+            System.out.println("API 호출 완료시간 = "+(APIEnd-startTime)/1000.0);
+            System.out.println("xml DOM 저장 시작");
+        }
+        */
+
+        // transformer 사용하기 위해 xml을 Document로 파싱
+        DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
+        DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
+        Document doc = dBuilder.parse(conn.getInputStream());
+        doc.getDocumentElement().normalize();
+        conn.disconnect();
+
+
+        // 코드실행시간 출력
+        /*
+        if(type == "propertyList") {
+            long xmlEnd = System.currentTimeMillis();
+            System.out.println("xml DOM 저장 완료 = "+(xmlEnd-APIEnd)/1000.0);
+        }
+        */
+
+        return doc;
     }
 
 

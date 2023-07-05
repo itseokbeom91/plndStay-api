@@ -374,6 +374,8 @@ public class HanwhaService {
                     resultData += jsonObject.get("PAKG_NM") + "|^|";
                     resultData += jsonObject.get("VALI_PRID_STRT_DATE") + "|^|";
                     resultData += jsonObject.get("VALI_PRID_END_DATE") + "|^|";
+                    resultData += jsonObject.get("SALE_STRT_DATE") + "|^|";
+                    resultData += jsonObject.get("SALE_END_DATE") + "|^|";
                     resultData += ((int) Float.parseFloat(jsonObject.get("OVNT_CNT").toString())) + "{{|}}";
                 }
 
