@@ -28,6 +28,7 @@ import java.io.StringWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLDecoder;
+import java.net.URLEncoder;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
@@ -91,7 +92,7 @@ public class BookingService {
             String kumhoUrl = "inter01.asp?ipark_resno=" + ipark_resno + "&area=" + area
                     + "&site=" + site + "&arrive_date=" + arrive_date + "&leave_date=" + leave_date
                     + "&nights_count=" + nights_count + "&groupid=" + Constants.groupId + "&event_div=" + event_div
-                    + "&morning_aqua=" + morning_aqua + "&use_name=" + use_name + "use_phone=" + use_phone
+                    + "&morning_aqua=" + morning_aqua + "&use_name=" + URLEncoder.encode(use_name, "utf-8") + "use_phone=" + use_phone
                     + "&use_cell_phone=" + use_cell_phone + "&morning_div=" + morning_div + "&room_type=" + room_type
                     + "&room_count=" + room_count + "&person_count=" + person_count + "&coupon_year=" + coupon_year
                     + "&coupon_number=" + coupon_number + "&ipark_goodsno=" + ipark_goodsno;
