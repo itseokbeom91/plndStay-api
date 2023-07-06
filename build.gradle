@@ -39,6 +39,8 @@ dependencies {
 	implementation 'org.bgee.log4jdbc-log4j2:log4jdbc-log4j2-jdbc4.1:1.16' // 콘솔에 sql 로그 찍기
 	implementation 'com.google.code.gson:gson:2.8.7' // json 예쁘게 출력
 	implementation 'com.squareup.okhttp3:okhttp:4.9.1'
+	implementation 'org.apache.axis:axis:1.4'
+	implementation 'javax.xml.rpc:javax.xml.rpc-api:1.1.1' // web service(SOAP)
 }
 
 tasks.named('test') {
