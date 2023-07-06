@@ -33,4 +33,23 @@
                           strIngYn = 'N'
         WHERE strRmtypeID = #{roomID} AND intAID = (SELECT intAID FROM ACCOMM WHERE strPropertyID = #{pensionID})
     </update>
+
+    <select id="getPensionList" resultType="hashmap">
+        SELECT con_id, con_name, GPID FROM andrew.dbo.condo WHERE con_flag = '7'
+    </select>
+
+    <insert id="insertPenaltyData">
+        INSERT INTO  andrew.dbo.tbl_cancel_info_row (
+            cid, cname, cn_flag, cn_Dcnt, cn_per
+        )
+        VALUES (
+            #{con_id}, #{con_name}, 'of', #{cn_Dcnt}, #{cn_per}
+               )
+            INSERT INTO  andrew.dbo.tbl_cancel_info_row (
+            cid, cname, cn_flag, cn_Dcnt, cn_per
+        )
+        VALUES (
+            #{con_id}, #{con_name}, 'ps', #{cn_Dcnt}, #{cn_per}
+            )
+    </insert>
 </mapper>

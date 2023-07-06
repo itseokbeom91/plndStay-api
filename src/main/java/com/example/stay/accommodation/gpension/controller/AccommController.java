@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 import java.util.Map;
 
@@ -73,6 +74,11 @@ public class AccommController {
     @ResponseBody
     public String insertAccomm(){
         return accommService.insertGP();
+    }
+    @GetMapping("/testup")
+    @ResponseBody
+    public String testup() throws ParseException {
+        return accommService.updatePenaltyData();
     }
 
     @GetMapping("/testMV")

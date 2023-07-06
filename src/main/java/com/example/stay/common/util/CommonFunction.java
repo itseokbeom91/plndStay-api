@@ -5,6 +5,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import okhttp3.*;
+import org.apache.axis.client.Call;
+import org.apache.axis.client.Service;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 
@@ -144,6 +146,25 @@ public class CommonFunction<T> {
         }
 
         return jsonNode;
+    }
+    /*
+    SOAP Client API
+     */
+    public String sendMessage(String url, String method, String message){
+        try {
+            System.out.println(url);
+            Service service = new Service();
+            Call call = (Call) service.createCall();
+
+            call.setTargetEndpointAddress(new java.net.URL(url));
+            call.setOperationName(method);
+
+            String response = (String) call.invoke(new Object[]{message});
+            return response;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
     }
     /*
     한글 지역명을 코드로

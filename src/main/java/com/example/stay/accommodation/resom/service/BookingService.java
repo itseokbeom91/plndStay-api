@@ -822,10 +822,9 @@ public class BookingService {
             System.out.println("e ::: 에러 출력! == " + e);
             System.out.println(e.getMessage());
             System.out.println("responseJson ::: 에러 출력!");
+            return commonFunction.makeReturn("jsonp","500", e.getMessage());
 
         }
-
-        return commonFunction.makeReturn("jsonp","", "");
 
     }
 
@@ -1051,7 +1050,7 @@ public class BookingService {
             return commonFunction.makeReturn("jsonp","", "", stockResultJson);
 
         } catch (Exception e) {
-            return commonFunction.makeReturn("jsonp",e.toString(), e.getMessage());
+            return commonFunction.makeReturn("jsonp","500", e.getMessage());
         }
     }
 
@@ -1086,13 +1085,13 @@ public class BookingService {
 
                 //roomData = 삭제여부 |^| 사용여부 |^| 기준인원 |^| 최대인원 |^| 룸데이터 |^| 최소숙박 |^| 최대숙박일 |^| 조식 |^| depth |^| 환불여부
 
-                roomData += "N" + "|^|" + rmUseYn + "|^|" + "1" + "|^|" + "77" + "|^|";
+                roomData += "N" + "|^|" + rmUseYn + "|^|" + "1" + "|^|" + "99" + "|^|";
                 roomData += rmTypeNm + "|^|" + "" + "|^|" + rmTypeCd + "|^|" + "";
 
                 if (i != roomResultList.size()-1){
-                    roomData += "1" + "|^|" +"77" + "|^|" + "" + "|^|" + "1" + "|^|" + "" + "|^|" + "" + "{{|}}";
+                    roomData += "1" + "|^|" +"99" + "|^|" + "" + "|^|" + "1" + "|^|" + "" + "|^|" + "" + "{{|}}";
                 } else {
-                    roomData += "1" + "|^|" +"77" + "|^|" + "" + "|^|" + "1" + "|^|" + "" + "|^|";
+                    roomData += "1" + "|^|" +"99" + "|^|" + "" + "|^|" + "1" + "|^|" + "" + "|^|";
                 }
 
             }
@@ -1115,7 +1114,7 @@ public class BookingService {
 
                 //roomData = 삭제여부 |^| 사용여부 |^| 기준인원 |^| 최대인원 |^| 룸데이터 |^| 최소숙박 |^| 최대숙박일 |^| 조식 |^| depth |^| 환불여부
 
-                roomData += "N" + "|^|" + "Y" + "|^|" + "1" + "|^|" + "77" + "|^|";
+                roomData += "N" + "|^|" + "Y" + "|^|" + "1" + "|^|" + "99" + "|^|";
 
                 List<Map<String, Object>> pkgRoomList = (List<Map<String, Object>>) packageResultList.get(i).get("roomList");
 
@@ -1146,8 +1145,8 @@ public class BookingService {
 
             }
 
-            //String insertResult = bookingMapper.insertRoom(pkgData, rommData, "", accommData, strType);
-            String insertResult = bookingMapper.insertRoom(pkgData, "", "", accommData, strType);
+            String insertResult = bookingMapper.insertRoom(pkgData, roomData, "", accommData, strType);
+//            String insertResult = bookingMapper.insertRoom(pkgData, "", "", accommData, strType);
             System.out.println(insertResult);
             System.out.println(pkgData);
             System.out.println(accommData);

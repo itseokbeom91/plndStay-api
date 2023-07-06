@@ -1,5 +1,6 @@
 package com.example.stay.common.service;
 
+import com.example.stay.common.util.CommonFunction;
 import com.example.stay.common.util.Constants;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -94,6 +95,12 @@ public class CommonService {
 
         return result;
 
+    }
+
+    public String callSoapApi (String url, String method, String message) {
+        String response = new CommonFunction().sendMessage(url, method, message);
+
+        return response;
     }
 
 }

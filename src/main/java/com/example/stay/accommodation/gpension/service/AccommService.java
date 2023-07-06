@@ -12,6 +12,7 @@ import org.json.simple.parser.ParseException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.servlet.http.HttpServletRequest;
 import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -29,7 +30,7 @@ public class AccommService {
     @Autowired
     private AccommMapper accommMapper;
 
-    public String getPensionList(){
+    public String getPensionList() {
 
         OkHttpClient client = new OkHttpClient().newBuilder().build();
 
@@ -97,14 +98,16 @@ public class AccommService {
 
         try {
             Response response = client.newCall(request).execute();
+            //response 파싱
+            String responseBody = response.body().string();
+
+            JSONParser jsonParser = new JSONParser();
+            JSONObject responseJson = (JSONObject) jsonParser.parse(responseBody);
+            JSONObject resultJson = (JSONObject) responseJson.get("result");
             if(response.isSuccessful()) {
-                //response 파싱
-                String responseBody = response.body().string();
-
-                JSONParser jsonParser = new JSONParser();
-                JSONObject responseJson = (JSONObject) jsonParser.parse(responseBody);
-//                responseJson = (JSONObject) responseJson.get("result");
-
+                if (!resultJson.get("result_cd").equals("S")) {
+                    return commonFunction.makeReturn("jsonp",String.valueOf(response.code()), response.message(), resultJson);
+                }
                 JSONObject pensionInfotData = (JSONObject) responseJson.get("pension_info");
                     String refundRule = (String) pensionInfotData.get("refund_rule");
                     String warningRule = (String) pensionInfotData.get("warning_rule");
@@ -121,6 +124,7 @@ public class AccommService {
                 pensionInfotData.put("pension_intro", pensionIntro);
 
                 List<Map<String, Object>> roomListData = (List<Map<String, Object>>) responseJson.get("room_data");
+                List<Map<String, Object>> cancelListData = (List<Map<String, Object>>) responseJson.get("cancel_data");
                 List<Map<String, Object>> roomListDataTmp = new ArrayList<>();
                 for (Map<String, Object> roomMap : roomListData) {
                     String roomdetailInfo = (String) roomMap.get("room_info");
@@ -128,7 +132,11 @@ public class AccommService {
                     roomMap.put("room_info", roomdetailInfo);
                     roomListDataTmp.add(roomMap);
                 }
+
                 responseJson.put("room_data", roomListDataTmp);
+                responseJson.put("cancel_data", cancelListData);
+                return commonFunction.makeReturn("jsonp","", "", responseJson);
+            } else {
                 return commonFunction.makeReturn("jsonp","", "", responseJson);
             }
 
@@ -137,7 +145,6 @@ public class AccommService {
             throw new RuntimeException(e);
         }
 
-        return commonFunction.makeReturn("jsonp","", "");
     }
 
     public String getPensionStatus(String pensionId, String sDate, String eDate) {
@@ -437,7 +444,7 @@ public class AccommService {
 //                    System.out.println(mainImgMap);
                     strImgList += accommPhotoContentsReg((String) mainImgMap.get("img"), pensionId, "");
                 }
-                strImgList += "{{^}}";
+//                strImgList += "{;
 
                 List<Map<String, Object>> cancelList = (List<Map<String, Object>>) pensionJson.get("cancel_data");
                 String strPenaltyData = "";
@@ -481,17 +488,17 @@ public class AccommService {
                 //펜션ID, 펜션명, 지역코드1, 지역코드2, 위도, 경도, 전화번호, 주소, 체크인시간, 체크아웃시간, 홈페이지주소, 판매가능객실수, 취소규정, 펜션이미지(부대시설, 전경, 메인)
                 strAccommData += pensionId + "|^|" + pensionName + "|^|" + districtCode1 + "|^|" + districtCode2 + "|^|" + lati + "|^|" + longi + "|^|"
                         + pensionTel + "|^|" + pensionAddr + "|^|" + pensionCheckIn + "|^|" + pensionCheckOut + "|^|" + pensionWebsite + "|^|" + pensionRoomCnt + "|^|"
-                        + strPenaltyData + "|^|" + strImgList + "|^|" + pensionZip + "{{|}}";
+                        + strPenaltyData + "|^|" + "" + "|^|" + pensionZip + "{{|}}";
             }
 
             strAccommData = strAccommData.substring(0, strAccommData.length()-5);
             strRoomData = strRoomData.substring(0, strRoomData.length()-5);
 
-//            System.out.println(strAccommData);
-            System.out.println(strRoomData);
+            System.out.println(strAccommData);
+//            System.out.println(strRoomData);
 
-            String insertResult = accommMapper.insertAccommTotal("", "", "", "GP");
-//            String insertResult = accommMapper.insertAccommTotal(strAccommData, strRoomData, strStockData, "GP");
+//            String insertResult = accommMapper.insertAccommTotal("", "", "", "GP");
+            String insertResult = accommMapper.insertAccommTotal(strAccommData, "", "", "GP");
             System.out.println(insertResult);
 
             return commonFunction.makeReturn("","", insertResult);
@@ -500,6 +507,43 @@ public class AccommService {
         }
 
 
+    }
+
+    public String updatePenaltyData() throws ParseException {
+        List<Map<String, Object>> list = accommMapper.getPensionList();
+        for (Map<String, Object> s : list) {
+            String result = getPensionInfo(s.get("GPID").toString());
+            result = result.substring(5, result.length() - 1);
+            JSONParser jsonParser = new JSONParser();
+            JSONObject resultJson = (JSONObject) jsonParser.parse(result);
+            resultJson = (JSONObject) resultJson.get("result");
+            List<Map<String, Object>> cancelList = (List<Map<String, Object>>) resultJson.get("cancel_data");
+            if (cancelList == null) {
+                cancelList = new ArrayList<>();
+            } else {
+                int j = 0;
+                System.out.println( cancelList.size());
+                for (Map<String, Object> cancelMap : cancelList) {
+                    String cancelDay = (String) cancelMap.get("cancel_day");
+                    String cancelRate = (String) cancelMap.get("cancel_rate");
+                    if (j<Integer.parseInt(cancelDay)) {
+                        for (int i = j; i <= Integer.parseInt(cancelDay); i++) {
+                            System.out.println(s.get("con_id").toString() + " : " + s.get("con_name").toString() + " : " + i + " : " + cancelRate);
+                            accommMapper.insertPenaltyData(s.get("con_id").toString(), s.get("con_name").toString(), String.valueOf(i), cancelRate);
+                        }
+                        j=Integer.parseInt(cancelDay);
+                    } else {
+                        System.out.println(s.get("con_id").toString() + " : " + s.get("con_name").toString() + " : " + cancelDay + " : " + cancelRate);
+                        accommMapper.insertPenaltyData(s.get("con_id").toString(), s.get("con_name").toString(), cancelDay, cancelRate);
+                    }
+                    j++;
+                }
+            }
+
+
+
+        }
+        return "";
     }
 
     //Base64 decode

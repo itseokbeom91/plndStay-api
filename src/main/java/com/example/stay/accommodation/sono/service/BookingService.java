@@ -320,7 +320,7 @@ public class BookingService {
             System.out.println("e ::: 에러 출력! == " + e);
             System.out.println(e.getMessage());
             System.out.println("responseJson ::: 에러 출력!");
-            return commonFunction.makeReturn("jsonp", e.toString(), e.getMessage(), result);
+            return commonFunction.makeReturn("jsonp", "500", e.getMessage(), result);
 
         }
 
@@ -379,6 +379,7 @@ public class BookingService {
             System.out.println("e ::: 에러 출력! == " + e);
             System.out.println(e.getMessage());
             System.out.println("responseJson ::: 에러 출력!");
+            return commonFunction.makeReturn("jsonp", "500", e.getMessage(), result);
         }
 
         return commonFunction.makeReturn("jsonp", statusCode, msg, result);
@@ -429,7 +430,7 @@ public class BookingService {
             System.out.println("e ::: 에러 출력! == " + e);
             System.out.println(e.getMessage());
             System.out.println("responseJson ::: 에러 출력!");
-
+            return commonFunction.makeReturn("jsonp", "500", e.getMessage(), result);
         }
 
         return commonFunction.makeReturn("jsonp", statusCode, msg, result);
@@ -485,10 +486,8 @@ public class BookingService {
             System.out.println("e ::: 에러 출력! == " + e);
             System.out.println(e.getMessage());
             System.out.println("responseJson ::: 에러 출력!");
-
+            return commonFunction.makeReturn("jsonp", "500", e.getMessage(), result);
         }
-
-        return commonFunction.makeReturn("jsonp", statusCode, msg, result);
 
     }
 
@@ -548,7 +547,7 @@ public class BookingService {
             System.out.println("e ::: 에러 출력! == " + e);
             System.out.println(e.getMessage());
             System.out.println("responseJson ::: 에러 출력!");
-            return commonFunction.makeReturn("jsonp", e.toString(), e.getMessage());
+            return commonFunction.makeReturn("jsonp", "500", e.getMessage());
         }
 
         //return commonFunction.makeReturn("jsonp", statusCode, msg, result);
@@ -626,7 +625,7 @@ public class BookingService {
             return commonFunction.makeReturn("jsonp", "", "", stockResultJson);
 
         } catch (Exception e) {
-            return commonFunction.makeReturn("jsonp", e.toString(), e.getMessage());
+            return commonFunction.makeReturn("jsonp", "500", e.getMessage());
         }
     }
 
@@ -684,7 +683,7 @@ public class BookingService {
             System.out.println("e ::: 에러 출력! == " + e);
             System.out.println(e.getMessage());
             System.out.println("responseJson ::: 에러 출력!");
-            return commonFunction.makeReturn("jsonp", e.toString(), e.getMessage());
+            return commonFunction.makeReturn("jsonp", "500", e.getMessage());
         }
     }
 
@@ -720,39 +719,38 @@ public class BookingService {
 
             for (int i = 0 ; i<roomResultList.size() ; i++) {
 
-                String pkgNo = (String) roomResultList.get(i).get("pkgNo");
-                String pkgNm = (String) roomResultList.get(i).get("pkgNm");
+                String storeCd = (String) roomResultList.get(i).get("storeCd");
+                String storeNm = (String) roomResultList.get(i).get("storeNm");
                 String lcalCd = (String) roomResultList.get(i).get("lcalCd");
                 String lcalNm = (String) roomResultList.get(i).get("lcalNm");
-                String saleStartDt = (String) roomResultList.get(i).get("saleStartDt");
-                String saleEndDT = (String) roomResultList.get(i).get("saleEndDt");
+                String saleStartDt = (String) roomResultList.get(i).get("saleBgnYmd");
+                String saleEndDT = (String) roomResultList.get(i).get("saleEndYmd");
                 String curRsvYN = (String) roomResultList.get(i).get("curRsvYN");
-                String curRsvTime = (String) roomResultList.get(i).get("curRsvTime");
-                String nights = (String) roomResultList.get(i).get("nights");
+                String curRsvTime = (String) roomResultList.get(i).get("todayRsvTime");
+                String stayNights = String.valueOf(roomResultList.get(i).get("stayNights"));
+                if(curRsvTime.length() == 4){curRsvTime = curRsvTime.substring(0, 2) + ":" + curRsvTime.substring(2, 4);}
 
                 //roomData = 삭제여부 |^| 사용여부 |^| 기준인원 |^| 최대인원 |^| 룸데이터 |^| 최소숙박 |^| 최대숙박일 |^| 조식 |^| depth |^| 환불여부
 
-                roomData += "N" + "|^|" + "Y" + "|^|" + "1" + "|^|" + "99" + "|^|";
+                roomData += "N" + "|^|" + "Y" + "|^|" + "1" + "|^|" + "99" + "|^|" + storeCd + "|^|" ;
 
 
                 List<Map<String, Object>> roomList = (List<Map<String, Object>>) roomResultList.get(i).get("roomTypeList");
 
                 for (int j = 0 ; j<roomList.size() ; j++) {
-                    String storeCd = (String) roomList.get(j).get("storeCd");
-                    String storeNm = (String) roomList.get(j).get("storeNm");
                     String rmTypeCd = (String) roomList.get(j).get("rmTypeCd");
                     String rmTypeNm = (String) roomList.get(j).get("rmTypeNm");
 
                     if ( j != roomList.size()-1){
-                        roomData += "" + "|~|" + rmTypeCd + "|~|" + rmTypeNm + "|~|" + "" + "{{^}}";
+                        roomData += "" + "|~|" + rmTypeCd + "|~|" + rmTypeNm + "{{^}}";
                     } else {
-                        roomData += "" + "|~|" + rmTypeCd + "|~|" + rmTypeNm + "|~|" + "" + "|^|";
+                        roomData += "" + "|~|" + rmTypeCd + "|~|" + rmTypeNm + "|^|";
                     }
                 }
                 if (i != roomResultList.size()-1){
-                    roomData += "1" + "|^|" +"99" + "|^|" + "" + "|^|" + "1" + "|^|" + "" + "|^|" + "" + "{{|}}";
+                    roomData += "1" + "|^|" + stayNights + "|^|" + "" + "|^|" + "1" + "|^|" + "" + "|^|" + "" + "{{|}}";
                 } else {
-                    roomData += "1" + "|^|" +"99" + "|^|" + "" + "|^|" + "1" + "|^|" + "" + "|^|" + "";
+                    roomData += "1" + "|^|" + stayNights + "|^|" + "" + "|^|" + "1" + "|^|" + "" + "|^|" + "";
                 }
 
             }
@@ -770,6 +768,7 @@ public class BookingService {
                 String curRsvYN = (String) packageResultList.get(i).get("curRsvYN");
                 String curRsvTime = (String) packageResultList.get(i).get("curRsvTime");
                 String nights = (String) packageResultList.get(i).get("nights");
+                if(curRsvTime.length() == 4){curRsvTime = curRsvTime.substring(0, 2) + ":" + curRsvTime.substring(2, 4);}
 
                 //pkgData = 패키지구분(소노호텔앤리조트:01)|^|패키지번호|^|패키지명|^|지역코드|^|지역명|^|판매시작일자|^|판매종료일자|^|즉시판매여부|^|예약가능시간|^|박수|^|최대예약가능객실수|^|roomList
                 pkgData += "01" + "|^|" + pkgNo + "|^|" + pkgNm + "|^|" + lcalCd + "|^|" + lcalNm + "|^|" + saleStartDt+ "|^|" + saleEndDT + "|^|"
@@ -778,7 +777,7 @@ public class BookingService {
                 //roomData = 삭제여부 |^| 사용여부 |^| 기준인원 |^| 최대인원 |^| 룸데이터 |^| 최소숙박 |^| 최대숙박일 |^| 조식 |^| depth |^| 환불여부
 
 
-                roomData += "N" + "|^|" + "Y" + "|^|" + "1" + "|^|" + "99" + "|^|";
+//                roomData += "N" + "|^|" + "Y" + "|^|" + "1" + "|^|" + "99" + "|^|" ;
 
                 List<Map<String, Object>> pkgRoomList = (List<Map<String, Object>>) packageResultList.get(i).get("roomList");
 
@@ -789,20 +788,21 @@ public class BookingService {
                     String rmTypeNm = pkgRoomList.get(j).get("rmTypeNm").toString();
                     accommData += "C" + "|^|" + "01" + "|^|" + storeCd + "|^|" + storeNm.trim();
                     accommData += "{{|}}";
+//                    roomData += storeCd + "|^|";
 
                     if ( j != pkgRoomList.size()-1){
                         pkgData += storeCd + "|~|" + storeNm.trim() + "{{^}}";
-                        roomData += pkgNo + "|~|" + rmTypeCd + "|~|" + rmTypeNm + "|~|" + storeCd + "{{^}}";
+//                        roomData += pkgNo + "|~|" + rmTypeCd + "|~|" + rmTypeNm + "{{^}}";
                     } else {
                         pkgData += storeCd + "|~|" + storeNm.trim();
-                        roomData += pkgNo + "|~|" + rmTypeCd + "|~|" + rmTypeNm + "|~|" + storeCd + "|^|";
+//                        roomData += pkgNo + "|~|" + rmTypeCd + "|~|" + rmTypeNm + "|^|";
                     }
                 }
                 if (i != packageResultList.size()-1){
                     pkgData += " {{|}} ";
-                    roomData += "1" + "|^|" +"99" + "|^|" + "" + "|^|" + "2" + "|^|" + "" + "|^|" + pkgNm + "{{|}}";
+//                    roomData += "1" + "|^|" +"99" + "|^|" + "" + "|^|" + "2" + "|^|" + "" + "|^|" + pkgNm.trim() + "{{|}}";
                 } else {
-                    roomData += "1" + "|^|" +"99" + "|^|" + "" + "|^|" + "2" + "|^|" + "" + "|^|" + pkgNm;
+//                    roomData += "1" + "|^|" +"99" + "|^|" + "" + "|^|" + "2" + "|^|" + "" + "|^|" + pkgNm.trim();
                     accommData = accommData.substring(0, accommData.length()-5);
                 }
 
@@ -811,22 +811,22 @@ public class BookingService {
 
 
 
-            System.out.println(pkgData);
-            System.out.println(roomData);
-            System.out.println(accommData);
+//            System.out.println(pkgData);
+//            System.out.println(roomData);
+//            System.out.println(accommData);
 
-            String insertResult = bookingMapper.insertRoom("", "", "", accommData, strType);
-//            String insertResult = bookingMapper.insertRoom(pkgData, roomData, "", accommData, strType);
-            System.out.println(insertResult);
-            result = "SUCCESS";
-            resultResponseJson.put("insertResult", insertResult);
+//            String insertResult = bookingMapper.insertRoom("", "", "", accommData, strType);
+            String insertResult = bookingMapper.insertRoom(pkgData, roomData, "", accommData, strType);
+//            System.out.println(insertResult);
+//            result = "SUCCESS";
+//            resultResponseJson.put("insertResult", insertResult);
 
 
             return commonFunction.makeReturn("jsonp", statusCode, msg, resultResponseJson);
 
         } catch (Exception e) {
 
-            return commonFunction.makeReturn("jsonp", e.toString(), e.getMessage());
+            return commonFunction.makeReturn("jsonp", "500", e.getMessage());
         }
 
 
