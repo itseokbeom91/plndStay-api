@@ -40,7 +40,6 @@ dependencies {
 	implementation 'com.google.code.gson:gson:2.8.7' // json 예쁘게 출력
 	implementation 'com.squareup.okhttp3:okhttp:4.9.1'
 	implementation 'org.apache.axis:axis:1.4'
-	implementation 'commons-discovery:commons-discovery:0.5'
 	implementation 'javax.xml.rpc:javax.xml.rpc-api:1.1.1' // web service(SOAP)
 }
 
