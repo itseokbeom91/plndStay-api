@@ -125,6 +125,8 @@ public class CommonFunction<T> {
                 }
                 strResult = sb.toString();
             }else{
+                logWriter.add("responseCode : " + conn.getResponseCode());
+                logWriter.add("responseMessage : " + conn.getResponseMessage() + "\n");
                 strResult = conn.getResponseMessage();
             }
 

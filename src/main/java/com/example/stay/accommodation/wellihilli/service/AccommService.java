@@ -39,7 +39,6 @@ public class AccommService {
 
     CommonFunction commonFunction = new CommonFunction();
 
-
     // 객실 정보 조회
     public String insertRoomType(String dataType, HttpServletRequest httpServletRequest){
         String statusCode = "200";
@@ -115,119 +114,6 @@ public class AccommService {
         }
         return commonFunction.makeReturn(dataType, statusCode, message);
     }
-
-    // 재고 및 예약가능여부 조회
-    public String updateGoods(String dataType, HttpServletRequest httpServletRequest, int intRmIdx, String startDate, String endDate){
-        String statusCode  = "200";
-        String message = "";
-        LogWriter logWriter = new LogWriter(httpServletRequest.getMethod(), httpServletRequest.getServletPath(), System.currentTimeMillis());
-
-        try{
-            String strUrl = Constants.whpUrl + ":8070/api/vapi/reservation/calendar?s_vendor_code=" + Constants.whpVendorCode +
-                            "&sresrm=C&s_arrday=" + startDate + "&s_today=" + endDate;
-            String method = "GET";
-
-            JsonNode jsonNode = commonFunction.callJsonApi("", "", new JSONObject(), strUrl, method);
-            String code = jsonNode.get("status").toString();
-
-            if(code.equals("200")){
-                String rmtypeID = accommMapper.getStrRmtypeID(intRmIdx);
-
-                String strStockDatas = "";
-                SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd");
-                JSONArray jsonArray = (JSONArray) new JSONParser().parse(jsonNode.get("data").toString());
-                for(Object object : jsonArray){
-                    JSONObject jsonObject = (JSONObject) JSONValue.parse(object.toString());
-
-                    String strPyung = jsonObject.get("pyung").toString();
-                    String roomTypeID = jsonObject.get("roomType").toString();
-
-                    String strRmtypeID = strPyung + roomTypeID;
-
-                    // 웰리힐리는 날짜 보내면 전체 객실타입의 재고를 주기 때문에 가져오고자하는 객실의 재고 데이터만 뽑아서 저장
-                    if(strRmtypeID.equals(rmtypeID)){
-                        int intStock = Integer.parseInt(jsonObject.get("vcCount").toString());
-                        if(intStock < 0){
-                            intStock = 0;
-                        }
-                        int intOmkStock = intStock;
-
-                        int intCost = 0;
-                        int intSales = 0;
-                        if(jsonObject.get("roompay") != null){
-                            intCost = Integer.parseInt(jsonObject.get("roompay").toString());
-                            intSales = intCost;
-                        }
-
-                        String yearday = jsonObject.get("yearday").toString();
-                        Date yearDate = sdf.parse(yearday);
-                        SimpleDateFormat sdf2 = new SimpleDateFormat("yyyy-MM-dd");
-                        String strDateSales = sdf2.format(yearDate);
-
-                        double doubleOmkSales = 0;
-
-                        int year = Integer.parseInt(strDateSales.substring(0, 4));
-                        int month = Integer.parseInt(strDateSales.substring(5, 7));
-                        int day = Integer.parseInt(strDateSales.substring(8,10));
-
-                        LocalDate date = LocalDate.of(year, month, day);
-                        DayOfWeek dayOfWeek = date.getDayOfWeek();
-
-                        /**
-                         * 임시
-                         */
-                        double weekday = 1.09; // 일~목
-                        double friday = 1.09; // 금
-                        double saturday = 1.1; // 토
-
-                        if(dayOfWeek.getValue() == 7 || dayOfWeek.getValue() == 1 || dayOfWeek.getValue() == 2 ||
-                                dayOfWeek.getValue() == 3 || dayOfWeek.getValue() == 4){
-                            doubleOmkSales = intSales * weekday;
-                        }else if(dayOfWeek.getValue() == 5){
-                            doubleOmkSales = intSales * friday;
-                        }else if(dayOfWeek.getValue() == 6){
-                            doubleOmkSales = intSales * saturday;
-                        }
-
-                        int intExtraA = 0;
-                        int intExtraC= 0;
-                        int intExtraB = 0;
-
-                        strStockDatas +=strRmtypeID + "|^|" + strDateSales + "|^|" + intStock + "|^|" + intCost + "|^|" + intSales + "|^|"
-                                + intExtraA + "|^|" + intExtraC + "|^|" + intExtraB + "|^|" + intOmkStock + "|^|"  + doubleOmkSales+ "{{|}}";
-                    }
-                }
-
-                if(strStockDatas.length() > 0){
-                    strStockDatas = strStockDatas.substring(0, strStockDatas.length()-5);
-
-                    String result = accommMapper.updateGoods(strStockDatas);
-                    String strResult = result.substring(result.length()-4);
-                    if(strResult.equals("저장완료")){
-                        message = "재고 등록/수정 완료";
-                    }else{
-                        logWriter.add(result);
-                        message = "재고 등록/수정 실패";
-                    }
-                }else{
-                    message = "재고 등록/수정 실패";
-                }
-
-            }else{
-                message = "재고 등록/수정 실패 - api 응답 코드 : " + code;
-            }
-            logWriter.add(message);
-            logWriter.log(0);
-        }catch (Exception e){
-            e.printStackTrace();
-            statusCode = "500";
-            message = "재고 수정 및 등록 실패";
-            logWriter.add("error : " + e.getMessage());
-            logWriter.log(0);
-        }
-        return commonFunction.makeReturn(dataType, statusCode, message);
-    }
-
 
     // CONTENTS_PHOTO, RM_PHOTO에 INSERT
     public String rmPhotoContentsReg(String strImgName, String strRmtypeID){

@@ -7,8 +7,4 @@ import java.util.Map;
 @Repository("wellihilli.AccommMapper")
 public interface AccommMapper {
     String updateRmtype(String strRoomDatas);
-
-    String getStrRmtypeID(int intRmIdx);
-
-    String updateGoods(String strStockDatas);
 }

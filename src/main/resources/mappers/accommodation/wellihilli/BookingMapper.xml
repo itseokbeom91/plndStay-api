@@ -3,10 +3,14 @@
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper namespace="com.example.stay.accommodation.wellihilli.mapper.AccommMapper">
+<mapper namespace="com.example.stay.accommodation.wellihilli.mapper.BookingMapper">
     <select id="getStrRmtypeID" parameterType="int" resultType="String">
         SELECT strRmtypeID
         FROM RMTYPE
         WHERE intIdx = ${intRmIdx}
+    </select>
+
+    <select id="updateGoods" resultType="String">
+        EXEC spONDAnWHP_STOCK_TEMP_REGIST 'WHP', #{strStockDatas}, ''
     </select>
 </mapper>
