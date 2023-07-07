@@ -1,7 +1,7 @@
 package com.example.stay.accommodation.hanwha.service;
 
 import com.example.stay.accommodation.hanwha.mapper.HanwhaMapper;
-import com.example.stay.common.service.CommonService;
+
 import com.example.stay.common.util.CommonFunction;
 import com.example.stay.common.util.Constants;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -30,8 +30,7 @@ import java.util.Map;
 @Service
 public class HanwhaService {
 
-    @Autowired
-    private CommonService commonService;
+
 
     @Autowired
     private HanwhaMapper hanwhaMapper;
