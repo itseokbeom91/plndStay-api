@@ -10,4 +10,6 @@ public interface SpavisMapper {
     List<String> couponList();
 
     int updateCouponDates(String datePurchase, String dateExpired, String ticketNo);
+
+    int updateStrNote(String strNote, String ticketNo);
 }
