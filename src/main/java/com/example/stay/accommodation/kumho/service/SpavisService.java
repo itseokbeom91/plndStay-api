@@ -9,6 +9,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.xml.parsers.DocumentBuilder;
@@ -18,10 +21,9 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLDecoder;
+import java.net.URLEncoder;
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 @Service
 public class SpavisService {
@@ -31,20 +33,22 @@ public class SpavisService {
     @Autowired
     private XmlUtility xmlUtility;
 
-    // 쿠폰 사용여부 조회 - 1개씩
+    CommonFunction commonFunction = new CommonFunction();
+
+    // 선납권 사용여부 조회 - 1개씩
     public String checkCouponStatus(String dataType, HttpServletRequest httpServletRequest, String couponNo){
         LogWriter logWriter = new LogWriter(httpServletRequest.getMethod(), httpServletRequest.getServletPath(), System.currentTimeMillis());
         String statusCode = "200";
         String message = "";
         try{
-            String spavisUrl = "social_interface/couponif03.asp?COUPON_NO=" + couponNo + "&CUST_ID=" + Constants.customerID;
+            String spavisUrl = "social_interface/couponif03.asp?COUPON_NO=" + couponNo + "&CUST_ID=" + Constants.cpCustomerID;
 
             Document document = callSpavisAPI(spavisUrl);
             if(document != null){
                 String coupon_no = document.getElementsByTagName("rtn_coupon_no").item(0).getChildNodes().item(0).getNodeValue();
-                String successYn = document.getElementsByTagName("rtn_div").item(0).getChildNodes().item(0).getNodeValue();
+                String resultCode = document.getElementsByTagName("rtn_div").item(0).getChildNodes().item(0).getNodeValue();
                 String returnMessage = document.getElementsByTagName("rtn_msg").item(0).getChildNodes().item(0).getNodeValue();
-                if(successYn.equals("S")){
+                if(resultCode.equals("S")){
                     String couponStatus = document.getElementsByTagName("rtn_status_div").item(0).getChildNodes().item(0).getNodeValue();
                     String useDate = document.getElementsByTagName("rtn_result_date").item(0).getChildNodes().item(0).getNodeValue();
 
@@ -81,19 +85,17 @@ public class SpavisService {
             logWriter.add(message);
             logWriter.log(0);
         }catch (Exception e){
+            e.printStackTrace();
             statusCode = "500";
             message = "쿠폰 사용여부 조회 실패";
             logWriter.add("error : " + e.getMessage());
             logWriter.log(0);
         }
 
-        CommonFunction commonFunction = new CommonFunction();
         return commonFunction.makeReturn(dataType, statusCode, message);
     }
 
-
-
-    // 쿠폰 사용여부 조회 - 여러개(동기)
+    // 선납권 사용여부 조회 - 여러개(동기)
     public String checkCouponListStatus(String dataType, HttpServletRequest httpServletRequest){
         LogWriter logWriter = new LogWriter(httpServletRequest.getMethod(), httpServletRequest.getServletPath(), System.currentTimeMillis());
         String statusCode = "200";
@@ -103,14 +105,14 @@ public class SpavisService {
             List<String> couponList = spavisMapper.couponList();
             for(int i=0; i< couponList.size(); i++){
                 String couponNo = couponList.get(i);
-                String spavisUrl = "social_interface/couponif03.asp?COUPON_NO=" + couponNo + "&CUST_ID=" + Constants.customerID;
+                String spavisUrl = "social_interface/couponif03.asp?COUPON_NO=" + couponNo + "&CUST_ID=" + Constants.cpCustomerID;
 
                 Document document = callSpavisAPI(spavisUrl);
                 if(document != null){
                     String coupon_no = document.getElementsByTagName("rtn_coupon_no").item(0).getChildNodes().item(0).getNodeValue();
-                    String successYn = document.getElementsByTagName("rtn_div").item(0).getChildNodes().item(0).getNodeValue();
+                    String resultCode = document.getElementsByTagName("rtn_div").item(0).getChildNodes().item(0).getNodeValue();
                     String returnMessage = document.getElementsByTagName("rtn_msg").item(0).getChildNodes().item(0).getNodeValue();
-                    if(successYn.equals("S")){
+                    if(resultCode.equals("S")){
                         String couponStatus = document.getElementsByTagName("rtn_status_div").item(0).getChildNodes().item(0).getNodeValue();
                         String useDate = document.getElementsByTagName("rtn_result_date").item(0).getChildNodes().item(0).getNodeValue();
 
@@ -139,7 +141,7 @@ public class SpavisService {
 //                    logWriter.add(couponStatus);
 //                    logWriter.add(useDate);
 //                    logWriter.add(returnMessage);
-                    }else{ // response successYn이 F일 경우
+                    }else{ // response resultCode이 F일 경우
                         failCount += 1;
                     }
 
@@ -157,50 +159,59 @@ public class SpavisService {
             logWriter.add(message);
             logWriter.log(0);
         }catch (Exception e){
+            e.printStackTrace();
             statusCode = "500";
             message = "쿠폰 사용여부 조회 실패";
             logWriter.add("error : " + e.getMessage());
             logWriter.log(0);
         }
 
-        CommonFunction commonFunction = new CommonFunction();
         return commonFunction.makeReturn(dataType, statusCode, message);
     }
 
-    // 쿠폰 사용여부 조회 - 여러개(비동기)
+    // 선납권 사용여부 조회 - 여러개(비동기)
     @Async
     public int checkCouponListStatus2(HttpServletRequest httpServletRequest, String couponNo){
         int updateResult = 0;
         try{
-           String spavisUrl = "social_interface/couponif03.asp?COUPON_NO=" + couponNo + "&CUST_ID=" + Constants.customerID;
+           String spavisUrl = "social_interface/couponif03.asp?COUPON_NO=" + couponNo + "&CUST_ID=" + Constants.cpCustomerID;
 
             Document document = callSpavisAPI(spavisUrl);
             if(document != null){
-                String coupon_no = document.getElementsByTagName("rtn_coupon_no").item(0).getChildNodes().item(0).getNodeValue();
-                String successYn = document.getElementsByTagName("rtn_div").item(0).getChildNodes().item(0).getNodeValue();
+                String resultCode = document.getElementsByTagName("rtn_div").item(0).getChildNodes().item(0).getNodeValue();
                 String returnMessage = document.getElementsByTagName("rtn_msg").item(0).getChildNodes().item(0).getNodeValue();
-                if(successYn.equals("S")){
+
+                String strNote = "";
+                String datePurchase = "";
+                String dateExpired = "";
+                if(resultCode.equals("S")) {
+//                    String coupon_no = document.getElementsByTagName("rtn_coupon_no").item(0).getChildNodes().item(0).getNodeValue();
                     String couponStatus = document.getElementsByTagName("rtn_status_div").item(0).getChildNodes().item(0).getNodeValue();
                     String useDate = document.getElementsByTagName("rtn_result_date").item(0).getChildNodes().item(0).getNodeValue();
 
-                    // 발행
-                    if(couponStatus.equals("P")){
-
+                    // 사용 안한 선납권만
+                    if (couponStatus.equals("P")) {
                         SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd");
-                        Date purchaseDate = sdf.parse(useDate.substring(0,8));
+                        Date purchaseDate = sdf.parse(useDate.substring(0, 8));
 
                         SimpleDateFormat sdf2 = new SimpleDateFormat("yyyy-MM-dd");
 
                         Calendar cal = Calendar.getInstance();
                         cal.setTime(purchaseDate);
                         cal.add(Calendar.DATE, 364);
-                        String dateExpired = sdf2.format(cal.getTime());
+                        dateExpired = sdf2.format(cal.getTime());
 
-                        String datePurchase = sdf2.format(purchaseDate);
+                        datePurchase = sdf2.format(purchaseDate);
 
                         updateResult = spavisMapper.updateCouponDates(datePurchase, dateExpired, couponNo);
                     }
+
+                }else{ // 유효기간 지난 것
+                    strNote = returnMessage;
+
+                    updateResult = spavisMapper.updateStrNote(strNote, couponNo);
                 }
+
             }
         }catch (Exception e){
             e.printStackTrace();
@@ -209,24 +220,271 @@ public class SpavisService {
     }
 
 
-    // 티켓 주문
+    // 티켓 발권
     public String orderTicket(String dataType, HttpServletRequest httpServletRequest, int intBookingIdx){
         LogWriter logWriter = new LogWriter(httpServletRequest.getMethod(), httpServletRequest.getServletPath(), System.currentTimeMillis());
         String statusCode = "200";
         String message = "";
 
         try{
-//            String spavisUrl = "social_interface/couponif03.asp?order_no=" + intBookingIdx;
+            // 우리 예약, RM_OPTION(금액) 테이블에서 조회해서 보낼 값 세팅
+            String strOrderID = "202307061111";
+            String strRsvName = "개발테스트";
+            String strRsvPhone = "01029405275";
+            String strRsvTel = "01029405275";
+            String strRsvEmail = "condo24@condo24.com";
+            String orderDate = "20230706";
+            String strSDate = "20231212";
+            String strEDate = "20231212";
+            String classDiv = "A"; // 성인 : A, 소아 : B
+            String useCount = "1";
+            String intPrice = "22000";
+            String ticketNo = "TR_50000"; // TR_ + 티켓 테이블의 MAX(idx) + 1 로 생성
+            String useSeason = "0";
+
+            // 티켓테이블에 정보 INSERT
+
+
+            // 티켓 발권 API 호출
+            String spavisUrl = "social_interface/socif01.asp?order_no=" + URLEncoder.encode(strOrderID, "utf-8") + "&guest_name=" + strRsvName +
+                                "&guest_cell_phone=" + strRsvPhone + "&guest_tele_no=" + strRsvTel + "&guest_email=" + strRsvEmail +
+                                "&cust_id=" + Constants.tkCustomerID + "&approv_date=" + orderDate + "&goods_code=" + Constants.goodsCode +
+                                "&use_f_date=" + strSDate + "&use_t_date=" + strEDate + "&class_div=" + classDiv +
+                                "&use_cnt=" + useCount + "&use_amt=" + intPrice + "&coupon_no=" + ticketNo + "&use_season=" + useSeason;
+
+            Document document = callSpavisAPI(spavisUrl);
+            if(document != null){
+                String resultCode = document.getElementsByTagName("rtn_div").item(0).getChildNodes().item(0).getNodeValue();
+                String returnMessage = document.getElementsByTagName("rtn_msg").item(0).getChildNodes().item(0).getNodeValue();
+                if(resultCode.equals("S")){
+//                    String couponStatus = document.getElementsByTagName("rtn_status_div").item(0).getChildNodes().item(0).getNodeValue();
+
+                    // 예약 테이블에 상태값 완료 처리
+                    /**
+                     * TODO : 티켓 상태값 W -> I 로 변경하는 곳 확인 필요
+                     */
+
+
+                    // 카톡 발송
+
+                    message = "티켓 발권 완료";
+                }else{
+                    message = "티켓 발권 실패";
+                    logWriter.add(returnMessage);
+                }
+            }else{
+                message = "아산 스파비스 API 호출 실패";
+            }
+
+
+
+
+            logWriter.log(0);
         }catch (Exception e){
+            e.printStackTrace();
             statusCode = "500";
-            message = "티켓 주문 실패";
+            message = "티켓 발권 실패";
             logWriter.add("error : " + e.getMessage());
             logWriter.log(0);
         }
 
-        CommonFunction commonFunction = new CommonFunction();
         return commonFunction.makeReturn(dataType, statusCode, message);
     }
+
+    // 티켓 취소
+    public String cancelTicket(String dataType, HttpServletRequest httpServletRequest, int intBookingIdx){
+        LogWriter logWriter = new LogWriter(httpServletRequest.getMethod(), httpServletRequest.getServletPath(), System.currentTimeMillis());
+        String statusCode = "200";
+        String message = "";
+
+        try{
+            String strOrderID = "202307061111";
+
+            // 티켓 발권 API 호출
+            // 한 주문번호당 주문한 티켓을 모두 취소할 경우 'ALL'인 것 같은데 주문번호 내에서 부분 취소는? -> coupon_no에 해당 티켓만 넣어서 보내면 될듯.
+            String spavisUrl = "social_interface/socif04.asp?order_no=" + strOrderID + "&COUPON_NO=ALL&cust_id=" + Constants.tkCustomerID;
+
+            Document document = callSpavisAPI(spavisUrl);
+            if(document != null){
+                String resultCode = document.getElementsByTagName("rtn_div").item(0).getChildNodes().item(0).getNodeValue();
+                String returnMessage = document.getElementsByTagName("rtn_msg").item(0).getChildNodes().item(0).getNodeValue();
+                if(resultCode.equals("S")){
+//                    String couponStatus = document.getElementsByTagName("rtn_status_div").item(0).getChildNodes().item(0).getNodeValue();
+                    
+                    // 예약테이블 상태값 업데이트
+                    // 티켓 테이블 상태값 업데이트 - USE_FLAG = C
+                    message = "티켓 취소 완료";
+                }else{
+                    message = "티켓 취소 실패";
+                    logWriter.add(returnMessage);
+                }
+            }else{
+                message = "아산 스파비스 API 호출 실패";
+            }
+
+
+
+
+            logWriter.log(0);
+        }catch (Exception e){
+            e.printStackTrace();
+            statusCode = "500";
+            message = "티켓 취소 실패";
+            logWriter.add("error : " + e.getMessage());
+            logWriter.log(0);
+        }
+
+        return commonFunction.makeReturn(dataType, statusCode, message);
+    }
+
+    // 티켓 사용여부 조회(건별)
+    public String checkTicketStatus(String dataType, HttpServletRequest httpServletRequest, int intBookingIdx){
+        String statusCode = "200";
+        String message = "";
+        LogWriter logWriter = new LogWriter(httpServletRequest.getMethod(), httpServletRequest.getServletPath(), System.currentTimeMillis());
+
+        try{
+            /**
+             * TODO : 예약번호로 정보 가져오기
+             */
+            String strOrderID = "2023-0701-10927498071";
+            String strTicketNo = "TR_30432,TR_30431";
+
+            String spavisUrl = "social_interface/socif03.asp?order_no=" + strOrderID + "&coupon_no=" + strTicketNo +
+                                "&Cust_id=" + Constants.tkCustomerID;
+
+            Document document = callSpavisAPI(spavisUrl);
+            if(document != null){
+                String resultCode = document.getElementsByTagName("rtn_div").item(0).getChildNodes().item(0).getNodeValue();
+                String returnMessage = document.getElementsByTagName("rtn_msg").item(0).getChildNodes().item(0).getNodeValue();
+                if(resultCode.equals("S")){
+                    NodeList reservList = document.getElementsByTagName("rtn_coupon");
+                    for (int i = 0; i < reservList.getLength(); i++) {
+                        Node node = reservList.item(i);
+                        if (node.getNodeType() == Node.ELEMENT_NODE) {
+                            Element element = (Element) node;
+
+                            // 예약(R), 미사용(N), 사용(I), 취소(C)
+                            String ticketStatus = document.getElementsByTagName("rtn_status_div").item(0).getChildNodes().item(0).getNodeValue();
+                            String useDate = document.getElementsByTagName("rtn_result_date").item(0).getChildNodes().item(0).getNodeValue();
+
+                            System.out.println("ticketStatus : " + ticketStatus);
+                            System.out.println("useDate : " + useDate);
+
+                            message = "티켓 사용여부 조회 완료";
+                        }
+                    }
+                }else{
+                    message = "티켓 사용여부 조회 실패";
+                    logWriter.add(returnMessage);
+                }
+            }else{
+                message = "아산 스파비스 API 호출 실패";
+            }
+
+        }catch (Exception e){
+            e.printStackTrace();
+            statusCode = "500";
+            message = "티켓 사용여부 조회 실패";
+            logWriter.add("error : " + e.getMessage());
+            logWriter.log(0);
+        }
+        return commonFunction.makeReturn(dataType, statusCode, message);
+    }
+
+    // 티켓 사용여부 조회(일별)
+    public String checkTicketStatusByDate(String dataType, HttpServletRequest httpServletRequest, String searchDate){
+        String statusCode = "200";
+        String message = "";
+        LogWriter logWriter = new LogWriter(httpServletRequest.getMethod(), httpServletRequest.getServletPath(), System.currentTimeMillis());
+
+        try{
+            String spavisUrl = "social_interface/socif05.asp?cust_id=" + Constants.tkCustomerID + "&result_date=" + searchDate;
+
+            Document document = callSpavisAPI(spavisUrl);
+            if(document != null){
+                String resultCode = document.getElementsByTagName("rtn_div").item(0).getChildNodes().item(0).getNodeValue();
+                String resultMsg = URLDecoder.decode(document.getElementsByTagName("rtn_msg").item(0).getChildNodes().item(0).getNodeValue(), "utf-8");
+                if(resultCode.equals("S")) {
+                    NodeList reservList = document.getElementsByTagName("rtn_coupon");
+                    for (int i = 0; i < reservList.getLength(); i++) {
+                        Node node = reservList.item(i);
+                        if (node.getNodeType() == Node.ELEMENT_NODE) {
+                            Element element = (Element) node;
+
+                            // 예약(R), 미사용(N), 사용(I), 취소(C)
+                            String strTicketStatus = xmlUtility.getTagValue("rtn_status_div", element);
+
+                            String strResultDate = xmlUtility.getTagValue("rtn_result_date", element); // 사용 안했으면 null값이 옴
+//                            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+//                            Date resultDate = sdf.parse(strResultDate);
+
+                            System.out.println("strTicketStatus : " + strTicketStatus);
+                            System.out.println("resultDate : " + strResultDate);
+
+                            String ss = null;
+                            if(ss.equals("ss")){
+
+                            }
+
+                        }
+                    }
+                    message = "티켓 사용여부 조회 완료";
+                }else{
+                    if(resultMsg.equals("NOT EXISTS DATA")){
+                        message = "해당 일자의 티켓 데이터가 존재하지 않습니다";
+                    }else{
+                        message = "티켓 사용여부 조회 실패";
+                    }
+                }
+            }else{
+                message = "아산 스파비스 API 호출 실패";
+            }
+            logWriter.add(message);
+        }catch (Exception e){
+            e.printStackTrace();
+            statusCode = "500";
+            message = "티켓 사용여부 조회 실패";
+            logWriter.add("error : " + e.getMessage());
+        }
+        logWriter.log(0);
+        return commonFunction.makeReturn(dataType, statusCode, message);
+    }
+
+    // 티켓 사용여부 처리(스파비스에서 호출)
+    public String updateStatus(HttpServletRequest httpServletRequest, String strOrderID, String ticketNo, String tkCustomerID){
+        String statusCode = "500";
+        String message = "";
+        LogWriter logWriter = new LogWriter(httpServletRequest.getMethod(), httpServletRequest.getServletPath(), System.currentTimeMillis());
+
+        try{
+            // 고객ID가 맞는지 확인
+            if(tkCustomerID.equals(Constants.tkCustomerID)){
+                statusCode = "200";
+                // strOrderID, ticketNo가 우리 DB에 있는지 확인(ticketNo - ','로 끊어서 확인해야함)
+                // 없으면 message = "유효하지 않은 주문번호 입니다";
+                // 없으면 message = "유효하지 않은 쿠폰번호 입니다";
+
+                // 있으면 DB에서 상태값 업데이트
+
+
+                // 실패 다시 statusCode = "500";
+                // message = "티켓 사용결과 업데이트 실패";
+            }else{
+                statusCode = "401";
+                message = "고객ID가 일치하지 않습니다";
+            }
+        }catch (Exception e){
+            e.printStackTrace();
+            message = "티켓 사용결과 업데이트 실패";
+            logWriter.add("error : " + e.getMessage());
+        }
+
+        logWriter.log(0);
+
+        return commonFunction.makeReturn("json", statusCode, message);
+    }
+
 
     public Document callSpavisAPI(String spavisUrl){
         Document document = null;

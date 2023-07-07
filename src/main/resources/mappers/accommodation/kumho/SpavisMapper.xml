@@ -8,8 +8,17 @@
         SELECT ticketNo FROM ASAN_TICKET_CONDO
 --         WHERE CONVERT(DATE,regdate) >= CONVERT(DATE,'2021-01-01')
 --         AND strUseYn = 'N'
-        WHERE ticketNo LIKE 'S2021%'
+--         WHERE idx = 7768
+        WHERE ticketNo LIKE 'S2022%'
     </select>
+
+    <update id="updateStrNote" parameterType="String">
+        UPDATE ASAN_TICKET_CONDO
+        SET strNote = #{strNote},
+            dateExpired = NULL,
+            datePurchase = NULL
+        WHERE ticketNo =  #{ticketNo}
+    </update>
 
     <update id="updateCouponDates" parameterType="String">
         UPDATE ASAN_TICKET_CONDO
