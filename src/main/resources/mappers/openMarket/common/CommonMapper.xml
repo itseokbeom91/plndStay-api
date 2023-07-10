@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.example.stay.openMarket.common.mapper.CommonMapper">
+
+    <select id="getAcmInfo" resultType="accommDto">
+        EXEC spOMK_ACCOMM_INFO ${intAID}, #{strOmkType}
+    </select>
+
+    <select id="getRoomList" resultType="map">
+        SELECT RM.strSubject, RM.strDeleteYn FROM RMTYPE RM WITH(NOLOCK)
+        INNER JOIN RM_OMK_USAGE RO WITH(NOLOCK) ON RM.intIdx = RO.intRmIdx
+        WHERE RM.intAID = ${intAID} AND RO.intOMKIdx = 8 AND RO.strUsageYn = 'Y'
+    </select>
+
+    <select id="getPhotoList" resultType="map">
+        SELECT CONCAT('https://condo24.com/', strFilePath, '/', strFileName) AS strPhotoUrl FROM ACCOMM_PHOTO c WITH(NOLOCK)
+	    LEFT OUTER JOIN CONTENTS_PHOTO d WITH(NOLOCK) ON c.intPhotoID = d.intPhotoID
+        WHERE c.intAID = ${intAID}
+        ORDER BY intStep ASC;
+    </select>
+
+</mapper>

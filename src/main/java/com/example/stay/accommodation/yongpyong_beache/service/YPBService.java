@@ -1,7 +1,6 @@
 package com.example.stay.accommodation.yongpyong_beache.service;
 
 import com.example.stay.accommodation.yongpyong_beache.mapper.YPBMapper;
-import com.example.stay.common.service.CommonService;
 import com.example.stay.common.util.CommonFunction;
 import com.fasterxml.jackson.databind.JsonNode;
 import org.json.simple.JSONArray;
@@ -19,8 +18,7 @@ import java.util.Map;
 @Service
 public class YPBService {
 
-    @Autowired
-    private CommonService commonService;
+
 
     CommonFunction commonFunction = new CommonFunction();
 

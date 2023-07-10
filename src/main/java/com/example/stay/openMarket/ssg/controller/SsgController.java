@@ -3,6 +3,7 @@ package com.example.stay.openMarket.ssg.controller;
 import com.example.stay.openMarket.common.dto.CondoDto;
 import com.example.stay.openMarket.common.mapper.CommonApiMapper;
 import com.example.stay.openMarket.common.service.CommonApiService;
+import com.example.stay.openMarket.common.service.CommonService;
 import com.example.stay.openMarket.ssg.service.InsertService;
 import com.example.stay.openMarket.ssg.service.UpdateService;
 import org.json.simple.JSONObject;
@@ -14,7 +15,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 @Controller
-@RequestMapping("/API/SSG/*")
+@RequestMapping("/SSG/*")
 public class SsgController {
 
     @Autowired
@@ -28,6 +29,15 @@ public class SsgController {
 
     @Autowired
     private UpdateService updateService;
+
+    @Autowired
+    private CommonService commonService;
+
+    @GetMapping("/get")
+    public void getAcmInfo(int intAID, String strOmkType){
+        commonService.getAcmInfo(intAID, strOmkType);
+
+    }
 
     @GetMapping("modify")
     public String modifySSG(int intNum, String strType, String strOmk, Model model){

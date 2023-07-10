@@ -207,7 +207,7 @@ public class AccommController {
                     message = "data not found";
                 }
             }else{
-                statusCode = "200";
+                statusCode = "401";
                 message = "invaild_AuthKey";
             }
             logWriter.add(message);

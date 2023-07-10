@@ -9,13 +9,18 @@ import com.example.stay.common.util.XmlUtility;
 import com.example.stay.openMarket.common.dto.CancelInfoDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import java.io.File;
@@ -28,6 +33,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
+import java.util.HashMap;
 import java.util.Map;
 
 @Service
@@ -39,9 +45,155 @@ public class APIHotelstoryService {
     @Autowired
     private HotelStoryMapper hotelStoryMapper;
 
-    @Autowired
-    private AccommMapper accomodationMapper;
 
+    public String getAccomm(String strAccommID){
+
+        String result = "";
+
+        try {
+
+            long APIStart = System.currentTimeMillis();
+            System.out.println("API 호출 시작");
+
+            // propertyList 불러오기
+            Document document = HotelStoryAPIList("propertyList",strAccommID);
+
+
+            // roomTypeListMap, ratePlanListMap 담을 map 생성
+            Map<String, Map> roomTypeListMap = new HashMap<String, Map>();
+            // 하나의 roomType에 여러개의 ratePlan이 있을 수 있어서 LinkedMultiValueMap 사용
+            MultiValueMap<String, Map> ratePlanListMap = new LinkedMultiValueMap<>();
+
+
+            // Property 반복 돌려서 strAccommID 없을때의 propertyId 값 가져와서 roomTypeLIst, ratePlanList 담기
+            NodeList propertyList = document.getElementsByTagName("Property");
+            System.out.println("roomType, ratePlan API 호출시작 | API 수 = "+ propertyList.getLength());
+            long ListAPIStart = System.currentTimeMillis();
+            int roomTypeCnt = 0;
+            int ratePlanCnt = 0;
+            for(int j=0; j<propertyList.getLength(); j++) {
+
+                Node node = propertyList.item(j);
+                if (node.getNodeType() == Node.ELEMENT_NODE) {
+
+                    // 노드를 사용할 수 있게 element로 변환
+                    Element eElement = (Element) node;
+
+                    // roomTypeList 불러오기
+                    Document requestRoomTypeList = HotelStoryAPIList("roomTypeList",xmlUtility.getTagValue("PropertyId", eElement));
+
+                    // RatePlanList 불러오기
+                    long rpStart = System.currentTimeMillis();
+                    //System.out.println("API 호출 시작");
+                    Document requestRatePlanList = HotelStoryAPIList("RatePlanList",xmlUtility.getTagValue("PropertyId", eElement));
+                    //System.out.println(xmlUtility.parsingXml(requestRatePlanList));
+
+                    // 10개 단위 콘솔 출력
+                    if(j%10 == 0){
+                        System.out.println(j);
+                    }
+
+                    // roomTypeList 구하기
+                    if(requestRoomTypeList != null){
+                        NodeList nList = requestRoomTypeList.getElementsByTagName("RoomType");
+//                        System.out.println("roomType 개수 = " + nList.getLength());
+                        roomTypeCnt += nList.getLength();
+                        for (int i = 0; i < nList.getLength(); i++) {
+
+                            Node nNode = nList.item(i);
+                            if(nNode.getNodeType() == Node.ELEMENT_NODE){
+                                Element element = (Element) nNode;
+
+                                // roomTypeID 기준 value 값 담을 map
+                                Map<String, Object> valMap = new HashMap<String, Object>();
+                                valMap.put("RoomTypeName", xmlUtility.getTagValue("RoomTypeName", element));
+                                valMap.put("BedTypeCode", xmlUtility.getTagValue("BedTypeCode", element));
+                                valMap.put("MinPersons", xmlUtility.getTagValue("MinPersons", element));
+                                valMap.put("MaxPersons", xmlUtility.getTagValue("MaxPersons", element));
+
+                                roomTypeListMap.put(xmlUtility.getTagValue("RoomTypeId", element), valMap);
+                            }
+                        }
+                    }
+
+                    // ratePlanList 구하기
+                    if(requestRatePlanList != null){
+                        NodeList nList = requestRatePlanList.getElementsByTagName("RatePlan");
+//                        System.out.println("ratePlan 개수 = " + nList.getLength());
+                        ratePlanCnt += nList.getLength();
+                        for (int i = 0; i < nList.getLength(); i++) {
+
+                            Node nNode = nList.item(i);
+                            if(nNode.getNodeType() == Node.ELEMENT_NODE){
+                                Element element = (Element) nNode;
+
+                                // roomTypeID 기준 value 값 담을 map
+                                Map<String, Object> valMap = new HashMap<>();
+                                valMap.put("RatePlanId", xmlUtility.getTagValue("RatePlanId", element));
+                                valMap.put("RatePlanName", xmlUtility.getTagValue("RatePlanName", element));
+                                valMap.put("BedTypeCode", xmlUtility.getTagValue("BedTypeCode", element));
+                                valMap.put("MealCode", xmlUtility.getTagValue("MealCode", element));
+                                valMap.put("SaleRate", xmlUtility.getTagValue("SaleRate", element));
+                                valMap.put("MinPersons", xmlUtility.getTagValue("MinPersons", element));
+                                valMap.put("MaxPersons", xmlUtility.getTagValue("MaxPersons", element));
+
+                                // roomTypeID dp valMap 값 담는 map
+                                ratePlanListMap.add(xmlUtility.getTagValue("RoomTypeId", element), valMap); // roomTypeId 기준 ㅇㅇ
+
+                            }
+                        }
+                    }
+                }
+
+                // 코드 실행 시간
+                if(j == (propertyList.getLength()-1)){
+                    System.out.println("roomType, ratePlan ApI 호출 완료 시간 = " + (System.currentTimeMillis()-ListAPIStart)/1000.0);
+                }
+            }
+
+            // Property 반복 돌리기
+
+            long listParsingStart = System.currentTimeMillis();
+            for(int i=0; i<propertyList.getLength(); i++){
+
+                // 10개 단위 콘솔 출력
+                if(i%10 == 0){
+                    System.out.println(i);
+                }
+
+                Node propertyNode = propertyList.item(i);
+                if(propertyNode.getNodeType() == Node.ELEMENT_NODE){
+
+                    // 노드를 사용할 수 있게 element로 변환
+                    Element propertyElement = (Element) propertyNode;
+
+                    /**
+                     * PropertyList 구하기
+                     */
+                    result += hotelStoryParsing(propertyElement, roomTypeListMap, ratePlanListMap);
+
+                }
+
+                if(i == (propertyList.getLength()-1)){
+                    System.out.println("roomType, ratePlan ApI 파싱 완료 시간 = " + (System.currentTimeMillis()-listParsingStart)/1000.0);
+                }
+
+            }
+            System.out.println("시설 수 = " + propertyList.getLength());
+            System.out.println("roomType 수 = " + roomTypeCnt);
+            System.out.println("ratePlan 수 = " + ratePlanCnt);
+
+            //System.out.println(result);
+
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+
+
+        return result;
+
+
+    }
 
     /**
      * API 데이터 파싱
@@ -84,7 +236,7 @@ public class APIHotelstoryService {
             result += "Latitude = " + xmlUtility.getTagValue("Latitude", tagElement) + "<br>";
             result += "Longitude = " + xmlUtility.getTagValue("Longitude", tagElement) + "<br>";
             String cityCode = xmlUtility.getTagValue("CityCode", tagElement);
-            Document cityDocument = xmlUtility.HotelStoryAPIList("CityList","");
+            Document cityDocument = HotelStoryAPIList("CityList","");
             result += "Location = " + getCityNameByCode(cityDocument, cityCode)[1] + "<br>";
             result += "city = " + getCityNameByCode(cityDocument, cityCode)[0] + "<br>";
             result += "HomePageUrl = " + xmlUtility.getTagValue("HomePageUrl", tagElement) + "<br>";
@@ -116,11 +268,6 @@ public class APIHotelstoryService {
             strTrafficInformation = xmlUtility.getTagValue("TrafficInformation", tagElement).toString();
             strRsvGuide = xmlUtility.getTagValue("CheckInInstructions", tagElement).toString();
 
-            // condo 프로시저 실행
-//            intAID = Integer.parseInt(hotelStoryMapper.insertAccomm(strPropertyId, strPropertyName, strAddress, strPhone, strNumRooms, strLocation, strHomePageUrl, strCheckInTime, strCheckOutTime
-//                                                            , strLongitude, strLatitude, strCity, strPropertyDescription, strTrafficInformation, strRsvGuide));
-
-            //System.out.println("con_id = " + intAID);
 
             /**
              * 부대시설 insert
@@ -168,12 +315,13 @@ public class APIHotelstoryService {
             /**
              * 취소규정 데이터 insert
              */
-            CancelInfoDto cancelInfoDto = new CancelInfoDto();
-            cancelInfoDto.setStrCname(strPropertyName);
-            cancelInfoDto.setIntCid(intAID);
 
-            String cancelData = "";
+            String cancelDatas = "";
             NodeList cancelList = tagElement.getElementsByTagName("CancelPenalty");
+
+            // 성수기 요금 표 안줄 때 비수기꺼로 넣기 위함(반대의 경우도 적용)
+            int intOpsCnt = 0; // 성수기 요금표 수
+            int intOofCnt = 0; // 비수기 요금표 수
             for(int i=0; i<cancelList.getLength(); i++){
                 Node node = cancelList.item(i);
 
@@ -182,12 +330,13 @@ public class APIHotelstoryService {
 
                     String strCnFlag = "OPS";
                     if(element.getAttribute("Type").equals("1")){ // 비성수기
-                        cancelInfoDto.setStrCnFlag("OOF");
                         strCnFlag = "OOF";
+                        intOofCnt += 1;
                     }else{
-                        cancelInfoDto.setStrCnFlag("OPS");
+                        intOpsCnt += 1;
                     }
 
+                    int intDateCnt = 0; // 비어있는 날짜 수수료 넣기 위함
                     NodeList infoList = element.getElementsByTagName("Deadline");
                     for(int j=0; j<infoList.getLength(); j++){
                         Node infoNode = infoList.item(j);
@@ -195,18 +344,40 @@ public class APIHotelstoryService {
                         if(infoNode.getNodeType() == Node.ELEMENT_NODE){
                             Element infoElement = (Element) infoNode;
 
-                            cancelInfoDto.setIntCnDcnt(Integer.parseInt(infoElement.getAttribute("Date")));
-                            cancelInfoDto.setIntCnPer(Integer.parseInt(infoElement.getAttribute("value")));
-                            //accomodationMapper.cancelInfoReg(cancelInfoDto);
-                            cancelData += strCnFlag +"|^|"+ infoElement.getAttribute("Date") +"|^|"+ infoElement.getAttribute("value") + "{{|}}";
+                            if(intDateCnt != 0){ // 처음 제외
+                                int intSubCnt = Integer.parseInt(infoElement.getAttribute("Date")) - intDateCnt;
+
+                                // 앞의 날짜와 이틀 이상 차이날 때
+                                if(intSubCnt > 1){
+                                    for(int c=1; c<intSubCnt; c++){
+                                        cancelDatas += strCnFlag +"|^|"+ (intDateCnt+1) +"|^|"+ infoElement.getAttribute("value") + "{{|}}";
+                                    }
+                                }
+                            }
+                            cancelDatas += strCnFlag +"|^|"+ infoElement.getAttribute("Date") +"|^|"+ infoElement.getAttribute("value") + "{{|}}";
+
+                            intDateCnt = Integer.parseInt(infoElement.getAttribute("Date"));
+
                         }
                     }
 
                 }
             }
-            if(cancelData.length() > 1){
-                cancelData = cancelData.substring(0, cancelData.length()-5);
+
+            // 비수기, 성수기 중 하나만 보내줄 때
+            if(intOpsCnt + intOofCnt == 1){
+                if(intOpsCnt == 0){
+                    cancelDatas += cancelDatas.replace("OOF", "OPS");
+                }else if(intOofCnt == 0){
+                    cancelDatas += cancelDatas.replace("OPS", "OOF");
+                }
             }
+
+            if(cancelDatas.length() > 1){
+                cancelDatas = cancelDatas.substring(0, cancelDatas.length()-5);
+            }
+
+            System.out.println(cancelDatas);
 
 
             /**
@@ -264,10 +435,6 @@ public class APIHotelstoryService {
 
                             int step = (strIngYn.equals("N"))? 0 : intStep;
 
-                            // tocon 프로시저 실행
-//                            int toconIdx = Integer.parseInt(hotelStoryMapper.insertRoomType(strRoomTypeName, intAID, intMinPersons, intMaxPersons, strRoomTypeId, step, strIngYn, strText, strRoomInformation));
-
-                            //System.out.println("toconIdx = "+toconIdx);
                             String ratePlanData = "";
                             if(ratePlanMap.get(strRoomTypeId) != null){
 
@@ -318,18 +485,13 @@ public class APIHotelstoryService {
                                         default: strBedTypeString = strBedTypeCode;
                                     }*/
 
-                                    // rate_plan 프로시저 실행
-                                    //String ratePlanIdx = hotelStoryMapper.insertRatePlan(intAID, strPropertyId, toconIdx, strRoomTypeId, strRatePlanId, strRatePlanName, strBedTypeString, strMealCode, intMinPersons, intMaxPersons, intSaleRate);
                                     ratePlanData += strRatePlanId +"|~|"+ strRatePlanName +"|~|"+ strBedTypeString +"|~|"+ strMealCode +"|~|"+ intMinPersons +"|~|"+ intMaxPersons +"{{~}}";
-                                    //System.out.println(ratePlanIdx);
                                 }
 
                             }
                             if(ratePlanData.length() > 1){
                                 ratePlanData = ratePlanData.substring(0, ratePlanData.length()-5);
                             }
-
-
 
                             roomTypeData += strRoomTypeName +"|^|"+ intMinPersons +"|^|"+ intMaxPersons +"|^|"+ strRoomTypeId +"|^|"+ step +"|^|"+ strIngYn +"|^|"+ strText +"|^|"+ ratePlanData +"{{|}}"; // strRoomInformation
                             //System.out.println(strRoomInformation);
@@ -346,17 +508,10 @@ public class APIHotelstoryService {
             }
 
             // 프로시저 돌려
-//            System.out.println(imgData);
-//            System.out.println(cancelData);
-//            System.out.println(roomTypeData);
-
-            /*result += hotelStoryMapper.insertAccommtotal(strPropertyId, strPropertyName, strAddress, strPhone, strNumRooms, strLocation, strHomePageUrl, strCheckInTime, strCheckOutTime
-                    , strLongitude, strLatitude, strCity, strPropertyDescription, strTrafficInformation, strRoomInformation, imgData, cancelData, roomTypeData);*/
-
-            String procResult = hotelStoryMapper.insertProperty(strPropertyId, strLocation, strCity, strPropertyName, strLatitude, strLongitude, strStarRating, strNumRooms, strCheckInTime, strCheckOutTime, strPhone, strAddress, strHomePageUrl
-                    , strPropertyDescription, strTrafficInformation, strRsvGuide, imgData, cancelData, roomTypeData, addData);
-
-            System.out.println(procResult);
+//            String procResult = hotelStoryMapper.insertProperty(strPropertyId, strLocation, strCity, strPropertyName, strLatitude, strLongitude, strStarRating, strNumRooms, strCheckInTime, strCheckOutTime, strPhone, strAddress, strHomePageUrl
+//                    , strPropertyDescription, strTrafficInformation, strRsvGuide, imgData, cancelData, roomTypeData, addData);
+//
+//            System.out.println(procResult);
 
 
             result = result.replace("<br>", "\n");
@@ -713,20 +868,47 @@ public class APIHotelstoryService {
 
     /**
      * webhook으로 받는 xml to document 파싱
-     * @param strXML
+     * @param strXml
      * @return
      * @throws Exception
      */
-    public Document getWebhook(String strXML) throws Exception{
+    public String getWebhook(String strXml){
 
-        InputSource is = new InputSource(new StringReader(strXML));
-        is.setEncoding("UTF-8");
-        DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
-        DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
-        Document document = dBuilder.parse(is);
+        String result =
+                "<ResponsePushAvailability>\n" +
+                "   <Error><ErrorCode>1010</ErrorCode><ErrorDescription><![CDATA[not is data]]></ErrorDescription></Error>\n" +
+                "</ResponsePushAvailability>";
 
-        return document;
+        try {
 
+            getClientIP(); // 클라이언트 IP 구하기
+
+            // 우선 test xml 삽입
+            strXml = "<?xml version=\"1.0\" encoding=\"utf-8\" ?><RequestPushAvailability>   <Auth>       <AuthId>hotelstory</AuthId>       <AuthKey>ghxpftmxhfl!@#</AuthKey>   </Auth>   <PropertyId>1000582</PropertyId>   <AvailabilityList>       <Availability>           <RoomTypeId>140148</RoomTypeId>           <RatePlanId>140149</RatePlanId>           <Dates>               <Date Allotment=\"0\" Price=\"54545\">2023-05-22</Date>               <Date Allotment=\"0\" Price=\"54545\">2023-05-23</Date>               <Date Allotment=\"0\" Price=\"54545\">2023-05-24</Date>               <Date Allotment=\"4\" Price=\"54545\">2023-05-25</Date>               <Date Allotment=\"4\" Price=\"81818\">2023-05-26</Date>               <Date Allotment=\"0\" Price=\"109091\">2023-05-27</Date>               <Date Allotment=\"1\" Price=\"90909\">2023-05-28</Date>               <Date Allotment=\"4\" Price=\"63636\">2023-05-29</Date>               <Date Allotment=\"4\" Price=\"63636\">2023-05-30</Date>               <Date Allotment=\"8\" Price=\"63636\">2023-05-31</Date>           </Dates>       </Availability>   </AvailabilityList></RequestPushAvailability>";
+
+            InputSource is = new InputSource(new StringReader(strXml));
+            is.setEncoding("UTF-8");
+            DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
+            DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
+            Document document = dBuilder.parse(is);
+
+            String strProcResult = parsingGoods(document);
+            if(strProcResult.equals("저장완료")){
+
+            }else{
+
+            }
+
+            result =
+                    "<ResponsePushAvailability>\n" +
+                    "   <Success/>\n" +
+                    "</ResponsePushAvailability>";
+
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+
+        return result;
     }
 
     /**
@@ -746,11 +928,16 @@ public class APIHotelstoryService {
                 if (node.getNodeType() == Node.ELEMENT_NODE) {
 
                     Element element = (Element) node;
-                    String propertyId = xmlUtility.getTagValue("PropertyId", element).toString();
-                    String strRatePlanId = xmlUtility.getTagValue("RatePlanId", element).toString();
+                    String strPropertyId = xmlUtility.getTagValue("PropertyId", element).toString();
                     String strRoomTypeId = xmlUtility.getTagValue("RoomTypeId", element).toString();
+                    String strRatePlanId = xmlUtility.getTagValue("RatePlanId", element).toString();
+
+                    Map<String, String> aidRmIdxMap = hotelStoryMapper.getAcmRmIdx(strPropertyId, strRoomTypeId, strRatePlanId);
+                    int intAID = Integer.parseInt(String.valueOf(aidRmIdxMap.get("intAID")));
+                    int intRmIdx = Integer.parseInt(String.valueOf(aidRmIdxMap.get("intIdx")));
 
                     NodeList dateList = document.getElementsByTagName("Date");
+                    String strStockDatas = "";
                     for(int j=0; j<dateList.getLength(); j++){
                         Node dateNode = dateList.item(j);
                         if(dateNode.getNodeType() == Node.ELEMENT_NODE){
@@ -792,11 +979,18 @@ public class APIHotelstoryService {
 
                             int intStock = Integer.parseInt(dateElement.getAttribute("Allotment").toString());
 
-                            // 프로시저 실행
-                            //hotelStoryMapper.insertGoods(strRatePlanId, intStock, strDate, intBasicPrice, intSalePrice);
-                            hotelStoryMapper.insertStock(strRatePlanId, strRoomTypeId, propertyId, strDate, intStock, intBasicPrice, intSalePrice, intOMKPrice);
+                            strStockDatas += strDate + "|^|" + intStock + "|^|" + intBasicPrice + "|^|" + intSalePrice + "|^|0|^|0|^|0|^|" + intStock + "|^|" + intOMKPrice + "{{|}}";
+
                         }
                     }
+
+                    if(strStockDatas.length() > 1){
+                        strStockDatas = strStockDatas.substring(0, strStockDatas.length()-5);
+                    }
+
+                    result = hotelStoryMapper.insertStock(intAID, intRmIdx, strStockDatas);
+                    result = result.substring(result.length()-4);
+
                 }
             }
         }catch (Exception e){
@@ -804,6 +998,81 @@ public class APIHotelstoryService {
         }
 
         return result;
+    }
+
+
+    /**
+     * 호텔스토리 API 가져오기
+     * @param type
+     * @param strAccommID
+     * @return xml
+     * @throws Exception
+     */
+    public Document HotelStoryAPIList(String type, String strAccommID) throws Exception{
+
+        // roomTypeList 인지 ratePlanList 인지 구분
+        String requestType = "";
+        if(type == "propertyList") {
+            requestType = "RequestPropertyList";
+        }else if(type == "roomTypeList"){
+            requestType = "RequestRoomTypeList";
+        }else if(type == "RatePlanList"){
+            requestType = "RequestRatePlanList";
+        }else if(type == "CityList"){
+            requestType = "RequestProvinceCityList";
+        }
+
+        // API 호출 정보
+        String sysHotelStoryID = Constants.hotelStoryID;
+        String sysHotelStoryAuthKey = Constants.hotelStoryAuthKey;
+        URL url = new URL("https://b2b.hotelstory.com/API/api.php");
+
+        // API 호출
+        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+        conn.setRequestMethod("POST");
+        conn.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
+        conn.setDoOutput(true);
+
+        String sysApiContent = "    <"+requestType+">";
+        sysApiContent += "              <Auth>";
+        sysApiContent += "                  <AuthId>"+sysHotelStoryID+"</AuthId>";
+        sysApiContent += "                  <AuthKey>"+sysHotelStoryAuthKey+"</AuthKey>";
+        sysApiContent += "              </Auth>";
+        if(strAccommID == null || strAccommID == "" || strAccommID.length() == 0){ /* porpertyId 없을때는 비워두고 호출(RequestPropertyList일때만임.) */ }else{
+            sysApiContent += "          <PropertyId>"+strAccommID+"</PropertyId>";
+        }
+        sysApiContent += "          </"+requestType+">";
+
+        OutputStreamWriter writer = new OutputStreamWriter(conn.getOutputStream(), "UTF-8");
+        writer.write(sysApiContent);
+        writer.close();
+
+        // 코드실행시간 출력
+        /*
+        long APIEnd = System.currentTimeMillis();
+        if(type == "propertyList") {
+            System.out.println("API 호출 완료시간 = "+(APIEnd-startTime)/1000.0);
+            System.out.println("xml DOM 저장 시작");
+        }
+        */
+
+        // transformer 사용하기 위해 xml을 Document로 파싱
+        DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
+        DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
+        Document doc = dBuilder.parse(conn.getInputStream());
+        doc.getDocumentElement().normalize();
+        conn.disconnect();
+
+
+        // 코드실행시간 출력
+        /*
+        if(type == "propertyList") {
+            long xmlEnd = System.currentTimeMillis();
+            System.out.println("xml DOM 저장 완료 = "+(xmlEnd-APIEnd)/1000.0);
+        }
+        */
+
+        return doc;
     }
 
 
@@ -900,6 +1169,41 @@ public class APIHotelstoryService {
         }
         return result;
 
+    }
+
+
+    /**
+     * IP 구하기
+     * @return
+     */
+    public static String getClientIP() {
+        HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest();
+        String ip = request.getHeader("X-Forwarded-For");
+        //System.out.println("> X-FORWARDED-FOR : " + ip);
+
+        if (ip == null) {
+            ip = request.getHeader("Proxy-Client-IP");
+            //System.out.println("> Proxy-Client-IP : " + ip);
+        }
+        if (ip == null) {
+            ip = request.getHeader("WL-Proxy-Client-IP");
+            //System.out.println(">  WL-Proxy-Client-IP : " + ip);
+        }
+        if (ip == null) {
+            ip = request.getHeader("HTTP_CLIENT_IP");
+            //System.out.println("> HTTP_CLIENT_IP : " + ip);
+        }
+        if (ip == null) {
+            ip = request.getHeader("HTTP_X_FORWARDED_FOR");
+            //System.out.println("> HTTP_X_FORWARDED_FOR : " + ip);
+        }
+        if (ip == null) {
+            ip = request.getRemoteAddr();
+            //System.out.println("> getRemoteAddr : "+ip);
+        }
+        System.out.println("> Result : IP Address : "+ip);
+
+        return ip;
     }
 
 
