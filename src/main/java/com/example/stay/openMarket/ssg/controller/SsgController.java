@@ -34,8 +34,8 @@ public class SsgController {
     private CommonService commonService;
 
     @GetMapping("/get")
-    public void getAcmInfo(int intAID, String strOmkType){
-        commonService.getAcmInfo(intAID, strOmkType);
+    public void getAcmInfo(int intAID, int intOmkIdx){
+        commonService.getAcmInfo(intAID, intOmkIdx);
 
     }
 

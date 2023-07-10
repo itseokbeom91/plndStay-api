@@ -6,13 +6,11 @@
 <mapper namespace="com.example.stay.openMarket.common.mapper.CommonMapper">
 
     <select id="getAcmInfo" resultType="accommDto">
-        EXEC spOMK_ACCOMM_INFO ${intAID}, #{strOmkType}
+        EXEC spOMK_ACCOMM_INFO ${intAID}, ${intOmkIdx}
     </select>
 
     <select id="getRoomList" resultType="map">
-        SELECT RM.strSubject, RM.strDeleteYn FROM RMTYPE RM WITH(NOLOCK)
-        INNER JOIN RM_OMK_USAGE RO WITH(NOLOCK) ON RM.intIdx = RO.intRmIdx
-        WHERE RM.intAID = ${intAID} AND RO.intOMKIdx = 8 AND RO.strUsageYn = 'Y'
+        EXEC spOMK_ROOMTYPE_LIST ${intAID}, ${intOmkIdx}
     </select>
 
     <select id="getPhotoList" resultType="map">
@@ -20,6 +18,10 @@
 	    LEFT OUTER JOIN CONTENTS_PHOTO d WITH(NOLOCK) ON c.intPhotoID = d.intPhotoID
         WHERE c.intAID = ${intAID}
         ORDER BY intStep ASC;
+    </select>
+
+    <select id="getStockList" resultType="map">
+        EXEC spOMK_STOCK_LIST ${intAID}, ${intOmkIdx}, #{strDate}
     </select>
 
 </mapper>

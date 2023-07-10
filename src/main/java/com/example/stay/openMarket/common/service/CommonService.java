@@ -14,16 +14,27 @@ public class CommonService {
     @Autowired
     private CommonMapper commonMapper;
 
-    // 시설 정보 가져오기
-    public AccommDto getAcmInfo(int intAID, String strOmkType){
-        AccommDto accommDto = commonMapper.getAcmInfo(intAID, strOmkType);
+    // 시설 정보 가져오기 test 중
+    public String getAcmInfo(int intAID, int intOmkIdx){
 
-        List<Map<String,String>> strRoomList = commonMapper.getRoomList(intAID);
+        // 시설 정보
+        AccommDto accommDto = commonMapper.getAcmInfo(intAID, intOmkIdx);
 
+        // 룸타입 리스트
+        List<Map<String,String>> strRoomList = commonMapper.getRoomList(intAID, intOmkIdx);
+
+        // 사진 리스트
         List<Map<String,String>> strPhotoList = commonMapper.getPhotoList(intAID);
 
-        System.out.println(strPhotoList);
-        return accommDto;
+        // 재고 리스트
+        List<Map<String,String>> strStockList = commonMapper.getStockList(intAID, intOmkIdx, "20230701");
+
+        for(Map<String, String> map : strStockList){
+            System.out.println(map.get("strSubject"));
+        }
+
+        //System.out.println(strStockList);
+        return "";
     }
 
 
