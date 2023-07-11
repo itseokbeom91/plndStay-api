@@ -37,7 +37,8 @@ public class AccommService {
 
     // 시설, 룸타입, ratePlan 등록
     public String insertAccommTotal(String dataType, HttpServletRequest httpServletRequest){
-        LogWriter logWriter = new LogWriter(httpServletRequest.getMethod(), httpServletRequest.getServletPath(), System.currentTimeMillis());
+        LogWriter logWriter = new LogWriter(httpServletRequest.getMethod(), httpServletRequest.getServletPath(),
+                httpServletRequest.getQueryString(), System.currentTimeMillis());
         String statusCode = "200";
         String message = "";
 
@@ -664,7 +665,8 @@ public class AccommService {
 
     // 룸타입+옵션 등록 및 수정
     public JSONObject updateRmtype(String strPropertyID, String strRmtypeID, String strRateplanID, HttpServletRequest httpServletRequest){
-        LogWriter logWriter = new LogWriter(httpServletRequest.getMethod(), httpServletRequest.getServletPath(), System.currentTimeMillis());
+        LogWriter logWriter = new LogWriter(httpServletRequest.getMethod(), httpServletRequest.getServletPath(),
+                httpServletRequest.getQueryString(), System.currentTimeMillis());
         String statusCode = "200";
         String message = "";
         boolean updateResult = false;
@@ -1021,7 +1023,8 @@ public class AccommService {
     }
 
     public boolean webhookProcess(JSONObject bodyJson, HttpServletRequest httpServletRequest){
-        LogWriter logWriter = new LogWriter(httpServletRequest.getMethod(), httpServletRequest.getServletPath(), System.currentTimeMillis());
+        LogWriter logWriter = new LogWriter(httpServletRequest.getMethod(), httpServletRequest.getServletPath(),
+                httpServletRequest.getQueryString(), System.currentTimeMillis());
         boolean result = false;
         try{
             String event_type = bodyJson.get("event_type").toString();

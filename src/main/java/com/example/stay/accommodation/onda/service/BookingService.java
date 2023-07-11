@@ -109,7 +109,8 @@ public class BookingService {
 
     // 온다에 예약정보 전송데이터 생성
     public String createBookingInfo(String dataType, int intBookingID, HttpServletRequest httpServletRequest){
-        LogWriter logWriter = new LogWriter(httpServletRequest.getMethod(), httpServletRequest.getServletPath(), System.currentTimeMillis());
+        LogWriter logWriter = new LogWriter(httpServletRequest.getMethod(), httpServletRequest.getServletPath(),
+                httpServletRequest.getQueryString(), System.currentTimeMillis());
 
         String statusCode = "200";
         String message = "";
@@ -384,7 +385,8 @@ public class BookingService {
 
 
     public String cancelBookingInfo(String dataType, int intBookingID, HttpServletRequest httpServletRequest){
-        LogWriter logWriter = new LogWriter(httpServletRequest.getMethod(), httpServletRequest.getServletPath(), System.currentTimeMillis());
+        LogWriter logWriter = new LogWriter(httpServletRequest.getMethod(), httpServletRequest.getServletPath(),
+                httpServletRequest.getQueryString(), System.currentTimeMillis());
 
         String statusCode = "200";
         String message = "";

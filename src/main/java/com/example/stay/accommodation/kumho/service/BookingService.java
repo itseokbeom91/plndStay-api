@@ -51,7 +51,8 @@ public class BookingService {
 
     // 예약
     public String createBooking(String dataType, int intBookingID, HttpServletRequest httpServletRequest){
-        LogWriter logWriter = new LogWriter(httpServletRequest.getMethod(), httpServletRequest.getServletPath(), System.currentTimeMillis());
+        LogWriter logWriter = new LogWriter(httpServletRequest.getMethod(), httpServletRequest.getServletPath(),
+                httpServletRequest.getQueryString(), System.currentTimeMillis());
         String statusCode = "200";
         String message = "";
         try{
@@ -165,7 +166,8 @@ public class BookingService {
 
     // 재고 등록 및 수정
     public String updateGoods(String dataType, String fr_date, String to_date, int intRmIdx, HttpServletRequest httpServletRequest){
-        LogWriter logWriter = new LogWriter(httpServletRequest.getMethod(), httpServletRequest.getServletPath(), System.currentTimeMillis());
+        LogWriter logWriter = new LogWriter(httpServletRequest.getMethod(), httpServletRequest.getServletPath(),
+                httpServletRequest.getQueryString(), System.currentTimeMillis());
         String statusCode = "200";
         String message = "";
         try{
@@ -365,7 +367,8 @@ public class BookingService {
 
     // 예약 취소
     public String cancelBooking(String dataType, int intBookingID, HttpServletRequest httpServletRequest){
-        LogWriter logWriter = new LogWriter(httpServletRequest.getMethod(), httpServletRequest.getServletPath(), System.currentTimeMillis());
+        LogWriter logWriter = new LogWriter(httpServletRequest.getMethod(), httpServletRequest.getServletPath(),
+                httpServletRequest.getQueryString(), System.currentTimeMillis());
         String statusCode = "200";
         String message = "";
         try{
@@ -414,7 +417,8 @@ public class BookingService {
 
     // 예약현황 조회
     public String getReservationStatus(String dataType, int intBookingID, HttpServletRequest httpServletRequest){
-        LogWriter logWriter = new LogWriter(httpServletRequest.getMethod(), httpServletRequest.getServletPath(), System.currentTimeMillis());
+        LogWriter logWriter = new LogWriter(httpServletRequest.getMethod(), httpServletRequest.getServletPath(),
+                httpServletRequest.getQueryString(), System.currentTimeMillis());
         String statusCode = "200";
         String message = "";
         Map<String, Object> resultMap = new HashMap<>();
@@ -494,7 +498,8 @@ public class BookingService {
 
     // 예약 대사자료 조회
     public String getReservations(String dataType, String fr_date, String to_date ,HttpServletRequest httpServletRequest){
-        LogWriter logWriter = new LogWriter(httpServletRequest.getMethod(), httpServletRequest.getServletPath(), System.currentTimeMillis());
+        LogWriter logWriter = new LogWriter(httpServletRequest.getMethod(), httpServletRequest.getServletPath(),
+                httpServletRequest.getQueryString(), System.currentTimeMillis());
         String statusCode = "200";
         String message = "";
         MultiValueMap<String, Map> resultMap = new LinkedMultiValueMap<>();

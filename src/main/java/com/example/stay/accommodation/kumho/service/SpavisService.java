@@ -38,7 +38,8 @@ public class SpavisService {
 
     // 선납권 사용여부 조회 - 1개씩
     public String checkCouponStatus(String dataType, HttpServletRequest httpServletRequest, String strCouponNo){
-        LogWriter logWriter = new LogWriter(httpServletRequest.getMethod(), httpServletRequest.getServletPath(), System.currentTimeMillis());
+        LogWriter logWriter = new LogWriter(httpServletRequest.getMethod(), httpServletRequest.getServletPath(),
+                httpServletRequest.getQueryString(), System.currentTimeMillis());
         String statusCode = "200";
         String message = "";
         try{
@@ -98,7 +99,8 @@ public class SpavisService {
 
     // 선납권 사용여부 조회 - 여러개(동기)
     public String checkCouponListStatus(String dataType, HttpServletRequest httpServletRequest){
-        LogWriter logWriter = new LogWriter(httpServletRequest.getMethod(), httpServletRequest.getServletPath(), System.currentTimeMillis());
+        LogWriter logWriter = new LogWriter(httpServletRequest.getMethod(), httpServletRequest.getServletPath(),
+                httpServletRequest.getQueryString(), System.currentTimeMillis());
         String statusCode = "200";
         String message = "";
         int failCount = 0;
@@ -223,7 +225,8 @@ public class SpavisService {
 
     // 티켓 발권
     public String orderTicket(String dataType, HttpServletRequest httpServletRequest, int intRsvID){
-        LogWriter logWriter = new LogWriter(httpServletRequest.getMethod(), httpServletRequest.getServletPath(), System.currentTimeMillis());
+        LogWriter logWriter = new LogWriter(httpServletRequest.getMethod(), httpServletRequest.getServletPath(),
+                httpServletRequest.getQueryString(), System.currentTimeMillis());
         String statusCode = "200";
         String message = "";
 
@@ -299,7 +302,8 @@ public class SpavisService {
 
     // 티켓 취소(현재 부분취소 기능은 사용X)
     public String cancelTicket(String dataType, HttpServletRequest httpServletRequest, int intRsvID, String strTicketNo){
-        LogWriter logWriter = new LogWriter(httpServletRequest.getMethod(), httpServletRequest.getServletPath(), System.currentTimeMillis());
+        LogWriter logWriter = new LogWriter(httpServletRequest.getMethod(), httpServletRequest.getServletPath(),
+                httpServletRequest.getQueryString(), System.currentTimeMillis());
         String statusCode = "200";
         String message = "";
 
@@ -358,7 +362,8 @@ public class SpavisService {
     public String checkTicketStatus(String dataType, HttpServletRequest httpServletRequest, int intRsvID){
         String statusCode = "200";
         String message = "";
-        LogWriter logWriter = new LogWriter(httpServletRequest.getMethod(), httpServletRequest.getServletPath(), System.currentTimeMillis());
+        LogWriter logWriter = new LogWriter(httpServletRequest.getMethod(), httpServletRequest.getServletPath(),
+                httpServletRequest.getQueryString(), System.currentTimeMillis());
 
         try{
             /**
@@ -410,7 +415,8 @@ public class SpavisService {
     public String checkTicketStatusByDate(String dataType, HttpServletRequest httpServletRequest, String searchDate){
         String statusCode = "200";
         String message = "";
-        LogWriter logWriter = new LogWriter(httpServletRequest.getMethod(), httpServletRequest.getServletPath(), System.currentTimeMillis());
+        LogWriter logWriter = new LogWriter(httpServletRequest.getMethod(), httpServletRequest.getServletPath(),
+                httpServletRequest.getQueryString(), System.currentTimeMillis());
 
         try{
             String spavisUrl = "social_interface/socif05.asp?cust_id=" + Constants.tkCustomerID + "&result_date=" + searchDate;
@@ -468,7 +474,8 @@ public class SpavisService {
     // 티켓 발권 처리(스파비스에서 호출)
     public String updateStatus(HttpServletRequest httpServletRequest, String strRsvID, String strTicketNo, String strUseStatus, String dateUsed){
         String message = "";
-        LogWriter logWriter = new LogWriter(httpServletRequest.getMethod(), httpServletRequest.getServletPath(), System.currentTimeMillis());
+        LogWriter logWriter = new LogWriter(httpServletRequest.getMethod(), httpServletRequest.getServletPath(),
+                httpServletRequest.getQueryString(), System.currentTimeMillis());
 
         String successYn = "F";
         String result = "";
