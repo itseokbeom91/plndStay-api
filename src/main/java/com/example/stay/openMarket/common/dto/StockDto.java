@@ -5,9 +5,18 @@ import lombok.Data;
 @Data
 public class StockDto {
 
+    private String dateSales;
+    private String strSubject;
+    private int intRmIdx;
+    private int moneySales;
+    private int intStock;
+    private int intSsgSeq;
+    private int intGsshopSeq;
+    private int intNextStock;
+
     /**
      * DB goods
-     */
+
 
     private String strGoodDate;
     private String strTocode;
@@ -22,7 +31,7 @@ public class StockDto {
 
     /**
      * DB test_goods
-     */
+
 
     private int intGoodsID;
     private int intCondoID;
@@ -34,4 +43,6 @@ public class StockDto {
     private int intSalePrice;
     private int intMinStay;
     private int intMaxStay;
+
+     */
 }

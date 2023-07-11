@@ -9,18 +9,18 @@
         EXEC spOMK_ACCOMM_INFO ${intAID}, ${intOmkIdx}
     </select>
 
-    <select id="getRoomList" resultType="map">
+    <select id="getRoomList" resultType="roomTypeDto">
         EXEC spOMK_ROOMTYPE_LIST ${intAID}, ${intOmkIdx}
     </select>
 
-    <select id="getPhotoList" resultType="map">
-        SELECT CONCAT('https://condo24.com/', strFilePath, '/', strFileName) AS strPhotoUrl FROM ACCOMM_PHOTO c WITH(NOLOCK)
+    <select id="getPhotoList" resultType="string">
+        SELECT CONCAT('https://condo24.com', strFilePath, strFileName) AS strPhotoUrl FROM ACCOMM_PHOTO c WITH(NOLOCK)
 	    LEFT OUTER JOIN CONTENTS_PHOTO d WITH(NOLOCK) ON c.intPhotoID = d.intPhotoID
         WHERE c.intAID = ${intAID}
         ORDER BY intStep ASC;
     </select>
 
-    <select id="getStockList" resultType="map">
+    <select id="getStockList" resultType="stockDto">
         EXEC spOMK_STOCK_LIST ${intAID}, ${intOmkIdx}, #{strDate}
     </select>
 

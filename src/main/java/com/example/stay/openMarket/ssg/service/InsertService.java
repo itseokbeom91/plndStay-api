@@ -1,10 +1,13 @@
 package com.example.stay.openMarket.ssg.service;
 
+import com.example.stay.openMarket.common.dto.AccommDto;
 import com.example.stay.openMarket.common.dto.CondoDto;
 import com.example.stay.openMarket.common.dto.StockDto;
 import com.example.stay.openMarket.common.mapper.CommonApiMapper;
+import com.example.stay.openMarket.common.mapper.CommonMapper;
 import com.example.stay.openMarket.common.service.CommonApiService;
 import com.example.stay.common.util.Constants;
+import com.example.stay.openMarket.common.service.CommonService;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.json.simple.JSONObject;
@@ -29,7 +32,13 @@ public class InsertService {
     @Autowired
     private CommonApiMapper commonApiMapper;
 
-    public String insert(int intNum, CondoDto condoDto){
+    @Autowired
+    private CommonService commonService;
+
+    @Autowired
+    private CommonMapper commonMapper;
+
+    public String insert(int intAID, AccommDto accommDto){
 
         String result = "";
         try {
@@ -41,13 +50,13 @@ public class InsertService {
             // 고정값
             // =============================
             JSONObject insertObject = new JSONObject();
-            insertObject.put("itemNm", condoDto.getStrMainAcmName()); // 상품명
+            insertObject.put("itemNm", accommDto.getStrSubject()); // 상품명
             insertObject.put("brandId", "3000024556"); // 브랜드 ID
             insertObject.put("stdCtgId", "4000004432"); // 표준 카테고리 ID
             insertObject.put("dispStrtDts", "20220711000000"); // 전시 시작 일시
             insertObject.put("dispEndDts", "20990201235900"); // 전시 종료 일시
             insertObject.put("srchPsblYn","Y"); // 검색가능여부
-            insertObject.put("itemSrchwdNm", condoDto.getStrTagName()); // 검색어
+            insertObject.put("itemSrchwdNm", accommDto.getStrKeywords()); // 검색어
             insertObject.put("itemChrctDivCd","10"); // 상품 특성코드 10:일반
             insertObject.put("itemChrctDtlCd","10"); // 상품 특성 상세코드 10:일반
             insertObject.put("exusItemDivCd","10"); // 전용상품 구분코드 10:일반, 20:특장점
@@ -67,7 +76,7 @@ public class InsertService {
             insertObject.put("buyFrmCd", "60"); // 매입형태 코드 60:위수탁
             insertObject.put("txnDivCd", "10"); // 과세 구분 코드 10:과세
             insertObject.put("invQtyMarkgYn", "N"); // 재고 수량 표기 여부
-            insertObject.put("splVenItemId", String.valueOf(condoDto.getIntAID())); // 공급업체상품ID
+            insertObject.put("splVenItemId", String.valueOf(accommDto.getIntAID())); // 공급업체상품ID
             insertObject.put("itemSellTypeCd", "20"); // 상품 판매유형 코드 10:일반, 20:옵션
             insertObject.put("itemSellTypeDtlCd", "10"); // 상품 판매유형 상세코드 10:일반
             insertObject.put("shppMthdCd", "10"); // 배송 방법 코드 10: 자사배송
@@ -191,7 +200,8 @@ public class InsertService {
             JSONObject itemImgsObject = new JSONObject();
 
             // 메인사진 10장 DB에서 가져오기
-            List<String> photoList = commonApiService.getMainPhotoList(intNum);
+            //List<String> photoList = commonApiService.getMainPhotoList(intNum);
+            List<String> photoList = commonService.getPhotoList(intAID);
 
             List<Object> dataPhotoList = new ArrayList<>();
             for(int i=0; i<photoList.size(); i++){
@@ -210,7 +220,8 @@ public class InsertService {
             // 상품 메인 이미지 10장
             // =============================
             // DB에서 desc 이미지 가져오기(없으면 데이타 종합해서 html 코드)
-            String strImgDesc = commonApiService.getStrPdtDtlInfo(condoDto, intNum, "SSG").replace("<", "&lt;").replace(">", "&gt;");
+            //String strImgDesc = commonApiService.getStrPdtDtlInfo(accommDto, intAID, "SSG").replace("<", "&lt;").replace(">", "&gt;");
+            String strImgDesc = commonService.getStrPdtDtlInfo(accommDto, intAID, 7).replace("<", "&lt;").replace(">", "&gt;");
             insertObject.put("itemDesc", strImgDesc);
 
 
@@ -222,7 +233,8 @@ public class InsertService {
             Date date = new Date();
             String strNow = dateFormat.format(date);
 
-            List<StockDto> stockList = commonApiMapper.getStockList(intNum, "SSG", strNow);
+            //List<StockDto> stockList = commonApiMapper.getStockList(intAID, "SSG", strNow);
+            List<StockDto> stockList = commonMapper.getStockList(intAID, 7, strNow);
 
             List<Object> uitemList = new ArrayList<>();
             List<Object> priceList = new ArrayList<>();
@@ -236,7 +248,7 @@ public class InsertService {
 
                 // 품절여부
                 String strSellStatCd = "20";
-                if (((dto.getStrTocode().contains("2박") == true || dto.getStrTocode().contains(" 연박") == true) & dto.getIntOMKNextStock() == 0) || dto.getIntOMKStock() == 0) {
+                if (((dto.getStrSubject().contains("2박") == true || dto.getStrSubject().contains(" 연박") == true) & dto.getIntNextStock() == 0) || dto.getIntStock() == 0) {
                     strSellStatCd = "80";
                 }
                 itemObject.put("sellStatCd", strSellStatCd);
@@ -244,7 +256,7 @@ public class InsertService {
                 // 1번옵션명(입실일자)
                 itemObject.put("uitemOptnTypeNm1", "입실일자");
 
-                String strDate = dto.getStrGoodDate().substring(0, dto.getStrGoodDate().lastIndexOf("."));
+                String strDate = dto.getDateSales().substring(0, dto.getDateSales().lastIndexOf("."));
                 SimpleDateFormat dateDate = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
                 Date dateStrDate = dateDate.parse(strDate);
                 SimpleDateFormat goodDate = new SimpleDateFormat("MM월dd일(E)"); // uitemOptnChoiTypeCd1 : 10일때
@@ -254,18 +266,18 @@ public class InsertService {
 
                 // 2번옵션명(타입)
                 itemObject.put("uitemOptnTypeNm2", "타입");
-                String strTocode = dto.getStrTocode();
+                String strTocode = dto.getStrSubject();
                 itemObject.put("uitemOptnNm2", strTocode);
 
                 // 재고
-                int intOMKStock = dto.getIntOMKStock();
-                if (((dto.getStrTocode().contains("2박") == true || dto.getStrTocode().contains(" 연박") == true) & dto.getIntOMKNextStock() == 0) || dto.getIntOMKStock() == 0) {
+                int intOMKStock = dto.getIntStock();
+                if (((dto.getStrSubject().contains("2박") == true || dto.getStrSubject().contains(" 연박") == true) & dto.getIntNextStock() == 0) || dto.getIntStock() == 0) {
                     intOMKStock = 0;
                 }
 
                 itemObject.put("baseInvQty", intOMKStock);
 
-                itemObject.put("splVenItemId", dto.getIntGoodSeq());
+                itemObject.put("splVenItemId", dto.getIntSsgSeq());
                 itemObject.put("useYn", "Y");
 
                 uitemList.add(itemObject);
@@ -273,7 +285,7 @@ public class InsertService {
                 // 가격
                 JSONObject priceObject = new JSONObject();
 
-                int intPrice = dto.getIntOMKPrice();
+                int intPrice = dto.getMoneySales();
 
                 int intSSGPrice = (intPrice * (100 - 8) / 100);
                 priceObject.put("tempUitemId", String.valueOf(index));
@@ -310,7 +322,7 @@ public class InsertService {
             JSONObject salesPrcObject = new JSONObject();
             JSONObject salesPrcInfoObject = new JSONObject();
 
-            int intSellprc = commonApiMapper.getMinPrice(intNum, strNow);
+            int intSellprc = commonApiMapper.getMinPrice(intAID, strNow);
             int intMrgrt = 8;
             int intSplprc = (intSellprc * (100-intMrgrt) / 100);
 

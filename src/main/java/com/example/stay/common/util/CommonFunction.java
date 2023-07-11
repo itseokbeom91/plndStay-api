@@ -103,6 +103,8 @@ public class CommonFunction<T> {
 
             if(strAccomm.equals("YPB")){
                 conn.setRequestProperty("X-Yobiss-AuthToken", Constants.ypTokenKey);
+            }else if(strAccomm.equals("SSG")){
+                conn.setRequestProperty("Authorization", Constants.SsgAuthorization);
             }
 
             if(!requestJson.isEmpty()){
