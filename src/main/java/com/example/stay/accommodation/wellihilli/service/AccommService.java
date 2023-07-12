@@ -44,7 +44,8 @@ public class AccommService {
         String statusCode = "200";
         String message = "";
 
-        LogWriter logWriter = new LogWriter(httpServletRequest.getMethod(), httpServletRequest.getServletPath(), System.currentTimeMillis());
+        LogWriter logWriter = new LogWriter(httpServletRequest.getMethod(), httpServletRequest.getServletPath(),
+                httpServletRequest.getQueryString(), System.currentTimeMillis());
         try{
             String strUrl = Constants.whpUrl + ":8070/api/facilities/condo_room/list";
             String method = "GET";

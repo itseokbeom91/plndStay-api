@@ -33,7 +33,8 @@ public class BookingService {
     public String updateGoods(String dataType, HttpServletRequest httpServletRequest, int intRmIdx, String startDate, String endDate){
         String statusCode  = "200";
         String message = "";
-        LogWriter logWriter = new LogWriter(httpServletRequest.getMethod(), httpServletRequest.getServletPath(), System.currentTimeMillis());
+        LogWriter logWriter = new LogWriter(httpServletRequest.getMethod(), httpServletRequest.getServletPath(),
+                httpServletRequest.getQueryString(), System.currentTimeMillis());
 
         try{
             // 재고는 객실의 잔여수량이기 때문에 어떤 패키지 코드로 호출하든 동일 -> k049로 넣음
@@ -255,7 +256,8 @@ public class BookingService {
         String statusCode = "200";
         String message = "";
 
-        LogWriter logWriter = new LogWriter(httpServletRequest.getMethod(), httpServletRequest.getServletPath(), System.currentTimeMillis());
+        LogWriter logWriter = new LogWriter(httpServletRequest.getMethod(), httpServletRequest.getServletPath(),
+                httpServletRequest.getQueryString(), System.currentTimeMillis());
 
         try{
             // 우리 예약 테이블에서 정보 가져와서 세팅
@@ -330,7 +332,8 @@ public class BookingService {
         String statusCode = "200";
         String message = "";
 
-        LogWriter logWriter = new LogWriter(httpServletRequest.getMethod(), httpServletRequest.getServletPath(), System.currentTimeMillis());
+        LogWriter logWriter = new LogWriter(httpServletRequest.getMethod(), httpServletRequest.getServletPath(),
+                httpServletRequest.getQueryString(), System.currentTimeMillis());
 
         try{
             // 우리 예약 테이블에서 정보 가져와서 세팅
@@ -382,7 +385,8 @@ public class BookingService {
         String statusCode = "200";
         String message = "";
 
-        LogWriter logWriter = new LogWriter(httpServletRequest.getMethod(), httpServletRequest.getServletPath(), System.currentTimeMillis());
+        LogWriter logWriter = new LogWriter(httpServletRequest.getMethod(), httpServletRequest.getServletPath(),
+                httpServletRequest.getQueryString(), System.currentTimeMillis());
 
         try{
             // 우리 예약 테이블에서 정보 가져와서 세팅
@@ -434,7 +438,8 @@ public class BookingService {
         String statusCode = "200";
         String message = "";
 
-        LogWriter logWriter = new LogWriter(httpServletRequest.getMethod(), httpServletRequest.getServletPath(), System.currentTimeMillis());
+        LogWriter logWriter = new LogWriter(httpServletRequest.getMethod(), httpServletRequest.getServletPath(),
+                httpServletRequest.getQueryString(), System.currentTimeMillis());
 
         try{
             String strBookingID = "O80894";
@@ -470,7 +475,8 @@ public class BookingService {
         String statusCode = "200";
         String message = "";
 
-        LogWriter logWriter = new LogWriter(httpServletRequest.getMethod(), httpServletRequest.getServletPath(), System.currentTimeMillis());
+        LogWriter logWriter = new LogWriter(httpServletRequest.getMethod(), httpServletRequest.getServletPath(),
+                httpServletRequest.getQueryString(), System.currentTimeMillis());
 
         try{
             if(searchFlag == null){
