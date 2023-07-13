@@ -14,5 +14,6 @@ public class AccommDto {
     private String strPdtCode;          // 오픈마켓 코드
     private String strACMPhotos;        // 시설 이미지
     private String strKeywords;         // 검색어
+    private String strAround;           // 주변명소
 
 }

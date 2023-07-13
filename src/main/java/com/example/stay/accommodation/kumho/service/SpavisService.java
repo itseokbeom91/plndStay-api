@@ -23,6 +23,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
+import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
@@ -231,23 +232,19 @@ public class SpavisService {
         String message = "";
 
         try{
-            // TODO : 예약, RM_OPTION(금액) 테이블에서 정보 가져오기 -> 주문번호 하나에 여러개일 수도 있음
+            // TODO : 예약, RM_OPTION(금액) 테이블에서 정보 가져오기
             String strRsvName = "개발테스트";
             String strRsvPhone = "01029405275";
             String strRsvTel = "01029405275";
             String strRsvEmail = "condo24@condo24.com";
             String orderDate = "20230706";
             String strSalesDate = "2023-12-12";
-            String strExpiredDate = "2023-12-13";
+            String strExpiredDate = "2023-12-30";
             String classDiv = "A"; // 성인 : A, 소아 : B
-            String useCount = "1";
+            int useCount = Integer.parseInt("2");
             int intCost = 19000;
             int intSales = 22000;
-            String strTicketNo = "TR_50000"; // TR_ + 티켓 테이블의 MAX(idx) + 1 로 생성
             String useSeason = "0";
-
-            // 티켓테이블에 정보 INSERT
-            int insertResult = spavisMapper.insertTicket(strTicketNo, intRsvID, strSalesDate, strExpiredDate, intCost, intSales);
 
             SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
             Date dateSales = simpleDateFormat.parse(strSalesDate);
@@ -255,28 +252,86 @@ public class SpavisService {
             SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd");
             String strDateSales = sdf.format(dateSales);
 
+            // 한 주문으로 구매한 티켓이 여러장일 경우 상품코드, 이용시작일, 이용종료일, 대/소인, 이용인원수, 이용금액, 쿠폰번호, 이용시즌 데이터를
+            // 개수에 맞춰 ,로 구분해서 보내야함
+            String goodsCodes = "";
+            String salesDates = "";
+            String expiredDates = "";
+            String classDivs = "";
+            String useCounts = "";
+            String costs = "";
+            String tickets = "";
+            String useSeasons = "";
+            for(int i=0; i<useCount; i++){
+                // TR_ + 티켓 테이블의 MAX(idx) + 1 로 생성
+                String strTicketNo = "TR_" + (spavisMapper.getMaxIdx()+1);
+
+                if(i == useCount-1){
+                    goodsCodes += Constants.goodsCode;
+                    salesDates += strDateSales;
+                    expiredDates += strExpiredDate;
+                    classDivs += classDiv;
+                    useCounts += useCount;
+                    costs += intCost;
+                    tickets += strTicketNo;
+                    useSeasons += useSeason;
+                }else{
+                    goodsCodes += Constants.goodsCode + ",";
+                    salesDates += strDateSales + ",";
+                    expiredDates += strExpiredDate + ",";
+                    classDivs += classDiv + ",";
+                    useCounts += useCount + ",";
+                    costs += intCost + ",";
+                    tickets += strTicketNo + "/";
+                    useSeasons += useSeason + ",";
+                }
+
+                // 티켓테이블에 정보 INSERT
+                spavisMapper.insertTicket(strTicketNo, intRsvID, strSalesDate, strExpiredDate, intCost, intSales);
+            }
+
+            tickets = tickets.replace("/", ",");
 
             // 구매한 티켓 개수만큼 insert가 됐으면
             // 티켓 발권 API 호출
             String spavisUrl = "social_interface/socif01.asp?order_no=" + intRsvID + "&guest_name=" + URLEncoder.encode(strRsvName, "utf-8") +
                                 "&guest_cell_phone=" + strRsvPhone + "&guest_tele_no=" + strRsvTel + "&guest_email=" + strRsvEmail +
-                                "&cust_id=" + Constants.tkCustomerID + "&approv_date=" + orderDate + "&goods_code=" + Constants.goodsCode +
-                                "&use_f_date=" + strDateSales + "&use_t_date=" + strExpiredDate + "&class_div=" + classDiv +
-                                "&use_cnt=" + useCount + "&use_amt=" + intCost + "&coupon_no=" + strTicketNo + "&use_season=" + useSeason;
+                                "&cust_id=" + Constants.tkCustomerID + "&approv_date=" + orderDate + "&goods_code=" + goodsCodes +
+                                "&use_f_date=" + salesDates + "&use_t_date=" + expiredDates + "&class_div=" + classDivs +
+                                "&use_cnt=" + useCounts + "&use_amt=" + costs + "&coupon_no=" + tickets + "&use_season=" + useSeasons;
 
             Document document = callSpavisAPI(spavisUrl);
             if(document != null){
                 String resultCode = document.getElementsByTagName("rtn_div").item(0).getChildNodes().item(0).getNodeValue();
                 String returnMessage = document.getElementsByTagName("rtn_msg").item(0).getChildNodes().item(0).getNodeValue();
                 if(resultCode.equals("S")){
-//                    String couponStatus = document.getElementsByTagName("rtn_status_div").item(0).getChildNodes().item(0).getNodeValue();
-
-                    // TODO : 예약테이블 상태값 업데이트
-
-
-                    // TODO : 카톡 발송
+                    // TODO : 예약테이블 상태값, 티켓번호 업데이트
+                    // 티켓 여러개일 경우 호출 할 때 , 로 구분지어 호출하는데 굳이 디비에는 / 로 나눠야 하는지..
+                    tickets = tickets.replace(",", "/");
 
                     message = "티켓 발권 완료";
+
+                    // TODO : 카톡 발송
+                    String sender = "15880134";
+                    String receiver = strRsvPhone;
+
+                    SimpleDateFormat sdf2 = new SimpleDateFormat("MM월dd일까지");
+                    Date expirationDate = simpleDateFormat.parse(strExpiredDate);
+                    String strExpirationDay = sdf2.format(expirationDate);
+
+                    String kkoMsg = "[콘도24닷컴] 티켓정보 \n" +
+                            "● 고객명: " + strRsvName + "\n" +
+                            "● 상품명: 아산스파비스 이용권\n" +
+                            "● 수량:  " + useCount + "\n" +
+                            "● 티켓번호 : " + tickets + "\n" +
+                            "● 유효기간 : " + strExpirationDay + "\n" +
+                            "※수신된 URL의 QR코드로 매표소에서 수령\n" +
+                            "☎고객센터: 1588-0134 ①번\n" +
+                            "☎매표소: 041-539-2000\n\n" +
+                            "아래 주소를 확인해주세요 \n\n" +
+                            "http://www.condo24.com/QRcode.asp?oid=" + intRsvID;
+
+                    int insertResult = spavisMapper.insertKkoMsg(receiver, sender, kkoMsg);
                 }else{
                     message = "티켓 발권 실패";
                     logWriter.add(returnMessage);
@@ -285,9 +340,7 @@ public class SpavisService {
                 message = "아산 스파비스 API 호출 실패";
             }
 
-//
-
-
+            logWriter.add(message);
             logWriter.log(0);
         }catch (Exception e){
             e.printStackTrace();
@@ -327,7 +380,7 @@ public class SpavisService {
                     // 티켓 테이블 상태값 업데이트
                     // 전체 티켓 취소일 경우
                     int cancelResult = 0;
-                    if(strTicketNo == null || strTicketNo.equals("")){
+                    if(strTicketNo.equals("ALL")){
                         cancelResult = spavisMapper.cancelAllTicket(intRsvID);
                     }else{ // 부분 취소일 경우
                         cancelResult = spavisMapper.updateTicketStatus("C", null, strTicketNo, intRsvID);
@@ -367,13 +420,16 @@ public class SpavisService {
 
         try{
             /**
-             * TODO : 예약번호로 정보 가져오기
+             * TODO : 예약번호로 정보 가져오기 - 티켓 여러장일 경우 ,로 구분해서 보내기
              */
-            String strOrderID = "2023-0701-10927498071";
-            String strTicketNo = "TR_30432,TR_30431";
+            String strOrderID = "2023-0711-10974059457";
+            String strTicketNo = "TR_30494";
 
-            String spavisUrl = "social_interface/socif03.asp?order_no=" + intRsvID + "&coupon_no=" + strTicketNo +
+            String spavisUrl = "social_interface/socif03.asp?order_no=" + strOrderID + "&coupon_no=" + strTicketNo +
                                 "&Cust_id=" + Constants.tkCustomerID;
+
+//            String spavisUrl = "social_interface/socif03.asp?order_no=" + intRsvID + "&coupon_no=" + strTicketNo +
+//                    "&Cust_id=" + Constants.tkCustomerID;
 
             Document document = callSpavisAPI(spavisUrl);
             if(document != null){
@@ -441,11 +497,6 @@ public class SpavisService {
 
                             System.out.println("strTicketStatus : " + strTicketStatus);
                             System.out.println("resultDate : " + strResultDate);
-
-                            String ss = null;
-                            if(ss.equals("ss")){
-
-                            }
 
                         }
                     }

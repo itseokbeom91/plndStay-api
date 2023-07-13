@@ -44,12 +44,12 @@
 
     <select id="getStrTicketNo" resultType="int">
         SELECT COUNT(strTicketNo)
-        FROM ASAN_SPAVIS_TICKET
+        FROM PLNDSTAY.dbo.ASAN_SPAVIS_TICKET
         WHERE strTicketNo = #{strTicketNo}
     </select>
 
     <update id="updateTicketStatus">
-        UPDATE ASAN_SPAVIS_TICKET
+        UPDATE PLNDSTAY.dbo.ASAN_SPAVIS_TICKET
         SET strUseStatus = #{strUseStatus},
             <if test="#{dateUsed} != null"> -- 취소가 아닐 경우
                 dateUsed = #{dateUsed},
@@ -60,11 +60,24 @@
     </update>
 
     <update id="cancelAllTicket">
-        UPDATE ASAN_SPAVIS_TICKET
+        UPDATE PLNDSTAY.dbo.ASAN_SPAVIS_TICKET
         SET strUseStatus = 'C',
             dateModified = GETDATE()
         WHERE intRsvID = ${intRsvID}
     </update>
+
+    <select id="getMaxIdx" resultType="int">
+        SELECT ISNULL(MAX(intIdx),0)
+        FROM PLNDSTAY.dbo.ASAN_SPAVIS_TICKET
+    </select>
+
+    <insert id="insertKkoMsg" parameterType="String">
+        INSERT INTO andrew.condo24.KAKAO_MSG(
+            REQDATE, STATUS, TYPE, PHONE, CALLBACK, MSG, FILE_CNT, template_code, failedtype, failedsubject, failedmsg
+        )VALUES (
+            GETDATE(), '1', '0', #{receiver}, #{sender}, #{kkoMsg}, '1', 'CD23', 'LMS', ' [콘도24닷컴]', #{kkoMsg}
+        )
+    </insert>
 
 
 

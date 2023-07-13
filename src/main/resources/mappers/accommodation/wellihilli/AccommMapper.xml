@@ -6,7 +6,7 @@
 <mapper namespace="com.example.stay.accommodation.wellihilli.mapper.AccommMapper">
     <select id="getStrRmtypeID" parameterType="int" resultType="String">
         SELECT strRmtypeID
-        FROM RMTYPE
+        FROM PLNDSTAY.dbo.RMTYPE
         WHERE intIdx = ${intRmIdx}
     </select>
 </mapper>
