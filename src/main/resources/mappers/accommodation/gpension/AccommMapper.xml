@@ -17,19 +17,19 @@
 
     <update id="updateDelPension">
         UPDATE RMTYPE SET
-                          strDelYn = 'Y',
+                          strDeleteYn = 'Y',
                           strIngYn = 'N'
         WHERE intAID = (SELECT intAID FROM ACCOMM WHERE strPropertyID = #{pensionID})
 
         UPDATE ACCOMM SET
-                          strDelYn = 'Y',
-                          strIngYn = 'N'
+                          strDeleteYn = 'Y',
+                          strViewYn = 'N'
         WHERE strPropertyID = #{pensionID}
     </update>
 
     <update id="updateDelRoom">
         UPDATE RMTYPE SET
-                          strDelYn = 'Y',
+                          strDeleteYn = 'Y',
                           strIngYn = 'N'
         WHERE strRmtypeID = #{roomID} AND intAID = (SELECT intAID FROM ACCOMM WHERE strPropertyID = #{pensionID})
     </update>

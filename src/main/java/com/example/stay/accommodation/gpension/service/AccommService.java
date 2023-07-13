@@ -338,24 +338,25 @@ public class AccommService {
                 String responseBody = response.body().string();
                 JSONParser jsonParser = new JSONParser();
                 JSONObject responseJson = (JSONObject) jsonParser.parse(responseBody);
+                //추가, 삭제, 변경 내역들 내려옴 (펜션 / 객실 ) -- 추가된항목은
                 List<Map<String, Object>> pensionDeleteList = (List<Map<String, Object>>) responseJson.get("pension_del_list");
                 List<Map<String, Object>> roomDeleteList = (List<Map<String, Object>>) responseJson.get("room_del_list");
                 for (Map<String, Object> map : pensionDeleteList) {
                     String pensionId = (String) map.get("pension_id");
-                    accommMapper.updateDelPension(pensionId);
+//                    accommMapper.updateDelPension(pensionId);
                 }
                 for (Map<String, Object> map : roomDeleteList) {
                     String pensionId = (String) map.get("pension_id");
                     String roomId = (String) map.get("room_id");
-                    accommMapper.updateDelRoom(pensionId, roomId);
+//                    accommMapper.updateDelRoom(pensionId, roomId);
                 }
-                return commonFunction.makeReturn("", "", "",  responseJson);
+                return commonFunction.makeReturn("jsonp", "", "",  responseJson);
 
             } else {
-                return commonFunction.makeReturn("", "", "");
+                return commonFunction.makeReturn("jsonp", String.valueOf(response.code()), response.message(), "");
             }
         } catch (Exception e) {
-            return commonFunction.makeReturn("", "", "");
+            return commonFunction.makeReturn("jsonp", "500", e.getMessage());
         }
     }
 

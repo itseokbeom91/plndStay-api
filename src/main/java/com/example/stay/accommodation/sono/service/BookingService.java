@@ -12,9 +12,11 @@ import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.webservices.client.WebServiceTemplateBuilder;
 import org.springframework.stereotype.Service;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.xml.ws.WebServiceClient;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
@@ -24,6 +26,7 @@ public class BookingService {
 
     @Autowired
     private BookingMapper bookingMapper;
+
     
     CommonFunction commonFunction = new CommonFunction();
 
@@ -65,20 +68,13 @@ public class BookingService {
 
                 List<Map<String, Object>> resultList = (List<Map<String, Object>>) responseJson.get("resultList");
                 return commonFunction.makeReturn("jsonp", statusCode, msg, responseJson);
-
-
-
-
+            } else {
+                return commonFunction.makeReturn("jsonp", String.valueOf(response.code()), response.message());
             }
 
         } catch (Exception e) {
-            System.out.println("e ::: 에러 출력! == " + e);
-            System.out.println(e.getMessage());
-            System.out.println("responseJson ::: 에러 출력!");
-
+            return commonFunction.makeReturn("jsonp", "500", e.getMessage(), result);
         }
-
-        return commonFunction.makeReturn("jsonp", statusCode, msg, result);
 
     }
     //패키지 상세 조회
@@ -109,24 +105,22 @@ public class BookingService {
 
         try {
             Response response = client.newCall(request).execute();
+            //response 파싱
+            String responseBody = response.body().string();
+            JSONParser jsonParser = new JSONParser();
+            JSONObject responseJson = (JSONObject) jsonParser.parse(responseBody);
 
             if(response.isSuccessful()) {
-                //response 파싱
-                String responseBody = response.body().string();
-                JSONParser jsonParser = new JSONParser();
-                JSONObject responseJson = (JSONObject) jsonParser.parse(responseBody);
                 System.out.println(responseJson);
 
                 return commonFunction.makeReturn("jsonp", "","", responseJson);
+            } else {
+                return commonFunction.makeReturn("jsonp", String.valueOf(response.code()), response.message(), responseJson);
             }
 
         } catch (Exception e) {
-            System.out.println("e ::: 에러 출력! == " + e);
-            System.out.println(e.getMessage());
-            System.out.println("responseJson ::: 에러 출력!");
+            return commonFunction.makeReturn("jsonp", "500", e.getMessage(), result);
         }
-
-        return commonFunction.makeReturn("jsonp", statusCode, msg, result);
 
     }
     //패키지 현황 조회
@@ -330,6 +324,7 @@ public class BookingService {
     public String reservation(String pkgNo, String storeCd, String ciYmd, String rmTypeCd, String comRsvNo, String userName, String userTel, String payAmt, String adultCnt, String childCnt ,HttpServletRequest httpServletRequest) {
         long startTime = System.currentTimeMillis();
         OkHttpClient client = new OkHttpClient().newBuilder().build();
+
 
         String statusCode ="";
         String msg ="";
@@ -597,13 +592,19 @@ public class BookingService {
                 System.out.println(i + "번째 재고 :: " + packStatusList.size());
                 System.out.println(i + "번째 가격 :: " + packAmountList.size());
 
-
                 for (int j = 0 ; j < packStatusList.size() ; j++) {
                     String dateSales = (String) packStatusList.get(j).get("ciYmd");
+                    String rmTypeCd = (String) packStatusList.get(j).get("rmTypeCd");
                     String intStock = packStatusList.get(j).get("leaveCnt").toString();
-                    String moneyCost = String.valueOf(packAmountList.get(j).get("orgRmAmt"));
-                    String moneySales = String.valueOf(packAmountList.get(j).get("saleRmAmt"));
-                    String rmTypeCd = String.valueOf(packStatusList.get(j).get("rmTypeCd"));
+                    String moneyCost = "";
+                    String moneySales = "";
+                    for (int k = 0 ; k < packAmountList.size() ; k++) {
+                        if (packAmountList.get(k).get("rmTypeCd").equals(rmTypeCd) && packAmountList.get(k).get("ciYmd").equals(dateSales)) {
+                            moneyCost = String.valueOf(packAmountList.get(k).get("orgRmAmt"));
+                            moneySales = String.valueOf(packAmountList.get(k).get("saleRmAmt"));
+                            break;
+                        }
+                    }
                     packageStockDatas += dateSales + "|^|" + intStock + "|^|" + moneyCost + "|^|" + moneySales + "|^|" + pkgNo + "|^|" + rmTypeCd;
                     if (j != packStatusList.size()-1) {
                         packageStockDatas += "{{^}}";
@@ -613,7 +614,6 @@ public class BookingService {
 
             }
             packageStockDatas = packageStockDatas.substring(0, packageStockDatas.length()-5);
-
 
 //            stockResultJson.put("resultList", stockList);
 
@@ -732,7 +732,7 @@ public class BookingService {
 
                 //roomData = 삭제여부 |^| 사용여부 |^| 기준인원 |^| 최대인원 |^| 룸데이터 |^| 최소숙박 |^| 최대숙박일 |^| 조식 |^| depth |^| 환불여부
 
-                roomData += "N" + "|^|" + "Y" + "|^|" + "1" + "|^|" + "99" + "|^|" + storeCd + "|^|" ;
+                roomData += "N" + "|^|" + "Y" + "|^|" + "1" + "|^|" + "99" + "|^|" + lcalCd + "|^|" ;
 
 
                 List<Map<String, Object>> roomList = (List<Map<String, Object>>) roomResultList.get(i).get("roomTypeList");
@@ -786,7 +786,7 @@ public class BookingService {
                     String storeNm = pkgRoomList.get(j).get("storeNm").toString();
                     String rmTypeCd = pkgRoomList.get(j).get("rmTypeCd").toString();
                     String rmTypeNm = pkgRoomList.get(j).get("rmTypeNm").toString();
-                    accommData += "C" + "|^|" + "01" + "|^|" + storeCd + "|^|" + storeNm.trim();
+                    accommData += "C" + "|^|" + "01" + "|^|" + lcalCd + "|^|" + lcalNm.trim();
                     accommData += "{{|}}";
 //                    roomData += storeCd + "|^|";
 
@@ -799,7 +799,7 @@ public class BookingService {
                     }
                 }
                 if (i != packageResultList.size()-1){
-                    pkgData += " {{|}} ";
+                    pkgData += "{{|}}";
 //                    roomData += "1" + "|^|" +"99" + "|^|" + "" + "|^|" + "2" + "|^|" + "" + "|^|" + pkgNm.trim() + "{{|}}";
                 } else {
 //                    roomData += "1" + "|^|" +"99" + "|^|" + "" + "|^|" + "2" + "|^|" + "" + "|^|" + pkgNm.trim();
@@ -811,15 +811,15 @@ public class BookingService {
 
 
 
-//            System.out.println(pkgData);
+            System.out.println(pkgData);
 //            System.out.println(roomData);
 //            System.out.println(accommData);
 
-//            String insertResult = bookingMapper.insertRoom("", "", "", accommData, strType);
-            String insertResult = bookingMapper.insertRoom(pkgData, roomData, "", accommData, strType);
-//            System.out.println(insertResult);
-//            result = "SUCCESS";
-//            resultResponseJson.put("insertResult", insertResult);
+            String insertResult = bookingMapper.insertRoom(pkgData, "", "", "", strType);
+//            String insertResult = bookingMapper.insertRoom(pkgData, roomData, "", accommData, strType);
+            System.out.println(insertResult);
+            result = "SUCCESS";
+            resultResponseJson.put("insertResult", insertResult);
 
 
             return commonFunction.makeReturn("jsonp", statusCode, msg, resultResponseJson);

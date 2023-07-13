@@ -7,12 +7,20 @@ import com.google.gson.GsonBuilder;
 import okhttp3.*;
 import org.apache.axis.client.Call;
 import org.apache.axis.client.Service;
+import org.apache.axis.message.SOAPBody;
+import org.apache.axis.message.SOAPHeader;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
+import org.w3c.dom.Document;
+import org.xml.sax.InputSource;
 
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.transform.dom.DOMSource;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
+import java.io.StringReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.List;
@@ -152,7 +160,17 @@ public class CommonFunction<T> {
      */
     public String sendMessage(String url, String method, String message){
         try {
-            System.out.println(url);
+
+            DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+            factory.setNamespaceAware(true);
+            DocumentBuilder parser = factory.newDocumentBuilder();
+
+            StringReader reader = new StringReader(message);
+            InputSource is = new InputSource(reader);
+            Document document = parser.parse(is);
+            DOMSource source = new DOMSource(document);
+
+
             Service service = new Service();
             Call call = (Call) service.createCall();
 
@@ -250,5 +268,41 @@ public class CommonFunction<T> {
             return makeReturn("json", e.toString(), e.getMessage());
         }
 
+    }
+
+    /*
+    좌표 -> 한글주소
+     */
+    public String getJusoByGeoCd (String latitude, String longtitude) {
+        String apiKey = Constants.vWorldApiSecretKey;
+        String x = longtitude;
+        String y = latitude;
+        String url = "http://apis.vworld.kr/coord2jibun.do";
+        OkHttpClient client = new OkHttpClient();
+        url += "?apiKey=" + apiKey + "&x=" + x + "&y=" + y + "&output=json" + "&resultType=json";
+        MediaType mediaType = MediaType.parse("text/plain");
+        RequestBody body = RequestBody.create(mediaType, "");
+        Request request = new Request.Builder()
+                .url(url)
+                .get()
+                .build();
+        try {
+            Response response = client.newCall(request).execute();
+            if(response.isSuccessful()) {
+                //response 파싱
+                String responseBody = response.body().string();
+                JSONParser jsonParser = new JSONParser();
+                JSONObject responseJson = (JSONObject) jsonParser.parse(responseBody);
+
+                String korAddr = (String) responseJson.get("ADDR");
+                System.out.println(korAddr);
+                return  korAddr;
+
+            } else {
+                return makeReturn("json", String.valueOf(response.code()), response.message());
+            }
+        } catch (Exception e) {
+            return makeReturn("json", "500", e.getMessage());
+        }
     }
 }

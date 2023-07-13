@@ -1,6 +1,7 @@
 package com.example.stay.accommodation.hotelPass.controller;
 
 import com.example.stay.accommodation.hotelPass.service.AccommService;
+import com.example.stay.common.util.CommonFunction;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -13,9 +14,28 @@ public class AccomController {
     @Autowired
     AccommService accommService;
 
-    @GetMapping("/getPensionList")
+    @GetMapping("/getHotelRate")
     @ResponseBody
-    public String getPensionList(String sendUrl){
-        return accommService.getPensionList(sendUrl);
+    public String getHotelRate(String sendUrl){
+        return accommService.getHotelRate(sendUrl);
+    }
+
+    @GetMapping("/getHotelList")
+    @ResponseBody
+    public String getHotelList(){
+        return accommService.getHotelList();
+
+    }
+
+    @GetMapping("/getFacilityList")
+    @ResponseBody
+    public String getFacilityList(){
+        return accommService.getFacilityList();
+    }
+
+    @GetMapping("/testJuso")
+    @ResponseBody
+    public String testJuso(String engJuso){
+        return new CommonFunction().getJusoByGeoCd("", "");
     }
 }
