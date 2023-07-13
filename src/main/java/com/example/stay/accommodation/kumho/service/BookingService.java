@@ -51,7 +51,8 @@ public class BookingService {
 
     // 예약
     public String createBooking(String dataType, int intBookingID, HttpServletRequest httpServletRequest){
-        LogWriter logWriter = new LogWriter(httpServletRequest.getMethod(), httpServletRequest.getServletPath(), System.currentTimeMillis());
+        LogWriter logWriter = new LogWriter(httpServletRequest.getMethod(), httpServletRequest.getServletPath(),
+                httpServletRequest.getQueryString(), System.currentTimeMillis());
         String statusCode = "200";
         String message = "";
         try{
@@ -164,16 +165,17 @@ public class BookingService {
 //    }
 
     // 재고 등록 및 수정
-    public String updateGoods(String dataType, String fr_date, String to_date, int intRmIdx, HttpServletRequest httpServletRequest){
-        LogWriter logWriter = new LogWriter(httpServletRequest.getMethod(), httpServletRequest.getServletPath(), System.currentTimeMillis());
+    public String updateGoods(String dataType, String strFromDate, String strToDate, int intRmIdx, HttpServletRequest httpServletRequest){
+        LogWriter logWriter = new LogWriter(httpServletRequest.getMethod(), httpServletRequest.getServletPath(),
+                httpServletRequest.getQueryString(), System.currentTimeMillis());
         String statusCode = "200";
         String message = "";
         try{
             String kumhoUrl = "";
 
             SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd");
-            Date fromDate = sdf.parse(fr_date);
-            Date toDate = sdf.parse(to_date);
+            Date fromDate = sdf.parse(strFromDate);
+            Date toDate = sdf.parse(strToDate);
 
             // 조회한 날짜의 기간 확인 (90일이 넘는지)
             long sec = (toDate.getTime() - fromDate.getTime()) / 1000;
@@ -203,9 +205,9 @@ public class BookingService {
                         cal.add(Calendar.DATE, 90); // fromDate + 90일로 세팅
                         endDate = cal.getTime();
 
-                        fr_date = sdf.format(fromDate);
-                        to_date = sdf.format(endDate);
-                        kumhoUrl = "inter05.asp?groupid=" + Constants.groupId + "&fr_date=" + fr_date + "&to_date=" + to_date +
+                        strFromDate = sdf.format(fromDate);
+                        strToDate = sdf.format(endDate);
+                        kumhoUrl = "inter05.asp?groupid=" + Constants.groupId + "&fr_date=" + strFromDate + "&to_date=" + strToDate +
                                 "&area=" + strLocalCode + "&site=" + site + "&room_type=" + strRmtypeID;
 
                         // 새로운 날짜 세팅
@@ -227,9 +229,9 @@ public class BookingService {
                             endDate = cal.getTime();
                         }
                     }else{
-                        fr_date = sdf.format(startDate);
-                        to_date = sdf.format(endDate);
-                        kumhoUrl = "inter05.asp?groupid=" + Constants.groupId + "&fr_date=" + fr_date + "&to_date=" + to_date +
+                        strFromDate = sdf.format(startDate);
+                        strToDate = sdf.format(endDate);
+                        kumhoUrl = "inter05.asp?groupid=" + Constants.groupId + "&fr_date=" + strFromDate + "&to_date=" + strToDate +
                                 "&area=" + strLocalCode + "&site=" + site + "&room_type=" + strRmtypeID;
 
                         // 새로운 날짜 세팅
@@ -304,7 +306,7 @@ public class BookingService {
                     }
                 }
             }else{ // 90일 이상이 아닐 경우
-                kumhoUrl = "inter05.asp?groupid=" + Constants.groupId + "&fr_date=" + fr_date + "&to_date=" + to_date +
+                kumhoUrl = "inter05.asp?groupid=" + Constants.groupId + "&fr_date=" + strFromDate + "&to_date=" + strToDate +
                             "&area=" + strLocalCode + "&site=" + site + "&room_type=" + strRmtypeID;
                 // API 호출
                 Document document = callKumhoAPI(kumhoUrl);
@@ -365,7 +367,8 @@ public class BookingService {
 
     // 예약 취소
     public String cancelBooking(String dataType, int intBookingID, HttpServletRequest httpServletRequest){
-        LogWriter logWriter = new LogWriter(httpServletRequest.getMethod(), httpServletRequest.getServletPath(), System.currentTimeMillis());
+        LogWriter logWriter = new LogWriter(httpServletRequest.getMethod(), httpServletRequest.getServletPath(),
+                httpServletRequest.getQueryString(), System.currentTimeMillis());
         String statusCode = "200";
         String message = "";
         try{
@@ -413,22 +416,24 @@ public class BookingService {
     }
 
     // 예약현황 조회
-    public String getReservationStatus(String dataType, int intBookingID, HttpServletRequest httpServletRequest){
-        LogWriter logWriter = new LogWriter(httpServletRequest.getMethod(), httpServletRequest.getServletPath(), System.currentTimeMillis());
+    public String getReservationStatus(String dataType, int intRsvID, HttpServletRequest httpServletRequest){
+        LogWriter logWriter = new LogWriter(httpServletRequest.getMethod(), httpServletRequest.getServletPath(),
+                httpServletRequest.getQueryString(), System.currentTimeMillis());
         String statusCode = "200";
         String message = "";
         Map<String, Object> resultMap = new HashMap<>();
         try{
-            BookingDto bookingDto = bookingMapper.getBookingByIntBookingID(intBookingID);
-
-            String area = bookingDto.getAccommId(); // 사업장(통영, 화순, 설악, 제주)
-            String arrive_date = bookingDto.getCheckInDate(); // 도착일자
-            String reserv_year = arrive_date.substring(0, 4);
-            String reserv_number = bookingDto.getStrSpBookingId();
-//            String area = "4";
-//            String arrive_date = "2023-06-10"; // 도착일자
-//            String reserv_year = "2023";
-//            String reserv_number = "37537";
+            // TODO : intRsvID로 예약번호 조회 프로세스 추가
+//            BookingDto bookingDto = bookingMapper.getBookingByIntBookingID(intRsvID);
+//
+//            String area = bookingDto.getAccommId(); // 사업장(통영, 화순, 설악, 제주)
+//            String arrive_date = bookingDto.getCheckInDate(); // 도착일자
+//            String reserv_year = arrive_date.substring(0, 4);
+//            String reserv_number = bookingDto.getStrSpBookingId();
+            String area = "4";
+            String arrive_date = "2023-06-10"; // 도착일자
+            String reserv_year = "2023";
+            String reserv_number = "37537";
 
 
             String kumhoUrl = "inter06.asp?area=" + area + "&site=" + site + "&reserv_year=" + reserv_year
@@ -493,13 +498,14 @@ public class BookingService {
     }
 
     // 예약 대사자료 조회
-    public String getReservations(String dataType, String fr_date, String to_date ,HttpServletRequest httpServletRequest){
-        LogWriter logWriter = new LogWriter(httpServletRequest.getMethod(), httpServletRequest.getServletPath(), System.currentTimeMillis());
+    public String getReservations(String dataType, String strFromDate, String strToDate ,HttpServletRequest httpServletRequest){
+        LogWriter logWriter = new LogWriter(httpServletRequest.getMethod(), httpServletRequest.getServletPath(),
+                httpServletRequest.getQueryString(), System.currentTimeMillis());
         String statusCode = "200";
         String message = "";
         MultiValueMap<String, Map> resultMap = new LinkedMultiValueMap<>();
         try{
-            String kumhoUrl = "inter07.asp?groupid=" + Constants.groupId + "&fr_date=" + fr_date + "&to_date=" + to_date;
+            String kumhoUrl = "inter07.asp?groupid=" + Constants.groupId + "&fr_date=" + strFromDate + "&to_date=" + strToDate;
 
             Document document = callKumhoAPI(kumhoUrl);
             if(document != null){
@@ -513,17 +519,18 @@ public class BookingService {
                         if(node.getNodeType() == Node.ELEMENT_NODE){
                             Element element = (Element) node;
 
-                            // DB에 정리해서 가져와야할듯...
+                            // TODO : 추후 예약정보 어떻게 내려줄건지
+                            // 금호
                             String area = xmlUtility.getTagValue("ps_area", element);
-                            if(area.equals("1")){
-                                area = "통영";
-                            }else if(area.equals("2")){
-                                area = "화순";
-                            }else if(area.equals("3")){
-                                area = "설악";
-                            }else if(area.equals("4")){
-                                area = "제주";
-                            }
+//                            if(area.equals("1")){
+//                                area = "통영";
+//                            }else if(area.equals("2")){
+//                                area = "화순";
+//                            }else if(area.equals("3")){
+//                                area = "설악";
+//                            }else if(area.equals("4")){
+//                                area = "제주";
+//                            }
                             reservMap.put("area", area);
 
                             reservMap.put("reservYear", xmlUtility.getTagValue("ps_reserv_year", element));

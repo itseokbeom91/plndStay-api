@@ -16,6 +16,7 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLDecoder;
+import java.net.URLEncoder;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -31,7 +32,8 @@ public class BookingService {
 
     // 재고 등록 및 수정
     public String updateGoods(String dataType, HttpServletRequest httpServletRequest, String sdate, String edate, int intRmIdx){
-        LogWriter logWriter = new LogWriter(httpServletRequest.getMethod(), httpServletRequest.getServletPath(), System.currentTimeMillis());
+        LogWriter logWriter = new LogWriter(httpServletRequest.getMethod(), httpServletRequest.getServletPath(),
+                httpServletRequest.getQueryString(), System.currentTimeMillis());
         String statusCode = "200";
         String message = "";
 
@@ -97,7 +99,7 @@ public class BookingService {
     }
 
     // 예약 가능여부 조회
-    public boolean checkAvailBooking(String pcode, String pcode_seq, String sdate){
+    public boolean checkAvailBooking(String pcode, String pcode_seq, String sdate, int cnt){
         LogWriter logWriter = new LogWriter(System.currentTimeMillis());
         String message = "";
         boolean avail = false;
@@ -112,7 +114,11 @@ public class BookingService {
                     String[] dataArr = arr.split(";");
                     String strAvail = dataArr[3];
                     if(strAvail.equals("Y")){
-                        avail = true;
+                        // 예약가능여부가 Y값이더라도 예약가능 수량까지 확인해야함
+                        int intAvailCnt = Integer.parseInt(dataArr[4]);
+                        if(intAvailCnt >= cnt){
+                            avail = true;
+                        }
                     }
                 }
             }else{
@@ -131,18 +137,19 @@ public class BookingService {
     }
 
     // 예약
-    public String createBooking(String dataType, int intBookingIdx, HttpServletRequest httpServletRequest){
+    public String createBooking(String dataType, int intRsvID, HttpServletRequest httpServletRequest){
         String statusCode = "200";
         String message = "";
-        LogWriter logWriter = new LogWriter(httpServletRequest.getMethod(), httpServletRequest.getServletPath(), System.currentTimeMillis());
+        LogWriter logWriter = new LogWriter(httpServletRequest.getMethod(), httpServletRequest.getServletPath(),
+                httpServletRequest.getQueryString(), System.currentTimeMillis());
 
         try{
             String mdn  = "01011111111";
             String name  = "개발테스트";
-            String pcode  = "90004891";
+            String pcode  = "90004884";
             String pcode_seq  = "1";
-            String bdate  = "20230807";
-            int cnt  = 1;
+            String bdate  = "20230726";
+            int cnt = 1;
             String tseq  = "980";
             String DH_CODE1 = "1030";
             String DH_CODE2 = "9999";
@@ -150,9 +157,9 @@ public class BookingService {
             String AMT_YN = "N";
 
             // 예약가능 여부 확인
-            boolean avail = checkAvailBooking(pcode, pcode_seq, bdate);
+            boolean avail = checkAvailBooking(pcode, pcode_seq, bdate, cnt);
             if(avail){
-                String elysUrl = "type=RO&mdn=" + mdn + "&name=" + URLDecoder.decode(name, "EUC-KR") + "&pcode=" + pcode + "&pcode_seq=" + pcode_seq +
+                String elysUrl = "type=RO&mdn=" + mdn + "&name=" + URLEncoder.encode(name, "EUC-KR") + "&pcode=" + pcode + "&pcode_seq=" + pcode_seq +
                         "&bdate="+ bdate + "&cnt="+ cnt + "&tseq="+ tseq + "&DH_CODE1=" + DH_CODE1 + "&PASS=" + PASS + "&DH_CODE2=" + DH_CODE2 + "&AMT_YN=" + AMT_YN;
                 String strResponse = callElysAPI(elysUrl);
 
@@ -160,6 +167,16 @@ public class BookingService {
                     if(strResponse.substring(0,5).equals("ERROR")){
                         message = strResponse;
                     }else{
+                        String[] responseArr = strResponse.split("#");
+                        for(String arr : responseArr){
+                            String[] dataArr = arr.split(";");
+                            String strOk = dataArr[0];
+                            if(strOk.equals("OK")){
+                                //TODO : 예약 테이블 상태값 업데이트
+
+                            }
+                        }
+
                         message = "예약 성공";
                     }
 
@@ -183,15 +200,16 @@ public class BookingService {
     }
 
     // 예약 조회
-    public String checkBooking(String dataType, int intBookingIdx, HttpServletRequest httpServletRequest){
+    public String checkBooking(String dataType, int intRsvID, HttpServletRequest httpServletRequest){
         String statusCode = "200";
         String message = "";
-        LogWriter logWriter = new LogWriter(httpServletRequest.getMethod(), httpServletRequest.getServletPath(), System.currentTimeMillis());
+        LogWriter logWriter = new LogWriter(httpServletRequest.getMethod(), httpServletRequest.getServletPath(),
+                httpServletRequest.getQueryString(), System.currentTimeMillis());
         try{
             /**
-             * TODO : intBookingIdx로 엘리시안 예약번호 조회 프로세스 추가
+             * TODO : intRsvID로 엘리시안 예약번호 조회 프로세스 추가
              */
-            String bno = "751FK0PE";
+            String bno = "751FK3MW";
 
             String elysUrl = "type=SO&bno=" + bno;
             String strResponse = callElysAPI(elysUrl);
@@ -223,13 +241,14 @@ public class BookingService {
     }
 
     // 예약 취소
-    public String cancelBooking(String dataType, int intBookingIdx, HttpServletRequest httpServletRequest){
+    public String cancelBooking(String dataType, int intRsvID, HttpServletRequest httpServletRequest){
         String statusCode = "200";
         String message = "";
-        LogWriter logWriter = new LogWriter(httpServletRequest.getMethod(), httpServletRequest.getServletPath(), System.currentTimeMillis());
+        LogWriter logWriter = new LogWriter(httpServletRequest.getMethod(), httpServletRequest.getServletPath(),
+                httpServletRequest.getQueryString(), System.currentTimeMillis());
         try{
-            // intBookingIdx로 엘리시안 예약번호 조회 프로세스 추가
-            String bno = "751FK0PC";
+            // intRsvID로 엘리시안 예약번호 조회 프로세스 추가
+            String bno = "751FK3MW";
 
             String elysUrl = "type=CO&bno=" + bno;
             String strResponse = callElysAPI(elysUrl);
@@ -256,9 +275,6 @@ public class BookingService {
         }
         return commonFunction.makeReturn(dataType, statusCode, message);
     }
-
-
-
 
     public String callElysAPI(String elysUrl){
         String method = "";
@@ -308,67 +324,5 @@ public class BookingService {
         }
         return strResponse;
     }
-
-
-//    public String callPostElysAPI(String elysUrl){
-//        String method = "";
-//        String strUrl = "";
-//        String message = "";
-//        String strResponse = "";
-//        long startTime = System.currentTimeMillis();
-//
-//        try{
-//            URL url = new URL(Constants.elysUrl + elysUrl);
-//            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-//            conn.setRequestMethod("POST");
-//            conn.setConnectTimeout(10000);
-//            conn.setReadTimeout(10000);
-//            conn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8");
-//            conn.setRequestProperty("Accept-Charset", "UTF-8");
-//
-//            byte[] postDataBytes = elysUrl.getBytes("UTF-8");
-//            conn.setRequestProperty("Content-Length", String.valueOf(postDataBytes.length));
-//
-//            conn.setDoOutput(true);
-//            conn.getOutputStream().write(postDataBytes);
-//
-//            System.out.println("~~~~~~~~~~~~");
-//            System.out.println("code : " + conn.getResponseCode());
-//            System.out.println(conn.getURL());
-//            System.out.println("~~~~~~~~~~~~");
-//
-////            if(conn.getResponseCode() == HttpURLConnection.HTTP_OK){
-//                method = conn.getRequestMethod();
-//                strUrl = conn.getURL().toString();
-//
-//                strResponse = "";
-//                BufferedReader br = new BufferedReader(new InputStreamReader(conn.getInputStream(), "EUC-KR"));
-//                StringBuffer sb = new StringBuffer();
-//                while ((strResponse = br.readLine()) != null) {
-//                    sb.append(strResponse);
-//                }
-//                strResponse = sb.toString();
-//                message = strResponse;
-//
-////            }else{
-////                message = "엘리시안 강촌 API 호출 실패";
-////            }
-//
-//            conn.disconnect();
-//
-//            LogWriter logWriter = new LogWriter(conn.getRequestMethod(), conn.getURL().toString(), startTime);
-//            logWriter.add(message);
-//            logWriter.log(0);
-//        }catch (Exception e){
-//            LogWriter logWriter = new LogWriter(method, strUrl, startTime);
-//            logWriter.add("error : " + e.getMessage());
-//            logWriter.log(0);
-//    e.printStackTrace();
-//        }
-//        return strResponse;
-//    }
-
-
-
 
 }

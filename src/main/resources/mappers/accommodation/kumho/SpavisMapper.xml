@@ -17,14 +17,68 @@
         SET strNote = #{strNote},
             dateExpired = NULL,
             datePurchase = NULL
-        WHERE ticketNo =  #{ticketNo}
+        WHERE ticketNo =  #{strCouponNo}
     </update>
 
     <update id="updateCouponDates" parameterType="String">
         UPDATE ASAN_TICKET_CONDO
         SET datePurchase = #{datePurchase}
             , dateExpired = #{dateExpired}
-        WHERE ticketNo =  #{ticketNo}
+        WHERE ticketNo =  #{strCouponNo}
     </update>
+
+    <insert id="insertTicket">
+        INSERT INTO ASAN_SPAVIS_TICKET(
+            strTicketNo, intRsvID, dateSales, dateExpired, moneyCost, moneySales, strUseStatus, dateModified
+        )
+        VALUES (
+            #{strTicketNo}, ${intRsvID}, #{strSalesDate}, #{strExpiredDate}, ${intCost}, ${intSales}, 'W', GETDATE()
+        )
+    </insert>
+
+    <select id="getIntRsvID" resultType="int">
+        SELECT COUNT(intRsvID)
+        FROM
+        WHERE intRsvID = ${intRsvID}
+    </select>
+
+    <select id="getStrTicketNo" resultType="int">
+        SELECT COUNT(strTicketNo)
+        FROM ASAN_SPAVIS_TICKET
+        WHERE strTicketNo = #{strTicketNo}
+    </select>
+
+    <update id="updateTicketStatus">
+        UPDATE ASAN_SPAVIS_TICKET
+        SET strUseStatus = #{strUseStatus},
+            <if test="#{dateUsed} != null"> -- 취소가 아닐 경우
+                dateUsed = #{dateUsed},
+            </if>
+            dateModified = GETDATE()
+        WHERE strTicketNo = #{strTicketNo}
+            AND intRsvID = ${intRsvID}
+    </update>
+
+    <update id="cancelAllTicket">
+        UPDATE ASAN_SPAVIS_TICKET
+        SET strUseStatus = 'C',
+            dateModified = GETDATE()
+        WHERE intRsvID = ${intRsvID}
+    </update>
+
+    <select id="getMaxIdx" resultType="int">
+        SELECT ISNULL(MAX(intIdx),0)
+        FROM ASAN_SPAVIS_TICKET
+    </select>
+
+    <insert id="insertKkoMsg" parameterType="String">
+        INSERT INTO andrew.condo24.KAKAO_MSG(
+            REQDATE, STATUS, TYPE, PHONE, CALLBACK, MSG, FILE_CNT, template_code, failedtype, failedsubject, failedmsg
+        )VALUES (
+            GETDATE(), '1', '0', #{receiver}, #{sender}, #{kkoMsg}, '1', 'CD23', 'LMS', ' [콘도24닷컴]', #{kkoMsg}
+        )
+    </insert>
+
+
 
 </mapper>

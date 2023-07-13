@@ -6,6 +6,8 @@ import com.example.stay.accommodation.kumho.service.SpavisService;
 import com.example.stay.common.util.CommonFunction;
 import com.example.stay.common.util.LogWriter;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
+import org.springframework.lang.Nullable;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -28,8 +30,8 @@ public class SpavisController {
     // 선납권 사용여부 조회 - 1개씩
     @GetMapping("checkCouponStatus")
     @ResponseBody
-    public String checkCouponStatus(String dataType, HttpServletRequest httpServletRequest, String couponNo){
-        return spavisService.checkCouponStatus(dataType, httpServletRequest, couponNo);
+    public String checkCouponStatus(String dataType, HttpServletRequest httpServletRequest, String strCouponNo){
+        return spavisService.checkCouponStatus(dataType, httpServletRequest, strCouponNo);
     }
 
 //    // 선납권 사용여부 조회 - 여러개(동기)
@@ -79,22 +81,22 @@ public class SpavisController {
     // 티켓 발권
     @GetMapping("orderTicket")
     @ResponseBody
-    public String orderTicket(String dataType, HttpServletRequest httpServletRequest, int intBookingIdx){
-        return spavisService.orderTicket(dataType, httpServletRequest, intBookingIdx);
+    public String orderTicket(String dataType, HttpServletRequest httpServletRequest, int intRsvID){
+        return spavisService.orderTicket(dataType, httpServletRequest, intRsvID);
     }
 
     // 티켓 취소
     @GetMapping("cancelTicket")
     @ResponseBody
-    public String cancelTicket(String dataType, HttpServletRequest httpServletRequest, int intBookingIdx){
-        return spavisService.cancelTicket(dataType, httpServletRequest, intBookingIdx);
+    public String cancelTicket(String dataType, HttpServletRequest httpServletRequest, int intRsvID, @Nullable String strTicketNo){
+        return spavisService.cancelTicket(dataType, httpServletRequest, intRsvID, strTicketNo);
     }
 
     // 티켓 사용여부 조회(건별)
     @GetMapping("checkTicketStatus")
     @ResponseBody
-    public String checkTicketStatus(String dataType, HttpServletRequest httpServletRequest, int intBookingIdx){
-        return spavisService.checkTicketStatus(dataType, httpServletRequest, intBookingIdx);
+    public String checkTicketStatus(String dataType, HttpServletRequest httpServletRequest, int intRsvID){
+        return spavisService.checkTicketStatus(dataType, httpServletRequest, intRsvID);
     }
 
     // 티켓 사용여부 조회(일별)
@@ -104,22 +106,26 @@ public class SpavisController {
         return spavisService.checkTicketStatusByDate(dataType, httpServletRequest, searchDate);
     }
 
-    @GetMapping("spavisUseResult")
+    // 티켓 발권 처리(스파비스에서 호출)
+    @GetMapping(path = "spavisUseResult", produces = MediaType.APPLICATION_XML_VALUE)
     @ResponseBody
-    public String updateStatus(HttpServletRequest httpServletRequest, String strOrderID, String ticketNo, String tkCustomerID){
+    public String updateStatus(HttpServletRequest httpServletRequest, String order_no, String coupon_no, String status_div, String result_date){
         LogWriter logWriter = new LogWriter(httpServletRequest.getMethod(), httpServletRequest.getServletPath(), System.currentTimeMillis());
-        if(strOrderID.equals("") || ticketNo.equals("") || tkCustomerID.equals("")){
-            String statusCode = "500";
+        String result = "";
+        if(order_no == null || coupon_no == null || status_div == null || result_date == null){
             String message = "필수값이 입력되지 않았습니다";
+
+            result = "<data>\n" +
+                     "    <rtn_div>" + "F" + "</rtn_div>\n" +
+                     "    <rtn_msg>" + message + "</rtn_msg>\n" +
+                    "</data>";
 
             logWriter.add(message);
             logWriter.log(0);
-
-            CommonFunction commonFunction = new CommonFunction();
-            return commonFunction.makeReturn("json", statusCode, message);
         }else{
-            return spavisService.updateStatus(httpServletRequest, strOrderID, ticketNo, tkCustomerID);
+            spavisService.updateStatus(httpServletRequest, order_no, coupon_no, status_div, result_date);
         }
+        return result;
     }
 
 }
