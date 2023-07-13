@@ -5,12 +5,12 @@
 
 <mapper namespace="com.example.stay.accommodation.elysian_gangchon.mapper.BookingMapper">
     <select id="updateGoods" resultType="String">
-        EXEC spGW_STOCK_TEMP_REGIST ${intAID}, ${intRmIdx}, '', #{strStockDatas}, ''
+        EXEC PLNDSTAY.dbo.spGW_STOCK_TEMP_REGIST ${intAID}, ${intRmIdx}, '', #{strStockDatas}, ''
     </select>
 
     <select id="getIntAID" parameterType="String" resultType="int">
         SELECT intAID
-        FROM RMTYPE
+        FROM PLNDSTAY.dbo.RMTYPE
         WHERE intIdx = ${intRmIdx}
     </select>
 </mapper>
