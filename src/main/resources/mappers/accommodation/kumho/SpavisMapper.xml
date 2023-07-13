@@ -66,6 +66,19 @@
         WHERE intRsvID = ${intRsvID}
     </update>
 
+    <select id="getMaxIdx" resultType="int">
+        SELECT ISNULL(MAX(intIdx),0)
+        FROM ASAN_SPAVIS_TICKET
+    </select>
+
+    <insert id="insertKkoMsg" parameterType="String">
+        INSERT INTO andrew.condo24.KAKAO_MSG(
+            REQDATE, STATUS, TYPE, PHONE, CALLBACK, MSG, FILE_CNT, template_code, failedtype, failedsubject, failedmsg
+        )VALUES (
+            GETDATE(), '1', '0', #{receiver}, #{sender}, #{kkoMsg}, '1', 'CD23', 'LMS', ' [콘도24닷컴]', #{kkoMsg}
+        )
+    </insert>
+
 
 
 </mapper>

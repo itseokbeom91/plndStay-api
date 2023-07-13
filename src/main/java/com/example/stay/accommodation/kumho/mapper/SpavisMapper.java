@@ -22,4 +22,8 @@ public interface SpavisMapper {
     int updateTicketStatus(String strUseStatus, String dateUsed, String strTicketNo, int intRsvID);
 
     int cancelAllTicket(int intRsvID);
+
+    int getMaxIdx();
+
+    int insertKkoMsg(String receiver, String sender, String kkoMsg);
 }

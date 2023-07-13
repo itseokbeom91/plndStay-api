@@ -112,7 +112,7 @@ public class SpavisController {
     public String updateStatus(HttpServletRequest httpServletRequest, String order_no, String coupon_no, String status_div, String result_date){
         LogWriter logWriter = new LogWriter(httpServletRequest.getMethod(), httpServletRequest.getServletPath(), System.currentTimeMillis());
         String result = "";
-        if(order_no.equals("") || coupon_no.equals("") || status_div.equals("") || result_date.equals("")){
+        if(order_no == null || coupon_no == null || status_div == null || result_date == null){
             String message = "필수값이 입력되지 않았습니다";
 
             result = "<data>\n" +
