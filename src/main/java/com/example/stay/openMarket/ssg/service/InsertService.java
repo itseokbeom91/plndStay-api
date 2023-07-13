@@ -248,7 +248,7 @@ public class InsertService {
 
                 // 품절여부
                 String strSellStatCd = "20";
-                if (((dto.getStrSubject().contains("2박") == true || dto.getStrSubject().contains(" 연박") == true) & dto.getIntNextStock() == 0) || dto.getIntStock() == 0) {
+                if (((dto.getStrRmtypeName().contains("2박") == true || dto.getStrRmtypeName().contains(" 연박") == true) & dto.getIntNextStock() == 0) || dto.getIntStock() == 0) {
                     strSellStatCd = "80";
                 }
                 itemObject.put("sellStatCd", strSellStatCd);
@@ -266,12 +266,12 @@ public class InsertService {
 
                 // 2번옵션명(타입)
                 itemObject.put("uitemOptnTypeNm2", "타입");
-                String strTocode = dto.getStrSubject();
+                String strTocode = dto.getStrRmtypeName();
                 itemObject.put("uitemOptnNm2", strTocode);
 
                 // 재고
                 int intOMKStock = dto.getIntStock();
-                if (((dto.getStrSubject().contains("2박") == true || dto.getStrSubject().contains(" 연박") == true) & dto.getIntNextStock() == 0) || dto.getIntStock() == 0) {
+                if (((dto.getStrRmtypeName().contains("2박") == true || dto.getStrRmtypeName().contains(" 연박") == true) & dto.getIntNextStock() == 0) || dto.getIntStock() == 0) {
                     intOMKStock = 0;
                 }
 
@@ -322,7 +322,10 @@ public class InsertService {
             JSONObject salesPrcObject = new JSONObject();
             JSONObject salesPrcInfoObject = new JSONObject();
 
-            int intSellprc = commonApiMapper.getMinPrice(intAID, strNow);
+            //int intSellprc = commonApiMapper.getMinPrice(intAID, strNow);
+            System.out.println("testttt");
+            int intSellprc = commonMapper.getMinPrice(intAID, "20230701");
+            System.out.println(intSellprc);
             int intMrgrt = 8;
             int intSplprc = (intSellprc * (100-intMrgrt) / 100);
 
@@ -339,8 +342,8 @@ public class InsertService {
             System.out.println(mainObject.toJSONString());
 
             // api 호출
-            JsonNode resultNode = commonApiService.callJsonApi("", "SSG", "insert", mainObject);
-            result = resultNode.toString();
+            //JsonNode resultNode = commonApiService.callJsonApi("", "SSG", "insert", mainObject);
+            //result = resultNode.toString();
 
             System.out.println(result);
 

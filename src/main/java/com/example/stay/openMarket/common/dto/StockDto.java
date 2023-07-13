@@ -6,7 +6,7 @@ import lombok.Data;
 public class StockDto {
 
     private String dateSales;
-    private String strSubject;
+    private String strRmtypeName;
     private int intRmIdx;
     private int moneySales;
     private int intStock;

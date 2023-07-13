@@ -46,7 +46,7 @@ public class CommonService {
 
     // 재고 리스트
     public List<StockDto> getStockList(int intAID, int intOmkIdx, String strDate){
-        List<StockDto> strStockList = commonMapper.getStockList(intAID, intOmkIdx, "20230701");
+        List<StockDto> strStockList = commonMapper.getStockList(intAID, intOmkIdx, strDate);
 
         return strStockList;
     }

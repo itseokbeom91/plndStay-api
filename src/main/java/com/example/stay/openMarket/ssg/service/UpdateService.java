@@ -142,7 +142,7 @@ public class UpdateService {
 
                     // 품절여부
                     String strSellStatCd = "20";
-                    if (((dto.getStrSubject().contains("2박") == true || dto.getStrSubject().contains(" 연박") == true) & dto.getIntNextStock() == 0) || dto.getIntStock() == 0) {
+                    if (((dto.getStrRmtypeName().contains("2박") == true || dto.getStrRmtypeName().contains(" 연박") == true) & dto.getIntNextStock() == 0) || dto.getIntStock() == 0) {
                         strSellStatCd = "80";
                     }
                     itemObject.put("sellStatCd", strSellStatCd);
@@ -161,13 +161,13 @@ public class UpdateService {
 
                     // 2번옵션명(타입)
                     itemObject.put("uitemOptnTypeNm2", "타입");
-                    String strTocode = dto.getStrSubject();
+                    String strTocode = dto.getStrRmtypeName();
                     itemObject.put("uitemOptnNm2", strTocode);
 
 
                     // 재고
                     int intOMKStock = dto.getIntStock();
-                    if (((dto.getStrSubject().contains("2박") == true || dto.getStrSubject().contains(" 연박") == true) & dto.getIntNextStock() == 0) || dto.getIntStock() == 0) {
+                    if (((dto.getStrRmtypeName().contains("2박") == true || dto.getStrRmtypeName().contains(" 연박") == true) & dto.getIntNextStock() == 0) || dto.getIntStock() == 0) {
                         intOMKStock = 0;
                     }
                     itemObject.put("baseInvQty", intOMKStock);

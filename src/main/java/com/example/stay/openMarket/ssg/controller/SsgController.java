@@ -78,7 +78,7 @@ public class SsgController {
     }
 
     @GetMapping("insert")
-    public String insertSSG(int intNum, Model model){
+    public String insertSSG(int intAID, Model model){
 
         try {
 
@@ -86,9 +86,9 @@ public class SsgController {
 
             // 데이터 가져오기
             //CondoDto condoDto = commonApiService.getInfo(intNum, strOmk);
-            AccommDto accommDto = commonService.getAcmInfo(intNum, 7);
+            AccommDto accommDto = commonService.getAcmInfo(intAID, 7);
 
-            result = insertService.insert(intNum, accommDto);
+            result = insertService.insert(intAID, accommDto);
 
             JSONObject object = (JSONObject) new JSONParser().parse(result);
             JSONObject jsonObject = (JSONObject) new JSONParser().parse(object.get("result").toString());
