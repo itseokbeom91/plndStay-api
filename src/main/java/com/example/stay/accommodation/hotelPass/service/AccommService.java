@@ -57,6 +57,9 @@ public class AccommService {
                     String latitude = hotelList.item(i).getChildNodes().item(7).getTextContent();
                     String longitude = hotelList.item(i).getChildNodes().item(8).getTextContent();
                     address = commonFunction.getJusoByGeoCd(latitude, longitude);
+                    if(address==null){//좌표조회로 주소조회가 안될시 기존 영문주소 입력
+                        address = hotelList.item(i).getChildNodes().item(9).getTextContent();
+                    }
                     hotelMap.put("nationCode", hotelList.item(i).getChildNodes().item(0).getTextContent());
                     hotelMap.put("cityCode", hotelList.item(i).getChildNodes().item(2).getTextContent());
                     hotelMap.put("cityName", hotelList.item(i).getChildNodes().item(3).getTextContent());
@@ -64,7 +67,10 @@ public class AccommService {
                     hotelMap.put("latitude", hotelList.item(i).getChildNodes().item(7).getTextContent());
                     hotelMap.put("longitude", hotelList.item(i).getChildNodes().item(8).getTextContent());
                     hotelMap.put("address", address);
+                    hotelMap.put("tel", hotelList.item(i).getChildNodes().item(11).getTextContent());
+                    hotelMap.put("fax", hotelList.item(i).getChildNodes().item(12).getTextContent());
                     hotelMap.put("grade", hotelList.item(i).getChildNodes().item(13).getTextContent());
+                    hotelMap.put("roomCnt", hotelList.item(i).getChildNodes().item(14).getTextContent());
                     hotelListMap.add(hotelMap);
                     if (cityCode.containsKey(hotelList.item(i).getChildNodes().item(2).getTextContent())) {
                         continue;
@@ -82,7 +88,6 @@ public class AccommService {
 //                System.out.print(hotelList.item(i).getChildNodes().item(0).getTextContent() + " ::: ");
 //                System.out.print(hotelList.item(i).getChildNodes().item(1).getTextContent() + " ::: ");
 
-
             }
             System.out.println(hotelListMap);
             Iterator<Map.Entry<String, String>> entry =
@@ -97,8 +102,17 @@ public class AccommService {
 //                String insertResult = accommMapper.insertCityList(element.getKey(), element.getValue()); //도시코드 인입
 //                return commonFunction.makeReturn("jsonp", "200", "OK", insertResult);
             }
+            //시설정보 인입
+            //grade 관련
             for (Map<String, Object> map : hotelListMap) {
                 //TO-DO 시설정보 INSERT 쿼리 작성 후 로직 작성
+                String grade = map.get("grade").toString();
+                int intGrade;
+                if(grade.lastIndexOf("★") != grade.length()) {
+                    intGrade = (int) (grade.length()-0.5);
+                } else {
+                    intGrade = grade.length();
+                }
             }
             
 
