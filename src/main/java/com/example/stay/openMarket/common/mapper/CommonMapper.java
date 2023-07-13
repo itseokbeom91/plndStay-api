@@ -19,5 +19,7 @@ public interface CommonMapper {
 
     List<StockDto> getStockList(int intAID, int intOmkIdx, String strDate);
 
+    int getMinPrice(int intAID, String strDate);
+
 
 }

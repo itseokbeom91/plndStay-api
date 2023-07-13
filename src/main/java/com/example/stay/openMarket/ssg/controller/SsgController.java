@@ -78,7 +78,7 @@ public class SsgController {
     }
 
     @GetMapping("insert")
-    public String insertSSG(int intNum, String strOmk, Model model){
+    public String insertSSG(int intNum, Model model){
 
         try {
 

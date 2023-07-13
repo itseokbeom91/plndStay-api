@@ -24,4 +24,8 @@
         EXEC spOMK_STOCK_LIST ${intAID}, ${intOmkIdx}, #{strDate}
     </select>
 
+    <select id="getMinPrice" resultType="int">
+        EXEC spOMK_STOCK_MIN_PRICE ${intAID}, #{strDate}
+    </select>
+
 </mapper>

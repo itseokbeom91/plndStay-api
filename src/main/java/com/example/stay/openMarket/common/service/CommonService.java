@@ -51,6 +51,14 @@ public class CommonService {
         return strStockList;
     }
 
+    // 재고 최소값 가져오기
+    public int getMinPrice(int intAID, String strDate){
+
+        int intMinPrice = commonMapper.getMinPrice(intAID, strDate);
+
+        return intMinPrice;
+    }
+
 
 
     // 상세페이지 반환하기
