@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.example.stay.accommodation.hotelPass.mapper.AccommMapper">
+    <insert id="insertCityList">
+        DECLARE
+        @parentID int
+        @cnt        int
+
+        @parentID = SELECT intIdx FROM PLNDSTAY.dbo.CODE_OMK WHERE strCateCode='HOTELPASS_DISTRICT' AND intDepth = 0 AND intParentIdx = 0
+        IF(@parentID IS NULL) BEGIN --구분필드 없을시
+            INSERT INTO PLNDSTAY.dbo.CODE_OMK (
+            strDeleteYn, strCateCode, strCode, strName, intStep, intDepth, intParentIdx
+            ) VALUES (
+            'N', 'HOTELPASS_DISTRICT', '000', '호텔패스 지역 코드', SELECT COUNT(*)+1 PLNDSTAY.dbo.CODE_OMK WHERE strCode = '000', 0, 0
+            )
+            @parentID = SELECT intIdx FROM PLNDSTAY.dbo.CODE_OMK WHERE strCateCode='HOTELPASS_DISTRICT' AND intDepth = 0 AND intParentIdx = 0
+        END
+
+
+        @cnt = SELECT COUNT(*) FROM PLNDSTAY.dbo.CODE_OMK WHERE strCateCode='HOTELPASS_DISTRICT'
+        IF ((SELECT strCode FROM PLNDSTAY.dbo.CODE_OMK WHERE strCode = #{cityCode}) > 0) BEGIN --동일한 도시코드가 있을시 UPDATE
+        UPDATE PLNDSTAY.dbo.CODE_OMK SET
+            strDeleteYn = 'N',
+            strCateCode = 'HOTELPASS_DISTRICT',
+            strCode = #{cityCode},
+            strName = #{cityName}
+        END ELSE BEGIN
+            INSERT INTO PLNDSTAY.dbo.CODE_OMK (
+                strDeleteYn, strCateCode, strCode, strName, intStep, intDepth, intParentIdx
+            ) VALUES (
+                      'N', 'HOTELPASS_DISTRICT', #{cityCode}, #{cityName}, @cnt, '1', @parentID
+        ) --step은 1 ~ n / Depth 1 고정 / ParentIdx는 구분값
+        END
+
+    </insert>
+
+    <insert id="insertHotelList">
+        DECLARE
+        @intAID int
+
+        @intAID = (SELECT intAID FROM PLNDSTAY.dbo.ACCOMM WHERE strType = 'HP' AND strPropertyID = #{hotelID})
+        IF (@intAID > 0) BEGIN
+        UPDATE PLNDSTAY.dbo.ACCOMM SET
+            strDeleteYn = 'N'
+        WHERE intAID = @intAID
+        END ELSE BEGIN
+            INSERT INTO PLNDSTAY.dbo.ACCOMM (
+            strDeleteYn, strViewYn, strType, intAbleCancel, strDistrict1, strDistrict2, strDistrict3, strSubject, strPropertyID, dateCreated, dateModified
+            ) VALUES (
+            'N', 'Y', 'HP', 3,
+            )
+    </insert>
+
+</mapper>
