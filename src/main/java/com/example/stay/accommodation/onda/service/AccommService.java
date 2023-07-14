@@ -55,12 +55,6 @@ public class AccommService {
 
         try{
 
-            String testAccommList = "{\n" +
-                    "      \"id\": \"54207\",\n" +
-                    "      \"name\": \"채널 테스트&숙소(테스트계정)\",\n" +
-                    "      \"status\": \"enabled\",\n" +
-                    "      \"updated_at\": \"2023-06-09T01:55:50+09:00\"\n" +
-                    "    }";
 
             String testAccommList2 = "{\n" +
                     "      \"id\": \"130517\",\n" +
@@ -70,17 +64,11 @@ public class AccommService {
                     "    }";
             JSONParser jsonParser = new JSONParser();
 
-            Object obj = jsonParser.parse(testAccommList);
-            JSONObject jsonObj = (JSONObject) obj;
-
             Object obj2 = jsonParser.parse(testAccommList2);
             JSONObject jsonObj2 = (JSONObject) obj2;
 
             List<JSONObject> accommList = new LinkedList<>();
-            accommList.add(jsonObj);
             accommList.add(jsonObj2);
-
-
 
 
             for(JSONObject accomm : accommList){
@@ -307,13 +295,14 @@ public class AccommService {
                     int intQuanMax = Integer.parseInt(capacity.get("max").toString());
 
                     String strRmDescription = roomDetailJson.get("description").toString();
+                    int intCubicMeter = Integer.parseInt(roomDetailJson.get("size").toString());
 
                     String strRoomTypeStatus = roomDetailJson.get("status").toString();
                     Map<String, String> rmStatusMap = getStatusYn(strRoomTypeStatus);
                     String strRmDeleteYn = rmStatusMap.get("strDeleteYn");
                     String strIngYn = rmStatusMap.get("strIngYn");
 
-                    String strRmSubject = roomDetailJson.get("name").toString();
+                    String strRmtypeName = roomDetailJson.get("name").toString();
 
                     // 이미지------------------------------------------------------------------------------------------------
                     // CONTENTS_PHOTO, RM_PHOTO 테이블에 INSERT
@@ -345,7 +334,7 @@ public class AccommService {
                     }
 
                     String strRmtypeData = strRmDeleteYn + "|^|" + strIngYn  + "|^|" + intQuanStd + "|^|" +
-                            intQuanMax + "|^|" + strRmSubject + "|^|" + strRmDescription + "|^|" + strRmtypeID + "|^|";
+                            intQuanMax + "|^|" + intCubicMeter + "|^|" + strRmtypeName + "|^|" + strRmDescription + "|^|" + strRmtypeID + "|^|";
 
                     // rateplan 리스트 조회
                     String ratePlanListUrl = "properties/" + strPropertyID + "/roomtypes/" + strRmtypeID + "/rateplans";
@@ -689,7 +678,9 @@ public class AccommService {
             String strRmDeleteYn = rmStatusMap.get("strDeleteYn");
             String strIngYn = rmStatusMap.get("strIngYn");
 
-            String strRmSubject = roomDetailJson.get("name").toString();
+            String strRmtypeName = roomDetailJson.get("name").toString();
+
+            int intCubicMeter = Integer.parseInt(roomDetailJson.get("size").toString());
 
             // 이미지------------------------------------------------------------------------------------------------
             // CONTENTS_PHOTO, RM_PHOTO 테이블에 INSERT
@@ -721,7 +712,7 @@ public class AccommService {
             }
 
             String strRmtypeData = strRmDeleteYn + "|^|" + strIngYn  + "|^|" + intQuanStd + "|^|" +
-                    intQuanMax + "|^|" + strRmSubject + "|^|" + strRmDescription + "|^|" + strRmtypeID + "|^|";
+                    intQuanMax + "|^|" + intCubicMeter + "|^|" + strRmtypeName + "|^|" + strRmDescription + "|^|" + strRmtypeID + "|^|";
 
             // strRateplanID가 특정되어있으면 반복문X
             if(strRateplanID.equals("")){
