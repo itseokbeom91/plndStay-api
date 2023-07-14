@@ -39,6 +39,7 @@ public class AccommService {
 
     CommonFunction commonFunction = new CommonFunction();
 
+    // TODO : 웰리힐리에서 주는 객실 정보에 우리가 팔지 않는 객실타입이 포함되어 있을 수 있음
     // 객실 정보 조회
     public String insertRoomType(String dataType, HttpServletRequest httpServletRequest){
         String statusCode = "200";

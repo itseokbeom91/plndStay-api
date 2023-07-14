@@ -34,8 +34,8 @@ public class BookingController {
     // 재고 등록 및 수정
     @GetMapping("updateGoods")
     @ResponseBody
-    public String updateGoods(String dataType, HttpServletRequest httpServletRequest, int intRmIdx, String startDate, String endDate){
-        return bookingService.updateGoods(dataType, httpServletRequest, intRmIdx, startDate, endDate);
+    public String updateGoods(String dataType, HttpServletRequest httpServletRequest, int intRmIdx, String startDate, String endDate, String pkgCode){
+        return bookingService.updateGoods(dataType, httpServletRequest, intRmIdx, startDate, endDate, pkgCode);
     }
 
     // 체크인 날짜에 해당되는 객실 수량 및 계산된 총 요금 조회
