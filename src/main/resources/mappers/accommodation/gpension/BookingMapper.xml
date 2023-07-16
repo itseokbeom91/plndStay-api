@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.example.stay.accommodation.gpension.mapper.AccommMapper">
+    <select id="getBookingInfoFromBookingIdx">
+--         SELECT /* 예약 ID*/
+--         FROM /* 예약_테이블*/
+--         WHERE '예약' = #{intBookingIdx}
+    </select>
+
+    <select id="getMaxpeopleByroomId">
+        SELECT intQuanMax
+        FROM PLNDSTAY.dbo.RMTYPE
+        WHERE intAID = #{pensionID} AND strRmtypeID = #{roomID}
+    </select>
+</mapper>

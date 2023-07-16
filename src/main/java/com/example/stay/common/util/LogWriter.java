@@ -21,6 +21,7 @@ public class LogWriter {
     private SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
     private String apiUrl;
+    private String apiQuery;
     private String method; // api 호출 방식
     private String logMessage;
     private long startTime; // 로직 프로세스 시작 시간
@@ -42,6 +43,13 @@ public class LogWriter {
         this.startTime = startTime;
         this.method = (method != null) ? method : "";
         this.apiUrl = (apiUrl != null) ? apiUrl : "";
+    }
+
+    public LogWriter(String method, String apiUrl, String apiQuery, long startTime){
+        this.startTime = startTime;
+        this.method = (method != null) ? method : "";
+        this.apiUrl = (apiUrl != null) ? apiUrl : "";
+        this.apiQuery = (apiQuery != null) ? apiQuery : "";
     }
 
     public void add(String msg) {
@@ -72,6 +80,7 @@ public class LogWriter {
             sb.append(logHead + "\r\n");
             sb.append(logBody + "  method : " + getMethod() + "\r\n");
             sb.append(logBody + "  apiUrl : " + getApiUrl() + "\r\n");
+            sb.append(logBody + "  apiQuery : " + getApiQuery() + "\r\n");
             sb.append(logBody + "  startTime : " + df.format(new Date(this.startTime)) + "\r\n");
             sb.append(logBody + "  processTime : " + this.processTime + "\r\n" + logBlock + "\r\n");
 

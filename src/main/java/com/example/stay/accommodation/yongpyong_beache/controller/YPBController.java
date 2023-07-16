@@ -11,12 +11,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 public class YPBController {
 
     @Autowired
-    YPBService ypbService;
+    private YPBService ypbService;
 
     @GetMapping("/stock")
-    public void getStock(){
+    public void getStock(int intAID, int intRmIdx, int intPkgIdx, String startDate, String endDate){
 
-        ypbService.getStock();
+        ypbService.getStock(intAID, intRmIdx, intPkgIdx, startDate, endDate);
 
     }
 

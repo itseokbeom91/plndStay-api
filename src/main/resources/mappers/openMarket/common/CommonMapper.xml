@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.example.stay.openMarket.common.mapper.CommonMapper">
+
+    <select id="getAcmInfo" resultType="accommDto">
+        EXEC spOMK_ACCOMM_INFO ${intAID}, ${intOmkIdx}
+    </select>
+
+    <select id="getRoomList" resultType="roomTypeDto">
+        EXEC spOMK_ROOMTYPE_LIST ${intAID}, ${intOmkIdx}
+    </select>
+
+    <select id="getPhotoList" resultType="string">
+        SELECT CONCAT('https://condo24.com', strFilePath, strFileName) AS strPhotoUrl FROM ACCOMM_PHOTO c WITH(NOLOCK)
+	    LEFT OUTER JOIN CONTENTS_PHOTO d WITH(NOLOCK) ON c.intPhotoID = d.intPhotoID
+        WHERE c.intAID = ${intAID}
+        ORDER BY intStep ASC;
+    </select>
+
+    <select id="getStockList" resultType="stockDto">
+        EXEC spOMK_STOCK_LIST ${intAID}, ${intOmkIdx}, #{strDate}
+    </select>
+
+    <select id="getMinPrice" resultType="int">
+        EXEC spOMK_STOCK_MIN_PRICE ${intAID}, #{strDate}
+    </select>
+
+</mapper>

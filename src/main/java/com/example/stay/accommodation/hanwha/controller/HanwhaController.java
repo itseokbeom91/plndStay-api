@@ -14,9 +14,9 @@ public class HanwhaController {
     private HanwhaService hanwhaService;
 
     @GetMapping("/capa")
-    public void getCapa(String lcdId, String roomTypeId, String startDate, String endDate, String packageCode){
+    public void getCapa(int intAID, int intRmIdx, int intPkgIdx, String startDate, String endDate){
 
-        hanwhaService.getCapa(lcdId, roomTypeId, startDate, endDate, packageCode);
+        hanwhaService.getCapa(intAID, intRmIdx, intPkgIdx, startDate, endDate);
 
     }
 
@@ -35,9 +35,9 @@ public class HanwhaController {
     }
 
     @GetMapping("/booking")
-    public void booking(String packNo, String locCd, String RMCd, String startDate, String roomCnt, String staycnt, String name, String phone){
+    public void booking(String packNo, String locCd, String RMCd, String startDate, String roomCnt, String staycnt, String reserveName, String reservePhone, String stayName, String stayPhone){
 
-        hanwhaService.booking(packNo, locCd, RMCd, startDate, roomCnt, staycnt, name, phone);
+        hanwhaService.booking(packNo, locCd, RMCd, startDate, roomCnt, staycnt, reserveName, reservePhone, stayName, stayPhone);
 
     }
 

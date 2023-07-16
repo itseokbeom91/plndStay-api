@@ -89,13 +89,15 @@ public class AccommController {
 //        accommService.getRatePlanDetail(property_id, roomtype_id, rateplan_id);
 //    }
 
+    CommonFunction commonFunction = new CommonFunction();
+
     /**
      * ONDA에서 숙소정보 가져와서 INSERT
      */
     @GetMapping("insertAccommTotal")
-    @ResponseBody       
-    public String insertAccommTotal(HttpServletRequest httpServletRequest){
-        return accommService.insertAccommTotal(httpServletRequest);
+    @ResponseBody
+    public String insertAccommTotal(String dataType, HttpServletRequest httpServletRequest){
+        return accommService.insertAccommTotal(dataType, httpServletRequest);
     }
 
     /**
@@ -103,14 +105,14 @@ public class AccommController {
      * @param propertyId
      */
     @GetMapping("updateAccomm")
-    public String updateAccomm(String propertyId){
+    @ResponseBody
+    public String updateAccomm(String dataType, String propertyId){
 
         JSONObject jsonObject =  accommService.updateAccomm(propertyId);
         String code = jsonObject.get("statusCode").toString();
         String message = jsonObject.get("message").toString();
 
-        CommonFunction commonFunction = new CommonFunction();
-        return commonFunction.makeReturn(code, message);
+        return commonFunction.makeReturn(dataType, code, message);
     }
 
     /**
@@ -118,24 +120,26 @@ public class AccommController {
      * @param strPropertyID
      * @param strRmtypeID
      * @param strRateplanID
+     * @return
      */
     @GetMapping("updateRmtype")
-    public String updateRmtype(String strPropertyID, String strRmtypeID, @Nullable String strRateplanID){
+    @ResponseBody
+    public String updateRmtype(String dataType, String strPropertyID, String strRmtypeID, @Nullable String strRateplanID, HttpServletRequest httpServletRequest){
 
-        JSONObject jsonObject =  accommService.updateRmtype(strPropertyID, strRmtypeID, strRateplanID);
+        JSONObject jsonObject =  accommService.updateRmtype(strPropertyID, strRmtypeID, strRateplanID, httpServletRequest);
         String code = jsonObject.get("statusCode").toString();
         String message = jsonObject.get("message").toString();
 
-        CommonFunction commonFunction = new CommonFunction();
-        return commonFunction.makeReturn(code, message);
+        return commonFunction.makeReturn(dataType, code, message);
     }
 
     /**
      * 특정 패키지의 재고 및 요금 정보 가져와서 insert or update
      */
     @GetMapping("updateGoods")
-    public void updateGoods(String strRateplanID, String strRmtypeID, String from, String to){
-        accommService.updateGoods(strRateplanID, strRmtypeID, from, to);
+    @ResponseBody
+    public String updateGoods(String dataType, int intRmIdx, String from, String to){
+        return accommService.updateGoods(dataType, intRmIdx, from, to);
     }
 
 //    /**
@@ -165,14 +169,12 @@ public class AccommController {
     public JSONObject webhook(HttpServletRequest httpServletRequest){
         LogWriter logWriter = new LogWriter(httpServletRequest.getMethod(), httpServletRequest.getServletPath(), System.currentTimeMillis());
         String message = "";
-        String statusCode = "400";
+        String statusCode = "500";
         JSONObject returnJson = new JSONObject();
 
         try{
             String authKey = httpServletRequest.getHeader("Authorization");
             if(authKey.equals(Constants.webhookAuthKey)){
-                statusCode = "200";
-
                 InputStream inputStream = httpServletRequest.getInputStream();
                 BufferedReader br = null;
                 StringBuilder stringBuilder = new StringBuilder();
@@ -193,15 +195,19 @@ public class AccommController {
                     boolean result = accommService.webhookProcess(bodyJson, httpServletRequest);
 
                     if(result){
+                        statusCode = "200";
                         message = "success";
                     }else{
+                        statusCode = "500";
                         message = "fail";
                     }
 
                 }else {
+                    statusCode = "200";
                     message = "data not found";
                 }
             }else{
+                statusCode = "401";
                 message = "invaild_AuthKey";
             }
             logWriter.add(message);

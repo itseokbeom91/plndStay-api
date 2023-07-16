@@ -12,7 +12,9 @@ public interface AccommMapper {
 //    To-Do 객실 INSERT
 
     String insertAccommTotal(String strPensionDatas, String strRoomDatas, String strStockDatas, String strType);
-
     String getDistrictCodeWithStr(String strDistrict1, String strDistrict2);
+
+    void updateDelPension(String pensionID);
+    void updateDelRoom(String pensionID, String roomID);
 
 }

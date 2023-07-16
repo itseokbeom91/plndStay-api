@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.example.stay.accommodation.yongpyong_beache.mapper.YPBMapper">
+
+    <select id="getAcmRmID" resultType="map">
+        SELECT ACM.strPropertyID, RM.strRmtypeID FROM PLNDSTAY.dbo.ACCOMM ACM WITH(NOLOCK)
+        INNER JOIN PLNDSTAY.dbo.RMTYPE RM WITH(NOLOCK) ON ACM.intAID = RM.intAID
+        WHERE ACM.intAID = ${intAID} AND RM.intIdx = ${intRmIdx}
+    </select>
+
+    <select id="getPkgLcdID" resultType="map">
+        SELECT strPkgCode, strLocalCode FROM PLNDSTAY.dbo.PACKAGE_INFO WITH(NOLOCK) WHERE intIdx = ${intPkgIdx}
+    </select>
+
+    <select id="packageList" resultType="string">
+        exec PLNDSTAY.dbo.spHW_PACKAGE_REGIST #{PackageData}, ''
+    </select>
+
+    <select id="insertStock" resultType="String">
+        EXEC PLNDSTAY.dbo.spGW_STOCK_TEMP_REGIST ${intAID}, ${intRmIdx}, #{strPackageCode}, #{strStockData}, ''
+    </select>
+
+</mapper>

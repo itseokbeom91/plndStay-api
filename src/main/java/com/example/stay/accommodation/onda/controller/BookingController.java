@@ -24,8 +24,8 @@ public class BookingController {
      */
     @GetMapping("createBooking")
     @ResponseBody
-    public String createBooking(int intBookingID, HttpServletRequest httpServletRequest) {
-        return bookingService.createBookingInfo(intBookingID, httpServletRequest);
+    public String createBooking(String dataType, int intBookingID, HttpServletRequest httpServletRequest) {
+        return bookingService.createBookingInfo(dataType, intBookingID, httpServletRequest);
     }
 
     /**
@@ -33,8 +33,8 @@ public class BookingController {
      */
     @GetMapping("cancelBooking")
     @ResponseBody
-    public String cancelBooking(int intBookingID, HttpServletRequest httpServletRequest) {
-        return bookingService.cancelBookingInfo(intBookingID, httpServletRequest);
+    public String cancelBooking(String dataType, int intBookingID, HttpServletRequest httpServletRequest) {
+        return bookingService.cancelBookingInfo(dataType, intBookingID, httpServletRequest);
     }
 
     @GetMapping("getCancelPolicy")

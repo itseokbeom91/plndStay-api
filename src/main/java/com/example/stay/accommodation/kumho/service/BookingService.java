@@ -28,6 +28,7 @@ import java.io.StringWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLDecoder;
+import java.net.URLEncoder;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
@@ -46,11 +47,12 @@ public class BookingService {
 
     CommonFunction commonFunction = new CommonFunction();
 
-    private String site = "1"; // 현재 무조건 1
+    private static String site = "1"; // 현재 무조건 1
 
     // 예약
-    public String createBooking(int intBookingID, HttpServletRequest httpServletRequest){
-        LogWriter logWriter = new LogWriter(httpServletRequest.getMethod(), httpServletRequest.getServletPath(), System.currentTimeMillis());
+    public String createBooking(String dataType, int intBookingID, HttpServletRequest httpServletRequest){
+        LogWriter logWriter = new LogWriter(httpServletRequest.getMethod(), httpServletRequest.getServletPath(),
+                httpServletRequest.getQueryString(), System.currentTimeMillis());
         String statusCode = "200";
         String message = "";
         try{
@@ -91,7 +93,7 @@ public class BookingService {
             String kumhoUrl = "inter01.asp?ipark_resno=" + ipark_resno + "&area=" + area
                     + "&site=" + site + "&arrive_date=" + arrive_date + "&leave_date=" + leave_date
                     + "&nights_count=" + nights_count + "&groupid=" + Constants.groupId + "&event_div=" + event_div
-                    + "&morning_aqua=" + morning_aqua + "&use_name=" + use_name + "use_phone=" + use_phone
+                    + "&morning_aqua=" + morning_aqua + "&use_name=" + URLEncoder.encode(use_name, "utf-8") + "use_phone=" + use_phone
                     + "&use_cell_phone=" + use_cell_phone + "&morning_div=" + morning_div + "&room_type=" + room_type
                     + "&room_count=" + room_count + "&person_count=" + person_count + "&coupon_year=" + coupon_year
                     + "&coupon_number=" + coupon_number + "&ipark_goodsno=" + ipark_goodsno;
@@ -127,8 +129,9 @@ public class BookingService {
             statusCode = "500";
             logWriter.add("error : " + e.getMessage());
             logWriter.log(0);
+            e.printStackTrace();
         }
-        return commonFunction.makeReturn(statusCode, message);
+        return commonFunction.makeReturn(dataType, statusCode, message);
     }
 
     // 예약 시 잔여 객실 수 조회
@@ -162,23 +165,29 @@ public class BookingService {
 //    }
 
     // 재고 등록 및 수정
-    public String updateGoods(String fr_date, String to_date, String area, String room_type, HttpServletRequest httpServletRequest){
-        LogWriter logWriter = new LogWriter(httpServletRequest.getMethod(), httpServletRequest.getServletPath(), System.currentTimeMillis());
+    public String updateGoods(String dataType, String strFromDate, String strToDate, int intRmIdx, HttpServletRequest httpServletRequest){
+        LogWriter logWriter = new LogWriter(httpServletRequest.getMethod(), httpServletRequest.getServletPath(),
+                httpServletRequest.getQueryString(), System.currentTimeMillis());
         String statusCode = "200";
         String message = "";
         try{
             String kumhoUrl = "";
-//            String kumhoUrl = "inter05.asp?groupid=100211&fr_date=20151201&to_date=20151231&area=1&site=1&room_type=*";
 
             SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd");
-            Date fromDate = sdf.parse(fr_date);
-            Date toDate = sdf.parse(to_date);
+            Date fromDate = sdf.parse(strFromDate);
+            Date toDate = sdf.parse(strToDate);
 
             // 조회한 날짜의 기간 확인 (90일이 넘는지)
             long sec = (toDate.getTime() - fromDate.getTime()) / 1000;
             double days =  (sec / (24*60*60));
 
-            int failCount = 0; // 재고 등록 및 수정에 실패한 경우 카운트
+            Map<String, Object> map = bookingMapper.getRmtypeIDNIntAID(intRmIdx);
+            String strRmtypeID = map.get("strRmtypeID").toString();
+            int intAID = Integer.parseInt(map.get("intAID").toString());
+
+            String strLocalCode = bookingMapper.getStrLocalCode(intAID, strRmtypeID);
+
+            String strStockDatas = "";
 
             // 날짜 세팅
             // 90일 이상일 경우
@@ -196,10 +205,10 @@ public class BookingService {
                         cal.add(Calendar.DATE, 90); // fromDate + 90일로 세팅
                         endDate = cal.getTime();
 
-                        fr_date = sdf.format(fromDate);
-                        to_date = sdf.format(endDate);
-                        kumhoUrl = "inter05.asp?groupid=" + Constants.groupId + "&fr_date=" + fr_date + "&to_date=" + to_date +
-                                "&area=" + area + "&site=" + site + "&room_type=" + room_type;
+                        strFromDate = sdf.format(fromDate);
+                        strToDate = sdf.format(endDate);
+                        kumhoUrl = "inter05.asp?groupid=" + Constants.groupId + "&fr_date=" + strFromDate + "&to_date=" + strToDate +
+                                "&area=" + strLocalCode + "&site=" + site + "&room_type=" + strRmtypeID;
 
                         // 새로운 날짜 세팅
                         cal.setTime(fromDate);
@@ -220,10 +229,10 @@ public class BookingService {
                             endDate = cal.getTime();
                         }
                     }else{
-                        fr_date = sdf.format(startDate);
-                        to_date = sdf.format(endDate);
-                        kumhoUrl = "inter05.asp?groupid=" + Constants.groupId + "&fr_date=" + fr_date + "&to_date=" + to_date +
-                                "&area=" + area + "&site=" + site + "&room_type=" + room_type;
+                        strFromDate = sdf.format(startDate);
+                        strToDate = sdf.format(endDate);
+                        kumhoUrl = "inter05.asp?groupid=" + Constants.groupId + "&fr_date=" + strFromDate + "&to_date=" + strToDate +
+                                "&area=" + strLocalCode + "&site=" + site + "&room_type=" + strRmtypeID;
 
                         // 새로운 날짜 세팅
                         cal.setTime(startDate);
@@ -259,35 +268,46 @@ public class BookingService {
                                 String msg = URLDecoder.decode(xmlUtility.getTagValue("msg", element), "utf-8");
                                 if(rdate.equals("F")){
                                     message = msg;
-                                    failCount += 1;
                                     break Loop1;
                                 }else{
-                                    String strRmtypeID = xmlUtility.getTagValue("roomtype", element);
+                                    strRmtypeID = xmlUtility.getTagValue("roomtype", element);
 
                                     SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
                                     String dateSales = dateFormat.format(sdf.parse(rdate));
 
                                     int intStock = Integer.parseInt(xmlUtility.getTagValue("remainCount", element));
+                                    if(intStock < 0){
+                                        intStock = 0;
+                                    }
                                     int intOmkStock = intStock;
 
-                                    String result = bookingMapper.updateGoods(strRmtypeID, area, dateSales, intStock, intOmkStock);
-                                    String strResult = result.substring(result.length()-4);
-                                    if(!strResult.equals("저장완료")){
-                                        failCount += 1;
-                                    }
+                                    int intCost = 0, intSales = 0, intExtraA = 0, intExtraB = 0, intExtraC = 0, intOmkSales = 0;
+
+                                    strStockDatas += dateSales + "|^|" + intStock + "|^|" + intCost + "|^|" + intSales + "|^|"
+                                            + intExtraA + "|^|" + intExtraC + "|^|" + intExtraB + "|^|" + intOmkStock + "|^|"  + intOmkSales+ "{{|}}";
+
+
                                 }
                             }
+                        }
+                        strStockDatas = strStockDatas.substring(0, strStockDatas.length()-5);
+
+                        String result = bookingMapper.updateGoods(intAID, intRmIdx, strStockDatas);
+                        String strResult = result.substring(result.length()-4);
+
+                        if(strResult.equals("저장완료")){
+                            message = "재고 등록 및 수정 완료";
+                        }else{
+                            message = "재고 등록 및 수정 실패";
                         }
                     }else{
                         message = "재고 조회 실패";
                         logWriter.add(message);
-                        failCount += 1;
-                        break Loop1;
                     }
                 }
             }else{ // 90일 이상이 아닐 경우
-                kumhoUrl = "inter05.asp?groupid=" + Constants.groupId + "&fr_date=" + fr_date + "&to_date=" + to_date +
-                            "&area=" + area + "&site=" + site + "&room_type=" + room_type;
+                kumhoUrl = "inter05.asp?groupid=" + Constants.groupId + "&fr_date=" + strFromDate + "&to_date=" + strToDate +
+                            "&area=" + strLocalCode + "&site=" + site + "&room_type=" + strRmtypeID;
                 // API 호출
                 Document document = callKumhoAPI(kumhoUrl);
                 if(document != null){
@@ -301,10 +321,9 @@ public class BookingService {
                             String msg = URLDecoder.decode(xmlUtility.getTagValue("msg", element), "utf-8");
                             if(rdate.equals("F")){
                                 message = msg;
-                                failCount += 1;
                                 break;
                             }else{
-                                String strRmtypeID = xmlUtility.getTagValue("roomtype", element);
+                                strRmtypeID = xmlUtility.getTagValue("roomtype", element);
 
                                 SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
                                 String dateSales = dateFormat.format(sdf.parse(rdate));
@@ -312,41 +331,44 @@ public class BookingService {
                                 int intStock = Integer.parseInt(xmlUtility.getTagValue("remainCount", element));
                                 int intOmkStock = intStock;
 
-                                String result = bookingMapper.updateGoods(strRmtypeID, area, dateSales, intStock, intOmkStock);
-                                String strResult = result.substring(result.length()-4);
-                                if(!strResult.equals("저장완료")){
-                                    failCount += 1;
-                                }
+                                int intCost = 0, intSales = 0, intExtraA = 0, intExtraB = 0, intExtraC = 0, intOmkSales = 0;
+
+                                strStockDatas += dateSales + "|^|" + intStock + "|^|" + intCost + "|^|" + intSales + "|^|"
+                                        + intExtraA + "|^|" + intExtraC + "|^|" + intExtraB + "|^|" + intOmkStock + "|^|"  + intOmkSales+ "{{|}}";
                             }
                         }
                     }
+                    strStockDatas = strStockDatas.substring(0, strStockDatas.length()-5);
+
+                    String result = bookingMapper.updateGoods(intAID, intRmIdx, strStockDatas);
+                    String strResult = result.substring(result.length()-4);
+
+                    if(strResult.equals("저장완료")){
+                        message = "재고 등록 및 수정 완료";
+                    }else{
+                        message = "재고 등록 및 수정 실패";
+                    }
                 }else{
                     message = "재고 조회 실패";
-                    logWriter.add(message);
-                    failCount += 1;
                 }
-            }
-
-            if(failCount == 0){
-                message = "재고 등록 및 수정 완료";
-            }else{
-                message += " 재고 등록 및 수정 실패";
             }
 
             logWriter.add(message);
             logWriter.log(0);
         }catch (Exception e){
-            message = "재고 조회 실패";
+            message = "재고 등록 및 수정 실패";
             statusCode = "500";
             logWriter.add("error : " + e.getMessage());
             logWriter.log(0);
+            e.printStackTrace();
         }
-        return commonFunction.makeReturn(statusCode, message);
+        return commonFunction.makeReturn(dataType, statusCode, message);
     }
 
     // 예약 취소
-    public String cancelBooking(int intBookingID, HttpServletRequest httpServletRequest){
-        LogWriter logWriter = new LogWriter(httpServletRequest.getMethod(), httpServletRequest.getServletPath(), System.currentTimeMillis());
+    public String cancelBooking(String dataType, int intBookingID, HttpServletRequest httpServletRequest){
+        LogWriter logWriter = new LogWriter(httpServletRequest.getMethod(), httpServletRequest.getServletPath(),
+                httpServletRequest.getQueryString(), System.currentTimeMillis());
         String statusCode = "200";
         String message = "";
         try{
@@ -388,27 +410,30 @@ public class BookingService {
             statusCode = "500";
             logWriter.add("error : " + e.getMessage());
             logWriter.log(0);
+            e.printStackTrace();
         }
-        return commonFunction.makeReturn(statusCode, message);
+        return commonFunction.makeReturn(dataType, statusCode, message);
     }
 
     // 예약현황 조회
-    public String getReservationStatus(int intBookingID, HttpServletRequest httpServletRequest){
-        LogWriter logWriter = new LogWriter(httpServletRequest.getMethod(), httpServletRequest.getServletPath(), System.currentTimeMillis());
+    public String getReservationStatus(String dataType, int intRsvID, HttpServletRequest httpServletRequest){
+        LogWriter logWriter = new LogWriter(httpServletRequest.getMethod(), httpServletRequest.getServletPath(),
+                httpServletRequest.getQueryString(), System.currentTimeMillis());
         String statusCode = "200";
         String message = "";
         Map<String, Object> resultMap = new HashMap<>();
         try{
-            BookingDto bookingDto = bookingMapper.getBookingByIntBookingID(intBookingID);
-
-            String area = bookingDto.getAccommId(); // 사업장(통영, 화순, 설악, 제주)
-            String arrive_date = bookingDto.getCheckInDate(); // 도착일자
-            String reserv_year = arrive_date.substring(0, 4);
-            String reserv_number = bookingDto.getStrSpBookingId();
-//            String area = "4";
-//            String arrive_date = "2023-06-10"; // 도착일자
-//            String reserv_year = "2023";
-//            String reserv_number = "37537";
+            // TODO : intRsvID로 예약번호 조회 프로세스 추가
+//            BookingDto bookingDto = bookingMapper.getBookingByIntBookingID(intRsvID);
+//
+//            String area = bookingDto.getAccommId(); // 사업장(통영, 화순, 설악, 제주)
+//            String arrive_date = bookingDto.getCheckInDate(); // 도착일자
+//            String reserv_year = arrive_date.substring(0, 4);
+//            String reserv_number = bookingDto.getStrSpBookingId();
+            String area = "4";
+            String arrive_date = "2023-06-10"; // 도착일자
+            String reserv_year = "2023";
+            String reserv_number = "37537";
 
 
             String kumhoUrl = "inter06.asp?area=" + area + "&site=" + site + "&reserv_year=" + reserv_year
@@ -466,19 +491,21 @@ public class BookingService {
             statusCode = "500";
             logWriter.add("error : " + e.getMessage());
             logWriter.log(0);
+            e.printStackTrace();
         }
 
-        return commonFunction.makeReturn(statusCode, message, resultMap);
+        return commonFunction.makeReturn(dataType, statusCode, message, resultMap);
     }
 
     // 예약 대사자료 조회
-    public String getReservations(String fr_date, String to_date ,HttpServletRequest httpServletRequest){
-        LogWriter logWriter = new LogWriter(httpServletRequest.getMethod(), httpServletRequest.getServletPath(), System.currentTimeMillis());
+    public String getReservations(String dataType, String strFromDate, String strToDate ,HttpServletRequest httpServletRequest){
+        LogWriter logWriter = new LogWriter(httpServletRequest.getMethod(), httpServletRequest.getServletPath(),
+                httpServletRequest.getQueryString(), System.currentTimeMillis());
         String statusCode = "200";
         String message = "";
         MultiValueMap<String, Map> resultMap = new LinkedMultiValueMap<>();
         try{
-            String kumhoUrl = "inter07.asp?groupid=" + Constants.groupId + "&fr_date=" + fr_date + "&to_date=" + to_date;
+            String kumhoUrl = "inter07.asp?groupid=" + Constants.groupId + "&fr_date=" + strFromDate + "&to_date=" + strToDate;
 
             Document document = callKumhoAPI(kumhoUrl);
             if(document != null){
@@ -492,17 +519,18 @@ public class BookingService {
                         if(node.getNodeType() == Node.ELEMENT_NODE){
                             Element element = (Element) node;
 
-                            // DB에 정리해서 가져와야할듯...
+                            // TODO : 추후 예약정보 어떻게 내려줄건지
+                            // 금호
                             String area = xmlUtility.getTagValue("ps_area", element);
-                            if(area.equals("1")){
-                                area = "통영";
-                            }else if(area.equals("2")){
-                                area = "화순";
-                            }else if(area.equals("3")){
-                                area = "설악";
-                            }else if(area.equals("4")){
-                                area = "제주";
-                            }
+//                            if(area.equals("1")){
+//                                area = "통영";
+//                            }else if(area.equals("2")){
+//                                area = "화순";
+//                            }else if(area.equals("3")){
+//                                area = "설악";
+//                            }else if(area.equals("4")){
+//                                area = "제주";
+//                            }
                             reservMap.put("area", area);
 
                             reservMap.put("reservYear", xmlUtility.getTagValue("ps_reserv_year", element));
@@ -547,9 +575,10 @@ public class BookingService {
             statusCode = "500";
             logWriter.add("error : " + e.getMessage());
             logWriter.log(0);
+            e.printStackTrace();
         }
 
-        return commonFunction.makeReturn(statusCode, message, resultMap);
+        return commonFunction.makeReturn(dataType, statusCode, message, resultMap);
     }
 
     // 금호 api 호출
@@ -595,6 +624,7 @@ public class BookingService {
             LogWriter logWriter = new LogWriter(method, strUrl, startTime);
             logWriter.add("error : " + e.getMessage());
             logWriter.log(0);
+            e.printStackTrace();
         }
 
         return document;

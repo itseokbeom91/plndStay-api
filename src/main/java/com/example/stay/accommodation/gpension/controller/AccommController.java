@@ -1,11 +1,18 @@
 package com.example.stay.accommodation.gpension.controller;
 
 import com.example.stay.accommodation.gpension.service.AccommService;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.servlet.ModelAndView;
+
+import java.util.List;
+import java.util.Map;
 
 @Controller("gpension.AccommController")
 @RequestMapping("/gp/accomm/*")
@@ -40,8 +47,8 @@ public class AccommController {
 
     @GetMapping("/getPensionMainList")
     @ResponseBody
-    public String getPensionMainList(String pensionId){
-        return accommService.getPensionMainList(pensionId);
+    public String getPensionMainList(){
+        return accommService.getPensionMainList();
     }
 
     @GetMapping("/getRoomInfo")
@@ -56,9 +63,31 @@ public class AccommController {
         return accommService.getRoomPriceInfo(pensionId);
     }
 
+    @GetMapping("/getPensionModList")
+    @ResponseBody
+    public String getPensionModList(String lastDate){
+        return accommService.getPensionModList(lastDate);
+    }
+
     @GetMapping("/insertGP")
     @ResponseBody
     public String insertAccomm(){
         return accommService.insertGP();
     }
+
+    @GetMapping("/testMV")
+    @ResponseBody
+    public ModelAndView testMV() throws ParseException {
+        ModelAndView mv = new ModelAndView();
+        String test = getPensionList();
+        test = test.substring(5, test.length() - 1);
+        JSONParser jsonParser = new JSONParser();
+        JSONObject responseJson = (JSONObject) jsonParser.parse(test);
+        List<Map<String, Object>> responseList = (List<Map<String, Object>>) responseJson.get("result");
+        mv.setViewName("/testMV");
+        mv.addObject("test", responseList);
+
+        return mv;
+    }
+
 }

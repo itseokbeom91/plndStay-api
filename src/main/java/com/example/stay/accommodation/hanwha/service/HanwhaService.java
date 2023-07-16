@@ -1,7 +1,8 @@
 package com.example.stay.accommodation.hanwha.service;
 
 import com.example.stay.accommodation.hanwha.mapper.HanwhaMapper;
-import com.example.stay.common.service.CommonService;
+
+import com.example.stay.common.util.CommonFunction;
 import com.example.stay.common.util.Constants;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -24,15 +25,17 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class HanwhaService {
 
-    @Autowired
-    private CommonService commonService;
+
 
     @Autowired
     private HanwhaMapper hanwhaMapper;
+
+    CommonFunction commonFunction = new CommonFunction();
 
 
     /**
@@ -40,14 +43,47 @@ public class HanwhaService {
      * @param
      * @return
      */
-    public String booking(String strPackNo, String strLocCd, String strRMCd, String strDate, String strRoomCnt, String strStaycnt, String strName, String strPhone){ // 예약요청 : 01
+    public String booking(String strPackNo, String strLocCd, String strRMCd, String strDate, String strRoomCnt, String strStaycnt, String strReserveName, String strReservePhone, String strStayName, String strStayPhone){ // 예약요청 : 01
 
+        String statusCode = "200";
+        String message = "";
         String result = "";
 
         try {
             JSONObject mainObject = getCommonHeader("01");
             JSONObject dataObject = new JSONObject();
             JSONObject detailObject = new JSONObject();
+
+            String strStayPhone1 = "010";
+            String strStayPhone2 = "";
+            String strStayPhone3 = "";
+            if(strStayPhone.substring(0,3).equals("010")){
+                System.out.println("phone"+strStayPhone);
+                strStayPhone2 = strStayPhone.substring(3,7);
+                strStayPhone3 = strStayPhone.substring(7,11);
+            }else{
+                int lenPhone = strStayPhone.length();
+                int stand = lenPhone/3;
+                strStayPhone1 = strStayPhone.substring(0, stand);
+                strStayPhone2 = strStayPhone.substring(stand, stand*2);
+                strStayPhone3 = strStayPhone.substring(stand*2, lenPhone);
+            }
+
+            String strReservePhone1 = "010";
+            String strReservePhone2 = "";
+            String strReservePhone3 = "";
+            if(strReservePhone.substring(0,3).equals("010")){
+                System.out.println("phone"+strReservePhone);
+                strReservePhone2 = strReservePhone.substring(3,7);
+                strReservePhone3 = strReservePhone.substring(7,11);
+            }else{
+                int lenPhone = strReservePhone.length();
+                int stand = lenPhone/3;
+                strReservePhone1 = strReservePhone.substring(0, stand);
+                strReservePhone2 = strReservePhone.substring(stand, stand*2);
+                strReservePhone3 = strReservePhone.substring(stand*2, lenPhone);
+            }
+
 
 
             detailObject.put("CUST_NO", Constants.hanwhaCustNo);
@@ -62,14 +98,14 @@ public class HanwhaService {
             detailObject.put("ARRV_DATE", strDate); //20231010
             detailObject.put("RSRV_ROOM_CNT", strRoomCnt); // 객실 수
             detailObject.put("OVNT_CNT", strStaycnt); // 몇박
-            detailObject.put("INHS_CUST_NM", strName);
-            detailObject.put("INHS_CUST_TEL_NO2", "010");
-            detailObject.put("INHS_CUST_TEL_NO3", "8633");
-            detailObject.put("INHS_CUST_TEL_NO4", "1776");
-            detailObject.put("RSRV_CUST_NM", strName);
-            detailObject.put("RSRV_CUST_TEL_NO2", "010");
-            detailObject.put("RSRV_CUST_TEL_NO3", "8633");
-            detailObject.put("RSRV_CUST_TEL_NO4", "1776");
+            detailObject.put("INHS_CUST_NM", strStayName);
+            detailObject.put("INHS_CUST_TEL_NO2", strStayPhone1);
+            detailObject.put("INHS_CUST_TEL_NO3", strStayPhone2);
+            detailObject.put("INHS_CUST_TEL_NO4", strStayPhone3);
+            detailObject.put("RSRV_CUST_NM", strReserveName);
+            detailObject.put("RSRV_CUST_TEL_NO2", strReservePhone1);
+            detailObject.put("RSRV_CUST_TEL_NO3", strReservePhone2);
+            detailObject.put("RSRV_CUST_TEL_NO4", strReservePhone3);
             detailObject.put("REFRESH_YN", "N");
 
             List<Object> dataList = new ArrayList<>();
@@ -81,16 +117,19 @@ public class HanwhaService {
 
             System.out.println(mainObject);
 
-//            JsonNode jsonNode = commonService.callJsonApi("hanwha", mainObject);
+//            JsonNode jsonNode = commonService.callJsonApi("hanwha", "", mainObject);
+//            JsonNode jsonNode = commonFunction.callJsonApi("hanwha", "", mainObject, "", "POST");
 //
 //            result = jsonNode.toString();
 //            System.out.println(result);
 
         }catch (Exception e){
+            message = "예약 실패";
+            statusCode = "500";
             e.printStackTrace();
         }
 
-        return result;
+        return commonFunction.makeReturn("json", statusCode, message);
     }
 
     /**
@@ -99,6 +138,8 @@ public class HanwhaService {
      */
     public String bookingCancel(){ // 예약취소 : 02
 
+        String statusCode = "200";
+        String message = "";
         String result = "";
 
         try {
@@ -119,27 +160,32 @@ public class HanwhaService {
 
             System.out.println(mainObject);
 
-            JsonNode jsonNode = commonService.callJsonApi("hanwha", mainObject);
+//            JsonNode jsonNode = commonService.callJsonApi("hanwha", "", mainObject);
+            JsonNode jsonNode = commonFunction.callJsonApi("hanwha", "", mainObject, "", "POST");
 
             result = jsonNode.toString();
             System.out.println(result);
 
         }catch (Exception e){
+            message = "예약 취소 실패";
+            statusCode = "500";
             e.printStackTrace();
         }
 
-        return result;
+        return commonFunction.makeReturn("json", statusCode, message);
     }
 
     // 예약조회시 예약확정코드 RR : 확정예약, RC : 취소
     // test 예약넘버 : 2308799080
 
     /**
-     * 예약 죄회
+     * 예약 조회
      * @return
      */
     public String bookingInfo(){ // 예약조회 : 03
 
+        String statusCode = "200";
+        String message = "";
         String result = "";
 
         try {
@@ -162,33 +208,47 @@ public class HanwhaService {
 
             System.out.println(mainObject);
 
-            JsonNode jsonNode = commonService.callJsonApi("hanwha", mainObject);
+//            JsonNode jsonNode = commonService.callJsonApi("hanwha", "", mainObject);
+            JsonNode jsonNode = commonFunction.callJsonApi("hanwha", "", mainObject, "", "POST");
 
             result = jsonNode.toString();
             System.out.println(result);
 
         }catch (Exception e){
+            message = "예약 조회 실패";
+            statusCode = "500";
             e.printStackTrace();
         }
 
-        return result;
+        return commonFunction.makeReturn("json", statusCode, message);
     }
 
 
     /**
-     * 캐파조회
-     * @param strLcdId
-     * @param strRoomTypeId
+     * 케파조회
+     * @param intAID
+     * @param intRmIdx
+     * @param intPkgIdx
+     * @param strStartDate
+     * @param strEndDate
      * @return
      */
-    public String getCapa(String strLcdId, String strRoomTypeId, String strStartDate, String strEndDate, String strPackageCode){ // 캐파조회 : 05
+    public String getCapa(int intAID, int intRmIdx, int intPkgIdx, String strStartDate, String strEndDate){ // 캐파조회 : 05
 
+        String statusCode = "200";
+        String message = "";
         String result = "";
 
         try {
             JSONObject mainObject = getCommonHeader("05");
             JSONObject dataObject = new JSONObject();
             JSONObject detailObject = new JSONObject();
+
+            Map<String, String> pkgLcdMap = hanwhaMapper.getPkgLcdID(intPkgIdx);
+
+            String strRoomTypeId = hanwhaMapper.getRmID(intAID, intRmIdx);
+            String strLcdId = pkgLcdMap.get("strLocalCode").toString();
+            String strPackageCode = pkgLcdMap.get("strPkgCode").toString();
 
 
             detailObject.put("CUST_NO", Constants.hanwhaCustNo);
@@ -208,7 +268,8 @@ public class HanwhaService {
 
             System.out.println(mainObject);
 
-            JsonNode jsonNode = commonService.callJsonApi("hanwha", mainObject);
+//            JsonNode jsonNode = commonService.callJsonApi("hanwha", "", mainObject);
+            JsonNode jsonNode = commonFunction.callJsonApi("hanwha", "", mainObject, "", "POST");
 
 
 
@@ -216,40 +277,50 @@ public class HanwhaService {
             JSONObject codeObject = (JSONObject) new JSONParser().parse(jsonNode.get("MessageHeader").get("MSG_DATA_SUB").get(0).toString());
             String resultCode = codeObject.get("MSG_INDC_CD").toString();
 
-            String resultData = "";
             JSONArray jsonArray = (JSONArray) new JSONParser().parse(jsonNode.get("Data").get("ds_roomStatus").toString());
 
             if(resultCode.equals("1")){
+                String strStockDatas = "";
                 for(Object object : jsonArray){
                     JSONObject jsonObject = (JSONObject) JSONValue.parse(object.toString());
 
-                    String strPriceLcd = jsonObject.get("LOC_CD").toString();
-                    String strPriceRMId = jsonObject.get("ROOM_TYPE_CD").toString();
-                    String strPriceDate = jsonObject.get("SESN_DATE").toString();
+                    String strStockLcd = jsonObject.get("LOC_CD").toString();
+                    String strStockRMId = jsonObject.get("ROOM_TYPE_CD").toString();
+                    String strStockDate = jsonObject.get("SESN_DATE").toString();
+                    int intStock = Integer.parseInt(jsonObject.get("RSRV_POSBL_CNT").toString());
 
-                    int[] intPriceData = getPrice(strPriceLcd, strPriceRMId, strPackageCode, strPriceDate);
-                    System.out.println(intPriceData[0] +" / "+ intPriceData[1]);
-//                    JSONObject priceObject = (JSONObject) JSONValue.parse(strPriceData);
-                    //System.out.println(priceObject);
+                    int[] intPriceData = getPrice(strStockLcd, strStockRMId, strPackageCode, strStockDate);
+
+                    strStockDatas += strStockDate + "|^|" + intStock + "|^|" + intPriceData[1] + "|^|" + intPriceData[0] + "|^|0|^|0|^|0|^|" + intStock + "|^|" + intPriceData[0] + "{{|}}";
 
                 }
-            }
-            /**
-             ***** RMTYPE과 PACKAGE_LIST의 중간 table 생성 후 작업 *****
-             */
+                if(strStockDatas.length() > 1){
+                    strStockDatas = strStockDatas.substring(0, strStockDatas.length()-5);
+                }
 
-            if(resultData.length() > 1){
-                resultData = resultData.substring(0, resultData.length()-5);
+                result = hanwhaMapper.insertStock(intAID, intRmIdx, strPackageCode, strStockDatas);
+
+                String strResult = result.substring(result.length()-4);
+                if(strResult.equals("저장완료")){
+                    message = "재고 등록 및 수정 완료";
+                }else{
+                    message = " 재고 등록 및 수정 실패";
+                }
+            }else{
+                message = "호출 실패";
             }
+
 
             result = jsonNode.toString();
             System.out.println(result);
 
         }catch (Exception e){
+            message = "재고 등록 실패";
+            statusCode = "500";
             e.printStackTrace();
         }
 
-        return result;
+        return commonFunction.makeReturn("json", statusCode, message);
     }
 
     /**
@@ -260,6 +331,8 @@ public class HanwhaService {
      */
     public String getPackageList(String strAccommId, String strStartDate){ // 패키지 목록 조회 : 06
 
+        String statusCode = "200";
+        String message = "";
         String result = "";
 
         try {
@@ -281,7 +354,8 @@ public class HanwhaService {
             mainObject.put("Data", dataObject);
 
             // API 호출
-            JsonNode jsonNode = commonService.callJsonApi("hanwha", mainObject);
+//            JsonNode jsonNode = commonService.callJsonApi("hanwha", "", mainObject);
+            JsonNode jsonNode = commonFunction.callJsonApi("hanwha", "", mainObject, "", "POST");
 
             // 통신결과 0:실패, 1:성공
             JSONObject codeObject = (JSONObject) new JSONParser().parse(jsonNode.get("MessageHeader").get("MSG_DATA_SUB").get(0).toString());
@@ -299,21 +373,35 @@ public class HanwhaService {
                     resultData += jsonObject.get("PAKG_NM") + "|^|";
                     resultData += jsonObject.get("VALI_PRID_STRT_DATE") + "|^|";
                     resultData += jsonObject.get("VALI_PRID_END_DATE") + "|^|";
+                    resultData += jsonObject.get("SALE_STRT_DATE") + "|^|";
+                    resultData += jsonObject.get("SALE_END_DATE") + "|^|";
                     resultData += ((int) Float.parseFloat(jsonObject.get("OVNT_CNT").toString())) + "{{|}}";
                 }
+
+                if(resultData.length() > 1){
+                    resultData = resultData.substring(0, resultData.length()-5);
+                }
+
+                result = hanwhaMapper.packageList(resultData);
+
+                if(result.equals("저장완료")){
+                    message = "피키지 등록 완료";
+                }else{
+                    message = " 패키지 등록 실패";
+                }
+
+            }else{
+                message = "호출 실패";
             }
 
-            if(resultData.length() > 1){
-                resultData = resultData.substring(0, resultData.length()-5);
-            }
-
-            result = hanwhaMapper.packageList(resultData);
 
         }catch (Exception e){
+            message = "패키지 목록 조회 실패";
+            statusCode = "500";
             e.printStackTrace();
         }
 
-        return result;
+        return commonFunction.makeReturn("json", statusCode, message);
     }
 
 
@@ -358,7 +446,8 @@ public class HanwhaService {
 
             //System.out.println(mainObject);
 
-            JsonNode jsonNode = commonService.callJsonApi("hanwha", mainObject);
+//            JsonNode jsonNode = commonService.callJsonApi("hanwha", "", mainObject);
+            JsonNode jsonNode = commonFunction.callJsonApi("hanwha", "", mainObject, "", "POST");
 
             // 통신결과 0:실패, 1:성공
             JSONObject codeObject = (JSONObject) new JSONParser().parse(jsonNode.get("MessageHeader").get("MSG_DATA_SUB").get(0).toString());
@@ -445,7 +534,8 @@ public class HanwhaService {
 
             System.out.println(mainObject);
 
-            JsonNode jsonNode = commonService.callJsonApi("hanwha", mainObject);
+//            JsonNode jsonNode = commonService.callJsonApi("hanwha", "", mainObject);
+            JsonNode jsonNode = commonFunction.callJsonApi("hanwha", "", mainObject, "", "POST");
 
             result = jsonNode.toString();
             System.out.println(result);

@@ -3,6 +3,8 @@ package com.example.stay.accommodation.kumho.mapper;
 import com.example.stay.openMarket.common.dto.BookingDto;
 import org.springframework.stereotype.Repository;
 
+import java.util.Map;
+
 @Repository("kumho.BookingMapper")
 public interface BookingMapper {
 
@@ -12,6 +14,9 @@ public interface BookingMapper {
 
     int updateBookingStatus(int intBookingID, String strBookingProcess);
 
-    // 금호는 strPropertyID를 따로 주지 않아서 area = strPropertyID 값으로 insert했음 
-    String updateGoods(String strRmtypeID, String strPropertyID, String dateSales, int intStock, int intOmkStock);
+    String updateGoods(int intAID, int intRmIdx, String strStockDatas);
+
+    Map<String, Object> getRmtypeIDNIntAID(int intRmIdx);
+
+    String getStrLocalCode(int intAID, String strRmtypeID);
 }

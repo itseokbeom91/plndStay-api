@@ -1,10 +1,14 @@
 package com.example.stay.openMarket.ssg.service;
 
+import com.example.stay.common.util.CommonFunction;
+import com.example.stay.openMarket.common.dto.AccommDto;
 import com.example.stay.openMarket.common.dto.CondoDto;
 import com.example.stay.openMarket.common.dto.StockDto;
 import com.example.stay.openMarket.common.mapper.CommonApiMapper;
+import com.example.stay.openMarket.common.mapper.CommonMapper;
 import com.example.stay.openMarket.common.service.CommonApiService;
 import com.example.stay.common.util.Constants;
+import com.example.stay.openMarket.common.service.CommonService;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.json.simple.JSONArray;
@@ -31,7 +35,15 @@ public class UpdateService {
     @Autowired
     private CommonApiMapper commonApiMapper;
 
-    public String updateInfo(int intNum, String strType, String strItemId, CondoDto condoDto){
+    @Autowired
+    private CommonService commonService;
+
+    @Autowired
+    private CommonMapper commonMapper;
+
+    CommonFunction commonFunction = new CommonFunction();
+
+    public String updateInfo(int intAID, String strType, String strItemId, AccommDto accommDto){
 
         // 반환해줄 String
         String result = "";
@@ -39,7 +51,9 @@ public class UpdateService {
         try {
 
             // api로 가져온 ssg 시설 정보
-            JsonNode jsonNode = commonApiService.callJsonApi(strItemId, "SSG", "getInfo", new JSONObject());
+            //JsonNode jsonNode = commonApiService.callJsonApi(strItemId, "SSG", "getInfo", new JSONObject());
+            String strUrl = "https://eapi.ssgadm.com/item/0.4/viewItem.ssg?itemId=" + strItemId;
+            JsonNode jsonNode = commonFunction.callJsonApi(strItemId, "SSG", new JSONObject(), strUrl, "POST");
             JSONObject object = (JSONObject) new JSONParser().parse(jsonNode.get("result").toString());
 
             JSONObject updateObject = new JSONObject();
@@ -69,7 +83,7 @@ public class UpdateService {
 
             if(strType.equals("img")){
                 // 메인사진 10장 DB에서 가져오기
-                List<String> photoList = commonApiService.getMainPhotoList(intNum);
+                List<String> photoList = commonService.getPhotoList(intAID);
 
                 List<Object> dataPhotoList = new ArrayList<>();
                 for(int i=0; i<photoList.size(); i++){
@@ -87,7 +101,7 @@ public class UpdateService {
 
             }else if(strType.equals("desc")) {
                 // DB에서 desc 이미지 가져오기(없으면 데이타 종합해서 html 코드)
-                String strImgDesc = commonApiService.getStrPdtDtlInfo(condoDto, intNum, "SSG").replace("<", "&lt;").replace(">", "&gt;");
+                String strImgDesc = commonService.getStrPdtDtlInfo(accommDto, intAID, 7).replace("<", "&lt;").replace(">", "&gt;");
                 updateObject.put("itemDesc", strImgDesc);
 
             }else if(strType.equals("stock")) {
@@ -108,7 +122,8 @@ public class UpdateService {
                 Date date = new Date();
                 String strNow = dateFormat.format(date);
 
-                List<StockDto> stockList = commonApiMapper.getStockList(intNum, "SSG", strNow);
+                //List<StockDto> stockList = commonApiMapper.getStockList(intAID, "SSG", strNow);
+                List<StockDto> stockList = commonMapper.getStockList(intAID, 7, strNow);
 
                 List<Object> uitemList = new ArrayList<>();
                 List<Object> priceList = new ArrayList<>();
@@ -116,7 +131,7 @@ public class UpdateService {
                     JSONObject itemObject = new JSONObject();
 
                     // uitem
-                    String strUitemId = String.format("%05d", dto.getIntOMKSeq());
+                    String strUitemId = String.format("%05d", dto.getIntSsgSeq());
                     // 있는 재고 update 새로운 재고 insert
                     if(uitemIdList.contains(strUitemId)){
                         itemObject.put("uitemId", strUitemId);
@@ -127,7 +142,7 @@ public class UpdateService {
 
                     // 품절여부
                     String strSellStatCd = "20";
-                    if (((dto.getStrTocode().contains("2박") == true || dto.getStrTocode().contains(" 연박") == true) & dto.getIntOMKNextStock() == 0) || dto.getIntOMKStock() == 0) {
+                    if (((dto.getStrSubject().contains("2박") == true || dto.getStrSubject().contains(" 연박") == true) & dto.getIntNextStock() == 0) || dto.getIntStock() == 0) {
                         strSellStatCd = "80";
                     }
                     itemObject.put("sellStatCd", strSellStatCd);
@@ -135,7 +150,7 @@ public class UpdateService {
                     // 1번옵션명(입실일자)
                     itemObject.put("uitemOptnTypeNm1", "일실입자");
 
-                    String strDate = dto.getStrGoodDate().substring(0, dto.getStrGoodDate().lastIndexOf("."));
+                    String strDate = dto.getDateSales().substring(0, dto.getDateSales().lastIndexOf("."));
                     SimpleDateFormat dateDate = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
                     Date dateStrDate = dateDate.parse(strDate);
                     SimpleDateFormat goodDate = new SimpleDateFormat("MM월dd일(E)");
@@ -146,18 +161,18 @@ public class UpdateService {
 
                     // 2번옵션명(타입)
                     itemObject.put("uitemOptnTypeNm2", "타입");
-                    String strTocode = dto.getStrTocode();
+                    String strTocode = dto.getStrSubject();
                     itemObject.put("uitemOptnNm2", strTocode);
 
 
                     // 재고
-                    int intOMKStock = dto.getIntOMKStock();
-                    if (((dto.getStrTocode().contains("2박") == true || dto.getStrTocode().contains(" 연박") == true) & dto.getIntOMKNextStock() == 0) || dto.getIntOMKStock() == 0) {
+                    int intOMKStock = dto.getIntStock();
+                    if (((dto.getStrSubject().contains("2박") == true || dto.getStrSubject().contains(" 연박") == true) & dto.getIntNextStock() == 0) || dto.getIntStock() == 0) {
                         intOMKStock = 0;
                     }
                     itemObject.put("baseInvQty", intOMKStock);
 
-                    itemObject.put("splVenItemId", dto.getIntGoodSeq());
+                    itemObject.put("splVenItemId", dto.getIntSsgSeq());
                     itemObject.put("useYn", "Y");
 
                     uitemList.add(itemObject);
@@ -165,7 +180,7 @@ public class UpdateService {
                     // 가격
                     JSONObject priceObject = new JSONObject();
 
-                    int intPrice = dto.getIntOMKPrice();
+                    int intPrice = dto.getMoneySales();
 
                     int intSSGPrice = (intPrice * (100 - 8) / 100);
                     if(uitemIdList.contains(strUitemId)){
@@ -216,7 +231,8 @@ public class UpdateService {
             //result = resultObject.toJSONString();
 
             // api 호출
-            JsonNode resultNode = commonApiService.callJsonApi(strItemId, "SSG", "update", resultObject);
+            //JsonNode resultNode = commonApiService.callJsonApi(strItemId, "SSG", "update", resultObject);
+            JsonNode resultNode = commonFunction.callJsonApi(strItemId, "SSG", resultObject, "https://eapi.ssgadm.com/item/0.4/updateItem.ssg", "POST");
             result = resultNode.toString();
 
 
