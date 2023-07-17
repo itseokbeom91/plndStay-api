@@ -6,6 +6,9 @@ import lombok.Data;
 public class RoomTypeDto {
 
     private int intIdx;
-    private String strSubject;
+    private String strRmtypeName;
     private String strShortDesc;
+    private String strRmPhotos;
+    private int intQuanStd;
+    private int intQuanMax;
 }
