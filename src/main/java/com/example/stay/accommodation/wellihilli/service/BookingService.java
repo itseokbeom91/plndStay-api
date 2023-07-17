@@ -30,15 +30,14 @@ public class BookingService {
     CommonFunction commonFunction = new CommonFunction();
 
     // 재고 등록 및 수정
-    public String updateGoods(String dataType, HttpServletRequest httpServletRequest, int intRmIdx, String startDate, String endDate){
+    public String updateGoods(String dataType, HttpServletRequest httpServletRequest, int intRmIdx, String startDate, String endDate, String pkgCode){
         String statusCode  = "200";
         String message = "";
         LogWriter logWriter = new LogWriter(httpServletRequest.getMethod(), httpServletRequest.getServletPath(),
                 httpServletRequest.getQueryString(), System.currentTimeMillis());
 
         try{
-            // 재고는 객실의 잔여수량이기 때문에 어떤 패키지 코드로 호출하든 동일 -> k049로 넣음
-            String strUrl = Constants.whpUrl + ":8070/api/vapi/reservation/calendar?s_vendor_code=k049" +
+            String strUrl = Constants.whpUrl + ":8070/api/vapi/reservation/calendar?s_vendor_code=" + pkgCode +
                     "&sresrm=C&s_arrday=" + startDate + "&s_today=" + endDate;
             String method = "GET";
 

@@ -6,14 +6,14 @@
 <mapper namespace="com.example.stay.accommodation.onda.mapper.AccommMapper">
 
     <select id="insertAccommTotal" parameterType="String" resultType="String">
-        EXEC PLNDSTAY.dbo.spONDA_ACCOMM_REGIST #{strPropertyID}, #{strDeleteYn}, #{strViewYn}, #{strType}, #{strDistrict1}, #{strDistrict2},
+        EXEC PLNDSTAY.dbo.spONDA_ACCOMM_REGIST #{strPropertyID}, #{strDeleteYn}, #{strViewYn}, #{strType}, 'OND', #{strDistrict1}, #{strDistrict2},
             #{strSubject}, #{strLat}, #{strLon}, #{strCheckIn}, #{strCheckOut}, #{strPhone}, #{strFax}, #{strEmail},
             #{strZipCode}, #{strAddr1},#{strAddr2}, #{strDescription}, #{strRsvGuide}, #{strAcmNotice}, #{strImgDatas},
             #{strPenaltyDatas},  #{strKeyWordDatas}, #{strAttractionDatas}, #{strFacilityDatas}, #{strRmtypeDatas}, ''
     </select>
 
     <select id="updateRmtype" parameterType="String" resultType="String">
-        EXEC PLNDSTAY.dbo.spONDA_RMTYPE_UPDATE #{strPropertyID}, #{strType}, #{strRmtypeDatas}, ''
+        EXEC PLNDSTAY.dbo.spONDA_RMTYPE_UPDATE #{strPropertyID}, #{strRmtypeDatas}, ''
     </select>
 
     <select id="updateGoods" parameterType="StockDto" resultType="String">
