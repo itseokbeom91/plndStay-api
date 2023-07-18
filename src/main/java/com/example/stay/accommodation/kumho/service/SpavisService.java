@@ -48,7 +48,6 @@ public class SpavisService {
 
             Document document = callSpavisAPI(spavisUrl);
             if(document != null){
-                String coupon_no = document.getElementsByTagName("rtn_coupon_no").item(0).getChildNodes().item(0).getNodeValue();
                 String resultCode = document.getElementsByTagName("rtn_div").item(0).getChildNodes().item(0).getNodeValue();
                 String returnMessage = document.getElementsByTagName("rtn_msg").item(0).getChildNodes().item(0).getNodeValue();
                 if(resultCode.equals("S")){
@@ -113,7 +112,6 @@ public class SpavisService {
 
                 Document document = callSpavisAPI(spavisUrl);
                 if(document != null){
-                    String coupon_no = document.getElementsByTagName("rtn_coupon_no").item(0).getChildNodes().item(0).getNodeValue();
                     String resultCode = document.getElementsByTagName("rtn_div").item(0).getChildNodes().item(0).getNodeValue();
                     String returnMessage = document.getElementsByTagName("rtn_msg").item(0).getChildNodes().item(0).getNodeValue();
                     if(resultCode.equals("S")){
@@ -189,7 +187,6 @@ public class SpavisService {
                 String datePurchase = "";
                 String dateExpired = "";
                 if(resultCode.equals("S")) {
-//                    String coupon_no = document.getElementsByTagName("rtn_coupon_no").item(0).getChildNodes().item(0).getNodeValue();
                     String couponStatus = document.getElementsByTagName("rtn_status_div").item(0).getChildNodes().item(0).getNodeValue();
                     String useDate = document.getElementsByTagName("rtn_result_date").item(0).getChildNodes().item(0).getNodeValue();
 
