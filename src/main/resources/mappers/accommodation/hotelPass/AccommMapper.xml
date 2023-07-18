@@ -41,17 +41,43 @@
         DECLARE
         @intAID int
 
-        @intAID = (SELECT intAID FROM PLNDSTAY.dbo.ACCOMM WHERE strType = 'HP' AND strPropertyID = #{hotelID})
+        @intAID = (SELECT intAID FROM PLNDSTAY.dbo.ACCOMM WHERE strType = 'HP' AND strPropertyID = #{hotelCode})
         IF (@intAID > 0) BEGIN
         UPDATE PLNDSTAY.dbo.ACCOMM SET
-            strDeleteYn = 'N'
+            strSubject = #{hotelName}
+            , strPropertyID = #{hotelCode}
+            , dateModified = GETDATE()
+        WHERE intAID = @intAID
+        UPDATE PLNDSTAY.dbo.ACCOMM_INFO SET
+            decLat = #{latitude}
+          , decLon = #{longitude}
+          , strPhone = #{tel}
+          , strAddr1 = #{address}
+          , intRoomCnt = #{roomCnt}
+          , strZipCode = #{zipNo}
+          , strFax = #{fax}
+          , intGrade = #{grade}
+          , dateModified = GETDATE()
         WHERE intAID = @intAID
         END ELSE BEGIN
             INSERT INTO PLNDSTAY.dbo.ACCOMM (
-            strDeleteYn, strViewYn, strType, intAbleCancel, strDistrict1, strDistrict2, strDistrict3, strSubject, strPropertyID, dateCreated, dateModified
+            strDeleteYn, strViewYn, strType, intAbleCancel, strDistrict1, strDistrict2, strSubject, strPropertyID, dateCreated, dateModified
             ) VALUES (
-            'N', 'Y', 'HP', 3,
+            'N', 'Y', 'HP', 3,#{strDistrict1}, #{strDistrict2}, #{hotelName}, #{hotelCode}, getDATE(), getDATE()
             )
+            SET @intAID = @@IDENTITY;
+            INSERT INTO PLNDSTAY.dbo.ACCOMM_INFO (
+            decLat, decLon, strPhone, strAddr1, strCheckIn, strCheckOut, strWebsite, intRoomCnt, intAID, strZipCode
+            ) VALUES (
+            'N', 'Y', 'HP', 3,#{strDistrict1}, #{strDistrict2}, #{hotelName}, #{hotelCode}, getDATE(), getDATE()
+            )
+        END
     </insert>
+
+    <select id="getDistrictCode">
+        SELECT strCode
+        FROM PLNDSTAY.dbo.CODE_DISTRICT
+        WHERE strName LIKE '%' + #{cityName} + '%' AND intDepth = 2 AND strCode LIKE #{strRegion} + '%'
+    </select>
 
 </mapper>

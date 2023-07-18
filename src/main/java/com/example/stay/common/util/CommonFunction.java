@@ -297,7 +297,7 @@ public class CommonFunction<T> {
                 JSONObject responseJson = (JSONObject) jsonParser.parse(responseBody);
 
                 String korAddr = (String) responseJson.get("ADDR");
-                System.out.println(korAddr);
+//                System.out.println(korAddr);
                 return  korAddr;
 
             } else {

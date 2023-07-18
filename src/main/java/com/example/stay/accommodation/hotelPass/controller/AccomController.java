@@ -14,11 +14,6 @@ public class AccomController {
     @Autowired
     AccommService accommService;
 
-    @GetMapping("/getHotelRate")
-    @ResponseBody
-    public String getHotelRate(String sendUrl){
-        return accommService.getHotelRate(sendUrl);
-    }
 
     @GetMapping("/getHotelList")
     @ResponseBody
@@ -33,9 +28,4 @@ public class AccomController {
         return accommService.getFacilityList();
     }
 
-    @GetMapping("/testJuso")
-    @ResponseBody
-    public String testJuso(String engJuso){
-        return new CommonFunction().getJusoByGeoCd("", "");
-    }
 }

@@ -54,12 +54,14 @@ public class AccommService {
                 if (strNationCode.equals("KR")) {
                     Map<String, Object> hotelMap = new HashMap<>();
                     String address = "";
+                    String hotelCode = hotelList.item(i).getAttributes().getNamedItem("HotelCode").getTextContent();
                     String latitude = hotelList.item(i).getChildNodes().item(7).getTextContent();
                     String longitude = hotelList.item(i).getChildNodes().item(8).getTextContent();
                     address = commonFunction.getJusoByGeoCd(latitude, longitude);
                     if(address==null){//좌표조회로 주소조회가 안될시 기존 영문주소 입력
                         address = hotelList.item(i).getChildNodes().item(9).getTextContent();
                     }
+                    hotelMap.put("hotelCode", hotelCode);
                     hotelMap.put("nationCode", hotelList.item(i).getChildNodes().item(0).getTextContent());
                     hotelMap.put("cityCode", hotelList.item(i).getChildNodes().item(2).getTextContent());
                     hotelMap.put("cityName", hotelList.item(i).getChildNodes().item(3).getTextContent());
@@ -67,10 +69,14 @@ public class AccommService {
                     hotelMap.put("latitude", hotelList.item(i).getChildNodes().item(7).getTextContent());
                     hotelMap.put("longitude", hotelList.item(i).getChildNodes().item(8).getTextContent());
                     hotelMap.put("address", address);
+                    if(address.equals(" ")){
+                        System.out.println(address + ":::" + hotelList.item(i).getChildNodes().item(6).getTextContent());
+                    }
                     hotelMap.put("tel", hotelList.item(i).getChildNodes().item(11).getTextContent());
                     hotelMap.put("fax", hotelList.item(i).getChildNodes().item(12).getTextContent());
                     hotelMap.put("grade", hotelList.item(i).getChildNodes().item(13).getTextContent());
                     hotelMap.put("roomCnt", hotelList.item(i).getChildNodes().item(14).getTextContent());
+                    hotelMap.put("zipNo", hotelList.item(i).getChildNodes().item(10).getTextContent());
                     hotelListMap.add(hotelMap);
                     if (cityCode.containsKey(hotelList.item(i).getChildNodes().item(2).getTextContent())) {
                         continue;
@@ -89,7 +95,7 @@ public class AccommService {
 //                System.out.print(hotelList.item(i).getChildNodes().item(1).getTextContent() + " ::: ");
 
             }
-            System.out.println(hotelListMap);
+//            System.out.println(hotelListMap);
             Iterator<Map.Entry<String, String>> entry =
                     cityCode.entrySet().iterator();
 
@@ -105,7 +111,6 @@ public class AccommService {
             //시설정보 인입
             //grade 관련
             for (Map<String, Object> map : hotelListMap) {
-                //TO-DO 시설정보 INSERT 쿼리 작성 후 로직 작성
                 String grade = map.get("grade").toString();
                 int intGrade;
                 if(grade.lastIndexOf("★") != grade.length()) {
@@ -113,6 +118,29 @@ public class AccommService {
                 } else {
                     intGrade = grade.length();
                 }
+                String address = map.get("address").toString();
+                String cityName = map.get("cityName").toString();
+                String hotelCode = map.get("hotelCode").toString();
+                String hotelName = map.get("hotelName").toString();
+                String zipNo = map.get("zipNo").toString();
+                String tel = map.get("tel").toString();
+                String fax = map.get("fax").toString();
+                String roomCnt = map.get("roomCnt").toString();
+                String latitude = map.get("latitude").toString();
+                String longitude = map.get("longitude").toString();
+                String strDistrictCode1 = "";
+                String strDistrictCode2 = "";
+                if(address == " "){
+
+                } else {
+                    String[] addressDetail = address.split(" ");
+                    strDistrictCode1 = commonFunction.addressToDistrictCode(addressDetail[0]);
+                    strDistrictCode2 = accommMapper.getDistrictCode(addressDetail[1], strDistrictCode1);
+                }
+
+//                accommMapper.insertHotelList(hotelCode, hotelName, strDistrictCode1, strDistrictCode2, latitude,
+//                        longitude, address, tel, fax, zipNo, String.valueOf(intGrade), roomCnt);
+
             }
             
 
@@ -122,6 +150,7 @@ public class AccommService {
         return "";
 
     }
+
 
     public String getFacilityList() {
         OkHttpClient client = new OkHttpClient();
@@ -141,6 +170,7 @@ public class AccommService {
             hotelListMap = new ArrayList<>();
             JSONObject hotel = new JSONObject();
             JSONObject facility = new JSONObject();
+            JSONObject facilitymap = new JSONObject();
 
             for (int i = 0; i < hotelList.getLength(); i++) {
                 System.out.println(hotelList.item(i).getAttributes().item(0).getNodeValue());
@@ -149,6 +179,7 @@ public class AccommService {
 
                 for (int j = 0; j < FacilityList.getLength(); j++) {
                     facility.put(FacilityList.item(j).getAttributes().item(0).getNodeValue(), FacilityList.item(j).getTextContent());
+                    facilitymap.put(FacilityList.item(j).getAttributes().item(0).getNodeValue(), FacilityList.item(j).getTextContent());
                     System.out.print(FacilityList.item(j).getAttributes().item(0).getNodeValue());
                     System.out.println(FacilityList.item(j).getTextContent());
                 }
@@ -161,6 +192,7 @@ public class AccommService {
 //                Facility.put(hotelList.item(i).getAttributes().item(0).getNodeValue(), hotelList.item(i).getTextContent());
             }
             System.out.println(hotelListMap);
+            System.out.println(facilitymap);
 
 
         } catch (Exception e) {
@@ -169,86 +201,4 @@ public class AccommService {
         return new CommonFunction().makeReturn("jsonp", "", "", hotelListMap);
     }
 
-    public String getHotelRate(String sendUrl) {
-
-        try {
-            //보낼 메시지
-            String sendMessage = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" +
-//                    "<soap12:Envelope xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" xmlns:soap12=\"http://www.w3.org/2003/05/soap-envelope\">"+
-//                    "<soap12:Body>"+
-//                    "<gfnGetCityRateList xmlns=\"http://www.hotelpass.com/HPLINK\">"+
-//                    "<astrRequestXML>"+
-                    "<HotelRequest>" +
-
-
-                    "<UserInfo>" +
-                    "<CompanyCode>2-00226</CompanyCode>" +
-                    "<UserID>angmatest</UserID>" +
-                    "<UserPWD>angmatest</UserPWD>" +
-                    "</UserInfo>" +
-
-                    "<HotelRequestInfo RequestKind=\"C\">" +
-                    "<RequestCode>K</RequestCode>" +
-                    "<InDate>20230810</InDate>" +
-                    "<OutDate>20230811</OutDate>" +
-                    "<SGLCnt/>" +
-                    "<DBLCnt/>" +
-                    "<TWNCnt/>" +
-                    "<TRPCnt/>" +
-                    "<IncludeHotel LangKind = \"\"/>" +
-                    "</HotelRequestInfo>" +
-                    "</HotelRequest>";
-//                    "</astrRequestXML>";
-//                    "</gfnGetCityRateList>"+
-//                    "</soap12:Body>"+
-//                    "</soap12:Envelope>";
-
-
-
-                    URL url = new URL(sendUrl);
-
-            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-            conn.setDoOutput(true);
-            conn.setInstanceFollowRedirects(false);
-            conn.setRequestMethod("POST");
-            // Header 영역에 쓰기
-            conn.addRequestProperty("Content-Type", "application/x-www-form-urlencoded; charset=\"utf-8\"");
-            // BODY 영역에 쓰기
-            OutputStreamWriter wr = new OutputStreamWriter(conn.getOutputStream());
-
-            wr.write("astrRequestXML=" + sendMessage);
-            wr.flush();
-            System.out.println("Sent message: " + sendMessage);
-            System.out.println(conn.getResponseCode());
-
-
-            // 리턴된 결과 읽기
-            String inputLine = null;
-            String returnStr = "";
-            BufferedReader in = new BufferedReader(new InputStreamReader(conn.getInputStream()));
-            while ((inputLine = in.readLine()) != null) {
-                System.out.println(inputLine);
-                returnStr += inputLine;
-            }
-
-
-            //xml 파싱하기
-            DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-            DocumentBuilder db = dbf.newDocumentBuilder();
-            InputSource is = new InputSource();
-            is.setCharacterStream(new StringReader(returnStr));
-            Document dc = db.parse(is);
-            NodeList nl = dc.getElementsByTagName("DATA");
-            Element e = null;
-            for (int i = 0; i < nl.getLength(); i++) {
-                e = (Element) nl.item(i);
-                System.out.println(e.getAttribute("value"));
-            }
-            in.close();
-            wr.close();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return sendUrl;
-    }
 }
