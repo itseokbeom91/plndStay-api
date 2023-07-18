@@ -1,5 +1,6 @@
 package com.example.stay.openMarket.ssg.service;
 
+import com.example.stay.common.util.CommonFunction;
 import com.example.stay.openMarket.common.dto.AccommDto;
 import com.example.stay.openMarket.common.dto.CondoDto;
 import com.example.stay.openMarket.common.dto.StockDto;
@@ -38,13 +39,16 @@ public class InsertService {
     @Autowired
     private CommonMapper commonMapper;
 
-    public String insert(int intAID, AccommDto accommDto){
+    CommonFunction commonFunction = new CommonFunction();
+
+    public String insert(int intAID){
 
         String result = "";
         try {
 
-            JSONObject mainObject = new JSONObject();
+            AccommDto accommDto = commonService.getAcmInfo(intAID, 7);
 
+            JSONObject mainObject = new JSONObject();
 
             // =============================
             // 고정값
@@ -342,7 +346,7 @@ public class InsertService {
             System.out.println(mainObject.toJSONString());
 
             // api 호출
-            //JsonNode resultNode = commonApiService.callJsonApi("", "SSG", "insert", mainObject);
+            //JsonNode resultNode = commonFunction.callJsonApi("", "", mainObject, "https://eapi.ssgadm.com/item/0.4/insertItem.ssg", "POST");
             //result = resultNode.toString();
 
             System.out.println(result);

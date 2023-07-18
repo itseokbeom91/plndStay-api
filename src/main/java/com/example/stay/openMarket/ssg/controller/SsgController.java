@@ -7,6 +7,7 @@ import com.example.stay.openMarket.common.mapper.CommonMapper;
 import com.example.stay.openMarket.common.service.CommonApiService;
 import com.example.stay.openMarket.common.service.CommonService;
 import com.example.stay.openMarket.ssg.service.InsertService;
+import com.example.stay.openMarket.ssg.service.SsgService;
 import com.example.stay.openMarket.ssg.service.UpdateService;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -38,34 +39,62 @@ public class SsgController {
     @Autowired
     private UpdateService updateService;
 
-
-    @GetMapping("/get")
-    public void getAcmInfo(int intAID, int intOmkIdx){
-        //commonService.getAcmInfo(intAID, intOmkIdx);
+    @Autowired
+    private SsgService ssgService;
 
 
+    // 배송지시 목록조회
+    @GetMapping("/getRsvList")
+    public void getReserveList(String startDate, String endDate){
+
+        ssgService.getReserveList(startDate, endDate);
 
     }
 
+    // 츨고대상목록조회
+    @GetMapping("/getRlsList")
+    public void getReleaseList(String startDate, String endDate){
+
+        ssgService.getReleaseList(startDate, endDate);
+    }
+
+    // 배송완료관리
+    @GetMapping("/getFinishList")
+    public void getFinishList(String startDate, String endDate, String orderNo){
+
+        ssgService.getFinishList(startDate, endDate, orderNo);
+    }
+
+    // 주문별 상태 조회
+    @GetMapping("getRsvDetail")
+    public void getReserveDetail(String orderNo){
+
+        ssgService.getReserveDetail(orderNo);
+    }
+
+    // 취소신청 목록조회
+    @GetMapping("/getcancelList")
+    public void getCancelList(String startDate, String endDate){
+
+        ssgService.getCancelList(startDate,endDate);
+    }
+
+
+    /**
+     * 상품 정보 수정
+     * @param intAID
+     * @param strType
+     * @param model
+     * @return
+     */
     @GetMapping("modify")
-    public String modifySSG(int intAID, String strType, String strOmk, Model model){
+    public String modifySSG(int intAID, String strType, Model model){
+
+        String result = "";
 
         try{
-            // return할 html코드담을 변수
-            String result = "";
 
-            // 데이터 가져오기
-            //CondoDto condoDto = commonApiService.getInfo(intAID, strOmk);
-            AccommDto accommDto = commonService.getAcmInfo(intAID, 7);
-
-            System.out.println("쿼리로 ssg 정보 가져오기 : " + System.currentTimeMillis());
-
-            // itemId 구하기
-            //String itemId = condoDto.getStrItemID();
-            String itemId = accommDto.getStrPdtCode();
-
-            // 수정해야함
-            result = updateService.updateInfo(intAID, strType, itemId, accommDto);
+            result = updateService.updateInfo(intAID, strType);
             System.out.println(result);
 
             model.addAttribute("result", result);
@@ -77,18 +106,21 @@ public class SsgController {
         return "api/ssgGet";
     }
 
+
+    /**
+     * 상품 정보 등록
+     * @param intAID
+     * @param model
+     * @return
+     */
     @GetMapping("insert")
     public String insertSSG(int intAID, Model model){
 
+        String result = "";
+
         try {
 
-            String result = "";
-
-            // 데이터 가져오기
-            //CondoDto condoDto = commonApiService.getInfo(intNum, strOmk);
-            AccommDto accommDto = commonService.getAcmInfo(intAID, 7);
-
-            result = insertService.insert(intAID, accommDto);
+            result = insertService.insert(intAID);
 
             JSONObject object = (JSONObject) new JSONParser().parse(result);
             JSONObject jsonObject = (JSONObject) new JSONParser().parse(object.get("result").toString());

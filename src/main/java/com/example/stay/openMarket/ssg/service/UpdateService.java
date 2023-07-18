@@ -43,12 +43,18 @@ public class UpdateService {
 
     CommonFunction commonFunction = new CommonFunction();
 
-    public String updateInfo(int intAID, String strType, String strItemId, AccommDto accommDto){
+    public String updateInfo(int intAID, String strType){
 
         // 반환해줄 String
         String result = "";
 
         try {
+
+            AccommDto accommDto = commonService.getAcmInfo(intAID, 7);
+
+            System.out.println("쿼리로 ssg 정보 가져오기 : " + System.currentTimeMillis());
+
+            String strItemId = accommDto.getStrPdtCode();
 
             // api로 가져온 ssg 시설 정보
             //JsonNode jsonNode = commonApiService.callJsonApi(strItemId, "SSG", "getInfo", new JSONObject());
