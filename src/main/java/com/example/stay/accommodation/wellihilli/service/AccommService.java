@@ -39,7 +39,7 @@ public class AccommService {
 
     CommonFunction commonFunction = new CommonFunction();
 
-    // TODO : 웰리힐리에서 주는 객실 정보에 우리가 팔지 않는 객실타입이 포함되어 있을 수 있음
+    // TODO : 웰리힐리에서 주는 객실 정보에 우리가 팔지 않는 객실타입이 포함되어 있을 수 있음 -> 어떻게 구분하지?
     // 객실 정보 조회
     public String insertRoomType(String dataType, HttpServletRequest httpServletRequest){
         String statusCode = "200";
@@ -59,11 +59,6 @@ public class AccommService {
                 JSONArray jsonArray = (JSONArray) new JSONParser().parse(jsonNode.get("data").toString());
                 for(Object object : jsonArray){
                     JSONObject jsonObject = (JSONObject) JSONValue.parse(object.toString());
-
-                    /**
-                     * TODO : 웰리힐리 intAID 확인
-                     */
-                    int intAID = 11450;
 
                     String strIngYn = jsonObject.get("expsYn").toString();
 
@@ -91,7 +86,7 @@ public class AccommService {
                     }
                     strRmImgDatas = strRmImgDatas.substring(0, strRmImgDatas.length()-5);
 
-                    strRoomDatas += strIngYn + "|^|" + intAID + "|^|" + intQuanMax + "|^|" + strSubject + "|^|" +
+                    strRoomDatas += strIngYn + "|^|" + intQuanMax + "|^|" + strSubject + "|^|" +
                                     strDescription + "|^|" + strRmtypeID + "|^|" + strRmImgDatas + "{{|}}";
                 }
                 strRoomDatas = strRoomDatas.substring(0, strRoomDatas.length()-5);
