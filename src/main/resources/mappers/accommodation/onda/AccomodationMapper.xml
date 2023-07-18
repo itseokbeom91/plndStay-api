@@ -6,30 +6,30 @@
 <mapper namespace="com.example.stay.accommodation.onda.mapper.AccommMapper">
 
     <select id="insertAccommTotal" parameterType="String" resultType="String">
-        EXEC spONDA_ACCOMM_REGIST #{strPropertyID}, #{strDeleteYn}, #{strViewYn}, #{strType}, #{strDistrict1}, #{strDistrict2},
+        EXEC PLNDSTAY.dbo.spONDA_ACCOMM_REGIST #{strPropertyID}, #{strDeleteYn}, #{strViewYn}, #{strType}, 'OND', #{strDistrict1}, #{strDistrict2},
             #{strSubject}, #{strLat}, #{strLon}, #{strCheckIn}, #{strCheckOut}, #{strPhone}, #{strFax}, #{strEmail},
             #{strZipCode}, #{strAddr1},#{strAddr2}, #{strDescription}, #{strRsvGuide}, #{strAcmNotice}, #{strImgDatas},
             #{strPenaltyDatas},  #{strKeyWordDatas}, #{strAttractionDatas}, #{strFacilityDatas}, #{strRmtypeDatas}, ''
     </select>
 
     <select id="updateRmtype" parameterType="String" resultType="String">
-        EXEC spONDA_RMTYPE_UPDATE #{strPropertyID}, #{strType}, #{strRmtypeDatas}, ''
+        EXEC PLNDSTAY.dbo.spONDA_RMTYPE_UPDATE #{strPropertyID}, #{strRmtypeDatas}, ''
     </select>
 
     <select id="updateGoods" parameterType="StockDto" resultType="String">
-        EXEC spGW_STOCK_TEMP_REGIST ${intAID}, ${intRmIdx}, '', #{strStockDatas}, ''
+        EXEC PLNDSTAY.dbo.spGW_STOCK_TEMP_REGIST ${intAID}, ${intRmIdx}, '', #{strStockDatas}, ''
     </select>
 
     <select id="webhookUpdateGoods" parameterType="StockDto" resultType="String">
-        EXEC spONDAnWHP_STOCK_TEMP_REGIST 'OND', #{strStockDatas}, ''
+        EXEC PLNDSTAY.dbo.spONDAnWHP_STOCK_TEMP_REGIST 'OND', #{strStockDatas}, ''
     </select>
 
     <select id="getPropertyIDNRmtypeID" parameterType="String" resultType="Map">
         SELECT
             A.strPropertyID,
             R.strRmtypeID
-        FROM ACCOMM A WITH(NOLOCK)
-        INNER JOIN RMTYPE R WITH(NOLOCK) ON R.intAID = A.intAID
+        FROM PLNDSTAY.dbo.ACCOMM A WITH(NOLOCK)
+        INNER JOIN PLNDSTAY.dbo.RMTYPE R WITH(NOLOCK) ON R.intAID = A.intAID
         WHERE R.strRateplanID = #{strRateplanID}
     </select>
 
@@ -37,7 +37,7 @@
         SELECT
             strRateplanID,
             intAID
-        FROM RMTYPE
+        FROM PLNDSTAY.dbo.RMTYPE
         WHERE intIdx = ${intRmIdx}
     </select>
 
@@ -57,15 +57,15 @@
 <!--    </select>-->
 
     <select id="updateStatus" parameterType="String" resultType="String">
-        EXEC spONDA_ACCOMM_STATUS_UPDATE #{target}, #{strDeleteYn}, #{strViewYn}, #{propertyId}, #{roomTypeId}, #{ratePlanId}, ''
+        EXEC PLNDSTAY.dbo.spONDA_ACCOMM_STATUS_UPDATE #{target}, #{strDeleteYn}, #{strViewYn}, #{propertyId}, #{roomTypeId}, #{ratePlanId}, ''
     </select>
 
     <select id="getDistrictCode" parameterType="String" resultType="Map">
         SELECT
             B.strCode AS strDistrict1,
             A.strCode AS strDistrict2
-        FROM CODE_DISTRICT A WITH(NOLOCK)
-        LEFT JOIN dbo.CODE_DISTRICT B WITH(NOLOCK) ON LEFT(A.strCode,2) = B.strCode
+        FROM PLNDSTAY.dbo.CODE_DISTRICT A WITH(NOLOCK)
+        LEFT JOIN PLNDSTAY.dbo.CODE_DISTRICT B WITH(NOLOCK) ON LEFT(A.strCode,2) = B.strCode
         WHERE A.strName = #{strCity} AND A.intDepth = 2
             AND B.strName LIKE #{strRegion} + '%' AND B.intDepth = 1
             AND A.strDeleteYn = 'N'
@@ -74,7 +74,7 @@
 
     <select id="getStrCodeByStrName" parameterType="String" resultType="String">
         SELECT strCode
-        FROM CODE_SYSTEM WITH(NOLOCK)
+        FROM PLNDSTAY.dbo.CODE_SYSTEM WITH(NOLOCK)
         WHERE
             strCateCode = #{strCateCode}
             AND strName = #{strName}

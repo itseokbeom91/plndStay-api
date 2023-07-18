@@ -420,7 +420,7 @@ public class SpavisService {
 
         try{
             /**
-             * TODO : 예약번호로 정보 가져오기
+             * TODO : 예약번호로 정보 가져오기 - 티켓 여러장일 경우 ,로 구분해서 보내기
              */
             String strOrderID = "2023-0711-10974059457";
             String strTicketNo = "TR_30494";
@@ -497,11 +497,6 @@ public class SpavisService {
 
                             System.out.println("strTicketStatus : " + strTicketStatus);
                             System.out.println("resultDate : " + strResultDate);
-
-                            String ss = null;
-                            if(ss.equals("ss")){
-
-                            }
 
                         }
                     }

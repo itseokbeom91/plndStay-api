@@ -47,7 +47,7 @@ public class BookingService {
 
     CommonFunction commonFunction = new CommonFunction();
 
-    private String site = "1"; // 현재 무조건 1
+    private static String site = "1"; // 현재 무조건 1
 
     // 예약
     public String createBooking(String dataType, int intBookingID, HttpServletRequest httpServletRequest){

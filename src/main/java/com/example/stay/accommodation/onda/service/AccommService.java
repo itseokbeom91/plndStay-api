@@ -55,12 +55,6 @@ public class AccommService {
 
         try{
 
-            String testAccommList = "{\n" +
-                    "      \"id\": \"54207\",\n" +
-                    "      \"name\": \"채널 테스트&숙소(테스트계정)\",\n" +
-                    "      \"status\": \"enabled\",\n" +
-                    "      \"updated_at\": \"2023-06-09T01:55:50+09:00\"\n" +
-                    "    }";
 
             String testAccommList2 = "{\n" +
                     "      \"id\": \"130517\",\n" +
@@ -70,17 +64,11 @@ public class AccommService {
                     "    }";
             JSONParser jsonParser = new JSONParser();
 
-            Object obj = jsonParser.parse(testAccommList);
-            JSONObject jsonObj = (JSONObject) obj;
-
             Object obj2 = jsonParser.parse(testAccommList2);
             JSONObject jsonObj2 = (JSONObject) obj2;
 
             List<JSONObject> accommList = new LinkedList<>();
-            accommList.add(jsonObj);
             accommList.add(jsonObj2);
-
-
 
 
             for(JSONObject accomm : accommList){
@@ -136,6 +124,24 @@ public class AccommService {
                 JSONObject location = (JSONObject) address.get("location");
                 String strLat = location.get("latitude").toString();
                 String strLon = location.get("longitude").toString();
+
+                JSONArray classifyArr = (JSONArray) accommDetailJson.get("classifications") ;
+                String strType = classifyArr.get(0).toString();
+                if(strType.equals("호텔")){
+                    strType = "H";
+                }else if(strType.equals("펜션")){
+                    strType = "P";
+                }else if(strType.equals("레지던스")){
+                    strType = "R";
+                }else if(strType.equals("게스트하우스")){
+                    strType = "GH";
+                }else if(strType.equals("모텔")){
+                    strType = "M";
+                }else if(strType.equals("카라반") || strType.equals("글램핑") || strType.equals("캠핑")){
+                    strType = "CP";
+                }else{
+                    strType = "C";
+                }
 
                 String strPhone = "";
                 if(accommDetailJson.get("phone") != null){
@@ -235,8 +241,6 @@ public class AccommService {
                     strFacilityDatas = strFacilityDatas.substring(0, strFacilityDatas.length()-5);
                 }
 
-                String strType = accommMapper.getStrCodeByStrName("ACCOMM_TYPE", "온다");
-
                 // 이미지------------------------------------------------------------------------------------------------
                 // CONTENTS_PHOTO, ACCOMM_PHOTO 테이블에 INSERT
                 JSONArray images = (JSONArray) accommDetailJson.get("images");
@@ -307,13 +311,14 @@ public class AccommService {
                     int intQuanMax = Integer.parseInt(capacity.get("max").toString());
 
                     String strRmDescription = roomDetailJson.get("description").toString();
+                    int intCubicMeter = Integer.parseInt(roomDetailJson.get("size").toString());
 
                     String strRoomTypeStatus = roomDetailJson.get("status").toString();
                     Map<String, String> rmStatusMap = getStatusYn(strRoomTypeStatus);
                     String strRmDeleteYn = rmStatusMap.get("strDeleteYn");
                     String strIngYn = rmStatusMap.get("strIngYn");
 
-                    String strRmSubject = roomDetailJson.get("name").toString();
+                    String strRmtypeName = roomDetailJson.get("name").toString();
 
                     // 이미지------------------------------------------------------------------------------------------------
                     // CONTENTS_PHOTO, RM_PHOTO 테이블에 INSERT
@@ -345,7 +350,7 @@ public class AccommService {
                     }
 
                     String strRmtypeData = strRmDeleteYn + "|^|" + strIngYn  + "|^|" + intQuanStd + "|^|" +
-                            intQuanMax + "|^|" + strRmSubject + "|^|" + strRmDescription + "|^|" + strRmtypeID + "|^|";
+                            intQuanMax + "|^|" + intCubicMeter + "|^|" + strRmtypeName + "|^|" + strRmDescription + "|^|" + strRmtypeID + "|^|";
 
                     // rateplan 리스트 조회
                     String ratePlanListUrl = "properties/" + strPropertyID + "/roomtypes/" + strRmtypeID + "/rateplans";
@@ -488,6 +493,24 @@ public class AccommService {
             String strLat = location.get("latitude").toString();
             String strLon = location.get("longitude").toString();
 
+            JSONArray classifyArr = (JSONArray) accommDetailJson.get("classifications") ;
+            String strType = classifyArr.get(0).toString();
+            if(strType.equals("호텔")){
+                strType = "H";
+            }else if(strType.equals("펜션")){
+                strType = "P";
+            }else if(strType.equals("레지던스")){
+                strType = "R";
+            }else if(strType.equals("게스트하우스")){
+                strType = "GH";
+            }else if(strType.equals("모텔")){
+                strType = "M";
+            }else if(strType.equals("카라반") || strType.equals("글램핑") || strType.equals("캠핑")){
+                strType = "CP";
+            }else{
+                strType = "C";
+            }
+
             String strPhone = "";
             if(accommDetailJson.get("phone") != null){
                 strPhone = accommDetailJson.get("phone").toString();
@@ -585,8 +608,6 @@ public class AccommService {
 
                 strFacilityDatas = strFacilityDatas.substring(0, strFacilityDatas.length()-5);
             }
-
-            String strType = accommMapper.getStrCodeByStrName("ACCOMM_TYPE", "온다");
 
             // 이미지------------------------------------------------------------------------------------------------
             // CONTENTS_PHOTO, ACCOMM_PHOTO 테이블에 INSERT
@@ -689,7 +710,9 @@ public class AccommService {
             String strRmDeleteYn = rmStatusMap.get("strDeleteYn");
             String strIngYn = rmStatusMap.get("strIngYn");
 
-            String strRmSubject = roomDetailJson.get("name").toString();
+            String strRmtypeName = roomDetailJson.get("name").toString();
+
+            int intCubicMeter = Integer.parseInt(roomDetailJson.get("size").toString());
 
             // 이미지------------------------------------------------------------------------------------------------
             // CONTENTS_PHOTO, RM_PHOTO 테이블에 INSERT
@@ -721,7 +744,7 @@ public class AccommService {
             }
 
             String strRmtypeData = strRmDeleteYn + "|^|" + strIngYn  + "|^|" + intQuanStd + "|^|" +
-                    intQuanMax + "|^|" + strRmSubject + "|^|" + strRmDescription + "|^|" + strRmtypeID + "|^|";
+                    intQuanMax + "|^|" + intCubicMeter + "|^|" + strRmtypeName + "|^|" + strRmDescription + "|^|" + strRmtypeID + "|^|";
 
             // strRateplanID가 특정되어있으면 반복문X
             if(strRateplanID.equals("")){
@@ -811,10 +834,8 @@ public class AccommService {
                 strRmtypeDatas = strRmtypeData + strRateplanID + "|^|" + intMinSleep + "|^|" + intMaxSleep + "|^|" +
                         strBreakFastCode + "|^|" + strDepth + "|^|" + strRefundYn + "|^|" + strRmImgDatas;
             }
-
-            String strType = accommMapper.getStrCodeByStrName("ACCOMM_TYPE", "온다");
-
-            String result = accommMapper.updateRmtype(strPropertyID, strType, strRmtypeDatas);
+            
+            String result = accommMapper.updateRmtype(strPropertyID, strRmtypeDatas);
 
             if(result.equals("")){
                 message = "객실 등록 및 수정 완료";
