@@ -89,7 +89,7 @@ public class UpdateService {
 
             if(strType.equals("img")){
                 // 메인사진 10장 DB에서 가져오기
-                List<String> photoList = commonService.getPhotoList(intAID);
+                List<String> photoList = commonService.getPhotoList(intAID, 10);
 
                 List<Object> dataPhotoList = new ArrayList<>();
                 for(int i=0; i<photoList.size(); i++){

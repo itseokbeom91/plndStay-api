@@ -14,10 +14,7 @@
     </select>
 
     <select id="getPhotoList" resultType="string">
-        SELECT CONCAT('https://condo24.com', strFilePath, strFileName) AS strPhotoUrl FROM ACCOMM_PHOTO c WITH(NOLOCK)
-	    LEFT OUTER JOIN CONTENTS_PHOTO d WITH(NOLOCK) ON c.intPhotoID = d.intPhotoID
-        WHERE c.intAID = ${intAID}
-        ORDER BY intStep ASC;
+        EXEC  spOMK_PHOTO_LIST ${intAID}, ${intCnt}
     </select>
 
     <select id="getStockList" resultType="stockDto">

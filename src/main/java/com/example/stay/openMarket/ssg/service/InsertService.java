@@ -48,6 +48,8 @@ public class InsertService {
 
             AccommDto accommDto = commonService.getAcmInfo(intAID, 7);
 
+            String strKeywords = (accommDto.getStrKeywords() != null)? accommDto.getStrKeywords() : accommDto.getStrSubject();
+
             JSONObject mainObject = new JSONObject();
 
             // =============================
@@ -60,7 +62,7 @@ public class InsertService {
             insertObject.put("dispStrtDts", "20220711000000"); // 전시 시작 일시
             insertObject.put("dispEndDts", "20990201235900"); // 전시 종료 일시
             insertObject.put("srchPsblYn","Y"); // 검색가능여부
-            insertObject.put("itemSrchwdNm", accommDto.getStrKeywords()); // 검색어
+            insertObject.put("itemSrchwdNm", strKeywords); // 검색어
             insertObject.put("itemChrctDivCd","10"); // 상품 특성코드 10:일반
             insertObject.put("itemChrctDtlCd","10"); // 상품 특성 상세코드 10:일반
             insertObject.put("exusItemDivCd","10"); // 전용상품 구분코드 10:일반, 20:특장점
@@ -205,7 +207,14 @@ public class InsertService {
 
             // 메인사진 10장 DB에서 가져오기
             //List<String> photoList = commonApiService.getMainPhotoList(intNum);
-            List<String> photoList = commonService.getPhotoList(intAID);
+            List<String> photoList = commonService.getPhotoList(intAID, 1);
+
+            System.out.println(accommDto.getStrACMPhotos());
+            String[] photos = accommDto.getStrACMPhotos().split("\\|");
+            for(int i=0; i<10; i++){
+                System.out.println("https://condo24.com"+photos[i]);
+            }
+
 
             List<Object> dataPhotoList = new ArrayList<>();
             for(int i=0; i<photoList.size(); i++){
@@ -221,7 +230,7 @@ public class InsertService {
 
 
             // =============================
-            // 상품 메인 이미지 10장
+            // 상품 상세페이지
             // =============================
             // DB에서 desc 이미지 가져오기(없으면 데이타 종합해서 html 코드)
             //String strImgDesc = commonApiService.getStrPdtDtlInfo(accommDto, intAID, "SSG").replace("<", "&lt;").replace(">", "&gt;");
@@ -260,12 +269,14 @@ public class InsertService {
                 // 1번옵션명(입실일자)
                 itemObject.put("uitemOptnTypeNm1", "입실일자");
 
-                String strDate = dto.getDateSales().substring(0, dto.getDateSales().lastIndexOf("."));
-                SimpleDateFormat dateDate = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+//                String strDate = dto.getDateSales().substring(0, dto.getDateSales().lastIndexOf("."));
+                String strDate = dto.getDateSales().trim(); //////////////// 날짜 포멧 어케해야하냐~~~~~~~~~~~~~
+                SimpleDateFormat dateDate = new SimpleDateFormat("yyyyMMdd");
                 Date dateStrDate = dateDate.parse(strDate);
                 SimpleDateFormat goodDate = new SimpleDateFormat("MM월dd일(E)"); // uitemOptnChoiTypeCd1 : 10일때
 //                SimpleDateFormat goodDate = new SimpleDateFormat("yyyy-MM-dd"); // uitemOptnChoiTypeCd1 : 30일때
                 String strGoodDate = goodDate.format(dateStrDate);
+                System.out.println(strGoodDate);
                 itemObject.put("uitemOptnNm1", strGoodDate);
 
                 // 2번옵션명(타입)
@@ -346,8 +357,8 @@ public class InsertService {
             System.out.println(mainObject.toJSONString());
 
             // api 호출
-            //JsonNode resultNode = commonFunction.callJsonApi("", "", mainObject, "https://eapi.ssgadm.com/item/0.4/insertItem.ssg", "POST");
-            //result = resultNode.toString();
+//            JsonNode resultNode = commonFunction.callJsonApi("SSG", "", mainObject, "https://eapi.ssgadm.com/item/0.4/insertItem.ssg", "POST");
+//            result = resultNode.toString();
 
             System.out.println(result);
 
