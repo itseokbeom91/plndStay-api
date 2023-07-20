@@ -536,10 +536,43 @@ public class BookingService {
             logWriter.add(message);
             logWriter.log(0);
         }catch (Exception e){
+            e.printStackTrace();
+
             logWriter.add("error : " + e.getMessage());
             logWriter.log(0);
         }
 
     }
 
+    // 예약 대사자료 조회
+    public void getBookings(String option, String strFrom, String strTo, HttpServletRequest httpServletRequest){
+        String message = "";
+
+        OkHttpClient client = new OkHttpClient();
+
+        Request request = new Request.Builder()
+                .url(Constants.ondaPath + "bookings?limit=500&option=" + option + "&from=" + strFrom + "&to=" + strTo)
+                .get()
+                .addHeader("accept", "application/json")
+                .addHeader("Authorization", Constants.ondaAuth)
+                .build();
+        LogWriter logWriter = new LogWriter(request.method(), request.url().toString(), System.currentTimeMillis());
+        try{
+            Response response = client.newCall(request).execute();
+
+            String responseBody = response.body().string();
+            JSONParser jsonParser = new JSONParser();
+            JSONObject responseJson = (JSONObject) jsonParser.parse(responseBody);
+
+            message = gson.toJson(responseJson);
+
+            logWriter.add(message);
+            logWriter.log(0);
+        }catch (Exception e){
+            e.printStackTrace();
+
+            logWriter.add("error : " + e.getMessage());
+            logWriter.log(0);
+        }
+    }
 }

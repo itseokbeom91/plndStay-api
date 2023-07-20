@@ -5,7 +5,7 @@ import com.example.stay.common.util.LogWriter;
 import com.example.stay.openMarket.coupang.hmac.HmacGenerater;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import jdk.jpackage.internal.Log;
+//import jdk.jpackage.internal.Log;
 import org.apache.http.HttpEntity;
 import org.apache.http.client.methods.*;
 import org.apache.http.client.utils.URIBuilder;

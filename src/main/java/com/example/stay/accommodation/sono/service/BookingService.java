@@ -16,7 +16,7 @@ import org.springframework.boot.webservices.client.WebServiceTemplateBuilder;
 import org.springframework.stereotype.Service;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.xml.ws.WebServiceClient;
+//import javax.xml.ws.WebServiceClient;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
