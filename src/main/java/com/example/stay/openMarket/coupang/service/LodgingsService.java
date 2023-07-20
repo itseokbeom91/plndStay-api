@@ -42,51 +42,51 @@ public class LodgingsService {
     // 객실 상품 생성/수정 Json데이터 생성
     public JSONObject getRoomTypeJson(int pyong_idx){
         JSONObject returnJson = new JSONObject();
-        try {
-            // 생성 or 수정할 상품의 pyong_idx로 룸타입별 정보 가져오기
-            List<ToconDto> roomType = getRoomTypeByPyongIdx(pyong_idx);
-            for(ToconDto r : roomType){
-                JSONObject room = new JSONObject();
-
-                room.put("sellerRoomId", r.getPyongIdx());
-                room.put("name", r.getTocode());
-                room.put("additionalInfo", r.getTocodeText());
-
-                // images
-                JSONArray roomImagesArr = new JSONArray();
-                String[] pyongImgs = {"22782_1.jpg", "22782_2.jpg", "22782_3.jpg"};
-//                    String[] pyongImgs = t.getPyongImgs().split("\\|");
-                for(int j=0; j<pyongImgs.length; j++){
-                    JSONObject roomImages = new JSONObject();
-                    roomImages.put("sellerUrl", Constants.condoSellerUrl + pyongImgs[j]);
-//                        roomImages.put("sellerUrl", Constants.toconSellerUrl + r.getConId() + "/rooms/" + r.getPyongIdx() + "/" + pyongImgs[j]);
-                    if(j == 0){
-                        roomImages.put("representative", true);
-                    }else{
-                        roomImages.put("representative", false);
-                    }
-                    roomImages.put("seq", j);
-
-                    roomImagesArr.add(roomImages);
-
-                }
-
-                room.put("images", roomImagesArr);
-
-                // occupancy
-                JSONObject occupancy = new JSONObject();
-                occupancy.put("standardOccupancy", r.getStandpeopleCnt());
-                occupancy.put("maximumOccupancy", r.getMaxpeopleCnt());
-
-                room.put("occupancy", occupancy);
-
-                returnJson = room;
-            }
-
-        }catch (Exception e){
-            e.printStackTrace();
-            returnJson = null;
-        }
+//        try {
+//            // 생성 or 수정할 상품의 pyong_idx로 룸타입별 정보 가져오기
+//            List<ToconDto> roomType = getRoomTypeByPyongIdx(pyong_idx);
+//            for(ToconDto r : roomType){
+//                JSONObject room = new JSONObject();
+//
+//                room.put("sellerRoomId", r.getPyongIdx());
+//                room.put("name", r.getTocode());
+//                room.put("additionalInfo", r.getTocodeText());
+//
+//                // images
+//                JSONArray roomImagesArr = new JSONArray();
+//                String[] pyongImgs = {"22782_1.jpg", "22782_2.jpg", "22782_3.jpg"};
+////                    String[] pyongImgs = t.getPyongImgs().split("\\|");
+//                for(int j=0; j<pyongImgs.length; j++){
+//                    JSONObject roomImages = new JSONObject();
+//                    roomImages.put("sellerUrl", Constants.condoSellerUrl + pyongImgs[j]);
+////                        roomImages.put("sellerUrl", Constants.toconSellerUrl + r.getConId() + "/rooms/" + r.getPyongIdx() + "/" + pyongImgs[j]);
+//                    if(j == 0){
+//                        roomImages.put("representative", true);
+//                    }else{
+//                        roomImages.put("representative", false);
+//                    }
+//                    roomImages.put("seq", j);
+//
+//                    roomImagesArr.add(roomImages);
+//
+//                }
+//
+//                room.put("images", roomImagesArr);
+//
+//                // occupancy
+//                JSONObject occupancy = new JSONObject();
+//                occupancy.put("standardOccupancy", r.getStandpeopleCnt());
+//                occupancy.put("maximumOccupancy", r.getMaxpeopleCnt());
+//
+//                room.put("occupancy", occupancy);
+//
+//                returnJson = room;
+//            }
+//
+//        }catch (Exception e){
+//            e.printStackTrace();
+//            returnJson = null;
+//        }
 
         return returnJson;
     }

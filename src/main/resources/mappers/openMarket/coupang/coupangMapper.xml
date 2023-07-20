@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.example.stay.openMarket.coupang.mapper.CoupangMapper">
+
+    <select id="insertCpCodes" resultType="String">
+        EXEC PLNDSTAY.dbo.spCP_ACCOMM_REGIST ${intAID}, #{strPdtCode}, #{strPdtSubject}, #{itemCodeDatas}, #{rateCodeDatas}, ''
+    </select>
+
+    <select id="getStrPdtCode" parameterType="int" resultType="String">
+        SELECT strPdtCode
+        FROM PLNDSTAY.dbo.ACCOMM_OMK
+        WHERE intAID = ${intAID}
+            AND intOMKIdx = 12
+    </select>
+
+    <update id="updateCpCodes">
+        UPDATE PLNDSTAY.dbo.RMTYPE
+        SET strCpItemCode = #{strCpItemCode}
+            , strCpRateCode = #{strCpRateCode}
+        WHERE intIdx = ${intRmIdx}
+    </update>
+
+
+</mapper>
