@@ -311,7 +311,7 @@ public class AccommService {
                     int intQuanMax = Integer.parseInt(capacity.get("max").toString());
 
                     String strRmDescription = roomDetailJson.get("description").toString();
-                    int intCubicMeter = Integer.parseInt(roomDetailJson.get("size").toString());
+                    int intRmsize = Integer.parseInt(roomDetailJson.get("size").toString());
 
                     String strRoomTypeStatus = roomDetailJson.get("status").toString();
                     Map<String, String> rmStatusMap = getStatusYn(strRoomTypeStatus);
@@ -350,7 +350,7 @@ public class AccommService {
                     }
 
                     String strRmtypeData = strRmDeleteYn + "|^|" + strIngYn  + "|^|" + intQuanStd + "|^|" +
-                            intQuanMax + "|^|" + intCubicMeter + "|^|" + strRmtypeName + "|^|" + strRmDescription + "|^|" + strRmtypeID + "|^|";
+                            intQuanMax + "|^|" + intRmsize + "|^|" + strRmtypeName + "|^|" + strRmDescription + "|^|" + strRmtypeID + "|^|";
 
                     // rateplan 리스트 조회
                     String ratePlanListUrl = "properties/" + strPropertyID + "/roomtypes/" + strRmtypeID + "/rateplans";
@@ -712,7 +712,7 @@ public class AccommService {
 
             String strRmtypeName = roomDetailJson.get("name").toString();
 
-            int intCubicMeter = Integer.parseInt(roomDetailJson.get("size").toString());
+            int intRmsize = Integer.parseInt(roomDetailJson.get("size").toString());
 
             // 이미지------------------------------------------------------------------------------------------------
             // CONTENTS_PHOTO, RM_PHOTO 테이블에 INSERT
@@ -744,7 +744,7 @@ public class AccommService {
             }
 
             String strRmtypeData = strRmDeleteYn + "|^|" + strIngYn  + "|^|" + intQuanStd + "|^|" +
-                    intQuanMax + "|^|" + intCubicMeter + "|^|" + strRmtypeName + "|^|" + strRmDescription + "|^|" + strRmtypeID + "|^|";
+                    intQuanMax + "|^|" + intRmsize + "|^|" + strRmtypeName + "|^|" + strRmDescription + "|^|" + strRmtypeID + "|^|";
 
             // strRateplanID가 특정되어있으면 반복문X
             if(strRateplanID.equals("")){
@@ -1202,262 +1202,5 @@ public class AccommService {
         }
         return responseJson;
     }
-
-
-//    public List<JSONObject> getAccommListApi(String path){
-//        List<JSONObject> accommList = new ArrayList<>();
-//        String message = "";
-//
-//        OkHttpClient client = new OkHttpClient();
-//
-//        Request request = new Request.Builder()
-//                .url(path)
-//                .get()
-//                .addHeader("accept", "application/json")
-//                .addHeader("Authorization", Constants.ondaAuth)
-//                .build();
-//
-//            LogWriter logWriter = new LogWriter(request.method(), request.url().toString(), System.currentTimeMillis());
-//        try {
-//            Response response = client.newCall(request).execute();
-//            if(response.isSuccessful()){
-//                // response 파싱
-//                String responseBody = response.body().string();
-//
-//                JSONParser jsonParser = new JSONParser();
-//                JSONObject responseJson = (JSONObject) jsonParser.parse(responseBody);
-//                message = gson.toJson(responseJson);
-//
-//                JSONArray accommArray = (JSONArray) responseJson.get("properties");
-//
-//                for(int i=0; i<accommArray.size(); i++){
-//                    JSONObject jsonObject = (JSONObject) accommArray.get(i);
-//                    accommList.add(jsonObject);
-//                }
-//            }else{
-//                message = "response code : " + response.code();
-//            }
-//            logWriter.add(message);
-//            logWriter.log(0);
-//        }catch (Exception e){
-//            e.printStackTrace();
-//
-//            logWriter.add("error : " + e.getMessage());
-//            logWriter.log(0);
-//        }
-//        return accommList;
-//    }
-
-//    public JSONObject getAccommDetailApi(String property_id){
-//        JSONObject jsonObject = new JSONObject();
-//        String message = "";
-//
-//        OkHttpClient client = new OkHttpClient();
-//
-//        Request request = new Request.Builder()
-//                .url(Constants.ondaPath + "properties/" + property_id)
-//                .get()
-//                .addHeader("accept", "application/json")
-//                .addHeader("Authorization", Constants.ondaAuth)
-//                .build();
-//
-//        LogWriter logWriter = new LogWriter(request.method(), request.url().toString(), System.currentTimeMillis());
-//        try{
-//            Response response = client.newCall(request).execute();
-//
-//            if(response.isSuccessful()){
-//                // response 파싱
-//                String responseBody = response.body().string();
-//
-//                JSONParser jsonParser = new JSONParser();
-//                JSONObject responseJson = (JSONObject) jsonParser.parse(responseBody);
-//                jsonObject = (JSONObject) responseJson.get("property");
-//
-//                message = gson.toJson(responseJson);
-//            }else{
-//                message = "response code : " + response.code();
-//            }
-//            logWriter.add(message);
-//            logWriter.log(0);
-//        }catch (Exception e){
-//            e.printStackTrace();
-//
-//            logWriter.add("error : " + e.getMessage());
-//            logWriter.log(0);
-//        }
-//        return jsonObject;
-//    }
-
-//    public List<JSONObject> getRoomTypeListApi(String property_id){
-//        List<JSONObject> roomTypeList = new ArrayList<>();
-//        String message = "";
-//
-//        OkHttpClient client = new OkHttpClient();
-//
-//        Request request = new Request.Builder()
-//                .url(Constants.ondaPath + "properties/" + property_id + "/roomtypes")
-//                .get()
-//                .addHeader("accept", "application/json")
-//                .addHeader("Authorization", Constants.ondaAuth)
-//                .build();
-//
-//        LogWriter logWriter = new LogWriter(request.method(), request.url().toString(), System.currentTimeMillis());
-//        try{
-//            Response response = client.newCall(request).execute();
-//
-//            if(response.isSuccessful()){
-//                // response 파싱
-//                String responseBody = response.body().string();
-//
-//                JSONParser jsonParser = new JSONParser();
-//                JSONObject responseJson = (JSONObject) jsonParser.parse(responseBody);
-//
-//                message = gson.toJson(responseJson);
-//
-//                JSONArray roomtypeArray = (JSONArray) responseJson.get("roomtypes");
-//
-//                for(int i=0; i<roomtypeArray.size(); i++){
-//                    JSONObject jsonObject = (JSONObject) roomtypeArray.get(i);
-//                    roomTypeList.add(jsonObject);
-//                }
-//            }else{
-//                message = "response code : " + response.code();
-//            }
-//            logWriter.add(message);
-//            logWriter.log(0);
-//        }catch (Exception e){
-//            e.printStackTrace();
-//
-//            logWriter.add("error : " + e.getMessage());
-//            logWriter.log(0);
-//        }
-//        return roomTypeList;
-//    }
-
-//    public JSONObject getRoomTypeDetail(String property_id, String roomtype_id){
-//        JSONObject jsonObject = new JSONObject();
-//        String message = "";
-//
-//        OkHttpClient client = new OkHttpClient();
-//
-//        Request request = new Request.Builder()
-//                .url(Constants.ondaPath + "properties/" + property_id + "/roomtypes/" + roomtype_id)
-//                .get()
-//                .addHeader("accept", "application/json")
-//                .addHeader("Authorization", Constants.ondaAuth)
-//                .build();
-//
-//        LogWriter logWriter = new LogWriter(request.method(), request.url().toString(), System.currentTimeMillis());
-//        try{
-//            Response response = client.newCall(request).execute();
-//
-//            if(response.isSuccessful()){
-//                // response 파싱
-//                String responseBody = response.body().string();
-//
-//                JSONParser jsonParser = new JSONParser();
-//                JSONObject responseJson = (JSONObject) jsonParser.parse(responseBody);
-//                jsonObject = (JSONObject) responseJson.get("roomtype");
-//
-//                message = gson.toJson(responseJson);
-//
-//            }else{
-//                message = "response code : " + response.code();
-//            }
-//            logWriter.add(message);
-//            logWriter.log(0);
-//        }catch (Exception e){
-//            e.printStackTrace();
-//
-//            logWriter.add("error : " + e.getMessage());
-//            logWriter.log(0);
-//        }
-//        return jsonObject;
-//    }
-
-//    public List<JSONObject> getRatePlanList(String property_id, String roomtype_id){
-//        List<JSONObject> packageList = new ArrayList<>();
-//        String message = "";
-//
-//        OkHttpClient client = new OkHttpClient();
-//
-//        Request request = new Request.Builder()
-//                .url(Constants.ondaPath + "properties/" + property_id + "/roomtypes/" + roomtype_id + "/rateplans")
-//                .get()
-//                .addHeader("accept", "application/json")
-//                .addHeader("Authorization", Constants.ondaAuth)
-//                .build();
-//
-//        LogWriter logWriter = new LogWriter(request.method(), request.url().toString(), System.currentTimeMillis());
-//        try{
-//            Response response = client.newCall(request).execute();
-//
-//            if(response.isSuccessful()){
-//                // response 파싱
-//                String responseBody = response.body().string();
-//
-//                JSONParser jsonParser = new JSONParser();
-//                JSONObject responseJson = (JSONObject) jsonParser.parse(responseBody);
-//
-//                message = gson.toJson(responseJson);
-//
-//                JSONArray packageArray = (JSONArray) responseJson.get("rateplans");
-//
-//                for(int i=0; i<packageArray.size(); i++){
-//                    JSONObject jsonObject = (JSONObject) packageArray.get(i);
-//                    packageList.add(jsonObject);
-//                }
-//            }else{
-//                message = "response code : " + response.code();
-//            }
-//            logWriter.add(message);
-//            logWriter.log(0);
-//        }catch (Exception e){
-//            e.printStackTrace();
-//
-//            logWriter.add("error : " + e.getMessage());
-//            logWriter.log(0);
-//        }
-//        return packageList;
-//    }
-
-//    public JSONObject getRatePlanDetail(String property_id, String roomtype_id, String rateplan_id){
-//        JSONObject jsonObject = new JSONObject();
-//        String message = "";
-//
-//        OkHttpClient client = new OkHttpClient();
-//
-//        Request request = new Request.Builder()
-//                .url(Constants.ondaPath + "properties/" + property_id + "/roomtypes/" + roomtype_id + "/rateplans/" + rateplan_id)
-//                .get()
-//                .addHeader("accept", "application/json")
-//                .addHeader("Authorization", Constants.ondaAuth)
-//                .build();
-//
-//        LogWriter logWriter = new LogWriter(request.method(), request.url().toString(), System.currentTimeMillis());
-//        try{
-//            Response response = client.newCall(request).execute();
-//            if(response.isSuccessful()){
-//                // response 파싱
-//                String responseBody = response.body().string();
-//
-//                JSONParser jsonParser = new JSONParser();
-//                JSONObject responseJson = (JSONObject) jsonParser.parse(responseBody);
-//                jsonObject = (JSONObject) responseJson.get("rateplan");
-//
-//                message = gson.toJson(responseJson);
-//            }else{
-//                message = "response code : " + response.code();
-//            }
-//            logWriter.add(message);
-//            logWriter.log(0);
-//        }catch (Exception e){
-//            e.printStackTrace();
-//
-//            logWriter.add("error : " + e.getMessage());
-//            logWriter.log(0);
-//        }
-//        return jsonObject;
-//    }
 
 }
