@@ -37,6 +37,7 @@ public class BookingController {
         return bookingService.cancelBookingInfo(dataType, intBookingID, httpServletRequest);
     }
 
+
     @GetMapping("getCancelPolicy")
     @ResponseBody
     public void getCancelPolicy(String propertyId, String roomTypeId, String ratePlanId,
@@ -44,4 +45,11 @@ public class BookingController {
         bookingService.getCancelPolicy(propertyId, roomTypeId, ratePlanId, strCheckInDate, strCheckOutDate, httpServletRequest);
     }
 
+    /**
+     * 예약 대사자료 조회
+     */
+    @GetMapping("getBookings")
+    public void getBookings(String option, String strFrom, String strTo, HttpServletRequest httpServletRequest){
+        bookingService.getBookings(option, strFrom, strTo, httpServletRequest);
+    }
 }
