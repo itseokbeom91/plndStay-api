@@ -4,6 +4,10 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="com.example.stay.accommodation.hotelPass.mapper.AccommMapper">
+    <select id="insertAccommTotal" parameterType="String" resultType="String">
+        EXEC PLNDSTAY.dbo.spGP_ACCOMM_REGIST #{strHotelDatas}, ''
+    </select>
+
     <insert id="insertCityList">
         DECLARE
         @parentID int
@@ -41,7 +45,7 @@
         DECLARE
         @intAID int
 
-        @intAID = (SELECT intAID FROM PLNDSTAY.dbo.ACCOMM WHERE strType = 'HP' AND strPropertyID = #{hotelCode})
+        @intAID = (SELECT intAID FROM PLNDSTAY.dbo.ACCOMM WHERE strType = 'H' AND strApiFlag = 'HP' AND strPropertyID = #{hotelCode})
         IF (@intAID > 0) BEGIN
         UPDATE PLNDSTAY.dbo.ACCOMM SET
             strSubject = #{hotelName}
@@ -61,15 +65,15 @@
         WHERE intAID = @intAID
         END ELSE BEGIN
             INSERT INTO PLNDSTAY.dbo.ACCOMM (
-            strDeleteYn, strViewYn, strType, intAbleCancel, strDistrict1, strDistrict2, strSubject, strPropertyID, dateCreated, dateModified
+            strDeleteYn, strViewYn, strType, strApiFlag, intAbleCancel, strDistrict1, strDistrict2, strSubject, strPropertyID, dateCreated, dateModified
             ) VALUES (
-            'N', 'Y', 'HP', 3,#{strDistrict1}, #{strDistrict2}, #{hotelName}, #{hotelCode}, getDATE(), getDATE()
+            'N', 'Y', 'H', 'HP', 3,#{strDistrict1}, #{strDistrict2}, #{hotelName}, #{hotelCode}, getDATE(), getDATE()
             )
             SET @intAID = @@IDENTITY;
             INSERT INTO PLNDSTAY.dbo.ACCOMM_INFO (
-            decLat, decLon, strPhone, strAddr1, strCheckIn, strCheckOut, strWebsite, intRoomCnt, intAID, strZipCode
+            decLat, decLon, intGrade, intRoomCnt, strPhone, strAddr1, strFax, intAID
             ) VALUES (
-            'N', 'Y', 'HP', 3,#{strDistrict1}, #{strDistrict2}, #{hotelName}, #{hotelCode}, getDATE(), getDATE()
+            #{latitude}, #{longitude}, #{grade}, #{roomCnt}, #{tel}, #{address}, #{fax}, @intAID
             )
         END
     </insert>

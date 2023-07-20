@@ -13,4 +13,6 @@ public interface AccommMapper {
     String insertHotelList(String hotelCode, String hotelName, String strDistrict1,
                            String strDistrict2, String latitude, String longitude,
                            String address, String tel, String fax, String zipNo, String grade, String roomCnt);
+
+    String insertHotel(String strHotelDatas);
 }
