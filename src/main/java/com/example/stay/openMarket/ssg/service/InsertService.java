@@ -46,8 +46,9 @@ public class InsertService {
         String result = "";
         try {
 
-            AccommDto accommDto = commonService.getAcmInfo(intAID, 7);
+            AccommDto accommDto = commonService.getAcmInfo(intAID, 7); // 7이 내부 SSG 오픈마켓 idx 값
 
+            // 검색어 필수 값이므로 만약 검색어 데이터가 없을 시 시설명으로 설정
             String strKeywords = (accommDto.getStrKeywords() != null)? accommDto.getStrKeywords() : accommDto.getStrSubject();
 
             JSONObject mainObject = new JSONObject();
@@ -339,7 +340,7 @@ public class InsertService {
 
             //int intSellprc = commonApiMapper.getMinPrice(intAID, strNow);
             System.out.println("testttt");
-            int intSellprc = commonMapper.getMinPrice(intAID, "20230701");
+            int intSellprc = commonMapper.getMinPrice(intAID, strNow);
             System.out.println(intSellprc);
             int intMrgrt = 8;
             int intSplprc = (intSellprc * (100-intMrgrt) / 100);

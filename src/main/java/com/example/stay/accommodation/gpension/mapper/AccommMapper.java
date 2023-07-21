@@ -17,4 +17,7 @@ public interface AccommMapper {
     void updateDelPension(String pensionID);
     void updateDelRoom(String pensionID, String roomID);
 
+    List<Map<String, Object>> getPensionList();
+    void insertPenaltyData(String con_id, String con_name, String cn_Dcnt, String cn_per);
+
 }

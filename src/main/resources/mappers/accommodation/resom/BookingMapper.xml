@@ -12,8 +12,8 @@
     <select id="getPackageCodeAndStoreCode" parameterType="String" resultType="hashmap">
         SELECT strPkgCode
              , strStoreCode
-        FROM PLNDSTAY.dbo.PACKAGE_LIST
-        WHERE strType = 'RE'
+        FROM PLNDSTAY.dbo.ACM_PACKAGE_INFO
+        WHERE strFlag = 'RE'
     </select>
 
 </mapper>
