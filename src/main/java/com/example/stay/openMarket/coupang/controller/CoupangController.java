@@ -506,13 +506,12 @@ public class CoupangController {
     }
 
     /**
-     *  숙박 객실 요금/수량 등록/수정
+     *  숙박 객실 요금&수량 등록/수정
      */
-    @GetMapping("creUpdRoomRate")
-    public void creUpdRoomRate(){
-        // goods에 있는거로 일단 사용 오픈마켓
-
-
+    @GetMapping("creUpdGoods")
+    @ResponseBody
+    public String creUpdGoods(String dataType, int intRmIdx, String strDate, HttpServletRequest httpServletRequest){
+        return coupangService.creUpdGoods(dataType, intRmIdx, strDate, httpServletRequest);
     }
 
 }

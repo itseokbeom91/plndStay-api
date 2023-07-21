@@ -100,7 +100,7 @@ public class CoupangApi {
 
             logWriter.addRequest(strRequest);
 
-            put.setEntity ( entity );
+            put.setEntity (entity);
 
             returnJson =  httpExecute(put);
 
@@ -122,18 +122,18 @@ public class CoupangApi {
      * @param strPath
      */
     public JSONObject coupangGetApi(String strPath) {
-        //params
-        String method = "GET";
-        JSONObject returnJson = null;
-        try {
-            URIBuilder uriBuilder = new URIBuilder()
-                    .setPath(Constants.cpUrl + strPath)
+        URIBuilder uriBuilder = new URIBuilder()
+                .setPath(Constants.cpUrl + strPath)
 //                    .addParameter("searchStartDateTime", "20130501000000")
 //                    .addParameter("searchEndDateTime", "20130530000000")
-                    .addParameter("offset", "0")
-                    .addParameter("limit", "100");
+                .addParameter("offset", "0")
+                .addParameter("limit", "100");
 
-            String authorization = HmacGenerater.generate(method, uriBuilder.build().toString(), Constants.cpSecretKey, Constants.cpAccessKey);
+        LogWriter logWriter = new LogWriter("GET", uriBuilder.getPath(), System.currentTimeMillis());
+
+        JSONObject returnJson = null;
+        try {
+            String authorization = HmacGenerater.generate("GET", uriBuilder.build().toString(), Constants.cpSecretKey, Constants.cpAccessKey);
 
             uriBuilder.setScheme("https").setHost(Constants.cpHost).setPort(Constants.cpPort);
 
@@ -142,11 +142,13 @@ public class CoupangApi {
             get.addHeader("content-type", "application/json; charset=UTF-8");
             get.addHeader("Request-Vendor-Id", Constants.cpVendorId);
 
-            httpExecute(get);
+            returnJson = httpExecute(get);
 
 
         } catch (Exception e) {
             e.printStackTrace();
+            logWriter.add("error : " + e.getMessage());
+            logWriter.log(0);
         }
         return returnJson;
     }
@@ -156,30 +158,36 @@ public class CoupangApi {
      * @param strRequest
      * @param strPath
      */
-    public void coupangPatchApi(String strRequest, String strPath) {
-        //params
-        String method = "PATCH";
+    public JSONObject coupangPatchApi(String strRequest, String strPath) {
+        URIBuilder uriBuilder = new URIBuilder()
+                .setPath (Constants.cpUrl + strPath);
 
+        LogWriter logWriter = new LogWriter("PATCH", uriBuilder.getPath(), System.currentTimeMillis());
+
+        JSONObject returnJson = null;
         try {
-            URIBuilder uriBuilder = new URIBuilder ( )
-                    .setPath (Constants.cpUrl + strPath);
+            String authorization = HmacGenerater.generate ("PATCH", uriBuilder.build().toString(), Constants.cpSecretKey, Constants.cpAccessKey );
 
-            String authorization = HmacGenerater.generate ( method, uriBuilder.build ().toString (), Constants.cpSecretKey, Constants.cpAccessKey );
+            uriBuilder.setScheme ("https").setHost(Constants.cpHost).setPort ( Constants.cpPort );
 
-            uriBuilder.setScheme ( "https" ).setHost(Constants.cpHost).setPort ( Constants.cpPort );
-
-            HttpPatch patch = new HttpPatch ( uriBuilder.build ().toString () );
-            patch.addHeader ( "Authorization", authorization );
+            HttpPatch patch = new HttpPatch (uriBuilder.build().toString());
+            patch.addHeader ("Authorization", authorization);
             patch.addHeader ("Content-Type","application/json; charset=UTF-8");
-            patch.addHeader ( "Request-Vendor-Id", Constants.cpVendorId );
+            patch.addHeader ("Request-Vendor-Id", Constants.cpVendorId);
 
-            StringEntity entity = new StringEntity ( strRequest,"UTF-8" );
-            patch.setEntity ( entity );
+            logWriter.addRequest(strRequest);
 
-            httpExecute(patch);
-        } catch ( Exception e ) {
-            e.printStackTrace ( );
+            StringEntity entity = new StringEntity (strRequest,"UTF-8" );
+            patch.setEntity (entity);
+
+            returnJson = httpExecute(patch);
+
+        } catch (Exception e) {
+            e.printStackTrace ();
+            logWriter.add("error : " + e.getMessage());
+            logWriter.log(0);
         }
+        return returnJson;
     }
 
     /**
@@ -189,6 +197,7 @@ public class CoupangApi {
     public JSONObject coupangDeleteApi(String strPath) {
         URIBuilder uriBuilder = new URIBuilder ( )
                 .setPath (Constants.cpUrl + strPath);
+
         LogWriter logWriter = new LogWriter("DELETE", uriBuilder.getPath(), System.currentTimeMillis());
 
         JSONObject returnJson = null;
@@ -211,7 +220,7 @@ public class CoupangApi {
 
             logWriter.log(0);
         } catch ( Exception e ) {
-            e.printStackTrace ( );
+            e.printStackTrace();
         }
         return returnJson;
     }
@@ -226,25 +235,17 @@ public class CoupangApi {
             try {
                 response = client.execute(request);
 
-                System.out.println ("status code:" + response.getStatusLine().getStatusCode());
-                System.out.println ("status message:" + response.getStatusLine().getReasonPhrase());
+//                System.out.println ("status code:" + response.getStatusLine().getStatusCode());
+//                System.out.println ("status message:" + response.getStatusLine().getReasonPhrase());
 
                 HttpEntity entity = response.getEntity();
                 String result = EntityUtils.toString(entity);
 
-//                System.out.println ("result:" + EntityUtils.toString(entity));
                 System.out.println ("result:" + result);
 
-                if(response.getStatusLine().getStatusCode() == 200){
-                    JSONParser jsonParser = new JSONParser();
-                    objData = jsonParser.parse(result);
-                    returnJson = (JSONObject) objData;
-                    returnJson = (JSONObject) returnJson.get("data");
-
-                    System.out.println("$$$$$$$$$$$$$$$$$$$$$$$$$$$$");
-                    System.out.println(returnJson);
-                    System.out.println("$$$$$$$$$$$$$$$$$$$$$$$$$$$$");
-                }
+                JSONParser jsonParser = new JSONParser();
+                objData = jsonParser.parse(result);
+                returnJson = (JSONObject) objData;
 
             } catch ( Exception e ) {
                 e.printStackTrace ( );

@@ -23,5 +23,13 @@
         WHERE intIdx = ${intRmIdx}
     </update>
 
+    <select id="getIntAIDnPdtCode" parameterType="int" resultType="Map">
+        SELECT
+            AO.intAID, AO.strPdtCode
+        FROM PLNDSTAY.dbo.ACCOMM_OMK AO WITH(NOLOCK)
+            RIGHT OUTER JOIN PLNDSTAY.dbo.RMTYPE R WITH(NOLOCK) ON R.intAID = AO.intAID
+        WHERE R.intIdx = ${intRmIdx}
+          AND AO.intOMKIdx = 12
+    </select>
 
 </mapper>
