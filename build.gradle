@@ -41,6 +41,9 @@ dependencies {
 	implementation 'com.squareup.okhttp3:okhttp:4.9.1'
 	implementation 'org.apache.axis:axis:1.4'
 	implementation 'javax.xml.rpc:javax.xml.rpc-api:1.1.1' // web service(SOAP)
+	// https://mvnrepository.com/artifact/javax.xml.soap/javax.xml.soap-api
+	implementation group: 'javax.xml.soap', name: 'javax.xml.soap-api', version: '1.4.0'
+
 }
 
 tasks.named('test') {

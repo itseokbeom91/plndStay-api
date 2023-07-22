@@ -6,26 +6,36 @@
 <mapper namespace="com.example.stay.openMarket.common.mapper.CommonMapper">
 
     <select id="getAcmInfo" resultType="accommDto">
-        EXEC spOMK_ACCOMM_INFO ${intAID}, ${intOmkIdx}
+        EXEC PLNDSTAY.dbo.spOMK_ACCOMM_INFO ${intAID}, ${intOmkIdx}
     </select>
 
     <select id="getRoomList" resultType="roomTypeDto">
-        EXEC spOMK_ROOMTYPE_LIST ${intAID}, ${intOmkIdx}
+        EXEC PLNDSTAY.dbo.spOMK_ROOMTYPE_LIST ${intAID}, ${intOmkIdx}
     </select>
 
     <select id="getPhotoList" resultType="string">
-        SELECT CONCAT('https://condo24.com', strFilePath, strFileName) AS strPhotoUrl FROM ACCOMM_PHOTO c WITH(NOLOCK)
-	    LEFT OUTER JOIN CONTENTS_PHOTO d WITH(NOLOCK) ON c.intPhotoID = d.intPhotoID
-        WHERE c.intAID = ${intAID}
-        ORDER BY intStep ASC;
+        EXEC  spOMK_PHOTO_LIST ${intAID}, ${intCnt}
     </select>
 
     <select id="getStockList" resultType="stockDto">
-        EXEC spOMK_STOCK_LIST ${intAID}, ${intOmkIdx}, #{strDate}
+        EXEC PLNDSTAY.dbo.spOMK_STOCK_LIST ${intAID}, ${intOmkIdx}, #{strDate}
     </select>
 
     <select id="getMinPrice" resultType="int">
-        EXEC spOMK_STOCK_MIN_PRICE ${intAID}, #{strDate}
+        EXEC PLNDSTAY.dbo.spOMK_STOCK_MIN_PRICE ${intAID}, #{strDate}
+    </select>
+
+    <select id="getCancelRuleList" parameterType="int" resultType="CancelRulesDto">
+        SELECT
+            strFlag
+            , intDay
+            , intPercent
+        FROM PLNDSTAY.dbo.ACCOMM_CANCEL_RULES
+        WHERE intAID = ${intAID}
+    </select>
+
+    <select id="getRmtpeInfo" resultType="RoomTypeDto">
+        EXEC PLNDSTAY.dbo.spOMK_RMTYPE_INFO ${intRmIdx}, ${intOmkIdx}
     </select>
 
 </mapper>

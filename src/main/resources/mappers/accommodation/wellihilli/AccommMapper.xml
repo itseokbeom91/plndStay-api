@@ -4,9 +4,7 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="com.example.stay.accommodation.wellihilli.mapper.AccommMapper">
-    <select id="getStrRmtypeID" parameterType="int" resultType="String">
-        SELECT strRmtypeID
-        FROM PLNDSTAY.dbo.RMTYPE
-        WHERE intIdx = ${intRmIdx}
+    <select id="updateRmtype" resultType="String">
+        EXEC PLNDSTAY.dbo.spWHP_RMTYPE_UPDATE #{strRoomDatas}, ''
     </select>
 </mapper>

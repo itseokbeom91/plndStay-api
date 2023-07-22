@@ -6,13 +6,18 @@ import lombok.Data;
 public class StockDto {
 
     private String dateSales;
-    private String strSubject;
+    private String strRmtypeName;
+    private String strCpItemCode;
+    private String strCprateCode;
     private int intRmIdx;
+    private int moneyCost;
     private int moneySales;
     private int intStock;
     private int intSsgSeq;
     private int intGsshopSeq;
     private int intNextStock;
+
+    
 
     /**
      * DB goods

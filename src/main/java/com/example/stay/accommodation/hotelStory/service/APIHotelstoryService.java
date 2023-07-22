@@ -508,10 +508,10 @@ public class APIHotelstoryService {
             }
 
             // 프로시저 돌려
-//            String procResult = hotelStoryMapper.insertProperty(strPropertyId, strLocation, strCity, strPropertyName, strLatitude, strLongitude, strStarRating, strNumRooms, strCheckInTime, strCheckOutTime, strPhone, strAddress, strHomePageUrl
-//                    , strPropertyDescription, strTrafficInformation, strRsvGuide, imgData, cancelData, roomTypeData, addData);
-//
-//            System.out.println(procResult);
+            String procResult = hotelStoryMapper.insertProperty(strPropertyId, strLocation, strCity, strPropertyName, strLatitude, strLongitude, strStarRating, strNumRooms, strCheckInTime, strCheckOutTime, strPhone, strAddress, strHomePageUrl
+                    , strPropertyDescription, strTrafficInformation, strRsvGuide, imgData, cancelDatas, roomTypeData, addData);
+
+            System.out.println(procResult);
 
 
             result = result.replace("<br>", "\n");

@@ -1,7 +1,11 @@
 package com.example.stay.openMarket.coupang.Api;
 
 import com.example.stay.common.util.Constants;
+import com.example.stay.common.util.LogWriter;
 import com.example.stay.openMarket.coupang.hmac.HmacGenerater;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+//import jdk.jpackage.internal.Log;
 import org.apache.http.HttpEntity;
 import org.apache.http.client.methods.*;
 import org.apache.http.client.utils.URIBuilder;
@@ -17,89 +21,100 @@ import java.io.IOException;
 
 @SpringBootApplication
 public class CoupangApi {
+
+    Gson gson = new GsonBuilder().setPrettyPrinting().create();
+
     /**
      * POST
-     * @param strPostBody
+     * @param strRequest
      * @param strPath
      */
-    public JSONObject coupangPostApi(String strPostBody, String strPath){
-        String method = "POST";
-        JSONObject resultJson = null;
-        try {
-            //build uri
-            URIBuilder uriBuilder = new URIBuilder()
-                    .setPath(strPath)
+    public JSONObject coupangPostApi(String strRequest, String strPath){
+        JSONObject returnJson = null;
+
+        URIBuilder uriBuilder = new URIBuilder()
+                .setPath(Constants.cpUrl + strPath)
 //                    .addParameter("searchStartDateTime", "20130501000000")
 //                    .addParameter("searchEndDateTime", "20130530000000")
-                    .addParameter("offset", "0")
-                    .addParameter("limit", "100");
+                .addParameter("offset", "0")
+                .addParameter("limit", "100");
 
-            /********************************************************/
-            //authorize, demonstrate how to generate hmac signature here
-            String authorization = HmacGenerater.generate(method, uriBuilder.build().toString(), Constants.SECRET_KEY, Constants.ACCESS_KEY);
-            //print out the hmac key
-            System.out.println("authorization : " + authorization);
-            /********************************************************/
-            uriBuilder.setScheme(Constants.SCHEMA).setHost(Constants.HOST).setPort(Constants.PORT);
+        LogWriter logWriter = new LogWriter("POST", uriBuilder.getPath(), System.currentTimeMillis());
+
+        try {
+            String authorization = HmacGenerater.generate("POST", uriBuilder.build().toString(), Constants.cpSecretKey, Constants.cpAccessKey);
+
+            uriBuilder.setScheme("https").setHost(Constants.cpHost).setPort(Constants.cpPort);
+
             HttpPost post = new HttpPost ( uriBuilder.build ().toString () );
-            /********************************************************/
-            // set header, demonstarte how to use hmac signature here
             post.addHeader ( "Authorization", authorization);
-            post.addHeader ( "Content-Type", "application/json");
-            post.addHeader ( "Request-Vendor-Id", Constants.vendorId);
-            /********************************************************/
+            post.addHeader ( "Content-Type", "application/json; charset=UTF-8");
+            post.addHeader ( "Request-Vendor-Id", Constants.cpVendorId);
 
-            // set post body here
-            StringEntity entity = new StringEntity (strPostBody);
-            System.out.println(strPostBody);
+            StringEntity entity = new StringEntity (strRequest);
+
+            logWriter.addRequest(strRequest);
+
             post.setEntity (entity);
 
-            // execute
-//            resultJson =  httpExecute(post);
+            returnJson =  httpExecute(post);
 
+            if(returnJson != null){
+                logWriter.add(gson.toJson(returnJson));
+            }
+
+            logWriter.log(0);
         } catch (Exception e) {
             e.printStackTrace();
+            logWriter.add("error : " + e.getMessage());
+            logWriter.log(0);
         }
-        return resultJson;
+        return returnJson;
     }
 
     /**
      * PUT
-     * @param strPutBody
+     * @param strRequest
      * @param strPath
      */
-    public JSONObject coupangPutApi(String strPutBody, String strPath){
+    public JSONObject coupangPutApi(String strRequest, String strPath){
         //params
         String method = "PUT";
-        JSONObject resultJson = null;
-        try {
-            //build uri
-            URIBuilder uriBuilder = new URIBuilder ( )
-                    .setPath ( strPath );
-            /********************************************************/
-            //authorize, demonstrate how to generate hmac signature here
-            String authorization = HmacGenerater.generate ( method, uriBuilder.build ().toString (), Constants.SECRET_KEY, Constants.ACCESS_KEY );
-            //print out the hmac key
-            System.out.println ( authorization );
-            /********************************************************/
-            uriBuilder.setScheme ( Constants.SCHEMA ).setHost ( Constants.HOST ).setPort ( Constants.PORT );
-            HttpPut put = new HttpPut ( uriBuilder.build ().toString () );
-            /********************************************************/
-            // set header, demonstarte how to use hmac signature here
-            put.addHeader ( "Authorization", authorization );
-            put.addHeader ( "Content-Type", "application/json" );
-            put.addHeader ( "Request-Vendor-Id", Constants.vendorId );
-            /********************************************************/
-            // set put request body here
+        JSONObject returnJson = null;
 
-            StringEntity entity = new StringEntity (strPutBody);
-            put.setEntity ( entity );
-            //execute
-//            httpExecute(put);
+        URIBuilder uriBuilder = new URIBuilder ( )
+                .setPath (Constants.cpUrl + strPath);
+
+        LogWriter logWriter = new LogWriter("PUT", uriBuilder.getPath(), System.currentTimeMillis());
+        try {
+            String authorization = HmacGenerater.generate ( method, uriBuilder.build ().toString (), Constants.cpSecretKey, Constants.cpAccessKey );
+
+            uriBuilder.setScheme ( "https" ).setHost(Constants.cpHost).setPort ( Constants.cpPort );
+
+            HttpPut put = new HttpPut ( uriBuilder.build ().toString () );
+            put.addHeader ( "Authorization", authorization );
+            put.addHeader ( "Content-Type", "application/json; charset=UTF-8" );
+            put.addHeader ( "Request-Vendor-Id", Constants.cpVendorId );
+
+            StringEntity entity = new StringEntity (strRequest);
+
+            logWriter.addRequest(strRequest);
+
+            put.setEntity (entity);
+
+            returnJson =  httpExecute(put);
+
+            if(returnJson != null){
+                logWriter.add(gson.toJson(returnJson));
+            }
+
+            logWriter.log(0);
         } catch ( Exception e ) {
             e.printStackTrace ( );
+            logWriter.add("error : " + e.getMessage());
+            logWriter.log(0);
         }
-        return resultJson;
+        return returnJson;
     }
 
     /**
@@ -107,142 +122,130 @@ public class CoupangApi {
      * @param strPath
      */
     public JSONObject coupangGetApi(String strPath) {
-        //params
-        String method = "GET";
-        JSONObject resultJson = null;
-        try {
-            //build uri
-            URIBuilder uriBuilder = new URIBuilder()
-                    .setPath(strPath)
+        URIBuilder uriBuilder = new URIBuilder()
+                .setPath(Constants.cpUrl + strPath)
 //                    .addParameter("searchStartDateTime", "20130501000000")
 //                    .addParameter("searchEndDateTime", "20130530000000")
-                    .addParameter("offset", "0")
-                    .addParameter("limit", "100");
+                .addParameter("offset", "0")
+                .addParameter("limit", "100");
 
-            /********************************************************/
-            //authorize, demonstrate how to generate hmac signature here
-            String authorization = HmacGenerater.generate(method, uriBuilder.build().toString(), Constants.SECRET_KEY, Constants.ACCESS_KEY);
-            //print out the hmac key
-            System.out.println("authorization : " + authorization);
-            /********************************************************/
-            uriBuilder.setScheme(Constants.SCHEMA).setHost(Constants.HOST).setPort(Constants.PORT);
+        LogWriter logWriter = new LogWriter("GET", uriBuilder.getPath(), System.currentTimeMillis());
+
+        JSONObject returnJson = null;
+        try {
+            String authorization = HmacGenerater.generate("GET", uriBuilder.build().toString(), Constants.cpSecretKey, Constants.cpAccessKey);
+
+            uriBuilder.setScheme("https").setHost(Constants.cpHost).setPort(Constants.cpPort);
+
             HttpGet get = new HttpGet(uriBuilder.build().toString());
-            /********************************************************/
-            // set header, demonstarte how to use hmac signature here
             get.addHeader("Authorization", authorization);
-            get.addHeader("content-type", "application/json");
-            get.addHeader("Request-Vendor-Id", Constants.vendorId);
-            /********************************************************/
+            get.addHeader("content-type", "application/json; charset=UTF-8");
+            get.addHeader("Request-Vendor-Id", Constants.cpVendorId);
 
-            // execute
-            httpExecute(get);
+            returnJson = httpExecute(get);
 
 
         } catch (Exception e) {
             e.printStackTrace();
+            logWriter.add("error : " + e.getMessage());
+            logWriter.log(0);
         }
-        return resultJson;
+        return returnJson;
     }
 
     /**
      * Patch
-     * @param strPatchBody
+     * @param strRequest
      * @param strPath
      */
-    public void coupangPatchApi(String strPatchBody, String strPath) {
-        //params
-        String method = "PATCH";
+    public JSONObject coupangPatchApi(String strRequest, String strPath) {
+        URIBuilder uriBuilder = new URIBuilder()
+                .setPath (Constants.cpUrl + strPath);
 
+        LogWriter logWriter = new LogWriter("PATCH", uriBuilder.getPath(), System.currentTimeMillis());
+
+        JSONObject returnJson = null;
         try {
-            //build uri
-            URIBuilder uriBuilder = new URIBuilder ( )
-                    .setPath ( strPath );
-            /********************************************************/
-            //authorize, demonstrate how to generate hmac signature here
-            String authorization = HmacGenerater.generate ( method, uriBuilder.build ().toString (), Constants.SECRET_KEY, Constants.ACCESS_KEY );
-            //print out the hmac key
-            System.out.println ( authorization );
-            /********************************************************/
-            uriBuilder.setScheme ( Constants.SCHEMA ).setHost ( Constants.HOST ).setPort ( Constants.PORT );
-            HttpPatch patch = new HttpPatch ( uriBuilder.build ().toString () );
-            /********************************************************/
-            // set header, demonstarte how to use hmac signature here
-            patch.addHeader ( "Authorization", authorization );
-            patch.addHeader ("Content-Type","application/json");
-            patch.addHeader ( "Request-Vendor-Id", Constants.vendorId );
-            /********************************************************/
+            String authorization = HmacGenerater.generate ("PATCH", uriBuilder.build().toString(), Constants.cpSecretKey, Constants.cpAccessKey );
 
-            StringEntity entity = new StringEntity ( strPatchBody,"UTF-8" );
-            patch.setEntity ( entity );
-            //execute
-            httpExecute(patch);
-        } catch ( Exception e ) {
-            e.printStackTrace ( );
+            uriBuilder.setScheme ("https").setHost(Constants.cpHost).setPort ( Constants.cpPort );
+
+            HttpPatch patch = new HttpPatch (uriBuilder.build().toString());
+            patch.addHeader ("Authorization", authorization);
+            patch.addHeader ("Content-Type","application/json; charset=UTF-8");
+            patch.addHeader ("Request-Vendor-Id", Constants.cpVendorId);
+
+            logWriter.addRequest(strRequest);
+
+            StringEntity entity = new StringEntity (strRequest,"UTF-8" );
+            patch.setEntity (entity);
+
+            returnJson = httpExecute(patch);
+
+        } catch (Exception e) {
+            e.printStackTrace ();
+            logWriter.add("error : " + e.getMessage());
+            logWriter.log(0);
         }
+        return returnJson;
     }
 
     /**
      * Delete
      * @param strPath
      */
-    public void coupangDeleteApi(String strPath) {
-        //params
-        String method = "DELETE";
+    public JSONObject coupangDeleteApi(String strPath) {
+        URIBuilder uriBuilder = new URIBuilder ( )
+                .setPath (Constants.cpUrl + strPath);
+
+        LogWriter logWriter = new LogWriter("DELETE", uriBuilder.getPath(), System.currentTimeMillis());
+
+        JSONObject returnJson = null;
 
         try {
-            //build uri
-            URIBuilder uriBuilder = new URIBuilder ( )
-                    .setPath ( strPath );
-            /********************************************************/
-            //authorize, demonstrate how to generate hmac signature here
-            String authorization = HmacGenerater.generate(method, uriBuilder.build().toString(), Constants.SECRET_KEY, Constants.ACCESS_KEY);
-            //print out the hmac key
-            System.out.println ( authorization );
-            /********************************************************/
-            uriBuilder.setScheme(Constants.SCHEMA).setHost(Constants.HOST).setPort(Constants.PORT);
+            String authorization = HmacGenerater.generate("DELETE", uriBuilder.build().toString(), Constants.cpSecretKey, Constants.cpAccessKey);
+
+            uriBuilder.setScheme("https").setHost(Constants.cpHost).setPort(Constants.cpPort);
+
             HttpDelete delete = new HttpDelete ( uriBuilder.build ().toString () );
-            /********************************************************/
-            // set header, demonstarte how to use hmac signature here
             delete.addHeader ( "Authorization", authorization );
-            /********************************************************/
-            delete.addHeader ( "content-type", "application/json" );
-            delete.addHeader ( "Request-Vendor-Id", Constants.vendorId );
-            // execute
-            httpExecute(delete);
+            delete.addHeader ( "content-type", "application/json; charset=UTF-8" );
+            delete.addHeader ( "Request-Vendor-Id", Constants.cpVendorId );
+
+            returnJson =  httpExecute(delete);
+
+            if(returnJson != null){
+                logWriter.add(gson.toJson(returnJson));
+            }
+
+            logWriter.log(0);
         } catch ( Exception e ) {
-            e.printStackTrace ( );
+            e.printStackTrace();
         }
+        return returnJson;
     }
 
     public JSONObject httpExecute(HttpUriRequest request) {
-
         CloseableHttpClient client = null;
         Object objData = null;
-        JSONObject resultJson = null;
+        JSONObject returnJson = null;
         try {
-            //create client
             client = HttpClients.createDefault();
             CloseableHttpResponse response = null;
             try {
-                //execute get request
                 response = client.execute(request);
-                //print result
-                System.out.println ("status code:" + response.getStatusLine().getStatusCode());
-                System.out.println ("status message:" + response.getStatusLine().getReasonPhrase());
+
+//                System.out.println ("status code:" + response.getStatusLine().getStatusCode());
+//                System.out.println ("status message:" + response.getStatusLine().getReasonPhrase());
+
                 HttpEntity entity = response.getEntity();
                 String result = EntityUtils.toString(entity);
-//                System.out.println ("result:" + EntityUtils.toString(entity));
+
                 System.out.println ("result:" + result);
 
-//                if(response.getStatusLine().getStatusCode() == 200){
-
-                    // 결과값 json으로 받기 Object -> Json // JsonArray로 받아야되나..?
-                    JSONParser jsonParser = new JSONParser();
-                    objData = jsonParser.parse(result);
-                    resultJson = (JSONObject) objData;
-
-                    System.out.println(resultJson.get("code"));
-//                }
+                JSONParser jsonParser = new JSONParser();
+                objData = jsonParser.parse(result);
+                returnJson = (JSONObject) objData;
 
             } catch ( Exception e ) {
                 e.printStackTrace ( );
@@ -268,7 +271,7 @@ public class CoupangApi {
             }
         }
 
-        return resultJson;
+        return returnJson;
     }
 
 }

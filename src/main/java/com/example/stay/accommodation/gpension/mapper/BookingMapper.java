@@ -8,4 +8,5 @@ import java.util.Map;
 public interface BookingMapper {
     Map<String , Object> getBookingInfoFromBookingIdx(String BookingIdx);
     int getMaxpeopleByroomId(String pensionID, String roomID);
+    String updateStock(String pensionID, String roomID);
 }

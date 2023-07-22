@@ -29,9 +29,9 @@ public class CommonService {
 
     
     // 사진 리스트
-    public List<String> getPhotoList(int intAID){
+    public List<String> getPhotoList(int intAID, int intCnt){
 
-        List<String> strPhotoList = commonMapper.getPhotoList(intAID);
+        List<String> strPhotoList = commonMapper.getPhotoList(intAID, intCnt);
         
         return strPhotoList;
     }
@@ -46,7 +46,7 @@ public class CommonService {
 
     // 재고 리스트
     public List<StockDto> getStockList(int intAID, int intOmkIdx, String strDate){
-        List<StockDto> strStockList = commonMapper.getStockList(intAID, intOmkIdx, "20230701");
+        List<StockDto> strStockList = commonMapper.getStockList(intAID, intOmkIdx, strDate);
 
         return strStockList;
     }
@@ -71,7 +71,9 @@ public class CommonService {
 
         }else{ // 없을때 => update
             String[] imgList = accommDto.getStrACMPhotos().split("\\|");
+            String strDescription = (accommDto.getStrDescription() != null)? accommDto.getStrDescription() : "";
             String strAround = (accommDto.getStrAround() != null)? accommDto.getStrAround() : "";
+            String strTraffic = (accommDto.getStrTraffic() != null)? accommDto.getStrTraffic() : "";
 
             result +=
                     " <div style=\"width:860px\"> \n" +
@@ -122,7 +124,7 @@ public class CommonService {
             for(RoomTypeDto dto : roomTypeDtoList){
                 result +=
                         "\t\t\t\t<div style=\"width:100%;display:inline-block;padding:5px 5px 5px 10px;\"> \n" +
-                                "\t\t\t\t\t<div style=\"width:25%;float:left;text-align:left;\"><span style=\"font-size:14px;font-weight:bold;font-family:나눔고딕,NanumGothic,ng;\">" + dto.getStrSubject() + "</span></div> \n" +
+                                "\t\t\t\t\t<div style=\"width:25%;float:left;text-align:left;\"><span style=\"font-size:14px;font-weight:bold;font-family:나눔고딕,NanumGothic,ng;\">" + dto.getStrRmtypeName() + "</span></div> \n" +
                                 "\t\t\t\t\t<div style=\"width:74%;float:right;text-align:left;\"><span style=\"font-size:14px;color:#626262;font-family:나눔고딕,NanumGothic,ng;\">" + dto.getStrShortDesc() + "</span></div> \n" +
                                 "\t\t\t\t</div> \n";
             }
@@ -144,7 +146,7 @@ public class CommonService {
                             "\t\t\t</div> \n" +
                             "\t\t\t<div style=\"width:100%;text-align:left;border:1px #dddddd solid;height:auto;padding-bottom:10px;min-height:50px;font-family:나눔고딕,NanumGothic,ng;padding-top:10px;padding-right:10px;\">\t \n" +
                             "\t \n" +
-                            "\t\t\t\t\t" + accommDto.getStrDescription().replace("\r\n","<br>") + "\n" +
+                            "\t\t\t\t\t" + strDescription.replace("\r\n","<br>") + "\n" +
                             "\t \n" +
                             "\t \n" +
                             "\t\t\t</div> \n" +
@@ -160,7 +162,7 @@ public class CommonService {
                             "\t\t\t\t<img src=\"http://www.condo24.com/_img/Use02.png\" /> \n" +
                             "\t\t\t</div> \n" +
                             "\t\t\t<div style=\"width:100%;text-align:left;border:1px #dddddd solid;height:auto;padding-bottom:10px;min-height:50px;font-family:나눔고딕,NanumGothic,ng;padding-top:10px;padding-right:10px;\">\t \n" +
-                            "\t\t\t\t<div style=\"width:100%;display:inline-block;padding:5px 5px 5px 10px;font-family:나눔고딕,NanumGothic,ng;\"> \n" + accommDto.getStrTraffic().replace("\r\n","<br>") + "\t\t\t\t</div>\t\t\t \n" +
+                            "\t\t\t\t<div style=\"width:100%;display:inline-block;padding:5px 5px 5px 10px;font-family:나눔고딕,NanumGothic,ng;\"> \n" + strTraffic.replace("\r\n","<br>") + "\t\t\t\t</div>\t\t\t \n" +
                             "\t\t\t</div> \n" +
                             "\t\t\t<br/><br/> \n" +
                             "\t\t\t<div style=\"width:100%;height:auto;-border:1px red solid;text-align:center;margin-top:5px;\"><img src=\"http://www.condo24.com/conphoto/" + imgList[1] + "\" style=\"width:80%;\"/></div> \n" +

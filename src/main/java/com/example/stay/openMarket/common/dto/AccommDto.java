@@ -15,5 +15,19 @@ public class AccommDto {
     private String strACMPhotos;        // 시설 이미지
     private String strKeywords;         // 검색어
     private String strAround;           // 주변명소
+    private String strType;             // 시설 타입(호텔, 리조트...)
+    private double decLat;              // 위도
+    private double decLon;              // 경도
+    private String strAddr1;            // 도로명주소
+    private String strZipCode;          // 우편번호
+    private String strWebsite;          // 사이트
+    private String strPhone;            // 전화번호
+    private String strCheckIn;
+    private String strCheckOut;
 
+
+
+    private String strRegionKeyword;    // 지역 키워드(도/시)
+    private String strDistrict2;    // 시/구
+    private String strFac;       // 제공 서비스
 }
