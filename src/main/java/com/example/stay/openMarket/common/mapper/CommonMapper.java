@@ -16,7 +16,7 @@ public interface CommonMapper {
 
     List<RoomTypeDto> getRoomList(int intAID, int intOmkIdx);
 
-    List<String> getPhotoList(int intAID);
+    List<String> getPhotoList(int intAID, int intCnt);
 
     List<StockDto> getStockList(int intAID, int intOmkIdx, String strDate);
 

@@ -14,10 +14,7 @@
     </select>
 
     <select id="getPhotoList" resultType="string">
-        SELECT CONCAT('https://condo24.com', strFilePath, strFileName) AS strPhotoUrl FROM PLNDSTAY.dbo.ACCOMM_PHOTO c WITH(NOLOCK)
-	    LEFT OUTER JOIN PLNDSTAY.dbo.CONTENTS_PHOTO d WITH(NOLOCK) ON c.intPhotoID = d.intPhotoID
-        WHERE c.intAID = ${intAID}
-        ORDER BY intStep ASC;
+        EXEC  spOMK_PHOTO_LIST ${intAID}, ${intCnt}
     </select>
 
     <select id="getStockList" resultType="stockDto">
@@ -38,36 +35,7 @@
     </select>
 
     <select id="getRmtpeInfo" resultType="RoomTypeDto">
-        SELECT
-            RM.intIdx
-            , RM.intAID
-            , RM.strRmtypeName
-            , RM.strShortDesc
-            , RM.strDescription
-            , RM.intQuanStd
-            , RM.intQuanMax
-            , RM.strRefundYn
-            , RM.moneyExtraA AS intExtraA
-            , RM.moneyExtraC AS intExtraC
-            , RM.strCpItemCode
-            , RM.strCprateCode
-            , AO.strPdtCode
-            , STUFF((
-                SELECT '|'+ CP.strFilePath + CP.strFileName
-                FROM PLNDSTAY.dbo.RM_PHOTO RP WITH(NOLOCK)
-                LEFT OUTER JOIN PLNDSTAY.dbo.CONTENTS_PHOTO CP WITH(NOLOCK) ON RP.intPhotoID = CP.intPhotoID
-                WHERE RP.intRmIdx = RM.intIdx
-                ORDER BY RP.intStep
-                FOR XML PATH('')
-              ),1,1,'') AS strRmPhotos	-- 객실 이미지
-        FROM PLNDSTAY.dbo.RMTYPE RM WITH(NOLOCK)
---         INNER JOIN PLNDSTAY.dbo.RM_OMK_USAGE RO WITH(NOLOCK) ON RM.intIdx = RO.intRmIdx
-        INNER JOIN PLNDSTAY.dbo.ACCOMM_OMK AO WITH(NOLOCK) ON AO.intAID = RM.intAID
-        WHERE RM.intIdx = ${intRmIdx}
---           AND RO.intOMKIdx = ${intOmkIdx}
---           AND RO.strUsageYn = 'Y'
-          AND AO.intOMKIdx = ${intOmkIdx}
+        EXEC PLNDSTAY.dbo.spOMK_RMTYPE_INFO ${intRmIdx}, ${intOmkIdx}
     </select>
-
 
 </mapper>

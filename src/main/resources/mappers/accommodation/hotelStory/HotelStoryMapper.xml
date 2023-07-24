@@ -6,7 +6,7 @@
 <mapper namespace="com.example.stay.accommodation.hotelStory.mapper.HotelStoryMapper">
 
     <select id="insertProperty" resultType="string">
-        exec PLNDSTAY.dbo.spHS_ACCOMM_REGIST #{strPropertyId}, 'HS', #{strLocation}, #{strCity}, #{strPropertyName}, #{strLatitude}, #{strLongitude}, #{strStarRating}, #{strNumRooms}, #{strCheckInTime}, #{strCheckOutTime}, #{strPhone}, #{strAddress}
+        exec PLNDSTAY.dbo.spHS_ACCOMM_REGIST #{strPropertyId}, #{strLocation}, #{strCity}, #{strPropertyName}, #{strLatitude}, #{strLongitude}, #{strStarRating}, #{strNumRooms}, #{strCheckInTime}, #{strCheckOutTime}, #{strPhone}, #{strAddress}
         , #{strHomePageUrl}, #{strPropertyDescription}, #{strTrafficInformation}, #{strRsvGuide}, #{imgData}, #{cancelData}, #{roomTypeData}, #{addData}, ''
     </select>
 

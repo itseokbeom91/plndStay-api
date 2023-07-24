@@ -1,13 +1,12 @@
 package com.example.stay.openMarket.coupang.service;
 
 import com.example.stay.common.util.CommonFunction;
-import com.example.stay.common.util.Constants;
 import com.example.stay.common.util.LogWriter;
 import com.example.stay.openMarket.common.dto.AccommDto;
 import com.example.stay.openMarket.common.dto.CancelRulesDto;
 import com.example.stay.openMarket.common.dto.RoomTypeDto;
+import com.example.stay.openMarket.common.dto.StockDto;
 import com.example.stay.openMarket.common.mapper.CommonMapper;
-import com.example.stay.openMarket.common.service.CommonService;
 import com.example.stay.openMarket.coupang.Api.CoupangApi;
 import com.example.stay.openMarket.coupang.mapper.CoupangMapper;
 import com.google.gson.Gson;
@@ -21,11 +20,10 @@ import javax.servlet.http.HttpServletRequest;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
 
 @Service
-public class CoupangService {
+public class CpAccommService {
 
     @Autowired
     private CommonMapper commonMapper;
@@ -331,7 +329,7 @@ public class CoupangService {
         return commonFunction.makeReturn(dataType, statusCode, message);
     }
 
-    // 객실 생성
+    // 객실 생성/수정
     public String creUpdRoom(String dataType, int intRmIdx, HttpServletRequest httpServletRequest){
         LogWriter logWriter = new LogWriter(httpServletRequest.getMethod(), httpServletRequest.getServletPath(),
                 httpServletRequest.getQueryString(), System.currentTimeMillis());
@@ -455,9 +453,7 @@ public class CoupangService {
 
                 rates.put("checkInOutPolicy", checkInOutPolicy);
 
-                String id = "111";
-//                if(strCpItemCode != null){ // 수정
-                if(id != null){ // 수정
+                if(strCpItemCode != null){ // 수정
                     // =============================
                     // 객실 수정
                     // =============================
@@ -749,15 +745,39 @@ public class CoupangService {
         return commonFunction.makeReturn(dataType, statusCode, message);
     }
 
-    public void getAccomm(int intAID){
-        String strPdtCode = coupangMapper.getStrPdtCode(intAID);
+    // 숙박 상품 조회
+    public String getAccomm(String dataType, int intAID, HttpServletRequest httpServletRequest){
+        LogWriter logWriter = new LogWriter(httpServletRequest.getMethod(), httpServletRequest.getServletPath(),
+                httpServletRequest.getQueryString(), System.currentTimeMillis());
+        String statusCode = "200";
+        String message = "";
 
-        System.out.println("*************url : " + Constants.cpUrl + "travel/lodgings/" + strPdtCode);
-        JSONObject returnJson = coupangApi.coupangGetApi("travel/lodgings/" + strPdtCode);
+        JSONObject dataJson = new JSONObject();
 
-        String strReturnJson = gson.toJson(returnJson);
-        System.out.println(strReturnJson);
+        try{
+            String strPdtCode = coupangMapper.getStrPdtCode(intAID);
 
+            JSONObject returnJson = coupangApi.coupangGetApi("travel/lodgings/" + strPdtCode);
+
+            // 응답값 처리
+            String returnCode = returnJson.get("code").toString();
+
+            if(returnCode.equals("200")){
+                dataJson = (JSONObject) returnJson.get("data");
+            }else{
+                message = "쿠팡 api 호출 실패";
+            }
+            logWriter.add(message);
+            logWriter.log(0);
+        }catch (Exception e){
+            e.printStackTrace();message = "상품 조회 실패";
+            statusCode = "500";
+            logWriter.add("error : " + e.getMessage());
+            logWriter.log(0);
+
+        }
+
+        return commonFunction.makeReturn(dataType, statusCode, message, dataJson);
     }
 
     // 취소규정 생성
@@ -835,6 +855,70 @@ public class CoupangService {
                         "영업일(주말, 토/공휴일 제외) 17시 기준으로 취소 위약금이 부과됩니다. \n";
 
         return cancelPolicyNotice;
+    }
+
+    // 요금/수량
+    public String creUpdGoods(String dataType, int intRmIdx, String strDate, HttpServletRequest httpServletRequest){
+        LogWriter logWriter = new LogWriter(httpServletRequest.getMethod(), httpServletRequest.getServletPath(),
+                httpServletRequest.getQueryString(), System.currentTimeMillis());
+        String statusCode = "200";
+        String message = "";
+        try{
+//            Map<String, Object> map = coupangMapper.getIntAIDnPdtCode(intRmIdx);
+//            int intAID = Integer.parseInt(map.get("intAID").toString());
+//            String strPdtCode = map.get("strPdtCode").toString();
+
+            int intAID = 10021;
+            String strPdtCode = "test";
+
+            int failCnt = 0;
+            List<StockDto> stockList = commonMapper.getStockList(intAID, intOmkIdx, strDate);
+            for(StockDto stock : stockList){
+                JSONArray lodgingInventoryDtos = new JSONArray();
+                JSONObject stockJson = new JSONObject();
+                stockJson.put("rateId", stock.getStrCprateCode());
+                stockJson.put("checkInDate", stock.getDateSales());
+                stockJson.put("stockCount", stock.getIntStock());
+                stockJson.put("originalPrice", stock.getMoneyCost());
+                stockJson.put("salePrice", stock.getMoneySales());
+
+                lodgingInventoryDtos.add(stockJson);
+
+                JSONObject requestJson = new JSONObject();
+                requestJson.put("lodgingInventoryDtos", lodgingInventoryDtos);
+
+                String strRequest = gson.toJson(requestJson);
+                System.out.println(strRequest);
+
+                // API 호출
+                JSONObject returnJson = coupangApi.coupangPatchApi(strRequest, "travel/lodgings/" + strPdtCode + "/rooms/" + stock.getStrCpItemCode());
+                // 응답값 처리
+                String returnCode = returnJson.get("code").toString();
+                String returnMsg = returnJson.get("message").toString();
+                if(!returnCode.equals("200")){
+                    failCnt ++;
+
+                    System.out.println("code : " + returnCode + " >> " + returnMsg);
+                }
+            }
+            if(failCnt > 0){
+                message = "쿠팡 api 호출 실패";
+            }else{
+                message = "상품 삭제 완료";
+            }
+
+            logWriter.add(message);
+            logWriter.log(0);
+        }catch (Exception e){
+            e.printStackTrace();
+
+            message = "재고&요금 등록/수정 실패";
+            statusCode = "500";
+            logWriter.add("error : " + e.getMessage());
+            logWriter.log(0);
+        }
+
+        return commonFunction.makeReturn(dataType, statusCode, message);
     }
 
 }

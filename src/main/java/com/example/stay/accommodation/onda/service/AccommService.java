@@ -232,10 +232,15 @@ public class AccommService {
                         if(facilityList.get(i).equals("매점/편의점")){
                             facilityList.set(i, "마트/편의점");
                         }
+                        if(facilityList.get(i).equals("피트니스")){
+                            facilityList.set(i, "피트니스센터");
+                        }
 
                         facility = accommMapper.getStrCodeByStrName("ACCOMM_ADD_FAC", facilityList.get(i));
 
-                        strFacilityDatas += facility + "{{|}}";
+                        if(facility != null){
+                            strFacilityDatas += facility + "{{|}}";
+                        }
                     }
 
                     strFacilityDatas = strFacilityDatas.substring(0, strFacilityDatas.length()-5);
@@ -310,6 +315,24 @@ public class AccommService {
                     int intQuanStd = Integer.parseInt(capacity.get("standard").toString());
                     int intQuanMax = Integer.parseInt(capacity.get("max").toString());
 
+                    JSONObject rmTags = (JSONObject) roomDetailJson.get("tags");
+                    JSONArray tagArr = (JSONArray) rmTags.get("views");
+                    List<String> tagList = new ArrayList<>();
+                    if(tagArr != null){
+                        for(Object t : tagArr){
+                           tagList.add(t.toString());
+                        }
+
+                    }
+
+                    String strRmTagDatas = "";
+                    if(!tagList.isEmpty()){
+                        for(String t : tagList){
+                            strRmTagDatas += accommMapper.getStrCodeByStrName("RM_STD_VIEW", t) + "{{~}}";
+                        }
+                        strRmTagDatas = strRmTagDatas.substring(0, strRmTagDatas.length()-5);
+                    }
+
                     String strRmDescription = roomDetailJson.get("description").toString();
                     int intRmsize = Integer.parseInt(roomDetailJson.get("size").toString());
 
@@ -349,8 +372,8 @@ public class AccommService {
                         strRmImgDatas = strRmImgDatas.substring(0, strRmImgDatas.length()-5);
                     }
 
-                    String strRmtypeData = strRmDeleteYn + "|^|" + strIngYn  + "|^|" + intQuanStd + "|^|" +
-                            intQuanMax + "|^|" + intRmsize + "|^|" + strRmtypeName + "|^|" + strRmDescription + "|^|" + strRmtypeID + "|^|";
+                    String strRmtypeData = strRmDeleteYn + "|^|" + strIngYn  + "|^|" + intQuanStd + "|^|" + intQuanMax + "|^|" +
+                            intRmsize + "|^|" + strRmtypeName + "|^|" + strRmDescription + "|^|" + strRmtypeID + "|^|" + strRmTagDatas + "|^|";
 
                     // rateplan 리스트 조회
                     String ratePlanListUrl = "properties/" + strPropertyID + "/roomtypes/" + strRmtypeID + "/rateplans";
@@ -703,6 +726,24 @@ public class AccommService {
             int intQuanStd = Integer.parseInt(capacity.get("standard").toString());
             int intQuanMax = Integer.parseInt(capacity.get("max").toString());
 
+            JSONObject rmTags = (JSONObject) roomDetailJson.get("tags");
+            JSONArray tagArr = (JSONArray) rmTags.get("views");
+            List<String> tagList = new ArrayList<>();
+            if(tagArr != null){
+                for(Object t : tagArr){
+                    tagList.add(t.toString());
+                }
+
+            }
+
+            String strRmTagDatas = "";
+            if(!tagList.isEmpty()){
+                for(String t : tagList){
+                    strRmTagDatas += accommMapper.getStrCodeByStrName("RM_STD_VIEW", t) + "{{~}}";
+                }
+                strRmTagDatas = strRmTagDatas.substring(0, strRmTagDatas.length()-5);
+            }
+
             String strRmDescription = roomDetailJson.get("description").toString();
 
             String strRoomTypeStatus = roomDetailJson.get("status").toString();
@@ -743,8 +784,8 @@ public class AccommService {
                 strRmImgDatas = strRmImgDatas.substring(0, strRmImgDatas.length()-5);
             }
 
-            String strRmtypeData = strRmDeleteYn + "|^|" + strIngYn  + "|^|" + intQuanStd + "|^|" +
-                    intQuanMax + "|^|" + intRmsize + "|^|" + strRmtypeName + "|^|" + strRmDescription + "|^|" + strRmtypeID + "|^|";
+            String strRmtypeData = strRmDeleteYn + "|^|" + strIngYn  + "|^|" + intQuanStd + "|^|" + intQuanMax + "|^|" +
+                    intRmsize + "|^|" + strRmtypeName + "|^|" + strRmDescription + "|^|" + strRmtypeID + "|^|" + strRmTagDatas + "|^|";
 
             // strRateplanID가 특정되어있으면 반복문X
             if(strRateplanID.equals("")){
