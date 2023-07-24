@@ -1,14 +1,12 @@
 package com.example.stay.openMarket.coupang.service;
 
 import com.example.stay.common.util.CommonFunction;
-import com.example.stay.common.util.Constants;
 import com.example.stay.common.util.LogWriter;
 import com.example.stay.openMarket.common.dto.AccommDto;
 import com.example.stay.openMarket.common.dto.CancelRulesDto;
 import com.example.stay.openMarket.common.dto.RoomTypeDto;
 import com.example.stay.openMarket.common.dto.StockDto;
 import com.example.stay.openMarket.common.mapper.CommonMapper;
-import com.example.stay.openMarket.common.service.CommonService;
 import com.example.stay.openMarket.coupang.Api.CoupangApi;
 import com.example.stay.openMarket.coupang.mapper.CoupangMapper;
 import com.google.gson.Gson;
@@ -22,12 +20,10 @@ import javax.servlet.http.HttpServletRequest;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 
 @Service
-public class CoupangService {
+public class CpAccommService {
 
     @Autowired
     private CommonMapper commonMapper;
@@ -750,19 +746,38 @@ public class CoupangService {
     }
 
     // 숙박 상품 조회
-    public void getAccomm(int intAID){
-        String strPdtCode = coupangMapper.getStrPdtCode(intAID);
+    public String getAccomm(String dataType, int intAID, HttpServletRequest httpServletRequest){
+        LogWriter logWriter = new LogWriter(httpServletRequest.getMethod(), httpServletRequest.getServletPath(),
+                httpServletRequest.getQueryString(), System.currentTimeMillis());
+        String statusCode = "200";
+        String message = "";
 
-        JSONObject returnJson = coupangApi.coupangGetApi("travel/lodgings/" + strPdtCode);
+        JSONObject dataJson = new JSONObject();
 
-        // 응답값 처리
-        String returnCode = returnJson.get("code").toString();
-        if(returnCode.equals("200")){
-            JSONObject dataJson = (JSONObject) returnJson.get("data");
+        try{
+            String strPdtCode = coupangMapper.getStrPdtCode(intAID);
 
-            System.out.println(gson.toJson(dataJson));
+            JSONObject returnJson = coupangApi.coupangGetApi("travel/lodgings/" + strPdtCode);
+
+            // 응답값 처리
+            String returnCode = returnJson.get("code").toString();
+
+            if(returnCode.equals("200")){
+                dataJson = (JSONObject) returnJson.get("data");
+            }else{
+                message = "쿠팡 api 호출 실패";
+            }
+            logWriter.add(message);
+            logWriter.log(0);
+        }catch (Exception e){
+            e.printStackTrace();message = "상품 조회 실패";
+            statusCode = "500";
+            logWriter.add("error : " + e.getMessage());
+            logWriter.log(0);
+
         }
 
+        return commonFunction.makeReturn(dataType, statusCode, message, dataJson);
     }
 
     // 취소규정 생성
