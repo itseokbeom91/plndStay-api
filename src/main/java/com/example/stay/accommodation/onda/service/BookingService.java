@@ -38,50 +38,22 @@ public class BookingService {
     // 예약 전 예약 가능 여부 조회
     public boolean checkAvailBooking(String propertyId, String roomTypeId, String ratePlanId, String checkInDate, String checkOutDate){
         boolean availability = false;
-        long startTime = System.currentTimeMillis();
-
-        OkHttpClient client = new OkHttpClient();
-
-        Request request = new Request.Builder()
-                .url(Constants.ondaPath + "properties/" + propertyId + "/roomtypes/" + roomTypeId + "/rateplans/" + ratePlanId + "/checkavail?checkin=" + checkInDate + "&checkout=" + checkOutDate)
-                .get()
-                .addHeader("accept", "application/json")
-                .addHeader("Authorization", Constants.ondaAuth)
-                .build();
-
-        LogWriter logWriter = new LogWriter(request.method(), request.url().toString(), startTime);
-
         try{
-            Response response = client.newCall(request).execute();
+            String url = "properties/" + propertyId + "/roomtypes/" + roomTypeId + "/rateplans/" + ratePlanId + "/checkavail?checkin=" + checkInDate + "&checkout=" + checkOutDate;
 
-            if(response.isSuccessful()){
-                // response 파싱
-                String responseBody = response.body().string();
-//                System.out.println("responseBody : " + responseBody);
-
-                JSONParser jsonParser = new JSONParser();
-                JSONObject responseJson = (JSONObject) jsonParser.parse(responseBody);
-
+            JSONObject responseJson = callOndaGetAPI(url);
+            if(responseJson != null){
                 availability = (boolean) responseJson.get("availability");
-                JSONArray datesArr = (JSONArray) responseJson.get("dates");
-                String dates = "";
-                for(int i=0; i<datesArr.size(); i++){
-                    JSONObject datesJson = (JSONObject) datesArr.get(i);
-                    String date = datesJson.get("date").toString();
-                    int vacancy = Integer.parseInt(datesJson.get("vacancy").toString());
-
-                    dates += gson.toJson(datesJson);
-
-                }
-
-                logWriter.add(dates);
-                logWriter.log(0);
+//                JSONArray datesArr = (JSONArray) responseJson.get("dates");
+//                String dates = "";
+//                for(int i=0; i<datesArr.size(); i++){
+//                    JSONObject datesJson = (JSONObject) datesArr.get(i);
+//                    String date = datesJson.get("date").toString();
+//                    int vacancy = Integer.parseInt(datesJson.get("vacancy").toString());
+//                }
             }
         }catch (Exception e){
             e.printStackTrace();
-
-            logWriter.add("error : " + e.getMessage());
-            logWriter.log(0);
         }
         return availability;
     }
@@ -246,34 +218,12 @@ public class BookingService {
 
     public boolean createBooking(String propertyId, JSONObject requestJson, int intCondoID, int intRoomID, int intRateID, long stayDays){
         boolean result = false;
-        String message = "";
-        long startTime = System.currentTimeMillis();
-        String contents = requestJson.toJSONString();
-
-        OkHttpClient client = new OkHttpClient();
-
-        MediaType mediaType = MediaType.parse("application/json; charset=utf-8");
-        RequestBody body = RequestBody.create(contents, mediaType);
-        Request request = new Request.Builder()
-                .url(Constants.ondaPath + "properties/" + propertyId + "/bookings")
-                .post(body)
-                .addHeader("accept", "application/json")
-                .addHeader("content-type", "application/json")
-                .addHeader("Authorization", Constants.ondaAuth)
-                .build();
-
-        LogWriter logWriter = new LogWriter(request.method(), request.url().toString(), startTime);
-        logWriter.addRequest(gson.toJson(requestJson));
-
         String bookingID = "";
         try{
-            Response response = client.newCall(request).execute();
+            String url = "properties/" + propertyId + "/bookings";
+            JSONObject responseJson = callOndaPostAPI(url, requestJson);
 
-            String responseBody = response.body().string();
-            JSONParser jsonParser = new JSONParser();
-            JSONObject responseJson = (JSONObject) jsonParser.parse(responseBody);
-
-            if(response.isSuccessful()){
+            if(responseJson != null){
                 int intBookingID = Integer.parseInt(responseJson.get("channel_booking_number").toString());
                 String strSpBookingId = responseJson.get("booking_number").toString();
 
@@ -322,45 +272,22 @@ public class BookingService {
                     result = true;
                 }
             }
-
-            message = gson.toJson(responseJson);
-            logWriter.add(message);
-            logWriter.log(0);
         }catch (Exception e){
             e.printStackTrace();
-
-            logWriter.add("error : " + e.getMessage());
-            logWriter.log(0);
         }
         return result;
     }
 
     // 예약 확인
     public String checkBooking(String propertyId, String strSpBookingId){
-        long startTime = System.currentTimeMillis();
         String strStatus = "";
 
-        OkHttpClient client = new OkHttpClient();
-
-        Request request = new Request.Builder()
-                .url(Constants.ondaPath + "properties/" + propertyId + "/bookings/" + strSpBookingId)
-                .get()
-                .addHeader("accept", "application/json")
-                .addHeader("Authorization", Constants.ondaAuth)
-                .build();
-
-        LogWriter logWriter = new LogWriter(request.method(), request.url().toString(), startTime);
-
         try{
-            Response response = client.newCall(request).execute();
+            String url = "properties/" + propertyId + "/bookings/" + strSpBookingId;
 
-            String responseBody = response.body().string();
-            JSONParser jsonParser = new JSONParser();
-            JSONObject responseJson = (JSONObject) jsonParser.parse(responseBody);
+            JSONObject responseJson = callOndaGetAPI(url);
 
-            System.out.println("responseJson : " + responseJson);
-
-            if(response.isSuccessful()) {
+            if(responseJson != null){
                 String status = responseJson.get("status").toString();
                 if (status.equals("pending")) {
                     strStatus = "2"; // 번호대기
@@ -370,19 +297,12 @@ public class BookingService {
                     strStatus = "14"; // 취소대기
                 }
             }
-
-            logWriter.add("ONDA 현재 예약 상태 : " + strStatus);
-            logWriter.log(0);
         }catch (Exception e){
             e.printStackTrace();
-
-            logWriter.add("error : " + e.getMessage());
-            logWriter.log(0);
         }
 
         return strStatus;
     }
-
 
     public String cancelBookingInfo(String dataType, int intBookingID, HttpServletRequest httpServletRequest){
         LogWriter logWriter = new LogWriter(httpServletRequest.getMethod(), httpServletRequest.getServletPath(),
@@ -440,97 +360,62 @@ public class BookingService {
 
     // 예약 취소
     public boolean cancelBooking(int intBookingID, String propertyId, String strSpBookingId, JSONObject requestJson){
-        long startTime = System.currentTimeMillis();
         boolean result = false;
-        String message = "";
-
-        OkHttpClient client = new OkHttpClient();
-
-        String contents = requestJson.toJSONString();
-
-        MediaType mediaType = MediaType.parse("application/json; charset=utf-8");
-        RequestBody body = RequestBody.create(contents, mediaType);
-        Request request = new Request.Builder()
-                .url(Constants.ondaPath + "properties/" + propertyId + "/bookings/" + strSpBookingId + "/cancel")
-                .put(body)
-                .addHeader("accept", "application/json")
-                .addHeader("content-type", "application/json")
-                .addHeader("Authorization", Constants.ondaAuth)
-                .build();
-
-        LogWriter logWriter = new LogWriter(request.method(), request.url().toString(), startTime);
-        logWriter.addRequest(gson.toJson(requestJson));
         try{
-            Response response = client.newCall(request).execute();
+            String url = "properties/" + propertyId + "/bookings/" + strSpBookingId + "/cancel";
 
-            String responseBody = response.body().string();
-            JSONParser jsonParser = new JSONParser();
-            JSONObject responseJson = (JSONObject) jsonParser.parse(responseBody);
+            JSONObject responseJson = callOndaPutAPI(url, requestJson);
 
-            if(response.isSuccessful()) {
+            if(responseJson != null){
                 // Booking 상태값 업데이트 -> 취소대기로
                 int updateResult = bookingMapper.updateBookingStatus("14", intBookingID);
                 if(updateResult > 0){
                     result = true;
                 }
             }
-
-            message = gson.toJson(responseJson);
-            logWriter.add(message);
-            logWriter.log(0);
         }catch (Exception e){
             e.printStackTrace();
-
-            logWriter.add("error : " + e.getMessage());
-            logWriter.log(0);
         }
         return result;
     }
 
-    // 취소/환불 규정 가져오기 -> 언제 사용할건지 정해서 return 어떻게할지 정해야함
+    // 취소/환불 규정 조회
+    // TODO : 언제 사용할건지 정해서 return 어떻게할지 정해야함
     public void getCancelPolicy(String propertyId, String roomTypeId, String ratePlanId,
                                 String strCheckInDate, String strCheckOutDate, HttpServletRequest httpServletRequest){
-        long startTime = System.currentTimeMillis();
+        LogWriter logWriter = new LogWriter(httpServletRequest.getMethod(), httpServletRequest.getServletPath(),
+                httpServletRequest.getQueryString(), System.currentTimeMillis());
         String message = "";
 
-        OkHttpClient client = new OkHttpClient();
-
-        Request request = new Request.Builder()
-                .url(Constants.ondaPath + "properties/" + propertyId + "/roomtypes/" + roomTypeId + "/rateplans/" + ratePlanId
-                        + "/refund_policy?checkin=" + strCheckInDate + "&checkout=" + strCheckOutDate)
-                .get()
-                .addHeader("accept", "application/json")
-                .addHeader("Authorization", Constants.ondaAuth)
-                .build();
-        LogWriter logWriter = new LogWriter(request.method(), request.url().toString(), startTime);
+        JSONObject responseJson = new JSONObject();
         try{
-            Response response = client.newCall(request).execute();
+            String url = "properties/" + propertyId + "/roomtypes/" + roomTypeId + "/rateplans/" + ratePlanId
+                    + "/refund_policy?checkin=" + strCheckInDate + "&checkout=" + strCheckOutDate;
+            responseJson = callOndaGetAPI(url);
 
-            String responseBody = response.body().string();
-            JSONParser jsonParser = new JSONParser();
-            JSONObject responseJson = (JSONObject) jsonParser.parse(responseBody);
+            if(responseJson != null){
+                String refundType = responseJson.get("refund_type").toString();
+                JSONArray refundPolicyArr = (JSONArray) responseJson.get("refund_policy");
+                for(int i=0; i< refundPolicyArr.size(); i++){
+                    JSONObject refundPolicyJson = (JSONObject) refundPolicyArr.get(i);
 
-            message = gson.toJson(responseJson);
+                    // 한국날짜시간으로 변경
+                    SimpleDateFormat sdf = new SimpleDateFormat ("yyyy-MM-dd'T'HH:mm:ssXXX"); // 2023-05-25T15:00:23+09:00
+                    SimpleDateFormat sdf2 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
-            String refundType = responseJson.get("refund_type").toString();
-            JSONArray refundPolicyArr = (JSONArray) responseJson.get("refund_policy");
-            for(int i=0; i< refundPolicyArr.size(); i++){
-                JSONObject refundPolicyJson = (JSONObject) refundPolicyArr.get(i);
+                    Date originDate = sdf.parse(refundPolicyJson.get("until").toString());
 
-                // 한국날짜시간으로 변경
-                SimpleDateFormat sdf = new SimpleDateFormat ("yyyy-MM-dd'T'HH:mm:ssXXX"); // 2023-05-25T15:00:23+09:00
-                SimpleDateFormat sdf2 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                    Calendar cal = Calendar.getInstance();
+                    cal.setTime(originDate);
+                    cal.add(Calendar.HOUR, 9);
+                    String strUntilDate = sdf2.format(cal.getTime());
 
-                Date originDate = sdf.parse(refundPolicyJson.get("until").toString());
-
-                Calendar cal = Calendar.getInstance();
-                cal.setTime(originDate);
-                cal.add(Calendar.HOUR, 9);
-                String strUntilDate = sdf2.format(cal.getTime());
-
-                int intPercent = Integer.parseInt(refundPolicyJson.get("percent").toString());
-                int intRefundPrice = Integer.parseInt(refundPolicyJson.get("refund_amount").toString());
-                int intRefundFee = Integer.parseInt(refundPolicyJson.get("charge_amount").toString());
+                    int intPercent = Integer.parseInt(refundPolicyJson.get("percent").toString());
+                    int intRefundPrice = Integer.parseInt(refundPolicyJson.get("refund_amount").toString());
+                    int intRefundFee = Integer.parseInt(refundPolicyJson.get("charge_amount").toString());
+                }
+            }else{
+                message = "onda api 호출 실패";
             }
 
             logWriter.add(message);
@@ -545,27 +430,24 @@ public class BookingService {
     }
 
     // 예약 대사자료 조회
-    public void getBookings(String option, String strFrom, String strTo, HttpServletRequest httpServletRequest){
+    public String getBookings(String dataType, String option, String strFrom, String strTo, HttpServletRequest httpServletRequest){
+        LogWriter logWriter = new LogWriter(httpServletRequest.getMethod(), httpServletRequest.getServletPath(),
+                httpServletRequest.getQueryString(), System.currentTimeMillis());
+
+        String statusCode = "200";
         String message = "";
 
-        OkHttpClient client = new OkHttpClient();
-
-        Request request = new Request.Builder()
-                .url(Constants.ondaPath + "bookings?limit=500&option=" + option + "&from=" + strFrom + "&to=" + strTo)
-                .get()
-                .addHeader("accept", "application/json")
-                .addHeader("Authorization", Constants.ondaAuth)
-                .build();
-        LogWriter logWriter = new LogWriter(request.method(), request.url().toString(), System.currentTimeMillis());
+        JSONObject responseJson = new JSONObject();
         try{
-            Response response = client.newCall(request).execute();
-
-            String responseBody = response.body().string();
-            JSONParser jsonParser = new JSONParser();
-            JSONObject responseJson = (JSONObject) jsonParser.parse(responseBody);
-
-            message = gson.toJson(responseJson);
-
+            String url = "bookings?limit=500&option=" + option + "&from=" + strFrom + "&to=" + strTo;
+            responseJson = callOndaGetAPI(url);
+            
+            if(responseJson != null){
+                message = "예약 대사자료 조회 완료";
+            }else{
+                message = "onda api 호출 실패";
+            }
+            
             logWriter.add(message);
             logWriter.log(0);
         }catch (Exception e){
@@ -574,5 +456,129 @@ public class BookingService {
             logWriter.add("error : " + e.getMessage());
             logWriter.log(0);
         }
+        return commonFunction.makeReturn(dataType, statusCode, message, responseJson);
+    }
+
+    public JSONObject callOndaGetAPI(String url){
+        long startTime = System.currentTimeMillis();
+        JSONObject responseJson = new JSONObject();
+        String message = "";
+
+        OkHttpClient client = new OkHttpClient();
+
+        Request request = new Request.Builder()
+                .url(Constants.ondaPath + url)
+                .get()
+                .addHeader("accept", "application/json")
+                .addHeader("Authorization", Constants.ondaAuth)
+                .build();
+
+        LogWriter logWriter = new LogWriter(request.method(), request.url().toString(), startTime);
+        try {
+            Response response = client.newCall(request).execute();
+            if(response.isSuccessful()){
+                // response 파싱
+                String responseBody = response.body().string();
+
+                JSONParser jsonParser = new JSONParser();
+                responseJson = (JSONObject) jsonParser.parse(responseBody);
+                message = gson.toJson(responseJson);
+
+            }else{
+                message = "response code : " + response.code();
+            }
+            logWriter.add(message);
+            logWriter.log(0);
+        }catch (Exception e){
+            e.printStackTrace();
+
+            logWriter.add("error : " + e.getMessage());
+            logWriter.log(0);
+        }
+        return responseJson;
+    }
+
+    public JSONObject callOndaPostAPI(String url, JSONObject requestJson){
+        long startTime = System.currentTimeMillis();
+        JSONObject responseJson = new JSONObject();
+        String message = "";
+
+        OkHttpClient client = new OkHttpClient();
+
+        MediaType mediaType = MediaType.parse("application/json; charset=utf-8");
+        RequestBody body = RequestBody.create(gson.toJson(requestJson), mediaType);
+        Request request = new Request.Builder()
+                .url(Constants.ondaPath + url)
+                .post(body)
+                .addHeader("accept", "application/json")
+                .addHeader("Authorization", Constants.ondaAuth)
+                .build();
+
+        LogWriter logWriter = new LogWriter(request.method(), request.url().toString(), startTime);
+
+        try {
+            Response response = client.newCall(request).execute();
+            if(response.isSuccessful()){
+                // response 파싱
+                String responseBody = response.body().string();
+
+                JSONParser jsonParser = new JSONParser();
+                responseJson = (JSONObject) jsonParser.parse(responseBody);
+                message = gson.toJson(responseJson);
+
+            }else{
+                message = "response code : " + response.code();
+            }
+            logWriter.add(message);
+            logWriter.log(0);
+        }catch (Exception e){
+            e.printStackTrace();
+
+            logWriter.add("error : " + e.getMessage());
+            logWriter.log(0);
+        }
+        return responseJson;
+    }
+
+    public JSONObject callOndaPutAPI(String url, JSONObject requestJson){
+        long startTime = System.currentTimeMillis();
+        JSONObject responseJson = new JSONObject();
+        String message = "";
+
+        OkHttpClient client = new OkHttpClient();
+
+        MediaType mediaType = MediaType.parse("application/json; charset=utf-8");
+        RequestBody body = RequestBody.create(gson.toJson(requestJson), mediaType);
+        Request request = new Request.Builder()
+                .url(Constants.ondaPath + url)
+                .put(body)
+                .addHeader("accept", "application/json")
+                .addHeader("Authorization", Constants.ondaAuth)
+                .build();
+
+        LogWriter logWriter = new LogWriter(request.method(), request.url().toString(), startTime);
+
+        try {
+            Response response = client.newCall(request).execute();
+            if(response.isSuccessful()){
+                // response 파싱
+                String responseBody = response.body().string();
+
+                JSONParser jsonParser = new JSONParser();
+                responseJson = (JSONObject) jsonParser.parse(responseBody);
+                message = gson.toJson(responseJson);
+
+            }else{
+                message = "response code : " + response.code();
+            }
+            logWriter.add(message);
+            logWriter.log(0);
+        }catch (Exception e){
+            e.printStackTrace();
+
+            logWriter.add("error : " + e.getMessage());
+            logWriter.log(0);
+        }
+        return responseJson;
     }
 }

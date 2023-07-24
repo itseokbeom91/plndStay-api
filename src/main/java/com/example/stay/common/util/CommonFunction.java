@@ -54,6 +54,7 @@ public class CommonFunction<T> {
     public String makeReturn(String returnType, String statusCode, String message, T result){
 
         String strResult = "";
+
         try{
             JSONObject jsonObject = new JSONObject();
             jsonObject.put("code", statusCode);
@@ -64,8 +65,8 @@ public class CommonFunction<T> {
                 strResult = jsonObject.toJSONString();
             }else if(returnType.equals("jsonp")){
                 strResult = Constants.jsonpCallback + "(" + jsonObject.toJSONString() + ")";
-            }else if(returnType.equals("화면출력???")){
-                strResult = "?????????";
+            }else if(returnType.equals("view")){
+                strResult = jsonObject.toJSONString();
             }
 
         }catch (Exception e){
