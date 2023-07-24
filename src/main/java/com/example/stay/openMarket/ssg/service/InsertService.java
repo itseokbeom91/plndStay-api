@@ -9,6 +9,7 @@ import com.example.stay.openMarket.common.mapper.CommonMapper;
 import com.example.stay.openMarket.common.service.CommonApiService;
 import com.example.stay.common.util.Constants;
 import com.example.stay.openMarket.common.service.CommonService;
+import com.example.stay.openMarket.ssg.mapper.SsgMapper;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.json.simple.JSONObject;
@@ -28,10 +29,7 @@ import java.util.Scanner;
 public class InsertService {
 
     @Autowired
-    private CommonApiService commonApiService;
-
-    @Autowired
-    private CommonApiMapper commonApiMapper;
+    private SsgMapper ssgMapper;
 
     @Autowired
     private CommonService commonService;
@@ -47,6 +45,7 @@ public class InsertService {
         try {
 
             AccommDto accommDto = commonService.getAcmInfo(intAID, 7); // 7이 내부 SSG 오픈마켓 idx 값
+            String strBrandId = ssgMapper.getBrnadId(intAID); // 시설별 브랜드 id 값
 
             // 검색어 필수 값이므로 만약 검색어 데이터가 없을 시 시설명으로 설정
             String strKeywords = (accommDto.getStrKeywords() != null)? accommDto.getStrKeywords() : accommDto.getStrSubject();
@@ -58,7 +57,7 @@ public class InsertService {
             // =============================
             JSONObject insertObject = new JSONObject();
             insertObject.put("itemNm", accommDto.getStrSubject()); // 상품명
-            insertObject.put("brandId", "3000024556"); // 브랜드 ID
+            insertObject.put("brandId", strBrandId); // 브랜드 ID
             insertObject.put("stdCtgId", "4000004432"); // 표준 카테고리 ID
             insertObject.put("dispStrtDts", "20220711000000"); // 전시 시작 일시
             insertObject.put("dispEndDts", "20990201235900"); // 전시 종료 일시
