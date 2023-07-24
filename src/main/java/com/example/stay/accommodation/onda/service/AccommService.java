@@ -1009,6 +1009,40 @@ public class AccommService {
         return commonFunction.makeReturn(dataType, statusCode, message);
     }
 
+    // 기간내 최저가 숙소 정보 조회
+    public String getLowestPrice(String dataType, int intAID, String from, String to, HttpServletRequest httpServletRequest){
+        LogWriter logWriter = new LogWriter(httpServletRequest.getMethod(), httpServletRequest.getServletPath(),
+                httpServletRequest.getQueryString(), System.currentTimeMillis());
+
+        String statusCode = "200";
+        String message = "";
+
+        try{
+            String strPropertyID = accommMapper.getPropertyID(intAID);
+            String url = "properties/" + strPropertyID + "/lowest_price?from=" + from + "&to=" + to;
+            JSONObject lowestAccomm = callOndaAPI(url);
+            
+            // TODO : 조회한 날짜별 금액 어디에 저장해서 쓸건지 필요
+            if(lowestAccomm != null){
+                JSONArray lowestPriceArr = (JSONArray) lowestAccomm.get("lowest_prices");
+                for(Object lp : lowestPriceArr){
+                    JSONObject lowestJson = (JSONObject) lp;
+
+                    String strDate = lowestJson.get("date").toString();
+                    int intLowestPrice = Integer.parseInt(lowestJson.get("lowest_price").toString());
+                }
+            }else{
+                message = "onda api 호출 실패";
+            }
+        }catch (Exception e){
+            e.printStackTrace();
+            logWriter.add("error : " + e.getMessage());
+            logWriter.log(0);
+        }
+
+        return commonFunction.makeReturn(dataType, statusCode, message);
+    }
+
     // CONTENTS_PHOTO, CONDO_PHOTO에 INSERT
     public String accommPhotoContentsReg(String strImage, int intSize, String strPropertyID, String strRmtypeID){
         String strAccommPhotoContent = "";
@@ -1026,7 +1060,6 @@ public class AccommService {
                     strFileName = filePathArr[j];
                 }
             }
-
 
             Path directoryPath = null;
             String filePath = "";

@@ -41,21 +41,6 @@
         WHERE intIdx = ${intRmIdx}
     </select>
 
-
-<!--    <select id="getRoomAdminCnt" parameterType="String" resultType="int">-->
-<!--        SELECT ISNULL(MAX(admin_count), 1)-->
-<!--        FROM test_room_type RT WITH(NOLOCK)-->
-<!--            JOIN test_condo C WITH(NOLOCK) ON RT.intCondoID = C.intCondoID-->
-<!--        WHERE C.accomm_id = #{propertyId}-->
-<!--    </select>-->
-
-<!--    <select id="getAIDByStrPropertyID" parameterType="String" resultType="int">-->
-<!--        SELECT intAID-->
-<!--        FROM ACCOMM WITH(NOLOCK)-->
-<!--        WHERE strPropertyID = ${strPropertyID}-->
-<!--            AND strType = "OND"-->
-<!--    </select>-->
-
     <select id="updateStatus" parameterType="String" resultType="String">
         EXEC PLNDSTAY.dbo.spONDA_ACCOMM_STATUS_UPDATE #{target}, #{strDeleteYn}, #{strViewYn}, #{propertyId}, #{roomTypeId}, #{ratePlanId}, ''
     </select>
@@ -71,12 +56,17 @@
             AND A.strDeleteYn = 'N'
     </select>
 
-
     <select id="getStrCodeByStrName" parameterType="String" resultType="String">
         SELECT strCode
         FROM PLNDSTAY.dbo.CODE_SYSTEM WITH(NOLOCK)
         WHERE
             strCateCode = #{strCateCode}
             AND strName = #{strName}
+    </select>
+
+    <select id="getPropertyID" parameterType="int" resultType="String">
+        SELECT strPropertyID
+        FROM PLNDSTAY.dbo.ACCOMM WITH(NOLOCK)
+        WHERE intAID = ${intAID}
     </select>
 </mapper>

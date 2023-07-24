@@ -20,13 +20,9 @@ public interface AccommMapper {
 
     String webhookUpdateGoods(String strStockDatas);
 
-//    Map<String, String> getPropertyIDNRmtypeID(String strRmtypeID);
+    String getPropertyID(int intAID);
 
     Map<String, Object> getStrRateplanIDNIntAID(int intRmIdx);
-
-//    int getRoomAdminCnt(String intCondoId);
-//
-//    int getAIDByStrPropertyID(String strPropertyID);
 
     String updateStatus(String target, String strDeleteYn, String strViewYn, String propertyId, String roomTypeId, String ratePlanId);
 
