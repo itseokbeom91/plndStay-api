@@ -8,7 +8,7 @@ import java.util.Map;
 @Repository("onda.AccommMapper")
 public interface AccommMapper {
 
-    String insertAccommTotal(String strPropertyID, String strDeleteYn, String strViewYn, String strApiFlag,
+    String insertAccommTotal(String strPropertyID, String strDeleteYn, String strViewYn, String strType,
                              String strDistrict1, String strDistrict2, String strSubject, String strLat, String strLon,
                              String strCheckIn, String strCheckOut, String strPhone, String strFax, String strEmail, String strZipCode,
                              String strAddr1, String strAddr2, String strDescription, String strRsvGuide, String strAcmNotice,String strImgDatas,
