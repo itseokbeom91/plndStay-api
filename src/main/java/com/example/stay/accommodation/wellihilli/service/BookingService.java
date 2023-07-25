@@ -1,6 +1,6 @@
 package com.example.stay.accommodation.wellihilli.service;
 
-import com.example.stay.accommodation.wellihilli.mapper.BookingMapper;
+import com.example.stay.accommodation.wellihilli.mapper.WellihilliMapper;
 import com.example.stay.common.util.CommonFunction;
 import com.example.stay.common.util.Constants;
 import com.example.stay.common.util.LogWriter;
@@ -10,11 +10,9 @@ import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
 import org.json.simple.parser.JSONParser;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Service;
 
 import javax.servlet.http.HttpServletRequest;
-import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.text.SimpleDateFormat;
 import java.time.DayOfWeek;
@@ -25,7 +23,7 @@ import java.util.Date;
 public class BookingService {
 
     @Autowired
-    private BookingMapper bookingMapper;
+    private WellihilliMapper wellihilliMapper;
 
     CommonFunction commonFunction = new CommonFunction();
 
@@ -45,7 +43,7 @@ public class BookingService {
             String code = jsonNode.get("status").toString();
 
             if(code.equals("200")){
-                String rmtypeID = bookingMapper.getStrRmtypeID(intRmIdx);
+                String rmtypeID = wellihilliMapper.getStrRmtypeID(intRmIdx);
 
                 String strStockDatas = "";
                 SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd");
@@ -115,7 +113,7 @@ public class BookingService {
                 if(strStockDatas.length() > 0){
                     strStockDatas = strStockDatas.substring(0, strStockDatas.length()-5);
 
-                    String result = bookingMapper.updateGoods(strStockDatas);
+                    String result = wellihilliMapper.updateGoods(strStockDatas);
                     String strResult = result.substring(result.length()-4);
                     if(strResult.equals("저장완료")){
                         message = "재고 등록/수정 완료";
@@ -259,14 +257,14 @@ public class BookingService {
                 httpServletRequest.getQueryString(), System.currentTimeMillis());
 
         try{
-            // 우리 예약 테이블에서 정보 가져와서 세팅
-            String strCheckIn = "20230801";
-            String strCheckOut = "20230802";
+            // TODO : 우리 예약 테이블에서 정보 가져와서 세팅
+            String strCheckIn = "20230823";
+            String strCheckOut = "20230824";
             String pyung = "13";
             String sleep = "1";
             String roomCount = "1";
             String roomType = "S";
-            String pkgCode = "K648";
+            String pkgCode = "k049";
             // 예약 가능한지 확인
             if(checkAvailBooking(pyung, strCheckIn, sleep, roomCount, roomType)){
                 // 예약 api 호출
@@ -284,7 +282,7 @@ public class BookingService {
                 requestJson.put("s_arrday", strCheckIn);
                 requestJson.put("s_nightsu", sleep);
                 requestJson.put("s_deptday", strCheckOut);
-                requestJson.put("s_guest", "손유정");
+                requestJson.put("s_guest", "개발테스트");
                 requestJson.put("s_resvname", "㈜동무해피데이즈");
                 requestJson.put("s_resvtel", "01029405275");
                 requestJson.put("s_recordck", "R");
@@ -300,11 +298,8 @@ public class BookingService {
                     // 예약 성공
                     if(returnCode.equals("1")){
                         message = "예약성공";
-                    }else if(returnCode.equals("X")){ // 회원 아님
-                        message = returnCode;
-                    }else { // 객실없음
-                        System.out.println("객실없음");
-                        message = returnCode;
+                    }else {
+                        message = "예약 실패";
                     }
 
                 }else{
@@ -336,7 +331,7 @@ public class BookingService {
 
         try{
             // 우리 예약 테이블에서 정보 가져와서 세팅
-            String pkgCode = "K648";
+            String pkgCode = "k049";
 
             // 예약 취소 api 호출
             String strUrl = Constants.whpUrl + ":8070/api/vapi/reservation/room_access_regist";
@@ -344,16 +339,16 @@ public class BookingService {
 
             JSONObject requestJson = new JSONObject();
             requestJson.put("s_access_cd", pkgCode + "-101");
-            requestJson.put("s_resvno", "");
+            requestJson.put("s_resvno", "T50928");
             requestJson.put("s_fit", "F");
             requestJson.put("s_resrm", "C");
             requestJson.put("s_pyung", "13");
-            requestJson.put("s_travelcd", "K648");
+            requestJson.put("s_travelcd", "K049");
             requestJson.put("s_roomsu", "1");
-            requestJson.put("s_arrday", "20230801");
+            requestJson.put("s_arrday", "20230823");
             requestJson.put("s_nightsu", "1");
-            requestJson.put("s_deptday", "20230802");
-            requestJson.put("s_guest", "테스트예약");
+            requestJson.put("s_deptday", "20230824");
+            requestJson.put("s_guest", "개발테스트");
             requestJson.put("s_resvname", "㈜동무해피데이즈");
             requestJson.put("s_resvtel", "01029405275");
             requestJson.put("s_recordck", "C");
@@ -362,7 +357,7 @@ public class BookingService {
             JsonNode jsonNode = commonFunction.callJsonApi("", "", requestJson, strUrl, method);
             String code = jsonNode.get("status").toString();
             if(code.equals("200")){
-
+                message = "예약 취소 완료";
             }else{
                 message = "예약 취소 실패";
             }
@@ -389,7 +384,7 @@ public class BookingService {
 
         try{
             // 우리 예약 테이블에서 정보 가져와서 세팅
-            String pkgCode = "K648";
+            String pkgCode = "k049";
 
             // 예약 수정 api 호출
             String strUrl = Constants.whpUrl + ":8070/api/vapi/reservation/room_access_regist";
@@ -397,16 +392,16 @@ public class BookingService {
 
             JSONObject requestJson = new JSONObject();
             requestJson.put("s_access_cd", pkgCode + "-101");
-            requestJson.put("s_resvno", "O80894");
+            requestJson.put("s_resvno", "T50928");
             requestJson.put("s_fit", "F");
             requestJson.put("s_resrm", "C");
             requestJson.put("s_pyung", "13");
             requestJson.put("s_travelcd", pkgCode);
             requestJson.put("s_roomsu", "1");
-            requestJson.put("s_arrday", "20230801");
+            requestJson.put("s_arrday", "20230823");
             requestJson.put("s_nightsu", "1");
-            requestJson.put("s_deptday", "20230802");
-            requestJson.put("s_guest", "테스트예약");
+            requestJson.put("s_deptday", "20230824");
+            requestJson.put("s_guest", "개발테스트");
             requestJson.put("s_resvname", "㈜동무해피데이즈");
             requestJson.put("s_resvtel", "01029405275");
             requestJson.put("s_recordck", "U");
@@ -415,7 +410,7 @@ public class BookingService {
             JsonNode jsonNode = commonFunction.callJsonApi("", "", requestJson, strUrl, method);
             String code = jsonNode.get("status").toString();
             if(code.equals("200")){
-
+                message = "예약 수정 완료";
             }else{
                 message = "예약 수정 실패";
             }
