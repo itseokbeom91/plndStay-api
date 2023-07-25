@@ -210,17 +210,18 @@ public class InsertService {
             JSONObject itemImgsObject = new JSONObject();
 
             // 메인사진 10장 DB에서 가져오기
-            //List<String> photoList = commonApiService.getMainPhotoList(intNum);
-            List<String> photoList = commonService.getPhotoList(intAID, 10);
 
+            System.out.println(accommDto.getStrACMPhotos());
+            String[] photos = accommDto.getStrACMPhotos().split("\\|");
             List<Object> dataPhotoList = new ArrayList<>();
-            for(int i=0; i<photoList.size(); i++){
+            for(int i=0; i<10; i++){
                 JSONObject imgObject = new JSONObject();
                 imgObject.put("dataSeq", (i+1));
-                imgObject.put("dataFileNm", photoList.get(i).toString());
+                imgObject.put("dataFileNm", "https://condo24.com"+photos[i]);
                 imgObject.put("rplcTextNm", "이미지"+(i+1));
                 dataPhotoList.add(imgObject);
             }
+
             itemImgsObject.put("imgInfo",dataPhotoList);
 
             insertObject.put("itemImgs",itemImgsObject);
