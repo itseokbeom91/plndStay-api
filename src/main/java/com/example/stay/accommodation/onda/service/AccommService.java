@@ -1,6 +1,6 @@
 package com.example.stay.accommodation.onda.service;
 
-import com.example.stay.accommodation.onda.mapper.AccommMapper;
+import com.example.stay.accommodation.onda.mapper.OndaMapper;
 import com.example.stay.common.util.*;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -27,9 +27,9 @@ import java.util.*;
 
 @Service("onda.AccommService")
 public class AccommService {
-
+    
     @Autowired
-    private AccommMapper accommMapper;
+    private OndaMapper ondaMapper;
 
     CommonFunction commonFunction = new CommonFunction();
 
@@ -110,7 +110,7 @@ public class AccommService {
 
                 String strCity = address.get("city").toString();
 
-                Map<String, String> districtMap = accommMapper.getDistrictCode(strRegion, strCity);
+                Map<String, String> districtMap = ondaMapper.getDistrictCode(strRegion, strCity);
                 String strDistrict1 = districtMap.get("strDistrict1");
                 String strDistrict2 = districtMap.get("strDistrict2");
 
@@ -236,7 +236,7 @@ public class AccommService {
                             facilityList.set(i, "피트니스센터");
                         }
 
-                        facility = accommMapper.getStrCodeByStrName("ACCOMM_ADD_FAC", facilityList.get(i));
+                        facility = ondaMapper.getStrCodeByStrName("ACCOMM_ADD_FAC", facilityList.get(i));
 
                         if(facility != null){
                             strFacilityDatas += facility + "{{|}}";
@@ -328,7 +328,7 @@ public class AccommService {
                     String strRmTagDatas = "";
                     if(!tagList.isEmpty()){
                         for(String t : tagList){
-                            strRmTagDatas += accommMapper.getStrCodeByStrName("RM_STD_VIEW", t) + "{{~}}";
+                            strRmTagDatas += ondaMapper.getStrCodeByStrName("RM_STD_VIEW", t) + "{{~}}";
                         }
                         strRmTagDatas = strRmTagDatas.substring(0, strRmTagDatas.length()-5);
                     }
@@ -418,7 +418,7 @@ public class AccommService {
                         boolean breakfastYn = (boolean) mealJson.get("breakfast");
                         String strBreakFastCode = "";
                         if(breakfastYn){
-                            strBreakFastCode = accommMapper.getStrCodeByStrName("RM_ICON", "조식");
+                            strBreakFastCode = ondaMapper.getStrCodeByStrName("RM_ICON", "조식");
                         }
 
                         strRmtypeDatas += strRmtypeData + strRatePlanId + "|^|" + intMinSleep + "|^|" + intMaxSleep + "|^|" +
@@ -431,7 +431,7 @@ public class AccommService {
                     strRmtypeDatas = strRmtypeDatas.substring(0, strRmtypeDatas.length()-5);
                 }
 
-                String result = accommMapper.insertAccommTotal(strPropertyID, strDeleteYn, strViewYn, strType,
+                String result = ondaMapper.insertAccommTotal(strPropertyID, strDeleteYn, strViewYn, strType,
                         strDistrict1, strDistrict2, strSubject, strLat, strLon, strCheckIn, strCheckOut,
                         strPhone, strFax, strEmail, strZipCode, strAddr1, strAddr2, strDescription, strRsvGuide,
                         strAcmNotice, strImgDatas, strPenaltyDatas, strKeyWordDatas, strAttractionDatas, strFacilityDatas, strRmtypeDatas);
@@ -501,7 +501,7 @@ public class AccommService {
 
             String strCity = address.get("city").toString();
 
-            Map<String, String> districtMap = accommMapper.getDistrictCode(strRegion, strCity);
+            Map<String, String> districtMap = ondaMapper.getDistrictCode(strRegion, strCity);
             String strDistrict1 = districtMap.get("strDistrict1");
             String strDistrict2 = districtMap.get("strDistrict2");
 
@@ -624,7 +624,7 @@ public class AccommService {
                         facilityList.set(i, "마트/편의점");
                     }
 
-                    facility = accommMapper.getStrCodeByStrName("ACCOMM_ADD_FAC", facilityList.get(i));
+                    facility = ondaMapper.getStrCodeByStrName("ACCOMM_ADD_FAC", facilityList.get(i));
 
                     strFacilityDatas += facility + "{{|}}";
                 }
@@ -678,7 +678,7 @@ public class AccommService {
             }
             strPenaltyDatas = strPenaltyDatas.substring(0, strPenaltyDatas.length()-5);
 
-            String result = accommMapper.insertAccommTotal(strPropertyID, strDeleteYn, strViewYn, strType,
+            String result = ondaMapper.insertAccommTotal(strPropertyID, strDeleteYn, strViewYn, strType,
                     strDistrict1, strDistrict2, strSubject, strLat, strLon, strCheckIn, strCheckOut,
                     strPhone, strFax, strEmail, strZipCode, strAddr1, strAddr2, strDescription, strRsvGuide,
                     strAcmNotice, strImgDatas, strPenaltyDatas, strKeyWordDatas, strAttractionDatas, strFacilityDatas, "");
@@ -739,7 +739,7 @@ public class AccommService {
             String strRmTagDatas = "";
             if(!tagList.isEmpty()){
                 for(String t : tagList){
-                    strRmTagDatas += accommMapper.getStrCodeByStrName("RM_STD_VIEW", t) + "{{~}}";
+                    strRmTagDatas += ondaMapper.getStrCodeByStrName("RM_STD_VIEW", t) + "{{~}}";
                 }
                 strRmTagDatas = strRmTagDatas.substring(0, strRmTagDatas.length()-5);
             }
@@ -832,7 +832,7 @@ public class AccommService {
                     boolean breakfastYn = (boolean) mealJson.get("breakfast");
                     String strBreakFastCode = "";
                     if(breakfastYn){
-                        strBreakFastCode = accommMapper.getStrCodeByStrName("RM_ICON", "조식");
+                        strBreakFastCode = ondaMapper.getStrCodeByStrName("RM_ICON", "조식");
                     }
 
                     strRmtypeDatas += strRmtypeData + strRatePlanId + "|^|" + intMinSleep + "|^|" + intMaxSleep + "|^|" +
@@ -869,14 +869,14 @@ public class AccommService {
                 boolean breakfastYn = (boolean) mealJson.get("breakfast");
                 String strBreakFastCode = "";
                 if(breakfastYn){
-                    strBreakFastCode = accommMapper.getStrCodeByStrName("RM_ICON", "조식");
+                    strBreakFastCode = ondaMapper.getStrCodeByStrName("RM_ICON", "조식");
                 }
 
                 strRmtypeDatas = strRmtypeData + strRateplanID + "|^|" + intMinSleep + "|^|" + intMaxSleep + "|^|" +
                         strBreakFastCode + "|^|" + strDepth + "|^|" + strRefundYn + "|^|" + strRmImgDatas;
             }
             
-            String result = accommMapper.updateRmtype(strPropertyID, strRmtypeDatas);
+            String result = ondaMapper.updateRmtype(strPropertyID, strRmtypeDatas);
 
             if(result.equals("")){
                 message = "객실 등록 및 수정 완료";
@@ -907,7 +907,7 @@ public class AccommService {
         String statusCode = "200";
         String message = "";
 
-        Map<String, Object> map = accommMapper.getStrRateplanIDNIntAID(intRmIdx);
+        Map<String, Object> map = ondaMapper.getStrRateplanIDNIntAID(intRmIdx);
         String strRateplanID = map.get("strRateplanID").toString();
         int intAID = Integer.parseInt(map.get("intAID").toString());
 
@@ -984,7 +984,7 @@ public class AccommService {
 
                 strStockDatas = strStockDatas.substring(0, strStockDatas.length()-5);
 
-                String result = accommMapper.updateGoods(intAID, intRmIdx, strStockDatas);
+                String result = ondaMapper.updateGoods(intAID, intRmIdx, strStockDatas);
                 String strResult = result.substring(result.length()-4);
                 if(strResult.equals("저장완료")){
                     message = "재고 등록/수정 완료";
@@ -1018,7 +1018,7 @@ public class AccommService {
         String message = "";
 
         try{
-            String strPropertyID = accommMapper.getPropertyID(intAID);
+            String strPropertyID = ondaMapper.getPropertyID(intAID);
             String url = "properties/" + strPropertyID + "/lowest_price?from=" + from + "&to=" + to;
             JSONObject lowestAccomm = callOndaAPI(url);
             
@@ -1168,7 +1168,7 @@ public class AccommService {
                 String strDeleteYn = statusMap.get("strDeleteYn");
                 String strViewYn = statusMap.get("strIngYn");
 
-                String updateStatusresult = accommMapper.updateStatus(target, strDeleteYn, strViewYn, strPropertyID, strRmtypeID, strRateplanID);
+                String updateStatusresult = ondaMapper.updateStatus(target, strDeleteYn, strViewYn, strPropertyID, strRmtypeID, strRateplanID);
                 if(!updateStatusresult.equals("")){
                     result = true;
                 }
@@ -1221,7 +1221,7 @@ public class AccommService {
                 strStockDatas = strStockDatas.substring(0, strStockDatas.length()-5);
 
                 // 있으면 업데이트 없으면 생성
-                String updateResult = accommMapper.webhookUpdateGoods(strStockDatas);
+                String updateResult = ondaMapper.webhookUpdateGoods(strStockDatas);
                 String strResult = updateResult.substring(updateResult.length()-4);
                 if(strResult.equals("저장완료")){
                     result = true;

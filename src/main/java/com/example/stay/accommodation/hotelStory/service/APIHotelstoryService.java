@@ -2,16 +2,13 @@ package com.example.stay.accommodation.hotelStory.service;
 
 import com.example.stay.accommodation.hotelStory.dto.BookingDto;
 import com.example.stay.accommodation.hotelStory.mapper.HotelStoryMapper;
-import com.example.stay.accommodation.onda.mapper.AccommMapper;
 import com.example.stay.common.util.Constants;
 import com.example.stay.common.util.UrlResourceDownloader;
 import com.example.stay.common.util.XmlUtility;
-import com.example.stay.openMarket.common.dto.CancelInfoDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 import org.w3c.dom.Document;

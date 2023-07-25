@@ -1,12 +1,9 @@
 package com.example.stay.accommodation.elysian_gangchon.service;
 
-import com.example.stay.accommodation.elysian_gangchon.mapper.BookingMapper;
+import com.example.stay.accommodation.elysian_gangchon.mapper.ElysianMapper;
 import com.example.stay.common.util.CommonFunction;
 import com.example.stay.common.util.Constants;
 import com.example.stay.common.util.LogWriter;
-import com.google.gson.JsonObject;
-import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -15,18 +12,14 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
 
 @Service("elysian_gangchon.BookingService")
 public class BookingService {
 
     @Autowired
-    private BookingMapper bookingMapper;
+    private ElysianMapper elysianMapper;
 
     CommonFunction commonFunction = new CommonFunction();
 
@@ -46,7 +39,7 @@ public class BookingService {
             String strResponse = callElysAPI(elysUrl);
 
             if(strResponse != null && !strResponse.equals("")){
-                int intAID = bookingMapper.getIntAID(intRmIdx);
+                int intAID = elysianMapper.getIntAID(intRmIdx);
 
                 String strStockDatas = "";
                 String[] responseArr = strResponse.split("#");
@@ -72,7 +65,7 @@ public class BookingService {
                 }
                 strStockDatas = strStockDatas.substring(0, strStockDatas.length()-5);
 
-                String result = bookingMapper.updateGoods(intAID, intRmIdx, strStockDatas);
+                String result = elysianMapper.updateGoods(intAID, intRmIdx, strStockDatas);
                 String strResult = result.substring(result.length()-4);
 
                 if(strResult.equals("저장완료")){

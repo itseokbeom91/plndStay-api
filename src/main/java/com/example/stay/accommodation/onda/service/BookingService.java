@@ -1,35 +1,28 @@
 package com.example.stay.accommodation.onda.service;
 
-import com.example.stay.accommodation.onda.mapper.BookingMapper;
+import com.example.stay.accommodation.onda.mapper.OndaMapper;
 import com.example.stay.common.util.CommonFunction;
 import com.example.stay.common.util.Constants;
 import com.example.stay.common.util.LogWriter;
 import com.example.stay.openMarket.common.dto.BookingDto;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.google.gson.JsonObject;
 import okhttp3.*;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import javax.servlet.http.HttpServletRequest;
 import java.text.SimpleDateFormat;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeFormatterBuilder;
 import java.util.*;
 
 @Service
 public class BookingService {
 
     @Autowired
-    private BookingMapper bookingMapper;
+    private OndaMapper ondaMapper;
 
     CommonFunction commonFunction = new CommonFunction();
 
@@ -88,7 +81,7 @@ public class BookingService {
         String message = "";
         try{
             // intOrderID로 필요한 정보 조회
-            BookingDto bookingDto = bookingMapper.getBookingByIntBookingID(intBookingID);
+            BookingDto bookingDto = ondaMapper.getBookingByIntBookingID(intBookingID);
 
             String strBookingProcess = bookingDto.getStrBookingProcess();
             String propertyId = bookingDto.getAccommId();
@@ -190,7 +183,7 @@ public class BookingService {
                 // 상태값이 확정으로 바꼈으면 업데이트
                 // 재고, 환불규정은 예약 생성할 때 업데이트 했으니까 상태값만 업데이트하면됨
                 if (strStatus.equals("4")) { // 예약 완료처리
-                    int result = bookingMapper.updateBookingStatus(strBookingProcess, intBookingID);
+                    int result = ondaMapper.updateBookingStatus(strBookingProcess, intBookingID);
                     if(result > 0){
                         message = "예약 완료";
                     }else{
@@ -267,7 +260,7 @@ public class BookingService {
                 strRefundPolicies = strRefundPolicies.substring(0, strRefundPolicies.length()-5);
 
                 // booking 테이블 UPDATE, refund_policy 테이블 INSERT
-                bookingID = bookingMapper.updateBooking(intBookingID, intCondoID, intRoomID, intRateID, strSpBookingId, strRefundPolicies, stayDays);
+                bookingID = ondaMapper.updateBooking(intBookingID, intCondoID, intRoomID, intRateID, strSpBookingId, strRefundPolicies, stayDays);
                 if(bookingID != null){
                     result = true;
                 }
@@ -313,7 +306,7 @@ public class BookingService {
 
         try{
             // intOrderID로 필요한 정보 조회
-            BookingDto bookingDto = bookingMapper.getBookingByIntBookingID(intBookingID);
+            BookingDto bookingDto = ondaMapper.getBookingByIntBookingID(intBookingID);
 
             String propertyId = bookingDto.getAccommId();
             String strSpBookingId = bookingDto.getStrSpBookingId();
@@ -368,7 +361,7 @@ public class BookingService {
 
             if(responseJson != null){
                 // Booking 상태값 업데이트 -> 취소대기로
-                int updateResult = bookingMapper.updateBookingStatus("14", intBookingID);
+                int updateResult = ondaMapper.updateBookingStatus("14", intBookingID);
                 if(updateResult > 0){
                     result = true;
                 }

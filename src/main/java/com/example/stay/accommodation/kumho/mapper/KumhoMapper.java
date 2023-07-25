@@ -5,8 +5,8 @@ import org.springframework.stereotype.Repository;
 
 import java.util.Map;
 
-@Repository("kumho.BookingMapper")
-public interface BookingMapper {
+@Repository
+public interface KumhoMapper {
 
     BookingDto getBookingByIntBookingID(int intBookingID);
 
