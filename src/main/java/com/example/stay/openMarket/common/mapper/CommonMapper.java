@@ -25,4 +25,6 @@ public interface CommonMapper {
     List<CancelRulesDto> getCancelRuleList(int intAID);
 
     RoomTypeDto getRmtpeInfo(int intRmIdx, int intOmkIdx);
+
+    String insertAcmOmk(int intAID, int intOmkIdx, String strUsageYn, String strPdtSubject, String strPdtCode, String strDetailInfo);
 }

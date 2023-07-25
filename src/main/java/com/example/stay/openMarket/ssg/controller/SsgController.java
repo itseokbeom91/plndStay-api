@@ -79,6 +79,14 @@ public class SsgController {
         ssgService.getCancelList(startDate,endDate);
     }
 
+    // 브랜드ID 검색
+    @GetMapping("/getBrandId")
+    public void getBrandId(int intAID){
+
+        ssgService.getBrandId(intAID);
+
+    }
+
 
     /**
      * 상품 정보 수정
@@ -107,40 +115,11 @@ public class SsgController {
     }
 
 
-    /**
-     * 상품 정보 등록
-     * @param intAID
-     * @param model
-     * @return
-     */
+    // 상품 정보 등록
     @GetMapping("insert")
-    public String insertSSG(int intAID, Model model){
+    public void insertSSG(int intAID){
 
-        String result = "";
+        insertService.insert(intAID);
 
-        try {
-
-            result = insertService.insert(intAID);
-
-            JSONObject object = (JSONObject) new JSONParser().parse(result);
-            JSONObject jsonObject = (JSONObject) new JSONParser().parse(object.get("result").toString());
-            System.out.println(result);
-            System.out.println(jsonObject.get("resultCode"));
-            if(jsonObject.get("resultCode").toString().equals("00") && jsonObject.get("resultMessage").toString().equals("SUCCESS")){
-                System.out.println("success");
-//                String strItemId = jsonObject.get("itemId").toString();
-//                int intResult = commonApiMapper.updateOmkId(intNum, strOmk, strItemId);
-//                System.out.println(intResult +" | 1:성공, 0:실패");
-            }else{
-                System.out.println("fail");
-            }
-
-            model.addAttribute("result", result);
-
-        }catch (Exception e){
-            e.printStackTrace();
-        }
-
-        return "api/ssgGet";
     }
 }
