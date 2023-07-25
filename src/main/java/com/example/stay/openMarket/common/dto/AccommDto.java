@@ -24,6 +24,7 @@ public class AccommDto {
     private String strPhone;            // 전화번호
     private String strCheckIn;
     private String strCheckOut;
+    private String strAcmNotice;        // 시설 공지사항
 
 
 

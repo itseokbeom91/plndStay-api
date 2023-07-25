@@ -6,6 +6,7 @@ import com.example.stay.openMarket.coupang.hmac.HmacGenerater;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 //import jdk.jpackage.internal.Log;
+import org.apache.catalina.util.URLEncoder;
 import org.apache.http.HttpEntity;
 import org.apache.http.client.methods.*;
 import org.apache.http.client.utils.URIBuilder;
@@ -102,7 +103,7 @@ public class CoupangApi {
 
             put.setEntity (entity);
 
-            returnJson =  httpExecute(put);
+            returnJson = httpExecute(put);
 
             if(returnJson != null){
                 logWriter.add(gson.toJson(returnJson));
@@ -122,7 +123,10 @@ public class CoupangApi {
      * @param strPath
      */
     public JSONObject coupangGetApi(String strPath) {
+        System.out.println("strPath : " + strPath);
+
         URIBuilder uriBuilder = new URIBuilder()
+//        (Constants.cpUrl + strPath).replace("%3F", "?").replace("\\u003d", "=").replace("%20", "").replace("\\u0026", "&")
                 .setPath(Constants.cpUrl + strPath)
 //                    .addParameter("searchStartDateTime", "20130501000000")
 //                    .addParameter("searchEndDateTime", "20130530000000")
@@ -139,12 +143,59 @@ public class CoupangApi {
 
             HttpGet get = new HttpGet(uriBuilder.build().toString());
             get.addHeader("Authorization", authorization);
-            get.addHeader("content-type", "application/json; charset=UTF-8");
+            get.addHeader("Content-type", "application/json; charset=UTF-8");
+            get.addHeader("Accept-Charset", "UTF-8");
             get.addHeader("Request-Vendor-Id", Constants.cpVendorId);
 
             returnJson = httpExecute(get);
 
+            if(returnJson != null){
+                logWriter.add(gson.toJson(returnJson));
+            }
 
+            logWriter.log(0);
+        } catch (Exception e) {
+            e.printStackTrace();
+            logWriter.add("error : " + e.getMessage());
+            logWriter.log(0);
+        }
+        return returnJson;
+    }
+
+    public JSONObject coupangGetApi2(String strPath, String startDate, String endDate) {
+        System.out.println("strPath : " + strPath);
+
+        URIBuilder uriBuilder = new URIBuilder()
+//        (Constants.cpUrl + strPath).replace("%3F", "?").replace("\\u003d", "=").replace("%20", "").replace("\\u0026", "&")
+                .setPath(Constants.cpUrl + strPath)
+//                    .addParameter("searchStartDateTime", "20130501000000")
+//                    .addParameter("searchEndDateTime", "20130530000000")
+                .addParameter("offset", "0")
+                .addParameter("limit", "100")
+                .addParameter("startDate", startDate)
+                .addParameter("endDate", endDate);
+
+        LogWriter logWriter = new LogWriter("GET", uriBuilder.getPath(), System.currentTimeMillis());
+
+        JSONObject returnJson = null;
+        try {
+            String authorization = HmacGenerater.generate("GET", uriBuilder.build().toString(), Constants.cpSecretKey, Constants.cpAccessKey);
+
+            uriBuilder.setScheme("https").setHost(Constants.cpHost).setPort(Constants.cpPort);
+
+            HttpGet get = new HttpGet(uriBuilder.build().toString());
+            get.addHeader("Authorization", authorization);
+            get.addHeader("Content-type", "application/json; charset=UTF-8");
+            get.addHeader("Accept-Charset", "UTF-8");
+            get.addHeader("Request-Vendor-Id", Constants.cpVendorId);
+
+            returnJson = httpExecute(get);
+
+            if(returnJson != null){
+                logWriter.add(gson.toJson(returnJson));
+            }
+
+            logWriter.log(0);
         } catch (Exception e) {
             e.printStackTrace();
             logWriter.add("error : " + e.getMessage());
@@ -182,6 +233,11 @@ public class CoupangApi {
 
             returnJson = httpExecute(patch);
 
+            if(returnJson != null){
+                logWriter.add(gson.toJson(returnJson));
+            }
+
+            logWriter.log(0);
         } catch (Exception e) {
             e.printStackTrace ();
             logWriter.add("error : " + e.getMessage());
@@ -235,13 +291,8 @@ public class CoupangApi {
             try {
                 response = client.execute(request);
 
-//                System.out.println ("status code:" + response.getStatusLine().getStatusCode());
-//                System.out.println ("status message:" + response.getStatusLine().getReasonPhrase());
-
                 HttpEntity entity = response.getEntity();
                 String result = EntityUtils.toString(entity);
-
-                System.out.println ("result:" + result);
 
                 JSONParser jsonParser = new JSONParser();
                 objData = jsonParser.parse(result);
