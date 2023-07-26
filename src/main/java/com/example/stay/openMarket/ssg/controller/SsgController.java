@@ -87,6 +87,14 @@ public class SsgController {
 
     }
 
+    // qna list 조회
+    @GetMapping("qnaList")
+    public void getQnaList(){
+
+        ssgService.getQnaList();
+
+    }
+
 
     /**
      * 상품 정보 수정

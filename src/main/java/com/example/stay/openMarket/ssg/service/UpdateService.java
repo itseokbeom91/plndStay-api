@@ -89,13 +89,14 @@ public class UpdateService {
 
             if(strType.equals("img")){
                 // 메인사진 10장 DB에서 가져오기
-                List<String> photoList = commonService.getPhotoList(intAID, 10);
+                //List<String> photoList = commonService.getPhotoList(intAID, 10);
 
+                String[] photos = accommDto.getStrACMPhotos().split("\\|");
                 List<Object> dataPhotoList = new ArrayList<>();
-                for(int i=0; i<photoList.size(); i++){
+                for(int i=0; i<10; i++){
                     JSONObject imgObject = new JSONObject();
                     imgObject.put("dataSeq", (i+1));
-                    imgObject.put("dataFileNm", photoList.get(i).toString());
+                    imgObject.put("dataFileNm", "https://condo24.com"+photos[i]);
                     imgObject.put("rplcTextNm", "이미지"+(i+1));
                     dataPhotoList.add(imgObject);
                 }
@@ -156,8 +157,8 @@ public class UpdateService {
                     // 1번옵션명(입실일자)
                     itemObject.put("uitemOptnTypeNm1", "일실입자");
 
-                    String strDate = dto.getDateSales().substring(0, dto.getDateSales().lastIndexOf("."));
-                    SimpleDateFormat dateDate = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                    String strDate = dto.getDateSales().trim();
+                    SimpleDateFormat dateDate = new SimpleDateFormat("yyyyMMdd");
                     Date dateStrDate = dateDate.parse(strDate);
                     SimpleDateFormat goodDate = new SimpleDateFormat("MM월dd일(E)");
                     // 캘린더형으로 할때 유형
@@ -215,8 +216,8 @@ public class UpdateService {
                 // 상품 목록 리스트에서 캘린더형으로 보이게
                 JSONObject attrObject = new JSONObject();
                 attrObject.put("uitemCacOptnYn", "N");
-                attrObject.put("uitemOptnChoiTypeCd1", "30"); // 10: 텍스트, 30: 캘린더
-                attrObject.put("uitemOptnExpsrTypeCd1", "20");
+                attrObject.put("uitemOptnChoiTypeCd1", "10"); // 10: 텍스트, 30: 캘린더
+                attrObject.put("uitemOptnExpsrTypeCd1", "10");
                 attrObject.put("uitemOptnChoiTypeCd2", "10");
                 attrObject.put("uitemOptnExpsrTypeCd2", "10");
 

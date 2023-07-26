@@ -231,9 +231,11 @@ public class InsertService {
             // 상품 상세페이지
             // =============================
             // DB에서 desc 이미지 가져오기(없으면 데이타 종합해서 html 코드)
-            //String strImgDesc = commonApiService.getStrPdtDtlInfo(accommDto, intAID, "SSG").replace("<", "&lt;").replace(">", "&gt;");
-            String strImgDesc = commonService.getStrPdtDtlInfo(accommDto, intAID, 7).replace("<", "&lt;").replace(">", "&gt;");
-            insertObject.put("itemDesc", strImgDesc);
+            String strImgDesc = commonService.getStrPdtDtlInfo(accommDto, intAID, 7);
+
+            // api 보낼 html코드 비교표현식 변환
+            String strApiImgDesc = strImgDesc.replace("<", "&lt;").replace(">", "&gt;");
+            insertObject.put("itemDesc", strApiImgDesc);
 
 
             // =============================

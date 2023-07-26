@@ -154,6 +154,11 @@ public class SsgService {
     }
 
 
+    /**
+     * 시설 브랜드 ID 조회
+     * @param intAID
+     * @return
+     */
     public String getBrandId(int intAID){
 
         String result = "";
@@ -173,6 +178,29 @@ public class SsgService {
                 result = "error";
             }
 
+
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+
+        return result;
+    }
+
+
+    public String getQnaList(){
+        String result = "";
+
+        try {
+            JSONObject jsonObject = new JSONObject();
+            JSONObject qnaObject = new JSONObject();
+
+            qnaObject.put("qnaStartDt", "202306010000");
+            qnaObject.put("qnaEndDt", "2023070250000");
+
+            jsonObject.put("postngReq", qnaObject);
+
+            JsonNode jsonNode = commonFunction.callJsonApi("SSG", "", jsonObject, "https://eapi.ssgadm.com/api/postng/qnaList.ssg", "POST");
+            System.out.println(jsonNode);
 
         }catch (Exception e){
             e.printStackTrace();
