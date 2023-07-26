@@ -79,7 +79,6 @@ public class CoupangApi {
      * @param strPath
      */
     public JSONObject coupangPutApi(String strRequest, String strPath){
-        //params
         String method = "PUT";
         JSONObject returnJson = null;
 
@@ -123,57 +122,12 @@ public class CoupangApi {
      * @param strPath
      */
     public JSONObject coupangGetApi(String strPath) {
-        System.out.println("strPath : " + strPath);
-
         URIBuilder uriBuilder = new URIBuilder()
-//        (Constants.cpUrl + strPath).replace("%3F", "?").replace("\\u003d", "=").replace("%20", "").replace("\\u0026", "&")
                 .setPath(Constants.cpUrl + strPath)
 //                    .addParameter("searchStartDateTime", "20130501000000")
 //                    .addParameter("searchEndDateTime", "20130530000000")
                 .addParameter("offset", "0")
                 .addParameter("limit", "100");
-
-        LogWriter logWriter = new LogWriter("GET", uriBuilder.getPath(), System.currentTimeMillis());
-
-        JSONObject returnJson = null;
-        try {
-            String authorization = HmacGenerater.generate("GET", uriBuilder.build().toString(), Constants.cpSecretKey, Constants.cpAccessKey);
-
-            uriBuilder.setScheme("https").setHost(Constants.cpHost).setPort(Constants.cpPort);
-
-            HttpGet get = new HttpGet(uriBuilder.build().toString());
-            get.addHeader("Authorization", authorization);
-            get.addHeader("Content-type", "application/json; charset=UTF-8");
-            get.addHeader("Accept-Charset", "UTF-8");
-            get.addHeader("Request-Vendor-Id", Constants.cpVendorId);
-
-            returnJson = httpExecute(get);
-
-            if(returnJson != null){
-                logWriter.add(gson.toJson(returnJson));
-            }
-
-            logWriter.log(0);
-        } catch (Exception e) {
-            e.printStackTrace();
-            logWriter.add("error : " + e.getMessage());
-            logWriter.log(0);
-        }
-        return returnJson;
-    }
-
-    public JSONObject coupangGetApi2(String strPath, String startDate, String endDate) {
-        System.out.println("strPath : " + strPath);
-
-        URIBuilder uriBuilder = new URIBuilder()
-//        (Constants.cpUrl + strPath).replace("%3F", "?").replace("\\u003d", "=").replace("%20", "").replace("\\u0026", "&")
-                .setPath(Constants.cpUrl + strPath)
-//                    .addParameter("searchStartDateTime", "20130501000000")
-//                    .addParameter("searchEndDateTime", "20130530000000")
-                .addParameter("offset", "0")
-                .addParameter("limit", "100")
-                .addParameter("startDate", startDate)
-                .addParameter("endDate", endDate);
 
         LogWriter logWriter = new LogWriter("GET", uriBuilder.getPath(), System.currentTimeMillis());
 
@@ -228,7 +182,7 @@ public class CoupangApi {
 
             logWriter.addRequest(strRequest);
 
-            StringEntity entity = new StringEntity (strRequest,"UTF-8" );
+            StringEntity entity = new StringEntity (strRequest,"UTF-8");
             patch.setEntity (entity);
 
             returnJson = httpExecute(patch);

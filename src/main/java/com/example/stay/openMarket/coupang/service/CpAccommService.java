@@ -7,6 +7,7 @@ import com.example.stay.openMarket.common.dto.CancelRulesDto;
 import com.example.stay.openMarket.common.dto.RoomTypeDto;
 import com.example.stay.openMarket.common.dto.StockDto;
 import com.example.stay.openMarket.common.mapper.CommonMapper;
+import com.example.stay.openMarket.common.service.CommonService;
 import com.example.stay.openMarket.coupang.Api.CoupangApi;
 import com.example.stay.openMarket.coupang.mapper.CoupangMapper;
 import com.google.gson.Gson;
@@ -24,6 +25,7 @@ import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class CpAccommService {
@@ -36,6 +38,9 @@ public class CpAccommService {
 
     @Autowired
     private CoupangApi coupangApi;
+
+    @Autowired
+    private CommonService commonService;
 
     CommonFunction commonFunction = new CommonFunction();
 
@@ -288,70 +293,73 @@ public class CpAccommService {
                     JSONObject requestJson = new JSONObject();
                     requestJson.put("lodgingCreateDtos", lodgingCreateDtos);
 
-                    // API 호출
-                    JSONObject returnJson = coupangApi.coupangPostApi(gson.toJson(requestJson), "travel/lodgings");
-                    // 응답값 처리
-                    String returnCode = returnJson.get("code").toString();
-                    if(returnCode.equals("200")){
-                        JSONObject dataJson = (JSONObject) returnJson.get("data");
-                        JSONArray successArr = (JSONArray) dataJson.get("success");
-                        JSONArray failArr = (JSONArray) dataJson.get("fail");
+                    System.out.println(requestJson);
 
-                        for(Object f : failArr) {
-                            JSONObject jsonObject = (JSONObject) f;
-                            if(jsonObject != null){
-                                String failReason = jsonObject.get("reason").toString();
-
-                                message = "상품 생성 실패";
-                                logWriter.add(failReason);
-                            }
-                            break;
-                        }
-
-                        for(Object s : successArr){
-                            JSONObject jsonObject = (JSONObject) s;
-                            if(jsonObject != null){
-                                String strPdtCode = jsonObject.get("travelProductId").toString();
-                                String strPdtSubject = jsonObject.get("name").toString();
-
-                                String itemCodeDatas = "";
-                                JSONArray roomArr = (JSONArray) jsonObject.get("rooms");
-                                for(Object r : roomArr){
-                                    JSONObject roomJson = (JSONObject) r;
-                                    String strCpItemCode = roomJson.get("travelItemId").toString();
-                                    int intRmIdx = Integer.parseInt(roomJson.get("sellerRoomId").toString());
-
-                                    itemCodeDatas += intRmIdx + "|^|" + strCpItemCode + "{{|}}";
-                                }
-                                itemCodeDatas = itemCodeDatas.substring(0, itemCodeDatas.length()-5);
-
-                                String rateCodeDatas = "";
-                                JSONArray rateArr = (JSONArray) jsonObject.get("rates");
-                                for(Object r : rateArr){
-                                    JSONObject rateJson = (JSONObject) r;
-                                    String strCpRateCode = rateJson.get("rateId").toString();
-                                    int intRmIdx = Integer.parseInt(rateJson.get("sellerRateId").toString());
-
-                                    rateCodeDatas += intRmIdx + "|^|" + strCpRateCode + "{{|}}";
-                                }
-                                rateCodeDatas = rateCodeDatas.substring(0, rateCodeDatas.length()-5);
-
-                                String insertResult = coupangMapper.insertCpCodes(intAID, strPdtCode, strPdtSubject, itemCodeDatas, rateCodeDatas);
-
-                                if(insertResult.equals("") || insertResult == null){
-                                    message = "상품 등록 완료";
-                                }else{
-                                    message = "상품 등록 완료 / 쿠팡 코드 DB 등록 실패";
-                                }
-                            }
-                            break;
-                        }
-                    }else{
-                        message = "쿠팡 api 호출 실패";
-                        logWriter.add("code : " + returnCode);
-                        String returnMsg = returnJson.get("message").toString();
-                        logWriter.add(returnMsg);
-                    }
+//                    // API 호출
+//                    JSONObject returnJson = coupangApi.coupangPostApi(gson.toJson(requestJson), "travel/lodgings");
+//                    // 응답값 처리
+//                    String returnCode = returnJson.get("code").toString();
+//                    if(returnCode.equals("200")){
+//                        JSONObject dataJson = (JSONObject) returnJson.get("data");
+//                        JSONArray successArr = (JSONArray) dataJson.get("success");
+//                        JSONArray failArr = (JSONArray) dataJson.get("fail");
+//
+//                        for(Object f : failArr) {
+//                            JSONObject jsonObject = (JSONObject) f;
+//                            if(jsonObject != null){
+//                                String failReason = jsonObject.get("reason").toString();
+//
+//                                message = "상품 생성 실패";
+//                                logWriter.add(failReason);
+//                            }
+//                            break;
+//                        }
+//
+//                        for(Object s : successArr){
+//                            JSONObject jsonObject = (JSONObject) s;
+//                            if(jsonObject != null){
+//                                String strPdtCode = jsonObject.get("travelProductId").toString();
+//                                String strPdtSubject = jsonObject.get("name").toString();
+//                                String strDetailInfo = commonService.getStrPdtDtlInfo(accommDto, intAID, intOmkIdx);
+//
+//                                String itemCodeDatas = "";
+//                                JSONArray roomArr = (JSONArray) jsonObject.get("rooms");
+//                                for(Object r : roomArr){
+//                                    JSONObject roomJson = (JSONObject) r;
+//                                    String strCpItemCode = roomJson.get("travelItemId").toString();
+//                                    int intRmIdx = Integer.parseInt(roomJson.get("sellerRoomId").toString());
+//
+//                                    itemCodeDatas += intRmIdx + "|^|" + strCpItemCode + "{{|}}";
+//                                }
+//                                itemCodeDatas = itemCodeDatas.substring(0, itemCodeDatas.length()-5);
+//
+//                                String rateCodeDatas = "";
+//                                JSONArray rateArr = (JSONArray) jsonObject.get("rates");
+//                                for(Object r : rateArr){
+//                                    JSONObject rateJson = (JSONObject) r;
+//                                    String strCpRateCode = rateJson.get("rateId").toString();
+//                                    int intRmIdx = Integer.parseInt(rateJson.get("sellerRateId").toString());
+//
+//                                    rateCodeDatas += intRmIdx + "|^|" + strCpRateCode + "{{|}}";
+//                                }
+//                                rateCodeDatas = rateCodeDatas.substring(0, rateCodeDatas.length()-5);
+//
+//                                String insertResult = coupangMapper.insertCpCodes(intAID, strPdtCode, strPdtSubject, strDetailInfo, itemCodeDatas, rateCodeDatas);
+//
+//                                if(insertResult.substring(insertResult.length()-4).equals("수정완료")){
+//                                    message = "상품 등록 완료";
+//                                }else{
+//                                    message = "상품 등록 완료 / 쿠팡 코드 DB 등록 실패";
+//                                }
+//                            }
+//                            break;
+//                        }
+//                    }else{
+//                        message = "쿠팡 api 호출 실패";
+//                        logWriter.add("code : " + returnCode);
+//                        String returnMsg = returnJson.get("message").toString();
+//                        logWriter.add(returnMsg);
+//                    }
                 }else{
                     message = "객실 정보가 존재하지 않습니다(쿠팡 연동여부 확인 필요)";
                 }
@@ -622,6 +630,7 @@ public class CpAccommService {
         try {
             // intAID로 strPdtCode 조회
             String strPdtCode = coupangMapper.getStrPdtCode(intAID);
+//            strPdtCode = "10000002706646";
             if(strPdtCode != null){
                 AccommDto accommDto = commonMapper.getAcmInfo(intAID, intOmkIdx);
 
@@ -629,7 +638,7 @@ public class CpAccommService {
                 accommJson.put("travelProductId", Long.parseLong(strPdtCode));
                 accommJson.put("sellerProductId", intAID);
                 accommJson.put("nation", "KR"); // 시설 국가
-                accommJson.put("name", accommDto.getStrSubject()); // 시설 이름
+                accommJson.put("name", URLEncoder.encode(accommDto.getStrSubject(), "utf-8")); // 시설 이름
                 accommJson.put("introduction", accommDto.getStrDescription()); // 시설 소개
                 accommJson.put("regionKeyword", accommDto.getStrRegionKeyword()); // 지역 키워드
 
@@ -779,6 +788,7 @@ public class CpAccommService {
         try {
             // intAID로 strPdtCode 조회
             String strPdtCode = coupangMapper.getStrPdtCode(intAID);
+//            strPdtCode = "10000002706646";
             if(strPdtCode != null){
                 // API 호출
                 JSONObject returnJson = coupangApi.coupangDeleteApi("travel/lodgings/" + strPdtCode);
@@ -820,6 +830,7 @@ public class CpAccommService {
 
         try{
             String strPdtCode = coupangMapper.getStrPdtCode(intAID);
+//            strPdtCode = "10000002706646";
 
             JSONObject returnJson = coupangApi.coupangGetApi("travel/lodgings/" + strPdtCode);
 
@@ -935,20 +946,23 @@ public class CpAccommService {
         String statusCode = "200";
         String message = "";
         try{
-//            Map<String, Object> map = coupangMapper.getIntAIDnPdtCode(intRmIdx);
-//            int intAID = Integer.parseInt(map.get("intAID").toString());
-//            String strPdtCode = map.get("strPdtCode").toString();
-
-            int intAID = 10021;
-            String strPdtCode = "test";
+            Map<String, Object> map = coupangMapper.getIntAIDnPdtCode(intRmIdx);
+            int intAID = Integer.parseInt(map.get("intAID").toString());
+            String strPdtCode = map.get("strPdtCode").toString();
 
             int failCnt = 0;
             List<StockDto> stockList = commonMapper.getStockList(intAID, intOmkIdx, strDate);
             for(StockDto stock : stockList){
                 JSONArray lodgingInventoryDtos = new JSONArray();
                 JSONObject stockJson = new JSONObject();
-                stockJson.put("rateId", stock.getStrCprateCode());
-                stockJson.put("checkInDate", stock.getDateSales());
+                stockJson.put("rateId", Long.parseLong(stock.getStrCprateCode()));
+
+                String strCheckInDate = stock.getDateSales().trim();
+                SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyyMMdd");
+                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+                strCheckInDate = sdf.format(simpleDateFormat.parse(strCheckInDate));
+
+                stockJson.put("checkInDate", strCheckInDate);
                 stockJson.put("stockCount", stock.getIntStock());
                 stockJson.put("originalPrice", stock.getMoneyCost());
                 stockJson.put("salePrice", stock.getMoneySales());
