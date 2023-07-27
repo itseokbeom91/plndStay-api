@@ -6,6 +6,7 @@ import com.example.stay.openMarket.coupang.hmac.HmacGenerater;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 //import jdk.jpackage.internal.Log;
+import org.apache.catalina.util.URLEncoder;
 import org.apache.http.HttpEntity;
 import org.apache.http.client.methods.*;
 import org.apache.http.client.utils.URIBuilder;
@@ -51,11 +52,13 @@ public class CoupangApi {
             post.addHeader ( "Content-Type", "application/json; charset=UTF-8");
             post.addHeader ( "Request-Vendor-Id", Constants.cpVendorId);
 
-            StringEntity entity = new StringEntity (strRequest);
+            if(strRequest != null){
+                StringEntity entity = new StringEntity (strRequest);
 
-            logWriter.addRequest(strRequest);
+                logWriter.addRequest(strRequest);
 
-            post.setEntity (entity);
+                post.setEntity (entity);
+            }
 
             returnJson =  httpExecute(post);
 
@@ -78,7 +81,6 @@ public class CoupangApi {
      * @param strPath
      */
     public JSONObject coupangPutApi(String strRequest, String strPath){
-        //params
         String method = "PUT";
         JSONObject returnJson = null;
 
@@ -102,7 +104,7 @@ public class CoupangApi {
 
             put.setEntity (entity);
 
-            returnJson =  httpExecute(put);
+            returnJson = httpExecute(put);
 
             if(returnJson != null){
                 logWriter.add(gson.toJson(returnJson));
@@ -139,12 +141,17 @@ public class CoupangApi {
 
             HttpGet get = new HttpGet(uriBuilder.build().toString());
             get.addHeader("Authorization", authorization);
-            get.addHeader("content-type", "application/json; charset=UTF-8");
+            get.addHeader("Content-type", "application/json; charset=UTF-8");
+            get.addHeader("Accept-Charset", "UTF-8");
             get.addHeader("Request-Vendor-Id", Constants.cpVendorId);
 
             returnJson = httpExecute(get);
 
+            if(returnJson != null){
+                logWriter.add(gson.toJson(returnJson));
+            }
 
+            logWriter.log(0);
         } catch (Exception e) {
             e.printStackTrace();
             logWriter.add("error : " + e.getMessage());
@@ -177,11 +184,16 @@ public class CoupangApi {
 
             logWriter.addRequest(strRequest);
 
-            StringEntity entity = new StringEntity (strRequest,"UTF-8" );
+            StringEntity entity = new StringEntity (strRequest,"UTF-8");
             patch.setEntity (entity);
 
             returnJson = httpExecute(patch);
 
+            if(returnJson != null){
+                logWriter.add(gson.toJson(returnJson));
+            }
+
+            logWriter.log(0);
         } catch (Exception e) {
             e.printStackTrace ();
             logWriter.add("error : " + e.getMessage());
@@ -235,13 +247,8 @@ public class CoupangApi {
             try {
                 response = client.execute(request);
 
-//                System.out.println ("status code:" + response.getStatusLine().getStatusCode());
-//                System.out.println ("status message:" + response.getStatusLine().getReasonPhrase());
-
                 HttpEntity entity = response.getEntity();
                 String result = EntityUtils.toString(entity);
-
-                System.out.println ("result:" + result);
 
                 JSONParser jsonParser = new JSONParser();
                 objData = jsonParser.parse(result);

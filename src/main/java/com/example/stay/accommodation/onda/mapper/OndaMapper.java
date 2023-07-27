@@ -1,12 +1,12 @@
 package com.example.stay.accommodation.onda.mapper;
 
-import com.example.stay.openMarket.common.dto.*;
+import com.example.stay.openMarket.common.dto.BookingDto;
 import org.springframework.stereotype.Repository;
 
 import java.util.Map;
 
-@Repository("onda.AccommMapper")
-public interface AccommMapper {
+@Repository
+public interface OndaMapper {
 
     String insertAccommTotal(String strPropertyID, String strDeleteYn, String strViewYn, String strType,
                              String strDistrict1, String strDistrict2, String strSubject, String strLat, String strLon,
@@ -20,13 +20,9 @@ public interface AccommMapper {
 
     String webhookUpdateGoods(String strStockDatas);
 
-//    Map<String, String> getPropertyIDNRmtypeID(String strRmtypeID);
+    String getPropertyID(int intAID);
 
     Map<String, Object> getStrRateplanIDNIntAID(int intRmIdx);
-
-//    int getRoomAdminCnt(String intCondoId);
-//
-//    int getAIDByStrPropertyID(String strPropertyID);
 
     String updateStatus(String target, String strDeleteYn, String strViewYn, String propertyId, String roomTypeId, String ratePlanId);
 
@@ -34,4 +30,10 @@ public interface AccommMapper {
 
     String getStrCodeByStrName(String strCateCode, String strName);
 
+    BookingDto getBookingByIntBookingID(int intOrderID);
+
+    String updateBooking(int intBookingID, int intCondoID, int intRoomID, int intRateID, String strSpBookingId,
+                         String strRefundPolicies, long stayDays);
+
+    int updateBookingStatus(String strBookingProcess, int intBookingID);
 }

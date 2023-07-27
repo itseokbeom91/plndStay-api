@@ -1,9 +1,8 @@
 package com.example.stay.accommodation.kumho.service;
 
-import com.example.stay.accommodation.kumho.mapper.BookingMapper;
+import com.example.stay.accommodation.kumho.mapper.KumhoMapper;
 import com.example.stay.common.util.*;
 import com.example.stay.openMarket.common.dto.BookingDto;
-import org.apache.catalina.util.ToStringUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
@@ -13,18 +12,9 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-import javax.print.Doc;
 import javax.servlet.http.HttpServletRequest;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamResult;
-import java.io.BufferedReader;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.StringWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLDecoder;
@@ -40,7 +30,7 @@ import java.util.concurrent.TimeUnit;
 public class BookingService {
 
     @Autowired
-    private BookingMapper bookingMapper;
+    private KumhoMapper kumhoMapper;
 
     @Autowired
     private XmlUtility xmlUtility;
@@ -56,7 +46,7 @@ public class BookingService {
         String statusCode = "200";
         String message = "";
         try{
-            BookingDto bookingDto = bookingMapper.getBookingByIntBookingID(intBookingID);
+            BookingDto bookingDto = kumhoMapper.getBookingByIntBookingID(intBookingID);
 
             String ipark_resno = Integer.toString(intBookingID); // 예약번호
             String area = bookingDto.getAccommId(); // 사업장(통영, 화순, 설악, 제주)
@@ -109,7 +99,7 @@ public class BookingService {
 
                 // 금호측에 예약이 완료됐으면 우리 DB 상태값 업데이트
                 if(resultCode.equals("S")){
-                    String result = bookingMapper.updateBooking(intBookingID, "4", strSpBookingId, room_count);
+                    String result = kumhoMapper.updateBooking(intBookingID, "4", strSpBookingId, room_count);
                     if(result.equals("저장완료")){
                         message = "예약완료";
                     }else{
@@ -181,11 +171,11 @@ public class BookingService {
             long sec = (toDate.getTime() - fromDate.getTime()) / 1000;
             double days =  (sec / (24*60*60));
 
-            Map<String, Object> map = bookingMapper.getRmtypeIDNIntAID(intRmIdx);
+            Map<String, Object> map = kumhoMapper.getRmtypeIDNIntAID(intRmIdx);
             String strRmtypeID = map.get("strRmtypeID").toString();
             int intAID = Integer.parseInt(map.get("intAID").toString());
 
-            String strLocalCode = bookingMapper.getStrLocalCode(intAID, strRmtypeID);
+            String strLocalCode = kumhoMapper.getStrLocalCode(intAID, strRmtypeID);
 
             String strStockDatas = "";
 
@@ -292,7 +282,7 @@ public class BookingService {
                         }
                         strStockDatas = strStockDatas.substring(0, strStockDatas.length()-5);
 
-                        String result = bookingMapper.updateGoods(intAID, intRmIdx, strStockDatas);
+                        String result = kumhoMapper.updateGoods(intAID, intRmIdx, strStockDatas);
                         String strResult = result.substring(result.length()-4);
 
                         if(strResult.equals("저장완료")){
@@ -340,7 +330,7 @@ public class BookingService {
                     }
                     strStockDatas = strStockDatas.substring(0, strStockDatas.length()-5);
 
-                    String result = bookingMapper.updateGoods(intAID, intRmIdx, strStockDatas);
+                    String result = kumhoMapper.updateGoods(intAID, intRmIdx, strStockDatas);
                     String strResult = result.substring(result.length()-4);
 
                     if(strResult.equals("저장완료")){
@@ -372,7 +362,7 @@ public class BookingService {
         String statusCode = "200";
         String message = "";
         try{
-            BookingDto bookingDto = bookingMapper.getBookingByIntBookingID(intBookingID);
+            BookingDto bookingDto = kumhoMapper.getBookingByIntBookingID(intBookingID);
             String area = bookingDto.getAccommId(); // 사업장(통영, 화순, 설악, 제주)
             String arrive_date = bookingDto.getCheckInDate(); // 도착일자
             String reserv_year = arrive_date.substring(0, 4);
@@ -390,7 +380,7 @@ public class BookingService {
                 String resultMsg = document.getElementsByTagName("resultMsg").item(0).getChildNodes().item(0).getNodeValue();
                 if(resultCode.equals("S")){
                     // DB 상태값 변경
-                    int result = bookingMapper.updateBookingStatus(intBookingID, "14");
+                    int result = kumhoMapper.updateBookingStatus(intBookingID, "14");
                     if(result > 0){
                         message = "예약 취소 완료";
                     }else{

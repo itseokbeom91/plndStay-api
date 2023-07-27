@@ -1,12 +1,21 @@
 package com.example.stay.openMarket.ssg.service;
 
 import com.example.stay.common.util.CommonFunction;
+import com.example.stay.openMarket.ssg.mapper.SsgMapper;
 import com.fasterxml.jackson.databind.JsonNode;
 import org.json.simple.JSONObject;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Objects;
 
 @Service
 public class SsgService {
+
+    @Autowired
+    private SsgMapper ssgMapper;
 
     CommonFunction commonFunction = new CommonFunction();
 
@@ -124,6 +133,12 @@ public class SsgService {
     }
 
 
+    /**
+     * 취소 승인 목록 조회
+     * @param startDate
+     * @param endDate
+     * @return
+     */
     public String getCancelList(String startDate, String endDate){
 
         String result = "";
@@ -133,6 +148,84 @@ public class SsgService {
             JsonNode jsonNode = commonFunction.callJsonApi("SSG", "", new JSONObject(), "https://eapi.ssgadm.com/api/claim/v2/cancel/requests?perdStrDts="+startDate+"&perdEndDts="+endDate, "GET");
             System.out.println(jsonNode);
 
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+
+        return result;
+    }
+
+
+    /**
+     * 시설 브랜드 ID 조회
+     * @param intAID
+     * @return
+     */
+    public String getBrandId(int intAID){
+
+        String result = "";
+
+        try {
+
+
+            String strBrandId = ssgMapper.getBrnadId(intAID); // 시설별 브랜드 id 값
+
+            JsonNode jsonNode = commonFunction.callJsonApi("SSG", "", new JSONObject(), "https://eapi.ssgadm.com/venInfo/0.1/listBrand.ssg?brandId="+strBrandId, "GET");
+
+            String brandId = jsonNode.get("result").get("brands").get(0).get("brand").get("brandId").toString();
+            System.out.println(strBrandId + "//" + brandId);
+            if(brandId.equals(strBrandId)){
+                result = brandId;
+            }else{
+                result = "error";
+            }
+
+
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+
+        return result;
+    }
+
+
+    /**
+     * Q&A 리스트 조회
+     * @return
+     */
+    public String getQnaList(){
+        String result = "";
+
+        try {
+            JSONObject jsonObject = new JSONObject();
+            JSONObject qnaObject = new JSONObject();
+
+            qnaObject.put("qnaStartDt", "202306010000");
+            qnaObject.put("qnaEndDt", "2023070250000");
+
+            jsonObject.put("postngReq", qnaObject);
+
+            JsonNode jsonNode = commonFunction.callJsonApi("SSG", "", jsonObject, "https://eapi.ssgadm.com/api/postng/qnaList.ssg", "POST");
+            System.out.println(jsonNode);
+
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+
+        return result;
+    }
+
+    public String getSaleList(){
+        String result = "";
+
+        try {
+
+            Date date = new Date();
+            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyyMMdd");
+            String strDate = simpleDateFormat.format(date);
+
+            JsonNode jsonNode = commonFunction.callJsonApi("SSG", "", new JSONObject(), "https://eapi.ssgadm.com/api/settle/v1/ven/sales/list.ssg?critnDt=" + strDate, "GET");
+            System.out.println(jsonNode);
         }catch (Exception e){
             e.printStackTrace();
         }

@@ -823,7 +823,6 @@ public class BookingService {
 //                    "</soap12:Envelope>";
 
 
-
             URL url = new URL("http://xml.hotelpass.com/HPLINK/V01/HPLINK.asmx/gfnBookingCancel");
 
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();

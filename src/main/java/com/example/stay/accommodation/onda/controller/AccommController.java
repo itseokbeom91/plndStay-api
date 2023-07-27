@@ -142,6 +142,15 @@ public class AccommController {
         return accommService.updateGoods(dataType, intRmIdx, from, to);
     }
 
+    /**
+     * 기간내 최저가 숙소 정보 조회
+     */
+    @GetMapping("getLowestPrice")
+    @ResponseBody
+    public String getLowestPrice(String dataType, int intAID, String from, String to, HttpServletRequest httpServletRequest){
+        return accommService.getLowestPrice(dataType, intAID, from, to, httpServletRequest);
+    }
+
 //    /**
 //     * WEBHOOK AuthKey 발급
 //     */

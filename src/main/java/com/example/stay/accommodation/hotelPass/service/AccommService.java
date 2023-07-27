@@ -57,20 +57,33 @@ public class AccommService {
                     String hotelCode = hotelList.item(i).getAttributes().getNamedItem("HotelCode").getTextContent();
                     String latitude = hotelList.item(i).getChildNodes().item(7).getTextContent();
                     String longitude = hotelList.item(i).getChildNodes().item(8).getTextContent();
-                    address = commonFunction.getJusoByGeoCd(latitude, longitude);
+                    String[] aryLat = latitude.split("[.]");
+                    String[] aryLon = longitude.split("[.]");
+                    if(aryLat[0].length() >3 || aryLon[0].length() >3) {
+                        //TO-DO .이 없는경우가 있어 그런경우 길이체크해서 lat앞 두자리 lon은 앞 세자리 잘라서 . 주입 해외도 반영하게 되면 우짤려나...
+                        if(aryLat.length==1){
+                            latitude = latitude.substring(0,2) + "." + longitude.substring(2);
+                        }
+                        if(aryLon.length==1){
+                            longitude = longitude.substring(0,3) + "." + longitude.substring(3);
+                        }
+                    }
+//                    address = commonFunction.getJusoByGeoCd(latitude, longitude);
                     if(address==null){//좌표조회로 주소조회가 안될시 기존 영문주소 입력
                         address = hotelList.item(i).getChildNodes().item(9).getTextContent();
                     }
+                    address = hotelList.item(i).getChildNodes().item(9).getTextContent();
                     hotelMap.put("hotelCode", hotelCode);
                     hotelMap.put("nationCode", hotelList.item(i).getChildNodes().item(0).getTextContent());
                     hotelMap.put("cityCode", hotelList.item(i).getChildNodes().item(2).getTextContent());
                     hotelMap.put("cityName", hotelList.item(i).getChildNodes().item(3).getTextContent());
                     hotelMap.put("hotelName", hotelList.item(i).getChildNodes().item(6).getTextContent());
-                    hotelMap.put("latitude", hotelList.item(i).getChildNodes().item(7).getTextContent());
-                    hotelMap.put("longitude", hotelList.item(i).getChildNodes().item(8).getTextContent());
+                    hotelMap.put("latitude", latitude);
+                    hotelMap.put("longitude", longitude);
+
                     hotelMap.put("address", address);
                     if(address.equals(" ")){
-                        System.out.println(address + ":::" + hotelList.item(i).getChildNodes().item(6).getTextContent());
+//                        System.out.println(address + ":::" + hotelList.item(i).getChildNodes().item(6).getTextContent());
                     }
                     hotelMap.put("tel", hotelList.item(i).getChildNodes().item(11).getTextContent());
                     hotelMap.put("fax", hotelList.item(i).getChildNodes().item(12).getTextContent());
@@ -78,20 +91,21 @@ public class AccommService {
                     hotelMap.put("roomCnt", hotelList.item(i).getChildNodes().item(14).getTextContent());
                     NodeList imgList = hotelList.item(i).getChildNodes().item(15).getChildNodes();
                     String strImgList="";
-                    for (int j = 0 ; j<imgList.getLength() ; j++){
-                        strImgList += accommPhotoContentsReg((String) imgList.item(j).getTextContent(), hotelMap.get("hotelCode").toString(), "");
-                        strImgList += "{{^}}";
-                    }
-                    strImgList.substring(0, strImgList.length()-5);
+//                    for (int j = 0 ; j<imgList.getLength() ; j++){
+//                        strImgList += accommPhotoContentsReg((String) imgList.item(j).getTextContent(), hotelMap.get("hotelCode").toString(), "");
+//                        strImgList = strImgList.trim();
+//                        strImgList += "{{^}}";
+//                    }
+//                    strImgList = strImgList.substring(0, strImgList.length()-5);
                     hotelMap.put("imgDatas", strImgList);
                     hotelMap.put("zipNo", hotelList.item(i).getChildNodes().item(10).getTextContent());
                     hotelListMap.add(hotelMap);
-                    if (cityCode.containsKey(hotelList.item(i).getChildNodes().item(2).getTextContent())) {
-                        continue;
-                    }
-                    if (gradeMap.containsKey(hotelList.item(i).getChildNodes().item(13).getTextContent())) {
-                        continue;
-                    }
+//                    if (cityCode.containsKey(hotelList.item(i).getChildNodes().item(2).getTextContent())) {
+//                        continue;
+//                    }
+//                    if (gradeMap.containsKey(hotelList.item(i).getChildNodes().item(13).getTextContent())) {
+//                        continue;
+//                    }
                     gradeMap.put(hotelList.item(i).getChildNodes().item(13).getTextContent(), "1");
                     cityCode.put(hotelList.item(i).getChildNodes().item(2).getTextContent(), hotelList.item(i).getChildNodes().item(3).getTextContent());
                 }
@@ -140,20 +154,31 @@ public class AccommService {
                 String strDistrictCode1 = "";
                 String strDistrictCode2 = "";
                 String imgdatas = map.get("imgDatas").toString();
-                if(address == " "){
+                if(hotelName.equals(".")) {
+                    //숙소명에 .만 들어오는경우 있어 제외처리
+                    continue;
+                }
+                if(address == " " || address == null || address == "") {
+                    address = " ";
 
                 } else {
+                    if(address ==" "){
+                        continue;
+                    }
                     String[] addressDetail = address.split(" ");
-                    strDistrictCode1 = commonFunction.addressToDistrictCode(addressDetail[0]);
-                    strDistrictCode2 = accommMapper.getDistrictCode(addressDetail[1], strDistrictCode1);
+//                    System.out.println(addressDetail);
+                    if(addressDetail.length==0){
+
+                    } else {
+                        strDistrictCode1 = "TEST1";//commonFunction.addressToDistrictCode(addressDetail[0]);
+                        strDistrictCode2 = "TEST2";//accommMapper.getDistrictCode(addressDetail[1], strDistrictCode1);
+                    }
                 }
                 hotelData += hotelCode + "|^|" + hotelName + "|^|" + strDistrictCode1 + "|^|" + strDistrictCode2 + "|^|"
-                        + latitude + "|^|" + longitude + "|^|" + address + "|^|" + tel + "|^|" + fax + "|^|" + zipNo + "|^|" + String.valueOf(intGrade) + "|^|" + roomCnt + "|^|" + imgdatas + "{{|}}";
-
-
+                        + latitude + "|^|" + longitude + "|^|" + address + "|^|" + tel + "|^|" + fax + "|^|" + zipNo + "|^|" + String.valueOf(intGrade*2) + "|^|" + roomCnt.trim() + "|^|" + imgdatas.trim() + "{{|}}";
             }
             hotelData = hotelData.substring(0, hotelData.length()-5);
-//            String result = accommMapper.insertHotel(hotelData);
+            String result = accommMapper.insertHotel(hotelData);
             return commonFunction.makeReturn("jsonp", "200", "OK", "result");
 
         } catch (Exception e) {
