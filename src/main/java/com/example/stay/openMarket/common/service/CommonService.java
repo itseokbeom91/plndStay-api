@@ -72,7 +72,7 @@ public class CommonService {
         }else{ // 없을때 => update
             String[] imgList = accommDto.getStrACMPhotos().split("\\|");
             String strDescription = (accommDto.getStrDescription() != null)? accommDto.getStrDescription() : "";
-            //String strAround = (accommDto.getStrAround() != null)? accommDto.getStrAround() : "";
+            String strRsvGuide = (accommDto.getStrRsvGuide() != null)? accommDto.getStrRsvGuide() : "";
             String strFac = (accommDto.getStrFac() != null)? accommDto.getStrFac() : "";
 
             result +=
@@ -145,9 +145,9 @@ public class CommonService {
                             "\t\t\t\t<img src=\"http://www.condo24.com/_img/Use01.png\" /> \n" +
                             "\t\t\t</div> \n" +
                             "\t\t\t<div style=\"width:100%;text-align:left;border:1px #dddddd solid;height:auto;padding-bottom:10px;min-height:50px;font-family:나눔고딕,NanumGothic,ng;padding-top:10px;padding-right:10px;\">\t \n" +
-                            "\t \n" +
-                            "\t\t\t\t\t" + strDescription.replace("\r\n","<br>") + "\n" +
-                            "\t \n" +
+                            "\t \n<div style=\"width:100%;display:inline-block;padding:5px 5px 5px 10px;font-family:나눔고딕,NanumGothic,ng;\">" +
+                            "\t\t\t\t\t" + strRsvGuide.replace("\r\n","<br><br>") + "\n" +
+                            "\t \n</div>" +
                             "\t \n" +
                             "\t\t\t</div> \n" +
                             "\t \n" +

@@ -62,10 +62,55 @@ public class UpdateService {
             JsonNode jsonNode = commonFunction.callJsonApi("SSG", "", new JSONObject(), "https://eapi.ssgadm.com/item/0.4/viewItem.ssg?itemId=" + strItemId, "POST");
             JSONObject object = (JSONObject) new JSONParser().parse(jsonNode.get("result").toString());
 
+            // site 6005 test
+//            JSONArray siteArray = (JSONArray) new JSONParser().parse(jsonNode.get("result").get("sites").get(0).get("site").toString());
+//            JSONObject siteObject = new JSONObject();
+//
+//            siteObject.put("siteNo", "6005");
+//            siteObject.put("sellStatCd", "20");
+//            siteArray.add(siteObject);
+//
+//            JSONObject sitesObject = new JSONObject();
+//            sitesObject.put("site", siteArray);
+//
+//            System.out.println(sitesObject);
+            // site 6005 test End
+
+            // 전시 카테고리 test
+//            JSONObject dispCtgsObject = new JSONObject();
+//            List<Object> dispCtgsList = new ArrayList<>();
+//
+//            JSONObject dispCtg1Object = new JSONObject();
+//            dispCtg1Object.put("siteNo", "6001");
+//            dispCtg1Object.put("dispCtgId", "6000211750");
+//            dispCtgsList.add(dispCtg1Object);
+//
+//            JSONObject dispCtg2Object = new JSONObject();
+//            dispCtg2Object.put("siteNo", "6004");
+//            dispCtg2Object.put("dispCtgId", "6000044028");
+//            dispCtgsList.add(dispCtg2Object);
+//
+//            JSONObject dispCtg3Object = new JSONObject();
+//            dispCtg3Object.put("siteNo", "6005");
+//            dispCtg3Object.put("dispCtgId", "6000054825");
+//            dispCtgsList.add(dispCtg3Object);
+//
+//            JSONObject dispCtg4Object = new JSONObject();
+//            dispCtg4Object.put("siteNo", "7013");
+//            dispCtg4Object.put("dispCtgId", "6000088233");
+//            dispCtgsList.add(dispCtg4Object);
+//
+//            dispCtgsObject.put("dispCtg", dispCtgsList);
+//            insertObject.put("dispCtgs", dispCtgsObject);
+            // 전시 카테고리 test End
+
             JSONObject updateObject = new JSONObject();
             updateObject.put("itemId", object.get("itemId"));
-            updateObject.put("sites", object.get("sites"));
+            updateObject.put("sites", object.get("sites")); // sitesObject
             updateObject.put("dispCtgs", object.get("dispCtgs"));
+
+
+
             // 13283 테스트용
 //            JSONObject dispObject = new JSONObject();
 //            JSONObject ctgObject = new JSONObject();
@@ -223,10 +268,12 @@ public class UpdateService {
 
                 updateObject.put("uitemAttr", attrObject);
 
-            }else if(strType.equals("stop")){
+            }else if(strType.equals("stop")) {
 
                 updateObject.put("sellStatCd", "80");
 
+            }else if(strType.equals("start")){
+                updateObject.put("sellStatCd", "20");
             }else{
                 System.out.println("type을 확인하세요");
                 return "error";
@@ -241,6 +288,7 @@ public class UpdateService {
             //JsonNode resultNode = commonApiService.callJsonApi(strItemId, "SSG", "update", resultObject);
             JsonNode resultNode = commonFunction.callJsonApi("SSG", "", resultObject, "https://eapi.ssgadm.com/item/0.4/updateItem.ssg", "POST");
             result = resultNode.toString();
+            System.out.println(result);
 
 
         }catch (Exception e){
