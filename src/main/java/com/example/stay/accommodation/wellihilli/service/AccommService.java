@@ -1,12 +1,11 @@
 package com.example.stay.accommodation.wellihilli.service;
 
-import com.example.stay.accommodation.wellihilli.mapper.AccommMapper;
+import com.example.stay.accommodation.wellihilli.mapper.WellihilliMapper;
 import com.example.stay.common.util.CommonFunction;
 import com.example.stay.common.util.Constants;
 import com.example.stay.common.util.LogWriter;
 import com.example.stay.common.util.UrlResourceDownloader;
 import com.fasterxml.jackson.databind.JsonNode;
-import okhttp3.Response;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
@@ -16,26 +15,16 @@ import org.springframework.stereotype.Service;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.File;
-import java.io.OutputStreamWriter;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.net.URLEncoder;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.text.SimpleDateFormat;
-import java.time.DayOfWeek;
-import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
 
 @Service("wellihilli.AccommService")
 public class AccommService {
 
     @Autowired
-    private AccommMapper accommMapper;
+    private WellihilliMapper wellihilliMapper;
 
     CommonFunction commonFunction = new CommonFunction();
 
@@ -91,7 +80,7 @@ public class AccommService {
                 }
                 strRoomDatas = strRoomDatas.substring(0, strRoomDatas.length()-5);
 
-                String updateResult = accommMapper.updateRmtype(strRoomDatas);
+                String updateResult = wellihilliMapper.updateRmtype(strRoomDatas);
                 if(updateResult.equals("")){
                     message = "객실 등록 및 수정 완료";
                 }else{

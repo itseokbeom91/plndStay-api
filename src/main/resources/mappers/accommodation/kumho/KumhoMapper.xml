@@ -3,7 +3,7 @@
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper namespace="com.example.stay.accommodation.onda.mapper.BookingMapper">
+<mapper namespace="com.example.stay.accommodation.kumho.mapper.KumhoMapper">
     <select id="getBookingByIntBookingID" resultType="BookingDto">
         SELECT
             B.intCondoID,
@@ -14,19 +14,13 @@
             convert(varchar(10), B.checkInDate, 120) AS checkInDate,
             convert(varchar(10), B.checkOutDate, 120) AS checkOutDate,
             RP.strRatePlanId,
+            RP.strMealCode,
             ISNULL(B.intPersonCount, RT.standpeopleCnt) AS intPersonCount,
             B.strRecvName,
             B.strRecvPhone,
             B.strRecvEmail,
-            B.strOrdName,
-            B.strOrdEmail,
-            B.strOrdPhone,
             B.intRoomCount,
             B.strBookingProcess,
-            (SELECT SUM(tg.intSalePrice)
-             FROM test_goods tg WITH(NOLOCK)
-             JOIN test_booking_goods bg ON tg.intGoodsID = bg.intGoodsID
-             WHERE bg.intBookingID = ${intBookingID}) AS intTotalSalePrice,
             B.strSpBookingId
         FROM test_Booking B WITH(NOLOCK)
             LEFT JOIN test_condo C WITH(NOLOCK) ON B.intCondoID = C.intCondoID
@@ -36,8 +30,7 @@
     </select>
 
     <select id="updateBooking" resultType="String">
-        EXEC spGW_BOOKING_UPDATE_SUPPLIER ${intBookingID}, ${intCondoID}, ${intRoomID}, ${intRateID}, #{strSpBookingId},
-            #{strRefundPolicies}, ${stayDays}, ''
+        EXEC spGW_BOOKING_UPDATE_PROCESS ${intBookingID}, #{strBookingProcess}, #{strSpBookingId}, ${intRoomCount}, ''
     </select>
 
     <update id="updateBookingStatus" parameterType="String">
@@ -45,4 +38,20 @@
         WHERE intBookingID = ${intBookingID}
     </update>
 
+    <select id="updateGoods" resultType="String">
+        EXEC PLNDSTAY.dbo.spGW_STOCK_TEMP_REGIST #{intAID}, #{intRmIdx}, '', #{strStockDatas}, ''
+    </select>
+
+    <select id="getRmtypeIDNIntAID" parameterType="int" resultType="Map">
+        SELECT strRmtypeID, intAID
+        FROM PLNDSTAY.dbo.RMTYPE
+        WHERE intIdx = ${intRmIdx}
+    </select>
+
+    <select id="getStrLocalCode" resultType="String">
+        SELECT strLocalCode
+        FROM PLNDSTAY.dbo.ACM_LOCAL_INFO
+        WHERE intAID = ${intAID}
+            AND strRmCode = #{strRmtypeID}
+    </select>
 </mapper>

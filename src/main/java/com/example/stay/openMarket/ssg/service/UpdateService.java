@@ -58,8 +58,8 @@ public class UpdateService {
 
             // api로 가져온 ssg 시설 정보
             //JsonNode jsonNode = commonApiService.callJsonApi(strItemId, "SSG", "getInfo", new JSONObject());
-            String strUrl = "https://eapi.ssgadm.com/item/0.4/viewItem.ssg?itemId=" + strItemId;
-            JsonNode jsonNode = commonFunction.callJsonApi(strItemId, "SSG", new JSONObject(), strUrl, "POST");
+
+            JsonNode jsonNode = commonFunction.callJsonApi("SSG", "", new JSONObject(), "https://eapi.ssgadm.com/item/0.4/viewItem.ssg?itemId=" + strItemId, "POST");
             JSONObject object = (JSONObject) new JSONParser().parse(jsonNode.get("result").toString());
 
             JSONObject updateObject = new JSONObject();
@@ -238,7 +238,7 @@ public class UpdateService {
 
             // api 호출
             //JsonNode resultNode = commonApiService.callJsonApi(strItemId, "SSG", "update", resultObject);
-            JsonNode resultNode = commonFunction.callJsonApi(strItemId, "SSG", resultObject, "https://eapi.ssgadm.com/item/0.4/updateItem.ssg", "POST");
+            JsonNode resultNode = commonFunction.callJsonApi("SSG", "", resultObject, "https://eapi.ssgadm.com/item/0.4/updateItem.ssg", "POST");
             result = resultNode.toString();
 
 

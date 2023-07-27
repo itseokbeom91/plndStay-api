@@ -9,9 +9,11 @@ import com.example.stay.openMarket.common.mapper.CommonMapper;
 import com.example.stay.openMarket.common.service.CommonApiService;
 import com.example.stay.common.util.Constants;
 import com.example.stay.openMarket.common.service.CommonService;
+import com.example.stay.openMarket.ssg.mapper.SsgMapper;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -28,10 +30,10 @@ import java.util.Scanner;
 public class InsertService {
 
     @Autowired
-    private CommonApiService commonApiService;
+    private SsgService ssgService;
 
     @Autowired
-    private CommonApiMapper commonApiMapper;
+    private SsgMapper ssgMapper;
 
     @Autowired
     private CommonService commonService;
@@ -47,6 +49,7 @@ public class InsertService {
         try {
 
             AccommDto accommDto = commonService.getAcmInfo(intAID, 7); // 7이 내부 SSG 오픈마켓 idx 값
+            String strBrandId = ssgService.getBrandId(intAID); // 시설별 브랜드 id 값
 
             // 검색어 필수 값이므로 만약 검색어 데이터가 없을 시 시설명으로 설정
             String strKeywords = (accommDto.getStrKeywords() != null)? accommDto.getStrKeywords() : accommDto.getStrSubject();
@@ -58,7 +61,7 @@ public class InsertService {
             // =============================
             JSONObject insertObject = new JSONObject();
             insertObject.put("itemNm", accommDto.getStrSubject()); // 상품명
-            insertObject.put("brandId", "3000024556"); // 브랜드 ID
+            insertObject.put("brandId", strBrandId); // 브랜드 ID
             insertObject.put("stdCtgId", "4000004432"); // 표준 카테고리 ID
             insertObject.put("dispStrtDts", "20220711000000"); // 전시 시작 일시
             insertObject.put("dispEndDts", "20990201235900"); // 전시 종료 일시
@@ -207,24 +210,18 @@ public class InsertService {
             JSONObject itemImgsObject = new JSONObject();
 
             // 메인사진 10장 DB에서 가져오기
-            //List<String> photoList = commonApiService.getMainPhotoList(intNum);
-            List<String> photoList = commonService.getPhotoList(intAID, 1);
 
             System.out.println(accommDto.getStrACMPhotos());
             String[] photos = accommDto.getStrACMPhotos().split("\\|");
-            for(int i=0; i<10; i++){
-                System.out.println("https://condo24.com"+photos[i]);
-            }
-
-
             List<Object> dataPhotoList = new ArrayList<>();
-            for(int i=0; i<photoList.size(); i++){
+            for(int i=0; i<10; i++){
                 JSONObject imgObject = new JSONObject();
                 imgObject.put("dataSeq", (i+1));
-                imgObject.put("dataFileNm", photoList.get(i).toString());
+                imgObject.put("dataFileNm", "https://condo24.com"+photos[i]);
                 imgObject.put("rplcTextNm", "이미지"+(i+1));
                 dataPhotoList.add(imgObject);
             }
+
             itemImgsObject.put("imgInfo",dataPhotoList);
 
             insertObject.put("itemImgs",itemImgsObject);
@@ -271,7 +268,8 @@ public class InsertService {
                 itemObject.put("uitemOptnTypeNm1", "입실일자");
 
 //                String strDate = dto.getDateSales().substring(0, dto.getDateSales().lastIndexOf("."));
-                String strDate = dto.getDateSales().trim(); //////////////// 날짜 포멧 어케해야하냐~~~~~~~~~~~~~
+                // 날짜 포맷
+                String strDate = dto.getDateSales().trim();
                 SimpleDateFormat dateDate = new SimpleDateFormat("yyyyMMdd");
                 Date dateStrDate = dateDate.parse(strDate);
                 SimpleDateFormat goodDate = new SimpleDateFormat("MM월dd일(E)"); // uitemOptnChoiTypeCd1 : 10일때
@@ -339,7 +337,7 @@ public class InsertService {
             JSONObject salesPrcInfoObject = new JSONObject();
 
             //int intSellprc = commonApiMapper.getMinPrice(intAID, strNow);
-            System.out.println("testttt");
+
             int intSellprc = commonMapper.getMinPrice(intAID, strNow);
             System.out.println(intSellprc);
             int intMrgrt = 8;
@@ -358,8 +356,26 @@ public class InsertService {
             System.out.println(mainObject.toJSONString());
 
             // api 호출
-//            JsonNode resultNode = commonFunction.callJsonApi("SSG", "", mainObject, "https://eapi.ssgadm.com/item/0.4/insertItem.ssg", "POST");
-//            result = resultNode.toString();
+            JsonNode resultNode = commonFunction.callJsonApi("SSG", "", mainObject, "https://eapi.ssgadm.com/item/0.4/insertItem.ssg", "POST");
+
+            JSONObject jsonObject = (JSONObject) new JSONParser().parse(resultNode.get("result").toString());
+
+            if(jsonObject.get("resultCode").toString().equals("00") && jsonObject.get("resultMessage").toString().equals("SUCCESS")){
+
+                // 프로시저 실행(ACCOMM_OMK insert)
+                String strItemId = jsonObject.get("itemId").toString();
+                String strAcmOmk = commonMapper.insertAcmOmk(intAID, 7, "Y", accommDto.getStrSubject(), strItemId, strImgDesc);
+                String strAcmOmkResult = strAcmOmk.substring(strAcmOmk.length()-4);
+
+                if(strAcmOmkResult.equals("저장완료")){
+                    System.out.println("success");
+                }else{
+                    System.out.println("procedure fail");
+                }
+
+            }else{
+                System.out.println("fail");
+            }
 
             System.out.println(result);
 

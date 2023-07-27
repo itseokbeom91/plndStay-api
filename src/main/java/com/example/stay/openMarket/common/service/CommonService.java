@@ -72,20 +72,20 @@ public class CommonService {
         }else{ // 없을때 => update
             String[] imgList = accommDto.getStrACMPhotos().split("\\|");
             String strDescription = (accommDto.getStrDescription() != null)? accommDto.getStrDescription() : "";
-            String strAround = (accommDto.getStrAround() != null)? accommDto.getStrAround() : "";
-            String strTraffic = (accommDto.getStrTraffic() != null)? accommDto.getStrTraffic() : "";
+            //String strAround = (accommDto.getStrAround() != null)? accommDto.getStrAround() : "";
+            String strFac = (accommDto.getStrFac() != null)? accommDto.getStrFac() : "";
 
             result +=
                     " <div style=\"width:860px\"> \n" +
                             "\t<div style=\"width:100%;\"><img src=\"http://gi.esmplus.com/condo24/a_notice_all.jpg\" /></div> \n" +
                             "\t<div style=\"width:100%;\"> \n" +
                             "\t\t\t<div style=\"width:100%;height:38px;\"><img src=\"http://www.condo24.com/_img/infoTitle.png\" style=\"width:100%;\"/></div> \n" +
-                            "\t\t\t<div style=\"width:100%;height:auto;-border:1px red solid;text-align:center;margin-top:5px;\"><img src=\"http://www.condo24.com/conphoto/" + imgList[0] +"\" style=\"width:98%;\"/></div> \n" +
+                            "\t\t\t<div style=\"width:100%;height:auto;-border:1px red solid;text-align:center;margin-top:5px;\"><img src=\"http://www.condo24.com" + imgList[0] +"\" style=\"width:98%;\"/></div> \n" +
                             "\t \n" +
                             "\t \n" +
                             "\t\t\t<div style=\"width:100%;height:auto;-border:1px #dddddd solid;text-align:center;margin-top:5px;padding-bottom:10px;\"> \n" +
                             "\t\t\t\t<p style=\"font-size:200%;font-weight:bold;font-family:나눔고딕,NanumGothic,ng;\">" + accommDto.getStrSubject() + "</p> \n" +
-                            "\t\t\t\t<p style=\"font-size:13px;font-weight:bold;color:#959595;font-family:나눔고딕,NanumGothic,ng;padding-left:30px;padding-right:30px;\"> \n" + strAround + " \t\t\t\t</p> \n" +
+                            "\t\t\t\t<p style=\"font-size:13px;font-weight:bold;color:#959595;font-family:나눔고딕,NanumGothic,ng;padding-left:30px;padding-right:30px;\"> \n" + strDescription.replace("\r\n","<br>") + " \t\t\t\t</p> \n" +
                             "\t\t\t</div> \n" +
                             "\t \n" +
                             "\t \n" +
@@ -99,7 +99,7 @@ public class CommonService {
 
             for(int i=2;i<imgList.length;i++){
                 result +=
-                        "\t\t\t\t\t<div style=\"width:32%;float:left;margin-left:8px;margin-bottom:15px;\"><img src=\"http://www.condo24.com/conphoto/" + imgList[i] + "\" style=\"width:98%;height:170px;\" /></div> \n";
+                        "\t\t\t\t\t<div style=\"width:32%;float:left;margin-left:8px;margin-bottom:15px;\"><img src=\"http://www.condo24.com" + imgList[i] + "\" style=\"width:98%;height:170px;\" /></div> \n";
             }
 
             result +=
@@ -162,10 +162,10 @@ public class CommonService {
                             "\t\t\t\t<img src=\"http://www.condo24.com/_img/Use02.png\" /> \n" +
                             "\t\t\t</div> \n" +
                             "\t\t\t<div style=\"width:100%;text-align:left;border:1px #dddddd solid;height:auto;padding-bottom:10px;min-height:50px;font-family:나눔고딕,NanumGothic,ng;padding-top:10px;padding-right:10px;\">\t \n" +
-                            "\t\t\t\t<div style=\"width:100%;display:inline-block;padding:5px 5px 5px 10px;font-family:나눔고딕,NanumGothic,ng;\"> \n" + strTraffic.replace("\r\n","<br>") + "\t\t\t\t</div>\t\t\t \n" +
+                            "\t\t\t\t<div style=\"width:100%;display:inline-block;padding:5px 5px 5px 10px;font-family:나눔고딕,NanumGothic,ng;\"> \n" + strFac + "\t\t\t\t</div>\t\t\t \n" +
                             "\t\t\t</div> \n" +
                             "\t\t\t<br/><br/> \n" +
-                            "\t\t\t<div style=\"width:100%;height:auto;-border:1px red solid;text-align:center;margin-top:5px;\"><img src=\"http://www.condo24.com/conphoto/" + imgList[1] + "\" style=\"width:80%;\"/></div> \n" +
+                            "\t\t\t<div style=\"width:100%;height:auto;-border:1px red solid;text-align:center;margin-top:5px;\"><img src=\"http://www.condo24.com" + imgList[1] + "\" style=\"width:80%;\"/></div> \n" +
                             "\t\t\t<br/><br/> \n" +
                             "\t\t\t<div style=\"width:100%;height:auto;-border:1px red solid;text-align:center;margin-top:5px;\"><img src=\"http://gi.esmplus.com/condo24/z_Information_dp02.jpg\" style=\"width:98%;\"/></div> \n" +
                             "\t\t</div> \n" +

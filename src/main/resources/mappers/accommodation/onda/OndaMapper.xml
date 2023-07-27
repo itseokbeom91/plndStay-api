@@ -3,13 +3,13 @@
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper namespace="com.example.stay.accommodation.onda.mapper.AccommMapper">
+<mapper namespace="com.example.stay.accommodation.onda.mapper.OndaMapper">
 
     <select id="insertAccommTotal" parameterType="String" resultType="String">
         EXEC PLNDSTAY.dbo.spONDA_ACCOMM_REGIST #{strPropertyID}, #{strDeleteYn}, #{strViewYn}, #{strType}, #{strDistrict1}, #{strDistrict2},
-            #{strSubject}, #{strLat}, #{strLon}, #{strCheckIn}, #{strCheckOut}, #{strPhone}, #{strFax}, #{strEmail},
-            #{strZipCode}, #{strAddr1},#{strAddr2}, #{strDescription}, #{strRsvGuide}, #{strAcmNotice}, #{strImgDatas},
-            #{strPenaltyDatas},  #{strKeyWordDatas}, #{strAttractionDatas}, #{strFacilityDatas}, #{strRmtypeDatas}, ''
+        #{strSubject}, #{strLat}, #{strLon}, #{strCheckIn}, #{strCheckOut}, #{strPhone}, #{strFax}, #{strEmail},
+        #{strZipCode}, #{strAddr1},#{strAddr2}, #{strDescription}, #{strRsvGuide}, #{strAcmNotice}, #{strImgDatas},
+        #{strPenaltyDatas},  #{strKeyWordDatas}, #{strAttractionDatas}, #{strFacilityDatas}, #{strRmtypeDatas}, ''
     </select>
 
     <select id="updateRmtype" parameterType="String" resultType="String">
@@ -41,21 +41,6 @@
         WHERE intIdx = ${intRmIdx}
     </select>
 
-
-<!--    <select id="getRoomAdminCnt" parameterType="String" resultType="int">-->
-<!--        SELECT ISNULL(MAX(admin_count), 1)-->
-<!--        FROM test_room_type RT WITH(NOLOCK)-->
-<!--            JOIN test_condo C WITH(NOLOCK) ON RT.intCondoID = C.intCondoID-->
-<!--        WHERE C.accomm_id = #{propertyId}-->
-<!--    </select>-->
-
-<!--    <select id="getAIDByStrPropertyID" parameterType="String" resultType="int">-->
-<!--        SELECT intAID-->
-<!--        FROM ACCOMM WITH(NOLOCK)-->
-<!--        WHERE strPropertyID = ${strPropertyID}-->
-<!--            AND strType = "OND"-->
-<!--    </select>-->
-
     <select id="updateStatus" parameterType="String" resultType="String">
         EXEC PLNDSTAY.dbo.spONDA_ACCOMM_STATUS_UPDATE #{target}, #{strDeleteYn}, #{strViewYn}, #{propertyId}, #{roomTypeId}, #{ratePlanId}, ''
     </select>
@@ -67,16 +52,21 @@
         FROM PLNDSTAY.dbo.CODE_DISTRICT A WITH(NOLOCK)
         LEFT JOIN PLNDSTAY.dbo.CODE_DISTRICT B WITH(NOLOCK) ON LEFT(A.strCode,2) = B.strCode
         WHERE A.strName = #{strCity} AND A.intDepth = 2
-            AND B.strName LIKE #{strRegion} + '%' AND B.intDepth = 1
-            AND A.strDeleteYn = 'N'
+          AND B.strName LIKE #{strRegion} + '%' AND B.intDepth = 1
+          AND A.strDeleteYn = 'N'
     </select>
-
 
     <select id="getStrCodeByStrName" parameterType="String" resultType="String">
         SELECT strCode
         FROM PLNDSTAY.dbo.CODE_SYSTEM WITH(NOLOCK)
         WHERE
             strCateCode = #{strCateCode}
-            AND strName = #{strName}
+          AND strName = #{strName}
+    </select>
+
+    <select id="getPropertyID" parameterType="int" resultType="String">
+        SELECT strPropertyID
+        FROM PLNDSTAY.dbo.ACCOMM WITH(NOLOCK)
+        WHERE intAID = ${intAID}
     </select>
 </mapper>

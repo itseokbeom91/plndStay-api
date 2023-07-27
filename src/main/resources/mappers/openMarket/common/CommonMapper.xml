@@ -38,4 +38,8 @@
         EXEC PLNDSTAY.dbo.spOMK_RMTYPE_INFO ${intRmIdx}, ${intOmkIdx}
     </select>
 
+    <select id="insertAcmOmk" resultType="string">
+        EXEC PLNDSTAY.dbo.spOMK_ACM_OMK_REGIST ${intAID}, ${intOmkIdx}, #{strUsageYn}, #{strPdtSubject}, #{strPdtCode}, #{strDetailInfo}
+    </select>
+
 </mapper>
