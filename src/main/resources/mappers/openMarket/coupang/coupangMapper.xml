@@ -6,7 +6,7 @@
 <mapper namespace="com.example.stay.openMarket.coupang.mapper.CoupangMapper">
 
     <select id="insertCpCodes" resultType="String">
-        EXEC PLNDSTAY.dbo.spCP_ACCOMM_REGIST ${intAID}, #{strPdtCode}, #{strPdtSubject}, #{itemCodeDatas}, #{rateCodeDatas}, ''
+        EXEC PLNDSTAY.dbo.spCP_ACCOMM_REGIST ${intAID}, #{strPdtCode}, #{strPdtSubject}, #{strDetailInfo}, #{itemCodeDatas}, #{rateCodeDatas}, ''
     </select>
 
     <select id="getStrPdtCode" parameterType="int" resultType="String">
