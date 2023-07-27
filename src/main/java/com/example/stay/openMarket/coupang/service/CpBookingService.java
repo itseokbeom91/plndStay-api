@@ -28,6 +28,8 @@ import java.io.IOException;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.List;
 
 @Service
 public class CpBookingService {
@@ -168,6 +170,182 @@ public class CpBookingService {
         }
         return commonFunction.makeReturn(dataType, statusCode, message, resultJson);
     }
+
+    // 예약 확정
+    public String confirmBooking(String dataType, int intRsvID, HttpServletRequest httpServletRequest){
+        String statusCode = "200";
+        String message = "";
+
+        LogWriter logWriter = new LogWriter(httpServletRequest.getMethod(), httpServletRequest.getServletPath(),
+                httpServletRequest.getQueryString(), System.currentTimeMillis());
+
+        try{
+            // TODO : 주문번호로 티켓번호 찾기
+            // 주문번호로 티켓번호 찾기
+            String ticketNumber = "";
+
+            // API 호출
+            JSONObject returnJson = coupangApi.coupangPostApi(null, "reservation/request/confirmation?ticketNumber=" + ticketNumber);
+
+            // 응답값 처리
+            String returnCode = returnJson.get("code").toString();
+            if(returnCode.equals("200")){
+                JSONArray dataArr = (JSONArray) returnJson.get("data");
+                for(Object d : dataArr){
+                    JSONObject dataObject = (JSONObject) d;
+                    if(dataObject.get("isSuccessfulRequest").equals("true")){
+                        message = "예약 확정 완료";
+                    }else{
+                        message = "예약 확정 실패";
+                        break;
+                    }
+                }
+            }else{
+                message = "쿠팡 api 호출 실패";
+            }
+            logWriter.add(message);
+            logWriter.log(0);
+        }catch (Exception e){
+            e.printStackTrace();
+            statusCode = "500";
+            message = "예약 확정 실패";
+            logWriter.add("error : " + e.getMessage());
+            logWriter.log(0);
+        }
+        return commonFunction.makeReturn(dataType, statusCode, message);
+    }
+
+    // 예약 불가 처리(예약 대기중인 티켓 상태를 예약불가로 변경 -> 자동으로 취소 완료 처리됨)
+    public String rejectBooking(String dataType, int intRsvID, HttpServletRequest httpServletRequest){
+        String statusCode = "200";
+        String message = "";
+
+        LogWriter logWriter = new LogWriter(httpServletRequest.getMethod(), httpServletRequest.getServletPath(),
+                httpServletRequest.getQueryString(), System.currentTimeMillis());
+
+        try{
+            // TODO : 주문번호로 티켓번호 찾기
+            // 주문번호로 티켓번호 찾기
+            String ticketNumber = "";
+
+            // API 호출
+            JSONObject returnJson = coupangApi.coupangPostApi(null, "reservation/request/rejection?ticketNumber=" + ticketNumber);
+
+            // 응답값 처리
+            String returnCode = returnJson.get("code").toString();
+            if(returnCode.equals("200")){
+                JSONArray dataArr = (JSONArray) returnJson.get("data");
+                for(Object d : dataArr){
+                    JSONObject dataObject = (JSONObject) d;
+                    if(dataObject.get("isSuccessfulRequest").equals("true")){
+                        message = "예약 취소 완료";
+                    }else{
+                        message = "예약 취소 실패";
+                        break;
+                    }
+                }
+            }else{
+                message = "쿠팡 api 호출 실패";
+            }
+            logWriter.add(message);
+            logWriter.log(0);
+        }catch (Exception e){
+            e.printStackTrace();
+            statusCode = "500";
+            message = "예약 취소 실패";
+            logWriter.add("error : " + e.getMessage());
+            logWriter.log(0);
+        }
+        return commonFunction.makeReturn(dataType, statusCode, message);
+    }
+
+    // 예약 취소 승인(취소 대기중인 티켓 상태를 취소 승인으로 변경 -> 자동으로 취소 완료 처리됨)
+    public String cancelBooking(String dataType, int intRsvID, HttpServletRequest httpServletRequest){
+        String statusCode = "200";
+        String message = "";
+
+        LogWriter logWriter = new LogWriter(httpServletRequest.getMethod(), httpServletRequest.getServletPath(),
+                httpServletRequest.getQueryString(), System.currentTimeMillis());
+
+        try{
+            // TODO : 주문번호로 티켓번호 찾기
+            // 주문번호로 티켓번호 찾기
+            String ticketNumber = "";
+
+            // API 호출
+            JSONObject returnJson = coupangApi.coupangPostApi(null, "reservation/request/cancellation?ticketNumber=" + ticketNumber);
+
+            // 응답값 처리
+            String returnCode = returnJson.get("code").toString();
+            if(returnCode.equals("200")){
+                JSONArray dataArr = (JSONArray) returnJson.get("data");
+                for(Object d : dataArr){
+                    JSONObject dataObject = (JSONObject) d;
+                    if(dataObject.get("isSuccessfulRequest").equals("true")){
+                        message = "예약 취소 완료";
+                    }else{
+                        message = "예약 취소 실패";
+                        break;
+                    }
+                }
+            }else{
+                message = "쿠팡 api 호출 실패";
+            }
+            logWriter.add(message);
+            logWriter.log(0);
+        }catch (Exception e){
+            e.printStackTrace();
+            statusCode = "500";
+            message = "예약 취소 실패";
+            logWriter.add("error : " + e.getMessage());
+            logWriter.log(0);
+        }
+        return commonFunction.makeReturn(dataType, statusCode, message);
+    }
+
+    // 주문 상태 이력 조회(예약대기, 예약 확정을 조회 가능)
+    public String getBookingStatus(String dataType, int intRsvID, HttpServletRequest httpServletRequest){
+        String statusCode = "200";
+        String message = "";
+
+        LogWriter logWriter = new LogWriter(httpServletRequest.getMethod(), httpServletRequest.getServletPath(),
+                httpServletRequest.getQueryString(), System.currentTimeMillis());
+
+        List<JSONObject> resultList = new ArrayList<>();
+        try{
+            // TODO : 주문번호로 티켓번호 찾기
+            // 주문번호로 티켓번호 찾기
+            String ticketNumber = "";
+
+            // API 호출
+            JSONObject returnJson = coupangApi.coupangPostApi(null, "reservation/request/search/confirmation/history?ticketNumber=" + ticketNumber);
+
+            // 응답값 처리
+            String returnCode = returnJson.get("code").toString();
+            if(returnCode.equals("200")){
+                JSONObject dataJson = (JSONObject) returnJson.get("data");
+                JSONArray dataArr = (JSONArray) dataJson.get(ticketNumber);
+                for(Object data : dataArr){
+                    JSONObject jsonObject = (JSONObject) data;
+                    resultList.add(jsonObject);
+                }
+            }else{
+                message = "쿠팡 api 호출 실패";
+            }
+            logWriter.add(message);
+            logWriter.log(0);
+        }catch (Exception e){
+            e.printStackTrace();
+            statusCode = "500";
+            message = "예약 취소 실패";
+            logWriter.add("error : " + e.getMessage());
+            logWriter.log(0);
+        }
+        return commonFunction.makeReturn(dataType, statusCode, message, resultList);
+    }
+
+
+
 
 
     public JSONObject httpExecute(HttpUriRequest request) {
