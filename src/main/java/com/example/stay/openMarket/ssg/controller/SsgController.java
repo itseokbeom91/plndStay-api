@@ -95,6 +95,14 @@ public class SsgController {
 
     }
 
+    // 정산 조회
+    @GetMapping("/salesList")
+    public void getSalesList(){
+
+        ssgService.getSaleList();
+
+    }
+
 
     /**
      * 상품 정보 수정

@@ -178,7 +178,7 @@ public class UpdateService {
                 List<StockDto> stockList = commonMapper.getStockList(intAID, 7, strNow);
 
                 List<Object> uitemList = new ArrayList<>();
-                List<Object> priceList = new ArrayList<>();
+//                List<Object> priceList = new ArrayList<>();
                 for (StockDto dto : stockList) {
                     JSONObject itemObject = new JSONObject();
 
@@ -230,35 +230,34 @@ public class UpdateService {
                     uitemList.add(itemObject);
 
                     // 가격
-                    JSONObject priceObject = new JSONObject();
-
-                    int intPrice = dto.getMoneySales();
-
-                    int intSSGPrice = (intPrice * (100 - 8) / 100);
-                    if(uitemIdList.contains(strUitemId)){
-                        priceObject.put("uitemId", strUitemId);
-                    }else{
-                        priceObject.put("tempUitemId", strUitemId);
-                    }
-                    //priceObject.put("uitemId", uitemId);
-                    priceObject.put("splprc", intSSGPrice);
-                    priceObject.put("sellprc", intPrice);
-                    priceObject.put("mrgrt", 8);
-
-                    priceList.add(priceObject);
+//                    JSONObject priceObject = new JSONObject();
+//
+//                    int intPrice = dto.getMoneySales();
+//
+//                    int intSSGPrice = (intPrice * (100 - 8) / 100);
+//                    if(uitemIdList.contains(strUitemId)){
+//                        priceObject.put("uitemId", strUitemId);
+//                    }else{
+//                        priceObject.put("tempUitemId", strUitemId);
+//                    }
+//                    //priceObject.put("uitemId", uitemId);
+//                    priceObject.put("splprc", intSSGPrice);
+//                    priceObject.put("sellprc", intPrice);
+//                    priceObject.put("mrgrt", 8);
+//
+//                    priceList.add(priceObject);
                 }
 
                 JSONObject itemObject = new JSONObject();
                 itemObject.put("uitem", uitemList);
                 updateObject.put("uitems", itemObject);
 
-                JSONObject itemPriceObject = new JSONObject();
-                itemPriceObject.put("uitemPrc", priceList);
-                updateObject.put("uitemPluralPrcs", itemPriceObject);
+//                JSONObject itemPriceObject = new JSONObject();
+//                itemPriceObject.put("uitemPrc", priceList);
+//                updateObject.put("uitemPluralPrcs", itemPriceObject);
 
 
                 // attr
-                // 상품 목록 리스트에서 캘린더형으로 보이게
                 JSONObject attrObject = new JSONObject();
                 attrObject.put("uitemCacOptnYn", "N");
                 attrObject.put("uitemOptnChoiTypeCd1", "10"); // 10: 텍스트, 30: 캘린더

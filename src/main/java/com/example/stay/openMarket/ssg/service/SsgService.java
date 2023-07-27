@@ -7,6 +7,8 @@ import org.json.simple.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Objects;
 
 @Service
@@ -187,6 +189,10 @@ public class SsgService {
     }
 
 
+    /**
+     * Q&A 리스트 조회
+     * @return
+     */
     public String getQnaList(){
         String result = "";
 
@@ -202,6 +208,24 @@ public class SsgService {
             JsonNode jsonNode = commonFunction.callJsonApi("SSG", "", jsonObject, "https://eapi.ssgadm.com/api/postng/qnaList.ssg", "POST");
             System.out.println(jsonNode);
 
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+
+        return result;
+    }
+
+    public String getSaleList(){
+        String result = "";
+
+        try {
+
+            Date date = new Date();
+            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyyMMdd");
+            String strDate = simpleDateFormat.format(date);
+
+            JsonNode jsonNode = commonFunction.callJsonApi("SSG", "", new JSONObject(), "https://eapi.ssgadm.com/api/settle/v1/ven/sales/list.ssg?critnDt=" + strDate, "GET");
+            System.out.println(jsonNode);
         }catch (Exception e){
             e.printStackTrace();
         }
