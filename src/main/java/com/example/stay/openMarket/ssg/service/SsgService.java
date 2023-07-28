@@ -47,6 +47,77 @@ public class SsgService {
             e.printStackTrace();
         }
         return result;
+        /* result sample
+            {
+                "result": {
+                    "resultCode": "00",
+                    "resultMessage": "SUCCESS",
+                    "resultDesc": "성공",
+                    "shppDirections": [{
+                            "shppDirection": {
+                                "ordNo": "20230728EAA107",
+                                "ordItemSeq": 1,
+                                "orordNo": "20230728EAA107",
+                                "orordItemSeq": 1,
+                                "shppNo": 10005681523,
+                                "shppSeq": 1,
+                                "ordStatCd": 110,
+                                "shppStatCd": 30,
+                                "shppStatNm": "대기",
+                                "itemId": 1000028463390,
+                                "itemNm": "금호설악리조트(강원도/속초)",
+                                "splVenItemId": 10002,
+                                "uSplVenItemId": 370756944,
+                                "ordCstId": 2155487025,
+                                "shppcst": 0,
+                                "ordCstOccCd": "부과",
+                                "shppcstCodYn": "N",
+                                "ordRcpDts": "2023-07-28 09:50:17",
+                                "ordpeNm": "이윤경",
+                                "rcptpeNm": "이윤경",
+                                "rcptpeHpno": "010-2388-7361",
+                                "rcptpeTelno": "--",
+                                "shppDivDtlCd": 11,
+                                "shppDivDtlNm": "일반출고",
+                                "shppProgStatDtlCd": 11,
+                                "shppRsvtDt": 20230729,
+                                "uitemId": 52387,
+                                "uitemNm": "08월17일(목)/스위트디럭스＋조식2인(8/6－31투숙객대상)",
+                                "siteNo": 6004,
+                                "shppVenId": "0017535226",
+                                "shppVenNm": "(주)동무해피데이즈",
+                                "rsvtItemYn": "N",
+                                "dircItemQty": 1,
+                                "cnclItemQty": 0,
+                                "ordQty": 1,
+                                "splprc": 97018,
+                                "sellprc": 116000,
+                                "rlordAmt": 116000,
+                                "dcAmt": 0,
+                                "ordpeHpno": "01023887361",
+                                "shpplocAddr": "충청남도 천안시 서북구 두정동 1371 팰리스피아 222",
+                                "shpplocZipcd": 31106,
+                                "shpplocOldZipcd": 331962,
+                                "ordMemoCntt": "[고객배송메모]부재 시 문 앞에 놓아주세요",
+                                "ordpeRoadAddr": "충청남도 천안시 서북구 두정상가2길 9, 222 (두정동)",
+                                "ordShpplocId": 1454539070,
+                                "shppTypeDtlCd": 14,
+                                "reOrderYn": "N",
+                                "itemDiv": 10,
+                                "shpplocBascAddr": "충청남도 천안시 서북구 두정상가2길",
+                                "shpplocDtlAddr": "9, 222 (두정동)",
+                                "ordItemDivNm": "주문",
+                                "shppItemDivCd": "01",
+                                "shppcstId": "0000516571",
+                                "mallTypeCd": 10,
+                                "ordTypeCd06Yn": "N",
+                                "ordItemCertNoYn": "N"
+                            }
+                        }
+                    ]
+                }
+            }
+         */
     }
 
     /**
@@ -134,7 +205,7 @@ public class SsgService {
 
 
     /**
-     * 취소 승인 목록 조회
+     * 취소 신청 목록 조회
      * @param startDate
      * @param endDate
      * @return
@@ -193,15 +264,18 @@ public class SsgService {
      * Q&A 리스트 조회
      * @return
      */
-    public String getQnaList(){
+    public String getQnaList(String startDate, String endDate){
         String result = "";
 
         try {
             JSONObject jsonObject = new JSONObject();
             JSONObject qnaObject = new JSONObject();
 
-            qnaObject.put("qnaStartDt", "202306010000");
-            qnaObject.put("qnaEndDt", "2023070250000");
+            startDate = startDate + "0000";
+            endDate = endDate + "0000";
+
+            qnaObject.put("qnaStartDt", startDate);
+            qnaObject.put("qnaEndDt", endDate);
 
             jsonObject.put("postngReq", qnaObject);
 
@@ -215,15 +289,17 @@ public class SsgService {
         return result;
     }
 
-    public String getSaleList(){
+    public String getSaleList(String strDate){
         String result = "";
 
         try {
 
+            /*
+            // 오늘 날짜
             Date date = new Date();
             SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyyMMdd");
             String strDate = simpleDateFormat.format(date);
-
+             */
             JsonNode jsonNode = commonFunction.callJsonApi("SSG", "", new JSONObject(), "https://eapi.ssgadm.com/api/settle/v1/ven/sales/list.ssg?critnDt=" + strDate, "GET");
             System.out.println(jsonNode);
         }catch (Exception e){
