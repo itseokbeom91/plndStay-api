@@ -155,7 +155,7 @@ public class AccommService {
         Date nowDate = new Date();
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
         if (sDate == null || sDate.equals("")) {
-            sDate = dateFormat.format(nowDate).toString();
+            sDate = dateFormat.format(nowDate);
         }
 
         requesttURI += "auth_key=" + Constants.gpAuth + "&pension_id=" + pensionId + "&sdate=" + sDate + "&edate=2023-08-05" + eDate + "&detail_yn=Y";
@@ -205,7 +205,7 @@ public class AccommService {
         Date nowDate = new Date();
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
         if (sDate == null || sDate.equals("")) {
-            sDate = dateFormat.format(nowDate).toString();
+            sDate = dateFormat.format(nowDate);
         }
         requestURI += "auth_key=" + Constants.gpAuth + "&pension_id=" + pensionId + "&sdate=" + sDate + "&edate=" + eDate;
         Request request = new Request.Builder()
@@ -323,7 +323,7 @@ public class AccommService {
         Date nowDate = new Date();
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
         if (lastDate == null || lastDate.equals("")) {
-            lastDate = dateFormat.format(nowDate).toString();
+            lastDate = dateFormat.format(nowDate);
         }
         requestURI += "auth_key=" + Constants.gpAuth + "&detail_yn=Y" + "&last_date=" + lastDate;
         Request request = new Request.Builder()
@@ -384,7 +384,7 @@ public class AccommService {
                 String longi = (String) map.get("longi");
 
 
-                String roomData = getPensionStatus(map.get("pension_id").toString(), dateFormat.format(nowDate).toString(), "");
+                String roomData = getPensionStatus(map.get("pension_id").toString(), dateFormat.format(nowDate), "");
                 String pensionInfo = getPensionInfo(map.get("pension_id").toString());
                 roomData = roomData.substring(5, roomData.length() - 1);
                 JSONObject roomJson = (JSONObject) jsonParser.parse(roomData);
@@ -489,7 +489,7 @@ public class AccommService {
                 //펜션ID, 펜션명, 지역코드1, 지역코드2, 위도, 경도, 전화번호, 주소, 체크인시간, 체크아웃시간, 홈페이지주소, 판매가능객실수, 취소규정, 펜션이미지(부대시설, 전경, 메인)
                 strAccommData += pensionId + "|^|" + pensionName + "|^|" + districtCode1 + "|^|" + districtCode2 + "|^|" + lati + "|^|" + longi + "|^|"
                         + pensionTel + "|^|" + pensionAddr + "|^|" + pensionCheckIn + "|^|" + pensionCheckOut + "|^|" + pensionWebsite + "|^|" + pensionRoomCnt + "|^|"
-                        + strPenaltyData + "|^|" + "" + "|^|" + pensionZip + "{{|}}";
+                        + strPenaltyData + "|^|" + "|^|" + pensionZip + "{{|}}";
             }
 
             strAccommData = strAccommData.substring(0, strAccommData.length()-5);

@@ -11,5 +11,5 @@ public interface BookingMapper {
 
     String insertRoom(String strPackageDatas, String strRoomDatas, String strStockDatas, String strAccommDatas, String strType);
 
-    List<Map<String, Object>> getPackageCodeAndStoreCode(String type);
+    Map<String, Object> getPackageCodeAndStoreCode(String type);
 }
