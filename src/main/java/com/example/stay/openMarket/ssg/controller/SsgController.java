@@ -104,6 +104,14 @@ public class SsgController {
 
     }
 
+    // qna 답변
+    @GetMapping("answer")
+    public void answerQna(String postId, String answer){
+
+        ssgService.answerQna(postId, answer);
+
+    }
+
     // 정산 조회
     @GetMapping("/salesList")
     public void getSalesList(String strDate){

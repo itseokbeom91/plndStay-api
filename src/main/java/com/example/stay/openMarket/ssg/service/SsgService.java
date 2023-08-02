@@ -4,6 +4,7 @@ import com.example.stay.common.util.CommonFunction;
 import com.example.stay.openMarket.ssg.mapper.SsgMapper;
 import com.fasterxml.jackson.databind.JsonNode;
 import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -41,7 +42,16 @@ public class SsgService {
             mainObject.put("requestShppDirection",innerObject);
 
             JsonNode jsonNode = commonFunction.callJsonApi("SSG","", mainObject, "https://eapi.ssgadm.com/api/pd/1/listShppDirection.ssg","POST");
-            System.out.println(jsonNode);
+//            System.out.println(jsonNode);
+//            System.out.println(jsonNode.get("result").get("shppDirections").get(0).size());
+
+            int intCnt = jsonNode.get("result").get("shppDirections").get(0).size();
+            if(intCnt > 0){
+                JSONObject jsonObject = (JSONObject) new JSONParser().parse(jsonNode.get("result").get("shppDirections").get(0).toString());
+                System.out.println(jsonObject);
+            }
+
+
 
         }catch (Exception e){
             e.printStackTrace();
@@ -265,6 +275,7 @@ public class SsgService {
      * @return
      */
     public String getQnaList(String startDate, String endDate){
+        // ex) 8월 1일 리스트 조회시 endDate = 20230803
         String result = "";
 
         try {
@@ -289,6 +300,36 @@ public class SsgService {
         return result;
     }
 
+
+    public String answerQna(String strPostngId, String strAnswer){
+        String result = "";
+
+        try {
+            JSONObject jsonObject = new JSONObject();
+            JSONObject qnaObject = new  JSONObject();
+
+            qnaObject.put("postngId", strPostngId);
+            qnaObject.put("postngCntt", strAnswer);
+
+            jsonObject.put("postngReq", qnaObject);
+
+            JsonNode jsonNode = commonFunction.callJsonApi("SSG", "", jsonObject, "https://eapi.ssgadm.com/api/postng/ansQna.ssg", "POST");
+
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+
+        return result;
+
+    }
+
+
+
+    /**
+     * 위수탁 마감리스트
+     * @param strDate
+     * @return
+     */
     public String getSaleList(String strDate){
         String result = "";
 
