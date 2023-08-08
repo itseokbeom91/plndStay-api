@@ -52,11 +52,13 @@ public class CoupangApi {
             post.addHeader ( "Content-Type", "application/json; charset=UTF-8");
             post.addHeader ( "Request-Vendor-Id", Constants.cpVendorId);
 
-            StringEntity entity = new StringEntity (strRequest);
+            if(strRequest != null){
+                StringEntity entity = new StringEntity (strRequest);
 
-            logWriter.addRequest(strRequest);
+                logWriter.addRequest(strRequest);
 
-            post.setEntity (entity);
+                post.setEntity (entity);
+            }
 
             returnJson =  httpExecute(post);
 

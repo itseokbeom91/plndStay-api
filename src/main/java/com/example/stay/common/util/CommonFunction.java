@@ -1,5 +1,6 @@
 package com.example.stay.common.util;
 
+import com.example.stay.openMarket.gmarket.hmac.HmacGenerater;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
@@ -116,6 +117,8 @@ public class CommonFunction<T> {
                 conn.setRequestProperty("X-Yobiss-AuthToken", Constants.ypTokenKey);
             }else if(strAccomm.equals("SSG")){
                 conn.setRequestProperty("Authorization", Constants.SsgAuthorization);
+            }else if(strAccomm.equals("gmk")){
+                conn.setRequestProperty("Authorization", strType);
             }
 
             if(!requestJson.isEmpty()){

@@ -293,8 +293,6 @@ public class CpAccommService {
                     JSONObject requestJson = new JSONObject();
                     requestJson.put("lodgingCreateDtos", lodgingCreateDtos);
 
-                    System.out.println(requestJson);
-
 //                    // API 호출
 //                    JSONObject returnJson = coupangApi.coupangPostApi(gson.toJson(requestJson), "travel/lodgings");
 //                    // 응답값 처리
@@ -638,7 +636,7 @@ public class CpAccommService {
                 accommJson.put("travelProductId", Long.parseLong(strPdtCode));
                 accommJson.put("sellerProductId", intAID);
                 accommJson.put("nation", "KR"); // 시설 국가
-                accommJson.put("name", URLEncoder.encode(accommDto.getStrSubject(), "utf-8")); // 시설 이름
+                accommJson.put("name", accommDto.getStrSubject()); // 시설 이름
                 accommJson.put("introduction", accommDto.getStrDescription()); // 시설 소개
                 accommJson.put("regionKeyword", accommDto.getStrRegionKeyword()); // 지역 키워드
 
@@ -747,8 +745,6 @@ public class CpAccommService {
                         JSONObject jsonObject = (JSONObject) s;
                         if(jsonObject != null) {
                             String name = jsonObject.get("name").toString();
-                            System.out.println("name : " + name);
-                            System.out.println(URLDecoder.decode(name, "utf-8"));
                             message = "상품 수정 완료";
                         }
                         break;
@@ -839,11 +835,6 @@ public class CpAccommService {
 
             if(returnCode.equals("200")){
                 dataJson = (JSONObject) returnJson.get("data");
-
-                String name = dataJson.get("name").toString();
-                System.out.println(name);
-                System.out.println("name : " + URLDecoder.decode(name, "utf-8"));
-
             }else if(returnCode.equals("410")){
                 message = "이미 삭제된 상품입니다";
             }else{

@@ -141,7 +141,7 @@ public class BookingService {
             String name  = "개발테스트";
             String pcode  = "90004884";
             String pcode_seq  = "1";
-            String bdate  = "20230726";
+            String bdate  = "20230817";
             int cnt = 1;
             String tseq  = "980";
             String DH_CODE1 = "1030";
@@ -241,7 +241,7 @@ public class BookingService {
                 httpServletRequest.getQueryString(), System.currentTimeMillis());
         try{
             // intRsvID로 엘리시안 예약번호 조회 프로세스 추가
-            String bno = "751FK3MW";
+            String bno = "751FK7J8";
 
             String elysUrl = "type=CO&bno=" + bno;
             String strResponse = callElysAPI(elysUrl);
