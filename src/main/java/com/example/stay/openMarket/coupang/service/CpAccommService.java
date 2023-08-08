@@ -293,8 +293,6 @@ public class CpAccommService {
                     JSONObject requestJson = new JSONObject();
                     requestJson.put("lodgingCreateDtos", lodgingCreateDtos);
 
-                    System.out.println(requestJson);
-
 //                    // API 호출
 //                    JSONObject returnJson = coupangApi.coupangPostApi(gson.toJson(requestJson), "travel/lodgings");
 //                    // 응답값 처리
