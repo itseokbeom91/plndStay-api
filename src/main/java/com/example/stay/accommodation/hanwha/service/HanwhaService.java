@@ -118,10 +118,10 @@ public class HanwhaService {
             System.out.println(mainObject);
 
 //            JsonNode jsonNode = commonService.callJsonApi("hanwha", "", mainObject);
-//            JsonNode jsonNode = commonFunction.callJsonApi("hanwha", "", mainObject, "", "POST");
+            JsonNode jsonNode = commonFunction.callJsonApi("hanwha", "", mainObject, "", "POST");
 //
-//            result = jsonNode.toString();
-//            System.out.println(result);
+            result = jsonNode.toString();
+            System.out.println(result);
 
         }catch (Exception e){
             message = "예약 실패";
@@ -131,6 +131,8 @@ public class HanwhaService {
 
         return commonFunction.makeReturn("json", statusCode, message);
     }
+
+
 
     /**
      * 예약 취소
@@ -196,7 +198,7 @@ public class HanwhaService {
 
             detailObject.put("CUST_NO", Constants.hanwhaCustNo);
             detailObject.put("RSRV_NO", ""); // 예약번호
-            detailObject.put("RSRV_DATE_STRT", ""); // 예약한 날짜 조회(투숙날 아님)
+            detailObject.put("RSRV_DATE_STRT", ""); // 예약한 날짜 조회(투숙날 아님)  *예약번호 있으면 안넣어도됨 기간 조회시 사용
             detailObject.put("RSRV_DATE_END", "");
 
             List<Object> dataList = new ArrayList<>();
@@ -221,6 +223,86 @@ public class HanwhaService {
         }
 
         return commonFunction.makeReturn("json", statusCode, message);
+    }
+
+
+    public String bookingModify(String strRsrvNo, String strDate, String strRoomCnt, String strStaycnt, String strReserveName, String strReservePhone, String strStayName, String strStayPhone){ // 예약 수정 : 04
+
+        String statusCode = "200";
+        String message = "";
+        String result = "";
+
+        try {
+
+            JSONObject mainObject = getCommonHeader("04");
+            JSONObject dataObject = new JSONObject();
+            JSONObject detailObject = new JSONObject();
+
+            String strStayPhone1 = "010";
+            String strStayPhone2 = "";
+            String strStayPhone3 = "";
+            if(strStayPhone.substring(0,3).equals("010")){
+                System.out.println("phone"+strStayPhone);
+                strStayPhone2 = strStayPhone.substring(3,7);
+                strStayPhone3 = strStayPhone.substring(7,11);
+            }else{
+                int lenPhone = strStayPhone.length();
+                int stand = lenPhone/3;
+                strStayPhone1 = strStayPhone.substring(0, stand);
+                strStayPhone2 = strStayPhone.substring(stand, stand*2);
+                strStayPhone3 = strStayPhone.substring(stand*2, lenPhone);
+            }
+
+            String strReservePhone1 = "010";
+            String strReservePhone2 = "";
+            String strReservePhone3 = "";
+            if(strReservePhone.substring(0,3).equals("010")){
+                System.out.println("phone"+strReservePhone);
+                strReservePhone2 = strReservePhone.substring(3,7);
+                strReservePhone3 = strReservePhone.substring(7,11);
+            }else{
+                int lenPhone = strReservePhone.length();
+                int stand = lenPhone/3;
+                strReservePhone1 = strReservePhone.substring(0, stand);
+                strReservePhone2 = strReservePhone.substring(stand, stand*2);
+                strReservePhone3 = strReservePhone.substring(stand*2, lenPhone);
+            }
+
+            detailObject.put("CUST_NO", Constants.hanwhaCustNo);
+            detailObject.put("RSRV_NO", strRsrvNo);
+            detailObject.put("CUST_IDNT_NO", "");
+            detailObject.put("ARRV_DATE", strDate); //20231010
+            detailObject.put("RSRV_ROOM_CNT", strRoomCnt); // 객실 수
+            detailObject.put("OVNT_CNT", strStaycnt); // 몇박
+            detailObject.put("INHS_CUST_NM", strStayName);
+            detailObject.put("INHS_CUST_TEL_NO2", strStayPhone1);
+            detailObject.put("INHS_CUST_TEL_NO3", strStayPhone2);
+            detailObject.put("INHS_CUST_TEL_NO4", strStayPhone3);
+            detailObject.put("RSRV_CUST_NM", strReserveName);
+            detailObject.put("RSRV_CUST_TEL_NO2", strReservePhone1);
+            detailObject.put("RSRV_CUST_TEL_NO3", strReservePhone2);
+            detailObject.put("RSRV_CUST_TEL_NO4", strReservePhone3);
+
+            List<Object> dataList = new ArrayList<>();
+            dataList.add(detailObject);
+
+            dataObject.put("ds_rsrvInfo", dataList);
+
+            mainObject.put("Data", dataObject);
+
+            System.out.println(mainObject);
+
+//            JsonNode jsonNode = commonService.callJsonApi("hanwha", "", mainObject);
+            JsonNode jsonNode = commonFunction.callJsonApi("hanwha", "", mainObject, "", "POST");
+
+        }catch (Exception e){
+            message = "예약 취소 실패";
+            statusCode = "500";
+            e.printStackTrace();
+        }
+
+        return commonFunction.makeReturn("json", statusCode, message);
+
     }
 
 
@@ -564,6 +646,9 @@ public class HanwhaService {
         }else if(type.equals("03")){                                // 03 : 예약 조회
             RECV_SVC_CD = "HBSREMPRR9903";
             INTF_ID = "LCB00HBSREMPRR9903";
+        }else if(type.equals("04")){                                // 04 : 예약 수정
+            RECV_SVC_CD = "HBSREMPRR9904";
+            INTF_ID = "LCB00HBSREMPRR9904";
         }else if(type.equals("05")){                                // 05 : 캐파조회
             RECV_SVC_CD = "HBSREMPRR9905";
             INTF_ID = "LCB00HBSREMPRR9905";

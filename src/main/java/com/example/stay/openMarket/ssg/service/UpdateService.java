@@ -163,7 +163,7 @@ public class UpdateService {
                 JSONObject uitemsObject = (JSONObject) new JSONParser().parse(uitemsArray.get(0).toString());
                 JSONArray uitemArray = (JSONArray) new JSONParser().parse(uitemsObject.get("uitem").toString());
                 List<String> uitemIdList = new ArrayList<>();
-                for(Object array : uitemArray){
+                for (Object array : uitemArray) {
                     JSONObject arObject = (JSONObject) new JSONParser().parse(array.toString());
                     uitemIdList.add(arObject.get("uitemId").toString());
                     //System.out.println(uitemIdList);
@@ -185,9 +185,9 @@ public class UpdateService {
                     // uitem
                     String strUitemId = String.format("%05d", dto.getIntSsgSeq());
                     // 있는 재고 update 새로운 재고 insert
-                    if(uitemIdList.contains(strUitemId)){
+                    if (uitemIdList.contains(strUitemId)) {
                         itemObject.put("uitemId", strUitemId);
-                    }else{
+                    } else {
                         itemObject.put("tempUitemId", strUitemId);
                     }
 //                    itemObject.put("uitemId", uitemId);
@@ -266,6 +266,26 @@ public class UpdateService {
                 attrObject.put("uitemOptnExpsrTypeCd2", "10");
 
                 updateObject.put("uitemAttr", attrObject);
+
+            }else if(strType.equals("oneByOne")){ // 개별로 재고 조정 - 코드 어떻게 짤지 아직 미정
+
+                List<Object> uitemList = new ArrayList<>();
+
+                JSONObject oneObject = new JSONObject();
+                oneObject.put("uitemId","00002");
+                oneObject.put("sellStatCd","20");
+                oneObject.put("uitemOptnTypeNm1","입실일자");
+                oneObject.put("uitemOptnNm1","10월02일(일)");
+                oneObject.put("uitemOptnTypeNm2","타입");
+                oneObject.put("uitemOptnNm2","24평 한실");
+                oneObject.put("baseInvQty",9);
+                oneObject.put("splVenItemId",2);
+                oneObject.put("useYn","Y");
+                uitemList.add(oneObject);
+
+                JSONObject itemObject = new JSONObject();
+                itemObject.put("uitem", uitemList);
+                updateObject.put("uitems", itemObject);
 
             }else if(strType.equals("stop")) {
 

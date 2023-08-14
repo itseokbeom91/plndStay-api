@@ -48,6 +48,13 @@ public class HanwhaController {
 
     }
 
+    @GetMapping("/update")
+    public void bookingModify(String strRsrvNo, String strDate, String strRoomCnt, String strStaycnt, String strReserveName, String strReservePhone, String strStayName, String strStayPhone){
+
+        hanwhaService.bookingModify(strRsrvNo, strDate, strRoomCnt, strStaycnt, strReserveName, strReservePhone, strStayName, strStayPhone);
+
+    }
+
     @GetMapping("/bookingInfo")
     public void bookingInfo(){
 

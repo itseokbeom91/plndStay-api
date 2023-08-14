@@ -1,5 +1,7 @@
 package com.example.stay.accommodation.roomio.controller;
 
+import com.example.stay.accommodation.roomio.service.RoomioService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -8,11 +10,22 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @RequestMapping("/roomio/*")
 public class RoomioController {
 
+    @Autowired
+    RoomioService roomioService;
+
     @GetMapping("/getAccomm")
-    public void getAccomm(){}
+    public void getAccomm(){
+
+        roomioService.getAccomm();
+
+    }
 
     @GetMapping("/getRoom")
-    public void getRoom(){}
+    public void getRoom(String hotelId){
+
+        roomioService.getRoom(hotelId);
+
+    }
 
     @GetMapping("/bookingState")
     public void bookingState(){}

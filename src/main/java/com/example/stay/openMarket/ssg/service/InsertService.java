@@ -96,8 +96,8 @@ public class InsertService {
             insertObject.put("shppRqrmDcnt", 3); // 배송 소요일수
             insertObject.put("whoutShppcstId", "0000516571"); // 출고배송비 ID
             insertObject.put("retShppcstId", "0000516572"); // 반품배송비 ID
-            insertObject.put("whoutAddrId", "0003739275"); // 출고 주소 ID
-            insertObject.put("snbkAddrId", "0003739275"); // 반품 주소 ID
+            insertObject.put("whoutAddrId", "0028508564"); // 출고 주소 ID
+            insertObject.put("snbkAddrId", "0028508564"); // 반품 주소 ID
             insertObject.put("retExchPsblYn", "N"); // 반품 교환가능 여부
             insertObject.put("itemMngPropClsId", "0000000030"); // 상품 관리 항목 분류 ID
 
