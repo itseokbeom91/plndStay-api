@@ -33,8 +33,8 @@ public class ElevenStController {
 
     @GetMapping("/qnaTest")
     @ResponseBody
-    public String qnaTest(String sDate, String eDate){
-        return elevenStService.getQnaList(sDate, eDate);
+    public String qnaTest(){
+        return elevenStService.getQnaList();
     }
 
     @GetMapping("/answerTest")
@@ -47,6 +47,12 @@ public class ElevenStController {
     @ResponseBody
     public String stopDisplay(String prdNo){
         return elevenStService.stopDisplay(prdNo);
+    }
+
+    @GetMapping("/getOrderList")
+    @ResponseBody
+    public String getOrderList(){
+        return elevenStService.getOrderList();
     }
 
 }

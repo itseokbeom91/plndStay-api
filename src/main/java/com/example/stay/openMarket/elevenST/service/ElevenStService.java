@@ -3,12 +3,14 @@ package com.example.stay.openMarket.elevenST.service;
 import com.example.stay.common.util.CommonFunction;
 import com.example.stay.common.util.Constants;
 import com.example.stay.common.util.LogWriter;
+import com.example.stay.common.util.XmlUtility;
 import com.example.stay.openMarket.elevenST.mapper.ElevenStMapper;
 import okhttp3.OkHttpClient;
 import org.apache.jasper.tagplugins.jstl.core.Url;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 
@@ -21,10 +23,8 @@ import java.io.StringReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLDecoder;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 @Service("elevenST.ElevenStService")
 public class ElevenStService {
@@ -34,14 +34,16 @@ public class ElevenStService {
 
     CommonFunction commonFunction = new CommonFunction();
 
+    XmlUtility xmlUtility = new XmlUtility();
+
 
 
     public String regProduct(String accommID) {
         try {
             URL url = new URL(Constants.elevenUrl + "/rest/prodservices/product");
             Map<String, Object>map = elevenStMapper.getAccomm(accommID);
-            map.put("aplBgnDy", "20230727");
-            map.put("aplEndDy", "20230728");
+            map.put("aplBgnDy", "20230809");
+            map.put("aplEndDy", "20230831");
             map.put("selPrc", "100000000");
             map.put("prdImage01", "https://cdn.imweb.me/thumbnail/20221018/2fa9b7c3276c7.png");
             StringBuffer sb = new StringBuffer();
@@ -50,7 +52,7 @@ public class ElevenStService {
             sb.append("<selMthdCd>01</selMthdCd>"); //판매방식 01:고정가판매, 04:예약판매, 05:중고판매 이 외의 코드는 사용 X
             sb.append("<dispCtgrNo>1018070</dispCtgrNo>"); //카테고리 넘버는 소카테고리 넘버 (2878 => 1017895(국내숙박) => 1017902(호텔) => 지역 (ex: 서울 1018070)  //호텔, 리조트, 모텔, 펜션, 게스트하우스등 있음
 //            sb.append("<prdNm>" + map.get("prdNm") + "</prdNm>");
-            sb.append("<prdNm>" + map.get("strSubject") + "</prdNm>"); //상품명
+            sb.append("<prdNm>" + map.get("strSubject") + "[TEST상품/주문불가]</prdNm>"); //상품명
             sb.append("<sellerPrdCd>" + map.get("intAID") + "</sellerPrdCd>");
             sb.append("<prdImage01>" + map.get("prdImage01") + "</prdImage01>");
 //            sb.append("<prdImage02>" + map.get("prdImage02") + "</prdImage02>");
@@ -89,15 +91,25 @@ public class ElevenStService {
             sb.append("<name>상품상세설명 참조</name>");
             sb.append("</item>");
             sb.append("</ProductNotification>");
-            Map<String, Object> map2 = new HashMap<>();
-            Map<String, Object> map3 = new HashMap<>();
-            map3.put("optPrice", "100000000");
-            map3.put("optCount", "1");
-            map3.put("optType1", "20230901");
-            map3.put("optType2", "넓은거");
-            map2.put("listMap", map3);
 
-            List<Map<String, Object>> listMap = (List<Map<String, Object>>) map2.get("listMap");
+//            Map<String, Object> map3 = new HashMap<>();
+            List<Map<String, Object>> listMap = new ArrayList<>();
+            for (int j = 0; j<3; j++) {
+                int date = 20230901;
+                int price = 1000000;
+                for (int i = 0; i < 10; i++) {
+                    Map<String, Object> map3 = new HashMap<>();
+                    Random random = new Random();
+                    map3.put("optPrice", price + random.nextInt(100)*100);
+                    map3.put("optCount", "1");
+                    map3.put("optType1", date+j);
+                    map3.put("optType2", "옵션" + i);
+//                map2.put("listMap", map3);
+//                Map<String, Object> map2 = map3;
+                    listMap.add(map3);
+                }
+            }
+
 
             //옵션 설정
             sb.append("<optSelectYn>Y</optSelectYn>");
@@ -108,6 +120,15 @@ public class ElevenStService {
             sb.append("<optMixYn>N</optMixYn>");
             //AS-IS 기준
             sb.append("<ProductOptionExt>");
+            sb.append("<ProductOption>");
+            sb.append("<colOptPrice>0</colOptPrice>");
+            sb.append("<colOptCount>1</colOptCount>");
+            sb.append("<colCount/>");
+            sb.append("<optWght/>");
+            sb.append("<useYn>Y</useYn>");
+            sb.append("<colSellerStockCd></colSellerStockCd>");
+            sb.append("<optionMappingKey><![CDATA[투숙일자:20230901†" + "객실타입:xxx ]]></optionMappingKey>");
+            sb.append("</ProductOption>");
             for(int i = 0; i < listMap.size(); i++){//관리자페이지에서 선택된값 리스트로 받아서 넣어야 함
                 sb.append("<ProductOption>");
                 sb.append("<colOptPrice>" + listMap.get(i).get("optPrice") + "</colOptPrice>");
@@ -115,10 +136,11 @@ public class ElevenStService {
                 sb.append("<colCount/>");
                 sb.append("<optWght/>");
                 sb.append("<useYn>Y</useYn>");
+                sb.append("<colSellerStockCd></colSellerStockCd>");
                 sb.append("<optionMappingKey><![CDATA[투숙일자:" + listMap.get(i).get("optType1") + "†" + "객실타입:" + listMap.get(i).get("optType2") + " ]]></optionMappingKey>");
                 sb.append("</ProductOption>");
-                sb.append("</ProductOptionExt>");
             }
+            sb.append("</ProductOptionExt>");
 
 
             sb.append("<selPrdClfCd>0:100</selPrdClfCd>");//판매기간코드
@@ -179,7 +201,11 @@ public class ElevenStService {
             DocumentBuilder db = dbf.newDocumentBuilder();
             Document doc = db.parse(new InputSource(new StringReader(returnStr)));
             NodeList nl = doc.getElementsByTagName("ClientMessage");
+            if (!xmlUtility.getTagValue( "resultCode", (Element) nl.item(0)).equals("200")) {
+                return commonFunction.makeReturn("jsonp", "500", xmlUtility.getTagValue( "message", (Element) nl.item(0)));
+            }
             String prdNo = nl.item(1).getTextContent();
+
             //오픈마켓 테이블에 박아야겠지?
 
 //            elevenStMapper.insertAccomm(map.get("intAID").toString(), map.get("prdNm").toString(), prdNo, map.get("detailInfo").toString());
@@ -396,8 +422,17 @@ public class ElevenStService {
         }
     }
 
-    public String getQnaList(String startday, String endday) {
+    public String getQnaList() {
         try{
+            String startday = "";
+            String endday = "";
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmm");
+            Date current = new Date();
+            Calendar c = Calendar.getInstance();
+            c.setTime(current);
+            endday = sdf.format(c.getTime());
+            c.add(Calendar.MINUTE, -15);
+            startday = sdf.format(c.getTime());
             URL url = new URL(Constants.elevenUrl + "/rest/prodqnaservices/prodqnalist/" + startday + "/" + endday + "/00" ); //00:전체조회, 01:답변완료조회, 02:미답변조회
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             conn.setDoOutput(true);
@@ -434,13 +469,13 @@ public class ElevenStService {
             for (int i = 0 ; i<nl.getLength();i++){
                 //DB에 인입하는과정 필요
                 Map<String, Object> map = new HashMap<>();
-                String qnaNo = nl.item(i).getChildNodes().item(5).getTextContent();
-                String qnaText = nl.item(i).getChildNodes().item(4).getTextContent();
-                String prdNo = nl.item(i).getChildNodes().item(3).getTextContent();
-                String prdNm = nl.item(i).getChildNodes().item(14).getTextContent();
-                String ordNo = nl.item(i).getChildNodes().item(12).getTextContent();
-                String answerYn = nl.item(i).getChildNodes().item(2).getTextContent();
-                String answer = nl.item(i).getChildNodes().item(0).getTextContent();
+                String qnaNo = xmlUtility.getTagValue("brdInfoNo", (Element) nl.item(i)); //nl.item(i).getChildNodes().item(5).getTextContent();
+                String qnaText = xmlUtility.getTagValue("brdInfoCont", (Element) nl.item(i));
+                String prdNo = xmlUtility.getTagValue("brdInfoClfNo", (Element) nl.item(i));
+                String prdNm = xmlUtility.getTagValue("prdNm", (Element) nl.item(i));
+                String ordNo = xmlUtility.getTagValue("ordNoDe", (Element) nl.item(i));
+                String answerYn = xmlUtility.getTagValue("answerYn", (Element) nl.item(i));
+                String answer = xmlUtility.getTagValue("answerCont", (Element) nl.item(i));
 
                 map.put("qnaNo", qnaNo);
                 map.put("qnaText", qnaText);
@@ -449,6 +484,7 @@ public class ElevenStService {
                 map.put("prdNm", prdNm);
                 map.put("answerYn", answerYn);
                 map.put("answer", answer);
+                map.put("salesChannel", "elevenSt");
                 listMap.add(map);
             }
             System.out.println(listMap);
@@ -509,6 +545,61 @@ public class ElevenStService {
 
         } catch (Exception e) {
             return commonFunction.makeReturn("jsonp", "500",e.getMessage());
+        }
+    }
+
+    public String getOrderList() {
+        //YYYYMMDDHHmm 형식으로 전달되어야함
+        try {
+            String startday = "";
+            String endday = "";
+            System.currentTimeMillis();
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmm");
+            Date current = new Date();
+            Calendar c = Calendar.getInstance();
+            c.setTime(current);
+            endday = sdf.format(c.getTime());
+            c.add(Calendar.MINUTE, -15);
+            startday = sdf.format(c.getTime());
+            URL url = new URL(Constants.elevenUrl + "/rest/ordservices/dlvcompleted/" + startday + "/" + endday);
+            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+            conn.setDoOutput(true);
+            conn.setInstanceFollowRedirects(false);
+            conn.setRequestMethod("GET");
+            conn.setRequestProperty("openapikey", Constants.elevenApiKey);
+
+            LogWriter lw = new LogWriter("GET", url.toString(), System.currentTimeMillis());
+
+            BufferedReader in = new BufferedReader(new InputStreamReader(conn.getInputStream(), "EUC-KR"));
+            String inputLine = null;
+            String returnStr = "";
+            while ((inputLine = in.readLine()) != null) {
+                returnStr += inputLine;
+            }
+            System.out.println(returnStr);
+
+            DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+            DocumentBuilder db = dbf.newDocumentBuilder();
+            StringReader sr = new StringReader(returnStr);
+            InputSource is = new InputSource(sr);
+            Document dc = db.parse(is);
+            NodeList nl = dc.getElementsByTagName("ns2:order");
+            List<Map<String, Object>>listMap = new ArrayList<>(); //
+            String ordNo = "";
+
+            for (int i = 0 ; i<nl.getLength();i++){
+                //예약정보 DB에 인입하는과정 필요
+                Map<String, Object> map = new HashMap<>();
+//                ordNo += nl.item(i).getChildNodes().item(23).getTextContent() + ",";
+                ordNo =  xmlUtility.getTagValue("ordNo", (Element) nl.item(i));
+                map.put("ordNo", ordNo);
+                listMap.add(map);
+            }
+
+
+            return commonFunction.makeReturn("jsonp", "200", "OK", listMap);
+        } catch (Exception e) {
+            return commonFunction.makeReturn("jsonp", "500", e.getMessage());
         }
     }
 
