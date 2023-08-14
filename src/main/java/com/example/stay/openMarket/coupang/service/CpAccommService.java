@@ -293,8 +293,6 @@ public class CpAccommService {
                     JSONObject requestJson = new JSONObject();
                     requestJson.put("lodgingCreateDtos", lodgingCreateDtos);
 
-                    System.out.println(requestJson);
-
 //                    // API 호출
 //                    JSONObject returnJson = coupangApi.coupangPostApi(gson.toJson(requestJson), "travel/lodgings");
 //                    // 응답값 처리
@@ -628,8 +626,9 @@ public class CpAccommService {
         String message = "";
 
         try {
-            // intAID로 strPdtCode 조회
-            String strPdtCode = coupangMapper.getStrPdtCode(intAID);
+            // 쿠팡에 등록된 상품인지 확인
+            String strPdtCode = commonMapper.getStrPdtCode(intAID, intOmkIdx);
+
 //            strPdtCode = "10000002706646";
             if(strPdtCode != null){
                 AccommDto accommDto = commonMapper.getAcmInfo(intAID, intOmkIdx);
@@ -785,7 +784,7 @@ public class CpAccommService {
 
         try {
             // intAID로 strPdtCode 조회
-            String strPdtCode = coupangMapper.getStrPdtCode(intAID);
+            String strPdtCode = commonMapper.getStrPdtCode(intAID, intOmkIdx);
 //            strPdtCode = "10000002706646";
             if(strPdtCode != null){
                 // API 호출
@@ -827,7 +826,7 @@ public class CpAccommService {
         JSONObject dataJson = new JSONObject();
 
         try{
-            String strPdtCode = coupangMapper.getStrPdtCode(intAID);
+            String strPdtCode = commonMapper.getStrPdtCode(intAID, intOmkIdx);
 //            strPdtCode = "10000002706646";
 
             JSONObject returnJson = coupangApi.coupangGetApi("travel/lodgings/" + strPdtCode);

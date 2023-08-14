@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.example.stay.openMarket.elevenST.mapper.ElevenStMapper">
+
+    <select id="getAccomm" resultType="HashMap">
+        SELECT A.intAID, A.strSubject, I.strDescription, I.strAddr1, I.strAddr2, I.strZipCode, I.strPhone, I.intRoomCnt, I.strCheckIn, I.strCheckOut, A.strType, I.intGrade, I.decLat, I.decLon
+        FROM ACCOMM A with(nolock)
+        INNER JOIN ACCOMM_INFO I with(nolock) ON A.intAID = I.intAID
+        WHERE A.intAID = #{accommID}
+    </select>
+
+    <insert id="insertAccomm">
+        INSERT INTO  ACCOMM_OMK (
+        intAID, intOMKIdx, strUsageYn, strPdtSubject, strPdtCode, strDetailInfo
+        )
+        VALUES (
+        #{intAID}, 1, 'Y',#{strPdtSubject}, #{strPdtCode}, #{strDetailInfo}
+                )
+    </insert>
+
+</mapper>

@@ -98,6 +98,8 @@ public class CpBookingService {
                 JSONObject resultJson = (JSONObject) dataJson.get("results");
                 resultArr = (JSONArray) resultJson.get("content");
 
+                // TODO : 예약 테이블 insert
+
                 message = "예약 목록 조회 완료";
             }else{
                 message = "쿠팡 api 호출 실패";
@@ -155,7 +157,7 @@ public class CpBookingService {
                     resultJson = (JSONObject) r;
                 }
 
-                message = "예약 목록 조회 완료";
+                message = "예약 조회 완료";
             }else{
                 message = "쿠팡 api 호출 실패";
             }
@@ -164,7 +166,7 @@ public class CpBookingService {
         }catch (Exception e){
             e.printStackTrace();
             statusCode = "500";
-            message = "예약 목록 조회 실패";
+            message = "예약 조회 실패";
             logWriter.add("error : " + e.getMessage());
             logWriter.log(0);
         }

@@ -38,7 +38,7 @@ public class BookingService {
 
         String statusCode ="";
         String msg ="";
-        String result = new String();
+        String result = "";
         String pkgData = "";
 
         JSONObject requestJson = new JSONObject();
@@ -84,7 +84,7 @@ public class BookingService {
 
         String statusCode ="";
         String msg ="";
-        String result = new String();
+        String result = "";
 
         JSONObject requestJson = new JSONObject();
         requestJson.put("pkgNo", pkgNo);
@@ -133,7 +133,7 @@ public class BookingService {
 
         String statusCode ="";
         String msg ="";
-        String result = new String();
+        String result = "";
         String detailPath = "";
 
         /*
@@ -228,7 +228,7 @@ public class BookingService {
 
         String statusCode ="";
         String msg ="";
-        String result = new String();
+        String result = "";
         String detailPath = "";     //요금조회 상세 경로
 
         /*
@@ -328,7 +328,7 @@ public class BookingService {
 
         String statusCode ="";
         String msg ="";
-        String result = new String();
+        String result = "";
 
         JSONObject requestJson = new JSONObject();
         requestJson.put("pkgNo", pkgNo);
@@ -387,7 +387,7 @@ public class BookingService {
 
         String statusCode ="";
         String msg ="";
-        String result = new String();
+        String result = "";
         String roomData = "";
 
         JSONObject requestJson = new JSONObject();
@@ -439,7 +439,7 @@ public class BookingService {
 
         String statusCode ="";
         String msg ="";
-        String result = new String();
+        String result = "";
         String pkgData = "";
 
         JSONObject requestJson = new JSONObject();
@@ -493,7 +493,7 @@ public class BookingService {
 
         String statusCode ="";
         String msg ="";
-        String result = new String();
+        String result = "";
         String pkgData = "";
 
         JSONObject requestJson = new JSONObject();
@@ -562,11 +562,11 @@ public class BookingService {
         String packageStockDatas = "";
         Date nowDate = new Date();
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMdd");
-        String sDate = dateFormat.format(nowDate).toString();
+        String sDate = dateFormat.format(nowDate);
         List<Map<String, Object>> stockList = new ArrayList<>();
         JSONObject stockResultJson = new JSONObject();
 
-        List<Map<String, Object>> pkgcdAndStorecd = (List<Map<String, Object>>) bookingMapper.getPackageCodeAndStoreCode("01");
+        List<Map<String, Object>> pkgcdAndStorecd = bookingMapper.getPackageCodeAndStoreCode("01");
 
         //ResponseResult roomStatus = getRoomStatus(httpServletRequest, storeCd, sDate);
         //ResponseResult roomAmount = getRoomAmount(httpServletRequest, storeCd, sDate);
@@ -634,7 +634,7 @@ public class BookingService {
 
         String statusCode ="";
         String msg ="";
-        String result = new String();
+        String result = "";
         String pkgData = "";
 
         JSONObject requestJson = new JSONObject();
@@ -742,15 +742,15 @@ public class BookingService {
                     String rmTypeNm = (String) roomList.get(j).get("rmTypeNm");
 
                     if ( j != roomList.size()-1){
-                        roomData += "" + "|~|" + rmTypeCd + "|~|" + rmTypeNm + "{{^}}";
+                        roomData += "|~|" + rmTypeCd + "|~|" + rmTypeNm + "{{^}}";
                     } else {
-                        roomData += "" + "|~|" + rmTypeCd + "|~|" + rmTypeNm + "|^|";
+                        roomData += "|~|" + rmTypeCd + "|~|" + rmTypeNm + "|^|";
                     }
                 }
                 if (i != roomResultList.size()-1){
-                    roomData += "1" + "|^|" + stayNights + "|^|" + "" + "|^|" + "1" + "|^|" + "" + "|^|" + "" + "{{|}}";
+                    roomData += "1" + "|^|" + stayNights + "|^|" + "|^|" + "1" + "|^|" + "|^|" + "{{|}}";
                 } else {
-                    roomData += "1" + "|^|" + stayNights + "|^|" + "" + "|^|" + "1" + "|^|" + "" + "|^|" + "";
+                    roomData += "1" + "|^|" + stayNights + "|^|" + "|^|" + "1" + "|^|" + "|^|";
                 }
 
             }
@@ -772,7 +772,7 @@ public class BookingService {
 
                 //pkgData = 패키지구분(소노호텔앤리조트:01)|^|패키지번호|^|패키지명|^|지역코드|^|지역명|^|판매시작일자|^|판매종료일자|^|즉시판매여부|^|예약가능시간|^|박수|^|최대예약가능객실수|^|roomList
                 pkgData += "01" + "|^|" + pkgNo + "|^|" + pkgNm + "|^|" + lcalCd + "|^|" + lcalNm + "|^|" + saleStartDt+ "|^|" + saleEndDT + "|^|"
-                        + curRsvYN + "|^|" + curRsvTime + "|^|" + nights + "|^|"  + "" + "|^|";
+                        + curRsvYN + "|^|" + curRsvTime + "|^|" + nights + "|^|"  + "|^|";
 
                 //roomData = 삭제여부 |^| 사용여부 |^| 기준인원 |^| 최대인원 |^| 룸데이터 |^| 최소숙박 |^| 최대숙박일 |^| 조식 |^| depth |^| 환불여부
 

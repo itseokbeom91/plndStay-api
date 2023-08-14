@@ -175,7 +175,7 @@ public class AccommService {
                     }
                 }
                 hotelData += hotelCode + "|^|" + hotelName + "|^|" + strDistrictCode1 + "|^|" + strDistrictCode2 + "|^|"
-                        + latitude + "|^|" + longitude + "|^|" + address + "|^|" + tel + "|^|" + fax + "|^|" + zipNo + "|^|" + String.valueOf(intGrade*2) + "|^|" + roomCnt.trim() + "|^|" + imgdatas.trim() + "{{|}}";
+                        + latitude + "|^|" + longitude + "|^|" + address + "|^|" + tel + "|^|" + fax + "|^|" + zipNo + "|^|" + intGrade * 2 + "|^|" + roomCnt.trim() + "|^|" + imgdatas.trim() + "{{|}}";
             }
             hotelData = hotelData.substring(0, hotelData.length()-5);
             String result = accommMapper.insertHotel(hotelData);

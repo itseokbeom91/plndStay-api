@@ -804,8 +804,6 @@ public class BookingService {
 //                    "<gfnGetCityRateList xmlns=\"http://www.hotelpass.com/HPLINK\">"+
 //                    "<astrRequestXML>"+
                     "<CancelRequest>" +
-
-
                     "<UserInfo>" +
                     "<CompanyCode>" + Constants.hpComCode + "</CompanyCode>" +
                     "<UserID>" + Constants.hpID + "</UserID>" +

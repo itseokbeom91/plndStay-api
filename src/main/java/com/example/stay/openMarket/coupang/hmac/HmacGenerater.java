@@ -7,12 +7,11 @@ import java.util.Date;
 import java.util.TimeZone;
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
+
+import com.example.stay.common.util.Constants;
 import org.apache.commons.codec.binary.Hex;
 
 public class HmacGenerater {
-    private static final String HMAC_SHA_256 = "HmacSHA256";
-    private static final String HMAC_SHA_1 = "HmacSHA1";
-
     public HmacGenerater() {
     }
 
@@ -34,8 +33,8 @@ public class HmacGenerater {
 
             String signature;
             try {
-                SecretKeySpec signingKey = new SecretKeySpec(secretKey.getBytes(Charset.forName("UTF-8")), "HmacSHA256");
-                Mac mac = Mac.getInstance("HmacSHA256");
+                SecretKeySpec signingKey = new SecretKeySpec(secretKey.getBytes(Charset.forName("UTF-8")), Constants.HMAC_SHA_256);
+                Mac mac = Mac.getInstance(Constants.HMAC_SHA_256);
                 mac.init(signingKey);
                 byte[] rawHmac = mac.doFinal(message.getBytes(Charset.forName("UTF-8")));
                 signature = Hex.encodeHexString(rawHmac);
@@ -43,7 +42,7 @@ public class HmacGenerater {
                 throw new IllegalArgumentException("Unexpected error while creating hash: " + var14.getMessage(), var14);
             }
 
-            String result = String.format("CEA algorithm=%s, access-key=%s, signed-date=%s, signature=%s", "HmacSHA256", accessKey, datetime, signature);
+            String result = String.format("CEA algorithm=%s, access-key=%s, signed-date=%s, signature=%s", Constants.HMAC_SHA_256, accessKey, datetime, signature);
             return result;
         }
     }
