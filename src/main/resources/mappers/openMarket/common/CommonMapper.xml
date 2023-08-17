@@ -49,4 +49,11 @@
           AND intOMKIdx = ${intOmkIdx}
     </select>
 
+    <select id="getOmkSales" parameterType="int" resultType="double">
+        SELECT moneySales
+        FROM PLNDSTAY.dbo.STOCK_OMK
+        WHERE intAID = ${intAID}
+          AND intOMKIdx = ${intOmkIdx}
+    </select>
+
 </mapper>
