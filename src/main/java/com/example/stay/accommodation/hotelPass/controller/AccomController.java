@@ -27,5 +27,10 @@ public class AccomController {
     public String getFacilityList(){
         return accommService.getFacilityList();
     }
+    @GetMapping("/getDetailList")
+    @ResponseBody
+    public String getHotelDetail(){
+        return accommService.getHotelDetail();
+    }
 
 }

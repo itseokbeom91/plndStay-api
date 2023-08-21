@@ -19,40 +19,29 @@ public class ElevenStController {
         return elevenStService.getProductList();
     }
 
-    @GetMapping("/test")
+    @GetMapping("/stopDisplay")
     @ResponseBody
     public String test(String prdNo){
         return elevenStService.stopDisplay(prdNo);
     }
 
-    @GetMapping("/regTest")
+    @GetMapping("/regAccomm")
     @ResponseBody
-    public String regTest(String accommID){
-        return elevenStService.regProduct(accommID);
+    public String regTest(String accommID, String bgnDay, String endDay){
+        return elevenStService.regProduct(accommID,  bgnDay, endDay);
     }
 
-    @GetMapping("/qnaTest")
+    @GetMapping("/getQnaList")
     @ResponseBody
     public String qnaTest(){
         return elevenStService.getQnaList();
     }
 
-    @GetMapping("/answerTest")
+    @GetMapping("/answerQna")
     @ResponseBody
     public String answerTest(String qnaNo, String prdNo, String answer) {
         return elevenStService.answerQna(qnaNo, prdNo, answer);
     }
 
-    @GetMapping("/stopDisplay")
-    @ResponseBody
-    public String stopDisplay(String prdNo){
-        return elevenStService.stopDisplay(prdNo);
-    }
-
-    @GetMapping("/getOrderList")
-    @ResponseBody
-    public String getOrderList(){
-        return elevenStService.getOrderList();
-    }
 
 }
