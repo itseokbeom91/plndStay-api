@@ -17,7 +17,6 @@
 <body>
 <a href="/hotelStory/callapi?strAccommID=1000251">callApi - HotelStory</a><br><br>
 
-JENKINS git 연동!
 
 callAPI - SGG
 <input type="text" class="ssg_call" value="13283">
