@@ -29,4 +29,6 @@ public interface CommonMapper {
     String insertAcmOmk(int intAID, int intOmkIdx, String strUsageYn, String strPdtSubject, String strPdtCode, String strDetailInfo);
 
     String getStrPdtCode(int intAID, int intOmkIdx);
+
+    double getOmkSales(int intAID, int intOmkIdx);
 }

@@ -238,6 +238,54 @@ public class AccommService {
         return new CommonFunction().makeReturn("jsonp", "", "", hotelListMap);
     }
 
+    public String getHotelDetail() {
+        OkHttpClient client = new OkHttpClient();
+        String url = "https://xml.hotelpass.com/download/HTPWS_HotelInfo/HTPWS_HotelDetailInfo.xml";
+        Request request = new Request.Builder()
+                .url(url)
+                .get()
+                .build();
+        List<Map<String, Object>> hotelListMap = null;
+        try {
+            Response response = client.newCall(request).execute();
+            XmlUtility xmlUtility = new XmlUtility();
+            DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+            DocumentBuilder builder = factory.newDocumentBuilder();
+            Document doc = builder.parse(new InputSource(new StringReader(response.body().string())));
+            NodeList hotelList = doc.getElementsByTagName("Hotel");
+            hotelListMap = new ArrayList<>();
+            JSONObject hotel = new JSONObject();
+            JSONObject facility = new JSONObject();
+            JSONObject facilitymap = new JSONObject();
+
+            for (int i = 0; i < hotelList.getLength(); i++) {
+                System.out.println(hotelList.item(i).getAttributes().item(0).getNodeValue());
+                NodeList hotelDetailList = hotelList.item(i).getChildNodes();
+
+
+                for (int j = 0; j < hotelDetailList.getLength(); j++) {
+                    System.out.println(hotelDetailList.item(0).getTextContent());
+                    System.out.println(hotelDetailList.item(1).getTextContent());
+                    System.out.println(hotelDetailList.item(2).getTextContent());
+                }
+                hotel.put(hotelList.item(i).getAttributes().item(0).getNodeValue(), facility);
+                hotelListMap.add(hotel);
+                hotel = new JSONObject();
+                facility = new JSONObject();
+
+
+//                Facility.put(hotelList.item(i).getAttributes().item(0).getNodeValue(), hotelList.item(i).getTextContent());
+            }
+            System.out.println(hotelListMap);
+            System.out.println(facilitymap);
+
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return new CommonFunction().makeReturn("jsonp", "", "", hotelListMap);
+    }
+
     // CONTENTS_PHOTO, CONDO_PHOTO에 INSERT
     public String accommPhotoContentsReg(String strImage, String strPropertyID, String strRmtypeID){
         String strAccommPhotoContent = "";

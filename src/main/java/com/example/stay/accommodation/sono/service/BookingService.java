@@ -581,6 +581,11 @@ public class BookingService {
                 JSONParser jsonParser = new JSONParser();
                 JSONObject packStatusJson = (JSONObject) jsonParser.parse(packStatus.substring(5, packStatus.length()-1));
                 JSONObject packAmountJson = (JSONObject) jsonParser.parse(packAmount.substring(5, packAmount.length()-1));
+                if(!packStatusJson.get("code").equals("200") || !packAmountJson.get("code").equals("200")) {
+                    System.out.println("재고조회 메시지 : " + packStatusJson.get("result").toString() + " 가격조회 메시지 : " + packAmountJson.get("result").toString());
+                    System.out.println(i);
+                    continue;
+                }
                 packStatusJson = (JSONObject) packStatusJson.get("result");
                 packAmountJson = (JSONObject) packAmountJson.get("result");
                 List<Map<String, Object>> packStatusList = (List<Map<String, Object>>) packStatusJson.get("resultList");
@@ -613,7 +618,7 @@ public class BookingService {
                 packageStockDatas += "{{|}}";
 
             }
-            packageStockDatas = packageStockDatas.substring(0, packageStockDatas.length()-5);
+            if(packageStockDatas.length() > 5) packageStockDatas = packageStockDatas.substring(0, packageStockDatas.length()-5);
 
 //            stockResultJson.put("resultList", stockList);
 
@@ -776,7 +781,7 @@ public class BookingService {
 
                 //roomData = 삭제여부 |^| 사용여부 |^| 기준인원 |^| 최대인원 |^| 룸데이터 |^| 최소숙박 |^| 최대숙박일 |^| 조식 |^| depth |^| 환불여부
 
-
+                //패키지 조회시 숙박가능한 객실들을 RMTYPE에 인입시키되 depth:2 로 인입시켜 룸온리가아닌 패키지를 넣도록
 //                roomData += "N" + "|^|" + "Y" + "|^|" + "1" + "|^|" + "99" + "|^|" ;
 
                 List<Map<String, Object>> pkgRoomList = (List<Map<String, Object>>) packageResultList.get(i).get("roomList");
@@ -815,8 +820,8 @@ public class BookingService {
 //            System.out.println(roomData);
 //            System.out.println(accommData);
 
-            String insertResult = bookingMapper.insertRoom(pkgData, "", "", "", strType);
-//            String insertResult = bookingMapper.insertRoom(pkgData, roomData, "", accommData, strType);
+//            String insertResult = bookingMapper.insertRoom(pkgData, "", "", "", strType);
+            String insertResult = bookingMapper.insertRoom(pkgData, roomData, "", accommData, strType);
             System.out.println(insertResult);
             result = "SUCCESS";
             resultResponseJson.put("insertResult", insertResult);

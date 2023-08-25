@@ -17,6 +17,7 @@
 <body>
 <a href="/hotelStory/callapi?strAccommID=1000251">callApi - HotelStory</a><br><br>
 
+
 callAPI - SGG
 <input type="text" class="ssg_call" value="13283">
 <input type="button" class="ssg_call_btn" value="SSGBUTTON"><br><br>
@@ -49,7 +50,7 @@ insert - SSG
 
 <%--<input type="button" id="requestToken" class="eland_btn" value="이랜드 토큰 발급">--%>
 <%--<input type="button" id="getOrder" class="eland_btn" value="이랜드 주문 가져오기">--%>
-<input type="button" id="testBtn" value="ONDA test">
+<%--<input type="button" id="testBtn" value="ONDA test">--%>
 </body>
 <script  src="http://code.jquery.com/jquery-latest.min.js"></script>
 <script>

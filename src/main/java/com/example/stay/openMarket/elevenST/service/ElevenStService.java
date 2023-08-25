@@ -5,8 +5,6 @@ import com.example.stay.common.util.Constants;
 import com.example.stay.common.util.LogWriter;
 import com.example.stay.common.util.XmlUtility;
 import com.example.stay.openMarket.elevenST.mapper.ElevenStMapper;
-import okhttp3.OkHttpClient;
-import org.apache.jasper.tagplugins.jstl.core.Url;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.w3c.dom.Document;
@@ -38,12 +36,12 @@ public class ElevenStService {
 
 
 
-    public String regProduct(String accommID) {
+    public String regProduct(String accommID, String bgnDay, String endDay) {
         try {
             URL url = new URL(Constants.elevenUrl + "/rest/prodservices/product");
             Map<String, Object>map = elevenStMapper.getAccomm(accommID);
-            map.put("aplBgnDy", "20230809");
-            map.put("aplEndDy", "20230831");
+            map.put("aplBgnDy", bgnDay);
+            map.put("aplEndDy", endDay);
             map.put("selPrc", "100000000");
             map.put("prdImage01", "https://cdn.imweb.me/thumbnail/20221018/2fa9b7c3276c7.png");
             StringBuffer sb = new StringBuffer();
@@ -412,7 +410,7 @@ public class ElevenStService {
             InputSource is = new InputSource(sr);
             Document dc = db.parse(is);
             NodeList nl = dc.getElementsByTagName("ClientMessage");
-            if (nl.item(0).getChildNodes().item(1).getTextContent().equals("200")) {
+            if (nl.item(0).getChildNodes().item(2).getTextContent().equals("200")) {
                 return commonFunction.makeReturn("jsonp", "200", nl.item(0).getChildNodes().item(1).getTextContent(), nl.item(0).getChildNodes().item(0).getTextContent());
             } else {
                 return commonFunction.makeReturn("jsonp", "500", nl.item(0).getChildNodes().item(1).getTextContent(), nl.item(0).getChildNodes().item(0).getTextContent());
@@ -421,7 +419,13 @@ public class ElevenStService {
             return commonFunction.makeReturn("jsonp", "500", e.getMessage());
         }
     }
-
+    /**
+     *  11번가에 등록된 상품의 문의내역을 받아옵니다.
+     *
+     * @return         	QnA 목록,
+     *                  문의 글 번호, 문의내용, 상품번호
+     *                  주문번호, 답변여부, 답변내용, 오픈마켓분류
+     */
     public String getQnaList() {
         try{
             String startday = "";
@@ -496,7 +500,14 @@ public class ElevenStService {
             }
 
     }
-
+    /**
+     * 문의된 내용을 답변합니다.
+     *
+     * @param  qnaNo  	문의 글 번호 (11번가)
+     * @param  prdNo  	상품번호
+     * @param  answer  	답변내용
+     * @return         	API호출 결과
+     */
     public String answerQna(String qnaNo, String prdNo, String answer){
         try {
             URL url = new URL(Constants.elevenUrl + "rest/prodqnaservices/prodqnaanswer/" +qnaNo+"/"+prdNo);
@@ -551,17 +562,16 @@ public class ElevenStService {
     public String getOrderList() {
         //YYYYMMDDHHmm 형식으로 전달되어야함
         try {
-            String startday = "";
-            String endday = "";
-            System.currentTimeMillis();
+            String startdate = "";
+            String enddate = "";
             SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmm");
             Date current = new Date();
             Calendar c = Calendar.getInstance();
             c.setTime(current);
-            endday = sdf.format(c.getTime());
-            c.add(Calendar.MINUTE, -15);
-            startday = sdf.format(c.getTime());
-            URL url = new URL(Constants.elevenUrl + "/rest/ordservices/dlvcompleted/" + startday + "/" + endday);
+            enddate = sdf.format(c.getTime());
+            c.add(Calendar.MINUTE, -15); //현재시각 - 15분
+            startdate = sdf.format(c.getTime());
+            URL url = new URL(Constants.elevenUrl + "/rest/ordservices/dlvcompleted/" + startdate + "/" + enddate);
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             conn.setDoOutput(true);
             conn.setInstanceFollowRedirects(false);

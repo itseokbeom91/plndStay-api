@@ -83,215 +83,218 @@ public class CpAccommService {
                 accommJson.put("travelType", "DOMESTIC"); // 국내 / 해외
                 accommJson.put("sellerProductId", accommDto.getIntAID()); // 상품ID
                 accommJson.put("nation", "KR"); // 시설 국가
-                accommJson.put("name", accommDto.getStrSubject()); // 시설 이름
-                accommJson.put("introduction", accommDto.getStrDescription()); // 시설 소개
-                accommJson.put("regionKeyword", accommDto.getStrRegionKeyword()); // 지역 키워드
 
-                // 태그 데이터 세팅
-                List<String> strTagList = new ArrayList<>();
-                if(accommDto.getStrKeywords() != null){
-                    String strKeywords = accommDto.getStrKeywords();
-                    strKeywords.replaceAll("\\s", "");
-                    String[] keywordArr = strKeywords.split(",");
+                String strSubject = accommDto.getStrSubject();
+                if(strSubject.length() <= 50){
+                    accommJson.put("name", strSubject); // 시설 이름
+                    accommJson.put("introduction", accommDto.getStrDescription()); // 시설 소개
+                    accommJson.put("regionKeyword", accommDto.getStrRegionKeyword()); // 지역 키워드
 
-                    for(String keyword : keywordArr){
-                        strTagList.add(keyword);
-                    }
-                }
-                if(accommDto.getStrFac() != null){
-                    String strFac = accommDto.getStrFac();
-                    String[] facArr = strFac.split(",");
+                    // 태그 데이터 세팅
+                    List<String> strTagList = new ArrayList<>();
+                    if(accommDto.getStrKeywords() != null){
+                        String strKeywords = accommDto.getStrKeywords();
+                        strKeywords.replaceAll("\\s", "");
+                        String[] keywordArr = strKeywords.split(",");
 
-                    for(String fac : facArr){
-                        strTagList.add(fac);
-                    }
-                }
-                if(accommDto.getStrAround() != null){
-                    String strAround = accommDto.getStrAround();
-                    String[] aroundArr = strAround.split(",");
-
-                    for(String around : aroundArr){
-                        strTagList.add(around);
-                    }
-                }
-
-                accommJson.put("searchTags", strTagList);
-
-                // image
-                List<JSONObject> imageList = new ArrayList<>();
-                if(accommDto.getStrACMPhotos() != null){
-                    String strAcmPhotos = accommDto.getStrACMPhotos();
-                    String[] photoArr = strAcmPhotos.split("\\|");
-
-                    for(int i=0; i< photoArr.length; i++){
-                        JSONObject images = new JSONObject();
-                        // TODO : 추후 이미지 저장 경로 정해지면 추가 할 것
-                        images.put("sellerUrl", "https://condo24.com/" + photoArr[i]);
-                        images.put("seq", i+1);
-                        if(i==0){
-                            images.put("representative", true);
+                        for(String keyword : keywordArr){
+                            strTagList.add(keyword);
                         }
-
-                        imageList.add(images);
                     }
-                }
+                    if(accommDto.getStrFac() != null){
+                        String strFac = accommDto.getStrFac();
+                        String[] facArr = strFac.split(",");
 
-                accommJson.put("images", imageList);
+                        for(String fac : facArr){
+                            strTagList.add(fac);
+                        }
+                    }
+                    if(accommDto.getStrAround() != null){
+                        String strAround = accommDto.getStrAround();
+                        String[] aroundArr = strAround.split(",");
 
-                accommJson.put("cancelType", "APPROVAL");
+                        for(String around : aroundArr){
+                            strTagList.add(around);
+                        }
+                    }
 
-                String cancelNotice = getCancelInfo(intAID);
-                accommJson.put("cancelPolicyNotice", cancelNotice);
+                    accommJson.put("searchTags", strTagList);
 
-                String usageNotice = accommDto.getStrAcmNotice();
-                if(usageNotice == null){
-                    usageNotice = "유의사항";
-                }
-                accommJson.put("usageNotice", usageNotice);
+                    // image
+                    List<JSONObject> imageList = new ArrayList<>();
+                    if(accommDto.getStrACMPhotos() != null){
+                        String strAcmPhotos = accommDto.getStrACMPhotos();
+                        String[] photoArr = strAcmPhotos.split("\\|");
 
-                JSONObject address = new JSONObject();
-                address.put("latitude", accommDto.getDecLat());
-                address.put("longitude", accommDto.getDecLon());
-                address.put("roadNameAddress", accommDto.getStrAddr1());
-                address.put("nation", "KR");
-                address.put("city", accommDto.getStrRegionKeyword());
-                address.put("district", accommDto.getStrDistrict2());
-                address.put("zipCode", accommDto.getStrZipCode());
-
-                accommJson.put("address", address);
-
-                accommJson.put("representativePhone", "1588-0134");
-
-                // =============================
-                // 객실 정보
-                // =============================
-                List<JSONObject> roomsList = new ArrayList<>();
-                List<RoomTypeDto> roomTypeDtoList = commonMapper.getRoomList(intAID, intOmkIdx);
-                List<JSONObject> ratesList = new ArrayList<>();
-                if(roomTypeDtoList != null){
-                    for(RoomTypeDto r : roomTypeDtoList){
-                        JSONObject rooms = new JSONObject();
-                        rooms.put("sellerRoomId", r.getIntIdx());
-                        rooms.put("name", r.getStrRmtypeName());
-                        rooms.put("additionalInfo", r.getStrShortDesc());
-
-                        // image
-                        List<JSONObject> rmimagesList = new ArrayList<>();
-                        if(r.getStrRmPhotos() != null){
-                            String strAcmPhotos = r.getStrRmPhotos();
-                            String[] photoArr = strAcmPhotos.split("\\|");
-
-                            for(int i=0; i< photoArr.length; i++){
-                                JSONObject rmimages = new JSONObject();
-                                // TODO : 추후 이미지 저장 경로 정해지면 추가 할 것
-                                rmimages.put("sellerUrl", "https://condo24.com/" + photoArr[i]);
-                                rmimages.put("seq", i+1);
-
-                                if(i==0){
-                                    rmimages.put("representative", true);
-                                }
-
-                                rmimagesList.add(rmimages);
+                        for(int i=0; i< photoArr.length; i++){
+                            JSONObject images = new JSONObject();
+                            // TODO : 추후 이미지 저장 경로 정해지면 추가 할 것
+                            images.put("sellerUrl", "https://condo24.com/" + photoArr[i]);
+                            images.put("seq", i+1);
+                            if(i==0){
+                                images.put("representative", true);
                             }
+
+                            imageList.add(images);
                         }
-                        rooms.put("images", rmimagesList);
+                    }
 
-                        JSONObject occupancy = new JSONObject();
-                        occupancy.put("standardOccupancy", r.getIntQuanStd());
-                        occupancy.put("maximumOccupancy", r.getIntQuanMax());
+                    accommJson.put("images", imageList);
 
-                        rooms.put("occupancy", occupancy);
+                    accommJson.put("cancelType", "APPROVAL");
 
-                        roomsList.add(rooms);
+                    String cancelNotice = getCancelInfo(intAID);
+                    accommJson.put("cancelPolicyNotice", cancelNotice);
 
+                    String usageNotice = accommDto.getStrAcmNotice();
+                    if(usageNotice == null){
+                        usageNotice = "유의사항";
+                    }
+                    accommJson.put("usageNotice", usageNotice);
 
-                        // =============================
-                        // rate 정보
-                        // =============================
-                        JSONObject rates = new JSONObject();
+                    JSONObject address = new JSONObject();
+                    address.put("latitude", accommDto.getDecLat());
+                    address.put("longitude", accommDto.getDecLon());
+                    address.put("roadNameAddress", accommDto.getStrAddr1());
+                    address.put("nation", "KR");
+                    address.put("city", accommDto.getStrRegionKeyword());
+                    address.put("district", accommDto.getStrDistrict2());
+                    address.put("zipCode", accommDto.getStrZipCode());
 
-                        List<Integer> intIdxList = new ArrayList<>();
-                        intIdxList.add(r.getIntIdx());
-                        rates.put("sellerRoomIds", intIdxList);
+                    accommJson.put("address", address);
 
-                        rates.put("sellerRateId", r.getIntIdx());
+                    accommJson.put("representativePhone", "1588-0134");
 
-                        Timestamp timestamp = new Timestamp(System.currentTimeMillis());
-                        SimpleDateFormat sdf = new SimpleDateFormat ("yyyy-MM-dd HH:mm:ss");
-                        rates.put("saleStartedAt", sdf.format(timestamp));
+                    // =============================
+                    // 객실 정보
+                    // =============================
+                    List<JSONObject> roomsList = new ArrayList<>();
+                    List<RoomTypeDto> roomTypeDtoList = commonMapper.getRoomList(intAID, intOmkIdx);
+                    List<JSONObject> ratesList = new ArrayList<>();
+                    if(roomTypeDtoList != null){
+                        for(RoomTypeDto r : roomTypeDtoList){
+                            JSONObject rooms = new JSONObject();
+                            rooms.put("sellerRoomId", r.getIntIdx());
+                            rooms.put("name", r.getStrRmtypeName());
+                            rooms.put("additionalInfo", r.getStrShortDesc());
 
-                        // 취소 환불 규정
-                        JSONObject cancelPolicy = new JSONObject();
-                        // 쿠팡은 성수기/비수기 구분 없이 보내기 때문에 일단 비수기로 넣고, 추가로 notice에 string으로 성수기/비수기 규정 만들어서 보내기
-                        cancelPolicy.put("notice", cancelNotice);
+                            // image
+                            List<JSONObject> rmimagesList = new ArrayList<>();
+                            if(r.getStrRmPhotos() != null){
+                                String strAcmPhotos = r.getStrRmPhotos();
+                                String[] photoArr = strAcmPhotos.split("\\|");
 
-                        String strRefundYn = r.getStrRefundYn();
-                        // 취소/환불정책 가져오기
-                        List<CancelRulesDto> cancelDtoList = commonMapper.getCancelRuleList(intAID);
-                        if(strRefundYn.equals("N")){ // 환불 불가
-                            cancelPolicy.put("refundable", false);
-                        }else{ // 환불 가능
-                            List<JSONObject> refundList = new ArrayList<>();
+                                for(int i=0; i< photoArr.length; i++){
+                                    JSONObject rmimages = new JSONObject();
+                                    // TODO : 추후 이미지 저장 경로 정해지면 추가 할 것
+                                    rmimages.put("sellerUrl", "https://condo24.com/" + photoArr[i]);
+                                    rmimages.put("seq", i+1);
 
-                            for(CancelRulesDto c : cancelDtoList){
-                                JSONObject refundJson = new JSONObject();
-                                if(c.getStrFlag().equals("OOF")){
-                                    refundJson.put("days", c.getIntDay());
-                                    refundJson.put("refundRate", c.getIntPercent());
+                                    if(i==0){
+                                        rmimages.put("representative", true);
+                                    }
 
-                                    refundList.add(refundJson);
+                                    rmimagesList.add(rmimages);
                                 }
                             }
-                            cancelPolicy.put("refundRates", refundList);
-                        }
-                        rates.put("cancelPolicy", cancelPolicy);
+                            rooms.put("images", rmimagesList);
 
-                        // 추가요금
-                        JSONObject extraGuestPolicy = new JSONObject();
-                        if(r.getIntExtraA() != 0 || r.getIntExtraC() != 0){
-                            extraGuestPolicy.put("surchargeAvailable", true);
+                            JSONObject occupancy = new JSONObject();
+                            occupancy.put("standardOccupancy", r.getIntQuanStd());
+                            occupancy.put("maximumOccupancy", r.getIntQuanMax());
 
-                            List<JSONObject> surchargesList = new ArrayList<>();
-                            JSONObject surcharges = new JSONObject();
-                            if(r.getIntExtraA() != 0){
-                                surcharges.put("ageType", "ADULT");
-                                // TODO : 어린이 요금 기준 나이 확인 필요
-                                surcharges.put("minAge", 2);
-                                surcharges.put("surcharge", r.getIntExtraA());
+                            rooms.put("occupancy", occupancy);
 
-                                surchargesList.add(surcharges);
+                            roomsList.add(rooms);
+
+
+                            // =============================
+                            // rate 정보
+                            // =============================
+                            JSONObject rates = new JSONObject();
+
+                            List<Integer> intIdxList = new ArrayList<>();
+                            intIdxList.add(r.getIntIdx());
+                            rates.put("sellerRoomIds", intIdxList);
+
+                            rates.put("sellerRateId", r.getIntIdx());
+
+                            Timestamp timestamp = new Timestamp(System.currentTimeMillis());
+                            SimpleDateFormat sdf = new SimpleDateFormat ("yyyy-MM-dd HH:mm:ss");
+                            rates.put("saleStartedAt", sdf.format(timestamp));
+
+                            // 취소 환불 규정
+                            JSONObject cancelPolicy = new JSONObject();
+                            // 쿠팡은 성수기/비수기 구분 없이 보내기 때문에 일단 비수기로 넣고, 추가로 notice에 string으로 성수기/비수기 규정 만들어서 보내기
+                            cancelPolicy.put("notice", cancelNotice);
+
+                            String strRefundYn = r.getStrRefundYn();
+                            // 취소/환불정책 가져오기
+                            List<CancelRulesDto> cancelDtoList = commonMapper.getCancelRuleList(intAID);
+                            if(strRefundYn.equals("N")){ // 환불 불가
+                                cancelPolicy.put("refundable", false);
+                            }else{ // 환불 가능
+                                List<JSONObject> refundList = new ArrayList<>();
+
+                                for(CancelRulesDto c : cancelDtoList){
+                                    JSONObject refundJson = new JSONObject();
+                                    if(c.getStrFlag().equals("OOF")){
+                                        refundJson.put("days", c.getIntDay());
+                                        refundJson.put("refundRate", c.getIntPercent());
+
+                                        refundList.add(refundJson);
+                                    }
+                                }
+                                cancelPolicy.put("refundRates", refundList);
                             }
-                            if(r.getIntExtraC() != 0){
-                                surcharges.put("ageType", "CHILD");
-                                // TODO : 어린이 요금 기준 나이 확인 필요
-                                surcharges.put("minAge", 2);
-                                surcharges.put("surcharge", r.getIntExtraC());
-                                surchargesList.add(surcharges);
+                            rates.put("cancelPolicy", cancelPolicy);
+
+                            // 추가요금
+                            JSONObject extraGuestPolicy = new JSONObject();
+                            if(r.getIntExtraA() != 0 || r.getIntExtraC() != 0){
+                                extraGuestPolicy.put("surchargeAvailable", true);
+
+                                List<JSONObject> surchargesList = new ArrayList<>();
+                                JSONObject surcharges = new JSONObject();
+                                if(r.getIntExtraA() != 0){
+                                    surcharges.put("ageType", "ADULT");
+                                    // TODO : 어린이 요금 기준 나이 확인 필요
+                                    surcharges.put("minAge", 2);
+                                    surcharges.put("surcharge", r.getIntExtraA());
+
+                                    surchargesList.add(surcharges);
+                                }
+                                if(r.getIntExtraC() != 0){
+                                    surcharges.put("ageType", "CHILD");
+                                    // TODO : 어린이 요금 기준 나이 확인 필요
+                                    surcharges.put("minAge", 2);
+                                    surcharges.put("surcharge", r.getIntExtraC());
+                                    surchargesList.add(surcharges);
+                                }
+                                rates.put("extraGuestPolicy", extraGuestPolicy);
                             }
-                            rates.put("extraGuestPolicy", extraGuestPolicy);
+
+                            // 체크인 체크아웃
+                            JSONObject checkInOutPolicy = new JSONObject();
+                            checkInOutPolicy.put("checkInStartTime", accommDto.getStrCheckIn());
+                            checkInOutPolicy.put("checkOutEndTime", accommDto.getStrCheckOut());
+
+                            rates.put("checkInOutPolicy", checkInOutPolicy);
+
+                            ratesList.add(rates);
                         }
 
-                        // 체크인 체크아웃
-                        JSONObject checkInOutPolicy = new JSONObject();
-                        checkInOutPolicy.put("checkInStartTime", accommDto.getStrCheckIn());
-                        checkInOutPolicy.put("checkOutEndTime", accommDto.getStrCheckOut());
+                        accommJson.put("rooms", roomsList);
+                        accommJson.put("rates", ratesList);
 
-                        rates.put("checkInOutPolicy", checkInOutPolicy);
+                        // 판매 정지 상태로 테스트
+                        accommJson.put("saleStatus", "SUSPENDED");
 
-                        ratesList.add(rates);
-                    }
+                        JSONArray lodgingCreateDtos = new JSONArray();
+                        lodgingCreateDtos.add(accommJson);
 
-                    accommJson.put("rooms", roomsList);
-                    accommJson.put("rates", ratesList);
-
-                    // 판매 정지 상태로 테스트
-                    accommJson.put("saleStatus", "SUSPENDED");
-
-                    JSONArray lodgingCreateDtos = new JSONArray();
-                    lodgingCreateDtos.add(accommJson);
-
-                    JSONObject requestJson = new JSONObject();
-                    requestJson.put("lodgingCreateDtos", lodgingCreateDtos);
+                        JSONObject requestJson = new JSONObject();
+                        requestJson.put("lodgingCreateDtos", lodgingCreateDtos);
 
 //                    // API 호출
 //                    JSONObject returnJson = coupangApi.coupangPostApi(gson.toJson(requestJson), "travel/lodgings");
@@ -358,9 +361,13 @@ public class CpAccommService {
 //                        String returnMsg = returnJson.get("message").toString();
 //                        logWriter.add(returnMsg);
 //                    }
+                    }else{
+                        message = "객실 정보가 존재하지 않습니다(쿠팡 연동여부 확인 필요)";
+                    }
                 }else{
-                    message = "객실 정보가 존재하지 않습니다(쿠팡 연동여부 확인 필요)";
+                    message = "상품명이 50자 이상입니다";
                 }
+
             }else{
                 message = "시설 정보가 존재하지 않습니다(쿠팡 연동여부 확인 필요)";
             }
@@ -637,125 +644,132 @@ public class CpAccommService {
                 accommJson.put("travelProductId", Long.parseLong(strPdtCode));
                 accommJson.put("sellerProductId", intAID);
                 accommJson.put("nation", "KR"); // 시설 국가
-                accommJson.put("name", accommDto.getStrSubject()); // 시설 이름
-                accommJson.put("introduction", accommDto.getStrDescription()); // 시설 소개
-                accommJson.put("regionKeyword", accommDto.getStrRegionKeyword()); // 지역 키워드
 
-                // 태그 데이터 세팅
-                List<String> strTagList = new ArrayList<>();
-                if(accommDto.getStrKeywords() != null){
-                    String strKeywords = accommDto.getStrKeywords();
-                    strKeywords.replaceAll("\\s", "");
-                    String[] keywordArr = strKeywords.split(",");
+                String strSubject = accommDto.getStrSubject();
+                if(strSubject.length() <= 50){
+                    accommJson.put("name", accommDto.getStrSubject()); // 시설 이름
+                    accommJson.put("introduction", accommDto.getStrDescription()); // 시설 소개
+                    accommJson.put("regionKeyword", accommDto.getStrRegionKeyword()); // 지역 키워드
 
-                    for(String keyword : keywordArr){
-                        strTagList.add(keyword);
-                    }
-                }
-                if(accommDto.getStrFac() != null){
-                    String strFac = accommDto.getStrFac();
-                    String[] facArr = strFac.split(",");
+                    // 태그 데이터 세팅
+                    List<String> strTagList = new ArrayList<>();
+                    if(accommDto.getStrKeywords() != null){
+                        String strKeywords = accommDto.getStrKeywords();
+                        strKeywords.replaceAll("\\s", "");
+                        String[] keywordArr = strKeywords.split(",");
 
-                    for(String fac : facArr){
-                        strTagList.add(fac);
-                    }
-                }
-                if(accommDto.getStrAround() != null){
-                    String strAround = accommDto.getStrAround();
-                    String[] aroundArr = strAround.split(",");
-
-                    for(String around : aroundArr){
-                        strTagList.add(around);
-                    }
-                }
-
-                accommJson.put("searchTags", strTagList);
-
-                // image
-                List<JSONObject> imageList = new ArrayList<>();
-                if(accommDto.getStrACMPhotos() != null){
-                    String strAcmPhotos = accommDto.getStrACMPhotos();
-                    String[] photoArr = strAcmPhotos.split("\\|");
-
-                    for(int i=0; i< photoArr.length; i++){
-                        JSONObject images = new JSONObject();
-                        // TODO : 추후 이미지 저장 경로 정해지면 추가 할 것
-                        images.put("sellerUrl", "https://condo24.com/" + photoArr[i]);
-                        images.put("seq", i+1);
-                        if(i==0){
-                            images.put("representative", true);
+                        for(String keyword : keywordArr){
+                            strTagList.add(keyword);
                         }
-                        imageList.add(images);
                     }
-                }
+                    if(accommDto.getStrFac() != null){
+                        String strFac = accommDto.getStrFac();
+                        String[] facArr = strFac.split(",");
 
-
-                accommJson.put("images", imageList);
-
-                accommJson.put("cancelType", "APPROVAL");
-
-                String cancelNotice = getCancelInfo(intAID);
-                accommJson.put("cancelPolicyNotice", cancelNotice);
-
-                String usageNotice = accommDto.getStrAcmNotice();
-                if(usageNotice == null){
-                    usageNotice = "유의사항";
-                }
-                accommJson.put("usageNotice", usageNotice);
-
-                JSONObject address = new JSONObject();
-                address.put("latitude", accommDto.getDecLat());
-                address.put("longitude", accommDto.getDecLon());
-                address.put("roadNameAddress", accommDto.getStrAddr1());
-                address.put("nation", "KR");
-                address.put("city", accommDto.getStrRegionKeyword());
-                address.put("district", accommDto.getStrDistrict2());
-                address.put("zipCode", accommDto.getStrZipCode());
-
-                accommJson.put("address", address);
-
-                accommJson.put("representativePhone", "1588-0134");
-
-                JSONArray lodgingUpdateDtos = new JSONArray();
-                lodgingUpdateDtos.add(accommJson);
-
-                JSONObject requestJson = new JSONObject();
-                requestJson.put("lodgingUpdateDtos", lodgingUpdateDtos);
-
-                // api 호출
-                JSONObject returnJson = coupangApi.coupangPutApi(gson.toJson(requestJson), "travel/lodgings");
-                // 응답값 처리
-                String returnCode = returnJson.get("code").toString();
-                if(returnCode.equals("200")){
-                    JSONObject dataJson = (JSONObject) returnJson.get("data");
-                    JSONArray successArr = (JSONArray) dataJson.get("success");
-                    JSONArray failArr = (JSONArray) dataJson.get("fail");
-
-                    for(Object f : failArr) {
-                        JSONObject jsonObject = (JSONObject) f;
-                        if(jsonObject != null){
-                            String failReason = jsonObject.get("reason").toString();
-
-                            message = "상품 수정 실패";
-                            logWriter.add(failReason);
+                        for(String fac : facArr){
+                            strTagList.add(fac);
                         }
-                        break;
+                    }
+                    if(accommDto.getStrAround() != null){
+                        String strAround = accommDto.getStrAround();
+                        String[] aroundArr = strAround.split(",");
+
+                        for(String around : aroundArr){
+                            strTagList.add(around);
+                        }
                     }
 
-                    for(Object s : successArr){
-                        JSONObject jsonObject = (JSONObject) s;
-                        if(jsonObject != null) {
-                            String name = jsonObject.get("name").toString();
-                            message = "상품 수정 완료";
+                    accommJson.put("searchTags", strTagList);
+
+                    // image
+                    List<JSONObject> imageList = new ArrayList<>();
+                    if(accommDto.getStrACMPhotos() != null){
+                        String strAcmPhotos = accommDto.getStrACMPhotos();
+                        String[] photoArr = strAcmPhotos.split("\\|");
+
+                        for(int i=0; i< photoArr.length; i++){
+                            JSONObject images = new JSONObject();
+                            // TODO : 추후 이미지 저장 경로 정해지면 추가 할 것
+                            images.put("sellerUrl", "https://condo24.com/" + photoArr[i]);
+                            images.put("seq", i+1);
+                            if(i==0){
+                                images.put("representative", true);
+                            }
+                            imageList.add(images);
                         }
-                        break;
+                    }
+
+
+                    accommJson.put("images", imageList);
+
+                    accommJson.put("cancelType", "APPROVAL");
+
+                    String cancelNotice = getCancelInfo(intAID);
+                    accommJson.put("cancelPolicyNotice", cancelNotice);
+
+                    String usageNotice = accommDto.getStrAcmNotice();
+                    if(usageNotice == null){
+                        usageNotice = "유의사항";
+                    }
+                    accommJson.put("usageNotice", usageNotice);
+
+                    JSONObject address = new JSONObject();
+                    address.put("latitude", accommDto.getDecLat());
+                    address.put("longitude", accommDto.getDecLon());
+                    address.put("roadNameAddress", accommDto.getStrAddr1());
+                    address.put("nation", "KR");
+                    address.put("city", accommDto.getStrRegionKeyword());
+                    address.put("district", accommDto.getStrDistrict2());
+                    address.put("zipCode", accommDto.getStrZipCode());
+
+                    accommJson.put("address", address);
+
+                    accommJson.put("representativePhone", "1588-0134");
+
+                    JSONArray lodgingUpdateDtos = new JSONArray();
+                    lodgingUpdateDtos.add(accommJson);
+
+                    JSONObject requestJson = new JSONObject();
+                    requestJson.put("lodgingUpdateDtos", lodgingUpdateDtos);
+
+                    // api 호출
+                    JSONObject returnJson = coupangApi.coupangPutApi(gson.toJson(requestJson), "travel/lodgings");
+                    // 응답값 처리
+                    String returnCode = returnJson.get("code").toString();
+                    if(returnCode.equals("200")){
+                        JSONObject dataJson = (JSONObject) returnJson.get("data");
+                        JSONArray successArr = (JSONArray) dataJson.get("success");
+                        JSONArray failArr = (JSONArray) dataJson.get("fail");
+
+                        for(Object f : failArr) {
+                            JSONObject jsonObject = (JSONObject) f;
+                            if(jsonObject != null){
+                                String failReason = jsonObject.get("reason").toString();
+
+                                message = "상품 수정 실패";
+                                logWriter.add(failReason);
+                            }
+                            break;
+                        }
+
+                        for(Object s : successArr){
+                            JSONObject jsonObject = (JSONObject) s;
+                            if(jsonObject != null) {
+                                String name = jsonObject.get("name").toString();
+                                message = "상품 수정 완료";
+                            }
+                            break;
+                        }
+
+                    }else{
+                        message = "쿠팡 api 호출 실패";
+                        logWriter.add("code : " + returnCode);
+                        String returnMsg = returnJson.get("message").toString();
+                        logWriter.add(returnMsg);
                     }
 
                 }else{
-                    message = "쿠팡 api 호출 실패";
-                    logWriter.add("code : " + returnCode);
-                    String returnMsg = returnJson.get("message").toString();
-                    logWriter.add(returnMsg);
+                    message = "상품명이 50자 이상입니다";
                 }
 
             }else{
