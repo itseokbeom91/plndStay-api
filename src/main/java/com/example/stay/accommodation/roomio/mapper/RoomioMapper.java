@@ -4,4 +4,6 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface RoomioMapper {
+
+    String insertAccomm(String strHotelId, String strHotelName, String strRoomDatas);
 }
