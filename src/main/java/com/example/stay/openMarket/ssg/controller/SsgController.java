@@ -66,6 +66,14 @@ public class SsgController {
      *************상품 관련**************
      */
 
+    // 상품 정보 조회
+    @GetMapping("info")
+    public void infoSSG(int intAID){
+
+        ssgService.getAccommInfo(intAID);
+
+    }
+
     // 상품 정보 수정
     @GetMapping("modify")
     public void modifySSG(int intAID, String strType){

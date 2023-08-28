@@ -20,6 +20,32 @@ public class SsgService {
 
     CommonFunction commonFunction = new CommonFunction();
 
+
+
+    public String getAccommInfo(int intAID){
+
+        String statusCode = "200";
+        String message = "";
+        String result = "";
+
+        try {
+
+            String strItemId = ssgMapper.getItemId(intAID);
+
+            JsonNode jsonNode = commonFunction.callJsonApi("SSG","", new JSONObject(), "https://eapi.ssgadm.com/item/0.4/viewItem.ssg?itemId="+strItemId,"POST");
+
+            System.out.println(jsonNode);
+
+        }catch (Exception e){
+            message = " 실패";
+            statusCode = "500";
+            e.printStackTrace();
+        }
+
+        return commonFunction.makeReturn("json", statusCode, message, result);
+    }
+
+
     /**
      * 배송지시목록조회
      * @param strStarteDate

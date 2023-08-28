@@ -6,4 +6,6 @@ import org.springframework.stereotype.Repository;
 public interface SsgMapper {
 
     String getBrnadId(int intAID);
+
+    String getItemId(int intAID);
 }

@@ -9,7 +9,12 @@
         EXEC PLNDSTAY.dbo.spSSG_CATEGORY_CODE ${intAID}
     </select>
 
-
+    <select id="getItemId" resultType="string">
+        SELECT strPdtCode FROM accomm_omk WITH(NOLOCK)
+        WHERE intAID = ${intAID}
+          AND strUsageYn = 'Y'
+          AND intOMKIdx = 7
+    </select>
 
 
 </mapper>

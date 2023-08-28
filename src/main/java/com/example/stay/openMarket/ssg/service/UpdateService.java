@@ -132,6 +132,9 @@ public class UpdateService {
             updateObject.put("shppRqrmDcnt", object.get("shppRqrmDcnt"));
             updateObject.put("itemShppCritns", object.get("itemShppCritns"));
 
+            /**
+             * 메인 이미지 수정
+             */
             if(strType.equals("img")){
                 // 메인사진 10장 DB에서 가져오기
                 //List<String> photoList = commonService.getPhotoList(intAID, 10);
@@ -151,11 +154,17 @@ public class UpdateService {
 
                 updateObject.put("itemImgs",itemImgsObject);
 
+            /**
+             * 상세 이미지 수정
+             */
             }else if(strType.equals("desc")) {
                 // DB에서 desc 이미지 가져오기(없으면 데이타 종합해서 html 코드)
                 String strImgDesc = commonService.getStrPdtDtlInfo(accommDto, intAID, 7).replace("<", "&lt;").replace(">", "&gt;");
                 updateObject.put("itemDesc", strImgDesc);
 
+            /**
+             * 재고 수정
+             */
             }else if(strType.equals("stock")) {
 
                 // 현재 ssg api에 등록되어있는 재고 uitemId 가져와서 uitemIdList에 담기
@@ -267,6 +276,10 @@ public class UpdateService {
 
                 updateObject.put("uitemAttr", attrObject);
 
+            /**
+             * 개별 재고 수정
+             * 추후 utimeId 등 수정 필요
+             */
             }else if(strType.equals("oneByOne")){ // 개별로 재고 조정 - 코드 어떻게 짤지 아직 미정
 
                 List<Object> uitemList = new ArrayList<>();
@@ -287,10 +300,16 @@ public class UpdateService {
                 itemObject.put("uitem", uitemList);
                 updateObject.put("uitems", itemObject);
 
+            /**
+             * 판매 중지
+             */
             }else if(strType.equals("stop")) {
 
                 updateObject.put("sellStatCd", "80");
 
+            /**
+             * 판매 시작
+             */
             }else if(strType.equals("start")){
                 updateObject.put("sellStatCd", "20");
             }else{
