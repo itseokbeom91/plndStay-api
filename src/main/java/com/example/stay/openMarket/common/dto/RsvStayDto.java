@@ -43,4 +43,8 @@ public class RsvStayDto {
     private int intDealIdx;
     private int intBCIdx;
     private int intVouIdx;
+
+    private String strRmtypeID;
+    private String strLocalCode;
+    private String strPkgCode;
 }

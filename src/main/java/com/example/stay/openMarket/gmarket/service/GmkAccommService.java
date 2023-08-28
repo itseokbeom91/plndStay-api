@@ -3,6 +3,7 @@ package com.example.stay.openMarket.gmarket.service;
 import com.example.stay.common.util.CommonFunction;
 import com.example.stay.common.util.Constants;
 import com.example.stay.common.util.LogWriter;
+import com.example.stay.common.util.XmlUtility;
 import com.example.stay.openMarket.common.dto.AccommDto;
 import com.example.stay.openMarket.common.dto.ContentsPhotoDto;
 import com.example.stay.openMarket.common.dto.StockDto;
@@ -15,8 +16,17 @@ import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import java.io.BufferedReader;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -32,6 +42,9 @@ public class GmkAccommService {
     private CommonMapper commonMapper;
 
     private CommonService commonService;
+
+    @Autowired
+    private XmlUtility xmlUtility;
 
     private static int intOmkIdx = 5;
 
@@ -535,6 +548,95 @@ public class GmkAccommService {
         }catch (Exception e){
             e.printStackTrace();
         }
+    }
+
+    // 카테고리별 상품명 수정 가능 여부 조회
+    public String getUpdateYn(){
+        String result = "";
+
+        try{
+            String siteCatCode = "";
+            String authorization = HmacGenerater.generate("");
+            JsonNode jsonNode = commonFunction.callJsonApi("gmk", authorization, new JSONObject(), Constants.gmkUrl + "item/v1/goods/goods-name-policies?siteId=2&siteCatCode=" + siteCatCode, "get");
+
+            String code = jsonNode.get("resultCode").toString();
+            String resultMsg = jsonNode.get("message").toString();
+
+            // TODO : != null로 걸러지는지 확인 필요
+            if(code != null){
+                result = resultMsg;
+            }else{
+                result = jsonNode.get("isEditable").toString();
+            }
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+        return result;
+    }
+
+    // 실시간 가격, 재고 체크(지마켓에서 호출)
+    public String getPriceNStock(HttpServletRequest httpServletRequest){
+        LogWriter logWriter = new LogWriter(httpServletRequest.getMethod(), httpServletRequest.getServletPath(),
+                httpServletRequest.getQueryString(), System.currentTimeMillis());
+//        String statusCode = "200";
+//        String message = "";
+        String strXml = "";
+        try{
+//            InputStream inputStream = httpServletRequest.getInputStream();
+//            BufferedReader br = null;
+//            StringBuilder stringBuilder = new StringBuilder();
+//            String line = "";
+//            if (inputStream != null) {
+//                br = new BufferedReader(new InputStreamReader(inputStream));
+//                while ((line = br.readLine()) != null) {
+//                    stringBuilder.append(line);
+//                }
+//
+//                String strBody = stringBuilder.toString();
+//            }else{
+//
+//            }
+
+            DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
+            DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
+            Document document = dBuilder.parse(httpServletRequest.getInputStream());
+            document.getDocumentElement().normalize();
+
+            System.out.println("1 : " + xmlUtility.parsingXml(document));
+
+            NodeList orderInfo = document.getElementsByTagName("ORDER_INFO");
+            Node node = orderInfo.item(0);
+            Element element = (Element) node;
+            System.out.println("2 : " + xmlUtility.getTagValue("PRODUCT", element));
+
+//            NodeList nlList = element.getElementsByTagName(tag).item(0).getChildNodes();
+//            Node nValue = (Node) nlList.item(0);
+//            return nValue.getNodeValue();
+
+            String responseXml =
+                "<STOCK_REMAIN_INFO>\n" +
+//                "    <PRODUCT NO="123456789" REMAIN_YN="Y" />\n" +
+                "    <PRODUCT NO='123456789' REMAIN_YN='Y'/>\n" +
+                "    <ORDER_OPTION>\n" +
+                "        <OPTION_INFO>\n" +
+                "            <NAME><![CDATA[사이즈]]></NAME>\n" +
+                "            <VALUE><![CDATA[55]]></VALUE>\n" +
+                "            <REMAIN_YN>Y</REMAIN_YN>\n" +
+                "            <STOCK_NO>00001</STOCK_NO>\n" +
+                "        </OPTION_INFO>\n" +
+                "    </ORDER_OPTION>\n" +
+                "</STOCK_REMAIN_INFO>\n";
+
+            System.out.println("responseXml : \n" + responseXml);
+
+        }catch (Exception e){
+            e.printStackTrace();
+//            message = "실시간 가격 재고 조회 실패";
+//            statusCode = "500";
+            logWriter.add("error : " + e.getMessage());
+            logWriter.log(0);
+        }
+        return strXml;
     }
 
 
