@@ -34,8 +34,15 @@ public class AccommService {
 
         OkHttpClient client = new OkHttpClient().newBuilder().build();
 
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        Date current = new Date();
+        Calendar c = Calendar.getInstance();
+        c.setTime(current);
+        String lastDate = "";
+        lastDate = sdf.format(c.getTime());
+        c.add(Calendar.MINUTE, -15);
+
         String requesttURI = "?";
-        String lastDate = "2023-08-05";
         requesttURI += "auth_key=" + Constants.gpAuth + "&last_date=" + lastDate;
 
 
@@ -158,7 +165,7 @@ public class AccommService {
             sDate = dateFormat.format(nowDate);
         }
 
-        requesttURI += "auth_key=" + Constants.gpAuth + "&pension_id=" + pensionId + "&sdate=" + sDate + "&edate=2023-08-05" + eDate + "&detail_yn=Y";
+        requesttURI += "auth_key=" + Constants.gpAuth + "&pension_id=" + pensionId + "&sdate=" + sDate + "&edate=" + eDate + "&detail_yn=Y";
         Request request = new Request.Builder()
                 .url(Constants.gpPath + "pension_status.php" + requesttURI)
                 .get()
@@ -368,7 +375,10 @@ public class AccommService {
         String strAccommData = "";
         String strRoomData = "";
         String strStockData = "";
-        Date nowDate = new Date();
+        Calendar cal = Calendar.getInstance();
+        Date nowDate = new Date(cal.getTimeInMillis());
+        cal.add(Calendar.MONTH, 1);
+        Date eDate = new Date(cal.getTimeInMillis());
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
         try {
             JSONParser jsonParser = new JSONParser();
@@ -384,7 +394,7 @@ public class AccommService {
                 String longi = (String) map.get("longi");
 
 
-                String roomData = getPensionStatus(map.get("pension_id").toString(), dateFormat.format(nowDate), "");
+                String roomData = getPensionStatus(map.get("pension_id").toString(), dateFormat.format(nowDate), dateFormat.format(eDate));
                 String pensionInfo = getPensionInfo(map.get("pension_id").toString());
                 roomData = roomData.substring(5, roomData.length() - 1);
                 JSONObject roomJson = (JSONObject) jsonParser.parse(roomData);
@@ -395,6 +405,10 @@ public class AccommService {
                     String childPrice = (String) roomMap.get("child_price");
                     String adultPrice = (String) roomMap.get("adult_price");
                     List<Map<String, Object>> roomPriceList = (List<Map<String, Object>>) roomMap.get("price_data");
+                    if(roomPriceList == null) {
+                        strStockData += pensionId + "|^|" + roomId + "|^||^||^||^||^|" + childPrice + "|^|" + adultPrice + "{{|}}";
+                        continue;
+                    }
                     for (Map<String, Object> roomPriceMap : roomPriceList) {
                         String date = (String) roomPriceMap.get("date");
                         String basicPrice = (String) roomPriceMap.get("basic_price");
@@ -449,11 +463,15 @@ public class AccommService {
 
                 List<Map<String, Object>> cancelList = (List<Map<String, Object>>) pensionJson.get("cancel_data");
                 String strPenaltyData = "";
+                if(cancelList == null) {
 
-                for (Map<String, Object> cancelMap : cancelList) {
-                    strPenaltyData += cancelMap.get("cancel_day") + "|~|" + cancelMap.get("cancel_rate") + "{{^}}";
+                } else {
+                    for (Map<String, Object> cancelMap : cancelList) {
+                        strPenaltyData += cancelMap.get("cancel_day") + "|~|" + cancelMap.get("cancel_rate") + "{{^}}";
+                    }
+                    strPenaltyData = strPenaltyData.substring(0, strPenaltyData.length() - 5);
                 }
-                strPenaltyData = strPenaltyData.substring(0, strPenaltyData.length() - 5);
+
 
                 List<Map<String, Object>> roomListData = (List<Map<String, Object>>) pensionJson.get("room_data");
                 List<Map<String, Object>> roomListDataTmp = new ArrayList<>();
@@ -496,15 +514,15 @@ public class AccommService {
             strRoomData = strRoomData.substring(0, strRoomData.length()-5);
 
             System.out.println(strAccommData);
-//            System.out.println(strRoomData);
+            System.out.println(strRoomData);
 
 //            String insertResult = accommMapper.insertAccommTotal("", "", "", "GP");
-            String insertResult = accommMapper.insertAccommTotal(strAccommData, "", "", "GP");
-            System.out.println(insertResult);
-
-            return commonFunction.makeReturn("","", insertResult);
+//            String insertResult = accommMapper.insertAccommTotal(strAccommData, strRoomData, "", "GP");
+//            System.out.println(insertResult);
+//
+            return commonFunction.makeReturn("jsonp", "200","", "insertResult");
         } catch (Exception e) {
-            return commonFunction.makeReturn("", String.valueOf(e), e.getMessage());
+            return commonFunction.makeReturn("jsonp","500", String.valueOf(e), e.getMessage());
         }
 
 

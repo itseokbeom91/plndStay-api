@@ -6,9 +6,10 @@
 <mapper namespace="com.example.stay.openMarket.elevenST.mapper.ElevenStMapper">
 
     <select id="getAccomm" resultType="HashMap">
-        SELECT A.intAID, A.strSubject, I.strDescription, I.strAddr1, I.strAddr2, I.strZipCode, I.strPhone, I.intRoomCnt, I.strCheckIn, I.strCheckOut, A.strType, I.intGrade, I.decLat, I.decLon
+        SELECT A.intAID, A.strSubject, I.strDescription, I.strAddr1, I.strAddr2, I.strZipCode, I.strPhone, I.intRoomCnt, I.strCheckIn, I.strCheckOut, A.strType, I.intGrade, I.decLat, I.decLon, R.intIdx, R.strRmtypeID, R.strRmtypeName, R.strDescription
         FROM ACCOMM A with(nolock)
         INNER JOIN ACCOMM_INFO I with(nolock) ON A.intAID = I.intAID
+        INNER JOIN RMTYPE R with(nolock) ON R.intAID = I.intAID
         WHERE A.intAID = #{accommID}
     </select>
 
