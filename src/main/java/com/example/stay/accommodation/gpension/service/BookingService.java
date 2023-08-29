@@ -30,29 +30,30 @@ public class BookingService {
         // request parameter 중 예약자명, 고객요청사항은 base64 encoding하여 전송
         // 펜션ID, 객실ID, 결제여부 (O, X), 입실일(yyyy-mm-dd), 숙박일 수, 예약자명, hp1, hp2, hp3, 이메일, 생년월일(yyyy-mm-dd), 성인수, 아동수, 픽업신청여부(O, X), 도착시간구분(AM, PM), 도착시간, 객실요금, 총 요금(추가인원 금액을 포함한), 요청사항, 캐릭터셋
         // pension_id, room_id, charge_flag, startdate, daytype, name, hp1, hp2, hp3, email, birthday, adult_num, child_num, pickup, ampm, ar_time, room_price, total_price, memo, char
-//        Map<String, Object> bookingMap = bookingMapper.getBookingInfoFromBookingIdx(BookingIdx);
+        Map<String, Object> bookingMap = bookingMapper.getBookingInfoFromBookingIdx(BookingIdx);
         OkHttpClient client = new OkHttpClient().newBuilder().build();
         String requestURI = "?";
         //아래는 임시DATA임 예약테이블 생성시 추가작업 필요
-        String pensionID = "star5";//(String) bookingMap.get("pension_id");
-        String roomId = "G_1522740663";//(String) bookingMap.get("roomID");
+        String pensionID =(String) bookingMap.get("pensionId");// "star5";
+        String roomId = (String) bookingMap.get("roomID");//"G_1522740663";//
         String chargeFlag = "X";//(String) bookingMap.get("charge_flag");
-        String startDate = "2023-07-01";//(String) bookingMap.get("startDate");
-        String daytype = "10";//(String) bookingMap.get("nights");
-        String userName = "테스트예약";//(String) bookingMap.get("name");
-        String hp = "";//(String) bookingMap.get("phone");
-        String hp1 = "010";//hp.split("-")[0];
-        String hp2 = "1234";//hp.split("-")[1];
-        String hp3 = "5678";//hp.split("-")[2];
+        String startDate = (String) bookingMap.get("dateCheckIn");//"2023-09-27";// 
+        String daytype = (String) bookingMap.get("nights");//"1";// TO-DO 퇴실일자 비교해서 투숙일 계산 필요
+        String userName = (String) bookingMap.get("strOrdName");//"테스트예약";//
+        String hp = (String) bookingMap.get("strOrdPhone");
+        hp = hp.replaceAll("-", "");
+        String hp1 = hp.substring(0, 3);
+        String hp2 = hp.substring(3, 7);
+        String hp3 = hp.substring(7, hp.length());
+        String adult_num = (String) bookingMap.get("intQuantityA");
+        String child_num = (String) bookingMap.get("intQuantityC");
+        String room_price = "69000";//(String) bookingMap.get("room_price");
+        String total_price = "100000";//(String) bookingMap.get("total_price");
 //        String email = (String) bookingMap.get("email");                //필수 X
-        String birthday = "1995-01-10";//(String) bookingMap.get("birthday");
-        String adult_num = "50";//(String) bookingMap.get("adult_num");
-        String child_num = "30";//(String) bookingMap.get("child_num");
+//        String birthday = "";//(String) bookingMap.get("birthday");     //필수 X
 //        String pickup = (String) bookingMap.get("pickup");              //필수 X
 //        String ampm = (String) bookingMap.get("ampm");                  //필수 X
 //        String ar_time = (String) bookingMap.get("ar_time");            //필수 X
-        String room_price = "69000";//(String) bookingMap.get("room_price");
-        String total_price = "100000";//(String) bookingMap.get("total_price");
 //        String memo = (String) bookingMap.get("memo");                  //필수 X
 //        String charSet = (String) bookingMap.get("char");               //필수 X
         userName = Base64Encoder.encode(userName.getBytes());
@@ -70,8 +71,7 @@ public class BookingService {
 //                "&birthday=" + birthday + "&adult_num=" + adult_num + "&child_num=" + child_num + "&pickup=" + pickup + "&ampm=" + ampm + "&ar_time=" + ar_time +
 //                "&room_price=" + room_price + "&total_price=" + total_price + "&memo=" + memo + "&charSet=" + charSet;
         requestURI += "auth_key=" + Constants.gpAuth + "&pension_id=" + pensionID + "&room_id=" + roomId + "&charge_flag=" + chargeFlag + "&startdate=" + startDate +
-                "&daytype=" + daytype + "&name=" + userName + "&hp1=" + hp1 + "&hp2=" + hp2 + "&hp3=" + hp3  +
-                "&birthday=" + birthday + "&adult_num=" + adult_num + "&child_num=" + child_num +
+                "&daytype=" + daytype + "&name=" + userName + "&hp1=" + hp1 + "&hp2=" + hp2 + "&hp3=" + hp3  + "&adult_num=" + adult_num + "&child_num=" + child_num +
                 "&room_price=" + room_price + "&total_price=" + total_price;
         Request request = new Request.Builder()
                 .url(Constants.gpPath + "join_room.php" + requestURI)
@@ -100,6 +100,8 @@ public class BookingService {
                     //예약 성공 재고UPDATE
                     resultJson.put("order_no", bookResult.split("::")[2]);
 //                    예약테이블에 예약번호 꼭 집어넣기!
+                    bookingMapper.updateBooking((String) resultJson.get("order_no"), BookingIdx);
+
                 } else {
                     //예약 실패
                 /*

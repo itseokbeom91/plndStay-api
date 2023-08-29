@@ -175,7 +175,7 @@ public class AccommService {
                     }
                 }
                 hotelData += hotelCode + "|^|" + hotelName + "|^|" + strDistrictCode1 + "|^|" + strDistrictCode2 + "|^|"
-                        + latitude + "|^|" + longitude + "|^|" + address + "|^|" + tel + "|^|" + fax + "|^|" + zipNo + "|^|" + String.valueOf(intGrade*2) + "|^|" + roomCnt.trim() + "|^|" + imgdatas.trim() + "{{|}}";
+                        + latitude + "|^|" + longitude + "|^|" + address + "|^|" + tel + "|^|" + fax + "|^|" + zipNo + "|^|" + intGrade * 2 + "|^|" + roomCnt.trim() + "|^|" + imgdatas.trim() + "{{|}}";
             }
             hotelData = hotelData.substring(0, hotelData.length()-5);
             String result = accommMapper.insertHotel(hotelData);
@@ -219,6 +219,54 @@ public class AccommService {
                     facilitymap.put(FacilityList.item(j).getAttributes().item(0).getNodeValue(), FacilityList.item(j).getTextContent());
                     System.out.print(FacilityList.item(j).getAttributes().item(0).getNodeValue());
                     System.out.println(FacilityList.item(j).getTextContent());
+                }
+                hotel.put(hotelList.item(i).getAttributes().item(0).getNodeValue(), facility);
+                hotelListMap.add(hotel);
+                hotel = new JSONObject();
+                facility = new JSONObject();
+
+
+//                Facility.put(hotelList.item(i).getAttributes().item(0).getNodeValue(), hotelList.item(i).getTextContent());
+            }
+            System.out.println(hotelListMap);
+            System.out.println(facilitymap);
+
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return new CommonFunction().makeReturn("jsonp", "", "", hotelListMap);
+    }
+
+    public String getHotelDetail() {
+        OkHttpClient client = new OkHttpClient();
+        String url = "https://xml.hotelpass.com/download/HTPWS_HotelInfo/HTPWS_HotelDetailInfo.xml";
+        Request request = new Request.Builder()
+                .url(url)
+                .get()
+                .build();
+        List<Map<String, Object>> hotelListMap = null;
+        try {
+            Response response = client.newCall(request).execute();
+            XmlUtility xmlUtility = new XmlUtility();
+            DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+            DocumentBuilder builder = factory.newDocumentBuilder();
+            Document doc = builder.parse(new InputSource(new StringReader(response.body().string())));
+            NodeList hotelList = doc.getElementsByTagName("Hotel");
+            hotelListMap = new ArrayList<>();
+            JSONObject hotel = new JSONObject();
+            JSONObject facility = new JSONObject();
+            JSONObject facilitymap = new JSONObject();
+
+            for (int i = 0; i < hotelList.getLength(); i++) {
+                System.out.println(hotelList.item(i).getAttributes().item(0).getNodeValue());
+                NodeList hotelDetailList = hotelList.item(i).getChildNodes();
+
+
+                for (int j = 0; j < hotelDetailList.getLength(); j++) {
+                    System.out.println(hotelDetailList.item(0).getTextContent());
+                    System.out.println(hotelDetailList.item(1).getTextContent());
+                    System.out.println(hotelDetailList.item(2).getTextContent());
                 }
                 hotel.put(hotelList.item(i).getAttributes().item(0).getNodeValue(), facility);
                 hotelListMap.add(hotel);

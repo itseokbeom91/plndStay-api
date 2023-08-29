@@ -13,7 +13,7 @@
         SELECT strPkgCode
              , strStoreCode
         FROM PLNDSTAY.dbo.ACM_PACKAGE_INFO
-        WHERE strFlag = '01'
+        WHERE strFlag = '01' AND strUsageYn = 'Y'
     </select>
 
 </mapper>

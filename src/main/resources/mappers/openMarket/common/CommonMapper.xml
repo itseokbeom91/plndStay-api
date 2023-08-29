@@ -42,4 +42,18 @@
         EXEC PLNDSTAY.dbo.spOMK_ACM_OMK_REGIST ${intAID}, ${intOmkIdx}, #{strUsageYn}, #{strPdtSubject}, #{strPdtCode}, #{strDetailInfo}
     </select>
 
+    <select id="getStrPdtCode" parameterType="int" resultType="String">
+        SELECT strPdtCode
+        FROM PLNDSTAY.dbo.ACCOMM_OMK
+        WHERE intAID = ${intAID}
+          AND intOMKIdx = ${intOmkIdx}
+    </select>
+
+    <select id="getOmkSales" parameterType="int" resultType="double">
+        SELECT moneySales
+        FROM PLNDSTAY.dbo.STOCK_OMK
+        WHERE intAID = ${intAID}
+          AND intOMKIdx = ${intOmkIdx}
+    </select>
+
 </mapper>

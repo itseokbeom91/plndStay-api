@@ -80,7 +80,7 @@ public class BookingService {
                     String rmCnt = (String) packageMap.get("rmCnt");
                     String maxRmCnt = (String) packageMap.get("maxRmCnt");
                     //pkgData = 패키지구분|^|패키지번호|^|패키지명|^|지역코드|^|지역명|^|판매시작일자|^|판매종료일자|^|즉시판매여부|^|예약가능시간|^|박수|^|최대예약가능객실수|^|roomList
-                    pkgData += "RESOM" + "|^|" + pkgNo + "|^|" + pkgNm + "|^|" + "" + "|^|" + "" + "|^|" + saleStartDt + "|^|" +
+                    pkgData += "RESOM" + "|^|" + pkgNo + "|^|" + pkgNm + "|^|" + "|^|" + "|^|" + saleStartDt + "|^|" +
                             saleEndDt + "|^|" + curRsvYn + "|^|" + curRsvTime + "|^|" + nights + "|^|" + maxRmCnt + "|^|";
                     List<Map<String, Object>> roomList = (List<Map<String, Object>>) packageMap.get("roomList");
                     for (int j = 0; j<roomList.size();j++) {
@@ -968,7 +968,7 @@ public class BookingService {
         String packageStockDatas = "";
         Date nowDate = new Date();
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMdd");
-        String sDate = dateFormat.format(nowDate).toString();
+        String sDate = dateFormat.format(nowDate);
         List<Map<String, Object>> stockList = new ArrayList<>();
         JSONObject stockResultJson = new JSONObject();
 
@@ -1031,7 +1031,6 @@ public class BookingService {
         String RoomResponseResult = getStoreList();
         JSONObject resultResponseJson = new JSONObject();
 
-        packageResponseResult.toString();
         JSONParser jsonParser = new JSONParser();
         try {
             String pkgData = "";
@@ -1056,9 +1055,9 @@ public class BookingService {
                 //roomData = 삭제여부 |^| 사용여부 |^| 기준인원 |^| 최대인원 |^| 룸데이터 |^| 최소숙박 |^| 최대숙박일 |^| 조식 |^| depth |^| 환불여부
 
                 roomData += "N" + "|^|" + rmUseYn + "|^|" + "1" + "|^|" + "99" + "|^|";
-                roomData += rmTypeNm + "|^|" + "" + "|^|" + rmTypeCd + "|^|" + "" + "|^|";
+                roomData += rmTypeNm + "|^|" + "|^|" + rmTypeCd + "|^|" + "|^|";
 
-                roomData += "1" + "|^|" +"99" + "|^|" + "" + "|^|" + "1" + "|^|" + "" + "|^|" + storeCd + "{{|}}";
+                roomData += "1" + "|^|" +"99" + "|^|" + "|^|" + "1" + "|^|" + "|^|" + storeCd + "{{|}}";
 
 
             }
@@ -1076,7 +1075,7 @@ public class BookingService {
                 String maxRmCnt = (String) packageResultList.get(i).get("maxRmCnt");
 
                 //pkgData = 패키지구분(리솜 없음)|^|패키지번호|^|패키지명|^|지역코드|^|지역명|^|판매시작일자|^|판매종료일자|^|즉시판매여부|^|예약가능시간|^|박수|^|최대예약가능객실수|^|roomList
-                pkgData += "RE" + "|^|" + pkgNo + "|^|" + pkgNm + "|^|" + "" + "|^|" + "" + "|^|" + saleStartDt+ "|^|" + saleEndDT + "|^|"
+                pkgData += "RE" + "|^|" + pkgNo + "|^|" + pkgNm + "|^|" + "|^|" + "|^|" + saleStartDt+ "|^|" + saleEndDT + "|^|"
                         + curRsvYN + "|^|" + curRsvTime + "|^|" + nights + "|^|"  + maxRmCnt + "|^|";
 
                 //roomData = 삭제여부 |^| 사용여부 |^| 기준인원 |^| 최대인원 |^| 룸데이터 |^| 최소숙박 |^| 최대숙박일 |^| 조식 |^| depth |^| 환불여부
@@ -1095,8 +1094,8 @@ public class BookingService {
                     accommData += "C" + "|^|" + "RE" + "|^|" + storeCd + "|^|" + storeNm.trim();
                     accommData += "{{|}}";
                     roomData += "N" + "|^|" + "Y" + "|^|" + "1" + "|^|" + "99" + "|^|";
-                    roomData += rmTypeNm + "|^|" + "" + "|^|" + rmTypeCd + "|^|" + pkgNo + "|^|";
-                    roomData += nights + "|^|" + maxNights + "|^|" + "" + "|^|" + "2" + "|^|" + "" + "|^|" + storeCd + "{{|}}";
+                    roomData += rmTypeNm + "|^|" + "|^|" + rmTypeCd + "|^|" + pkgNo + "|^|";
+                    roomData += nights + "|^|" + maxNights + "|^|" + "|^|" + "2" + "|^|" + "|^|" + storeCd + "{{|}}";
 
                     if ( j != pkgRoomList.size()-1){
                         pkgData += storeCd + "|~|" + storeNm + "{{^}}";

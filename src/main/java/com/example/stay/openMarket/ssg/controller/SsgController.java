@@ -1,37 +1,16 @@
 package com.example.stay.openMarket.ssg.controller;
 
-import com.example.stay.openMarket.common.dto.AccommDto;
-import com.example.stay.openMarket.common.dto.CondoDto;
-import com.example.stay.openMarket.common.mapper.CommonApiMapper;
-import com.example.stay.openMarket.common.mapper.CommonMapper;
-import com.example.stay.openMarket.common.service.CommonApiService;
-import com.example.stay.openMarket.common.service.CommonService;
 import com.example.stay.openMarket.ssg.service.InsertService;
 import com.example.stay.openMarket.ssg.service.SsgService;
 import com.example.stay.openMarket.ssg.service.UpdateService;
-import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 @Controller
 @RequestMapping("/SSG/*")
 public class SsgController {
-
-    @Autowired
-    private CommonApiService commonApiService;
-
-    @Autowired
-    private CommonApiMapper commonApiMapper;
-
-    @Autowired
-    private CommonService commonService;
-
-    @Autowired
-    private CommonMapper commonMapper;
 
     @Autowired
     private InsertService insertService;
@@ -43,6 +22,9 @@ public class SsgController {
     private SsgService ssgService;
 
 
+    /**
+     ********예약 관련*********
+     */
     // 배송지시 목록조회
     @GetMapping("/getRsvList")
     public void getReserveList(String startDate, String endDate){
@@ -79,6 +61,33 @@ public class SsgController {
         ssgService.getCancelList(startDate,endDate);
     }
 
+
+    /**
+     *************상품 관련**************
+     */
+
+    // 상품 정보 수정
+    @GetMapping("modify")
+    public void modifySSG(int intAID, String strType){
+
+        updateService.updateInfo(intAID, strType);
+
+    }
+
+
+    // 상품 정보 등록
+    @GetMapping("insert")
+    public void insertSSG(int intAID){
+
+        insertService.insert(intAID);
+
+    }
+
+
+    /**
+     *******기타******
+     */
+
     // 브랜드ID 검색
     @GetMapping("/getBrandId")
     public void getBrandId(int intAID){
@@ -89,53 +98,25 @@ public class SsgController {
 
     // qna list 조회
     @GetMapping("qnaList")
-    public void getQnaList(){
+    public void getQnaList(String startDate, String endDate){
 
-        ssgService.getQnaList();
+        ssgService.getQnaList(startDate, endDate);
+
+    }
+
+    // qna 답변
+    @GetMapping("answer")
+    public void answerQna(String postId, String answer){
+
+        ssgService.answerQna(postId, answer);
 
     }
 
     // 정산 조회
     @GetMapping("/salesList")
-    public void getSalesList(){
+    public void getSalesList(String strDate){
 
-        ssgService.getSaleList();
-
-    }
-
-
-    /**
-     * 상품 정보 수정
-     * @param intAID
-     * @param strType
-     * @param model
-     * @return
-     */
-    @GetMapping("modify")
-    public String modifySSG(int intAID, String strType, Model model){
-
-        String result = "";
-
-        try{
-
-            result = updateService.updateInfo(intAID, strType);
-            System.out.println(result);
-
-            model.addAttribute("result", result);
-
-        }catch (Exception e){
-            e.printStackTrace();
-        }
-
-        return "api/ssgGet";
-    }
-
-
-    // 상품 정보 등록
-    @GetMapping("insert")
-    public void insertSSG(int intAID){
-
-        insertService.insert(intAID);
+        ssgService.getSaleList(strDate);
 
     }
 }
