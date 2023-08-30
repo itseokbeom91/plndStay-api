@@ -34,8 +34,8 @@ public class BookingService {
         OkHttpClient client = new OkHttpClient().newBuilder().build();
         String requestURI = "?";
         //아래는 임시DATA임 예약테이블 생성시 추가작업 필요
-        String pensionID =(String) bookingMap.get("pensionId");// "star5";
-        String roomId = (String) bookingMap.get("strRmtypeID");//"G_1522740663";//
+        String pensionID =(String) bookingMap.get("pensionId");
+        String roomId = (String) bookingMap.get("strRmtypeID");
         String chargeFlag = "X";//(String) bookingMap.get("charge_flag");
         String startDate = bookingMap.get("dateCheckIn").toString();//"2023-09-27";//
         String daytype = "1";//(String) bookingMap.get("nights");//"1";// TO-DO 퇴실일자 비교해서 투숙일 계산 필요
