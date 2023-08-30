@@ -77,7 +77,7 @@ public class AccommService {
                     resultJson.put("manage_type", resultList.get(i).get("manage_type"));
                     resultListMap.add(resultJson);
                 }
-                return  commonFunction.makeReturn("view",String.valueOf(response.code()), response.message(), resultListMap);
+                return  commonFunction.makeReturn("jsonp",String.valueOf(response.code()), response.message(), resultListMap);
             } else {
                 return commonFunction.makeReturn("jsonp",String.valueOf(response.code()), response.message(), result);
             }
