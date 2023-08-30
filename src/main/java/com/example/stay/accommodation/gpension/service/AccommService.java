@@ -30,7 +30,7 @@ public class AccommService {
     @Autowired
     private AccommMapper accommMapper;
 
-    public String getPensionList() {
+    public String getPensionList(String resType) {
 
         OkHttpClient client = new OkHttpClient().newBuilder().build();
 
@@ -77,7 +77,14 @@ public class AccommService {
                     resultJson.put("manage_type", resultList.get(i).get("manage_type"));
                     resultListMap.add(resultJson);
                 }
-                return  commonFunction.makeReturn("jsonp",String.valueOf(response.code()), response.message(), resultListMap);
+                if (resType.equals("jsonp")) {
+                    return  commonFunction.makeReturn("jsonp",String.valueOf(response.code()), response.message(), resultListMap);
+                }else if(resType.equals("json")){
+                    return  commonFunction.makeReturn("json",String.valueOf(response.code()), response.message(), resultListMap);
+                }else {
+                    return commonFunction.makeReturn("view",String.valueOf(response.code()), response.message(), resultListMap);
+                }
+
             } else {
                 return commonFunction.makeReturn("jsonp",String.valueOf(response.code()), response.message(), result);
             }
@@ -370,7 +377,7 @@ public class AccommService {
 
     //시설, 객실 INSERT
     public String insertGP() {
-        String accommData = getPensionList();
+        String accommData = getPensionList("jsonp");
         accommData = accommData.substring(5, accommData.length() - 1);
         String strAccommData = "";
         String strRoomData = "";

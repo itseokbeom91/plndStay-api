@@ -24,8 +24,8 @@ public class AccommController {
 
     @GetMapping("/getPensionList")
     @ResponseBody
-    public String getPensionList(){
-        return accommService.getPensionList();
+    public String getPensionList(String resType){
+        return accommService.getPensionList(resType);
     }
 
     @GetMapping("/getPensionInfo")
@@ -85,7 +85,7 @@ public class AccommController {
     @ResponseBody
     public ModelAndView testMV() throws ParseException {
         ModelAndView mv = new ModelAndView();
-        String test = getPensionList();
+        String test = getPensionList("jsonp");
         test = test.substring(5, test.length() - 1);
         JSONParser jsonParser = new JSONParser();
         JSONObject responseJson = (JSONObject) jsonParser.parse(test);
