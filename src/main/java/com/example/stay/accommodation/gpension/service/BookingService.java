@@ -35,20 +35,21 @@ public class BookingService {
         String requestURI = "?";
         //아래는 임시DATA임 예약테이블 생성시 추가작업 필요
         String pensionID =(String) bookingMap.get("pensionId");// "star5";
-        String roomId = (String) bookingMap.get("roomID");//"G_1522740663";//
+        String roomId = (String) bookingMap.get("strRmtypeID");//"G_1522740663";//
         String chargeFlag = "X";//(String) bookingMap.get("charge_flag");
-        String startDate = (String) bookingMap.get("dateCheckIn");//"2023-09-27";// 
-        String daytype = (String) bookingMap.get("nights");//"1";// TO-DO 퇴실일자 비교해서 투숙일 계산 필요
+        String startDate = bookingMap.get("dateCheckIn").toString();//"2023-09-27";//
+        String daytype = "1";//(String) bookingMap.get("nights");//"1";// TO-DO 퇴실일자 비교해서 투숙일 계산 필요
         String userName = (String) bookingMap.get("strOrdName");//"테스트예약";//
         String hp = (String) bookingMap.get("strOrdPhone");
         hp = hp.replaceAll("-", "");
         String hp1 = hp.substring(0, 3);
         String hp2 = hp.substring(3, 7);
         String hp3 = hp.substring(7, hp.length());
-        String adult_num = (String) bookingMap.get("intQuantityA");
-        String child_num = (String) bookingMap.get("intQuantityC");
+        String adult_num = bookingMap.get("intQuantityA").toString();
+        String child_num = bookingMap.get("intQuantityC").toString();
         String room_price = "69000";//(String) bookingMap.get("room_price");
         String total_price = "100000";//(String) bookingMap.get("total_price");
+        String intAID = bookingMap.get("intAID").toString();
 //        String email = (String) bookingMap.get("email");                //필수 X
 //        String birthday = "";//(String) bookingMap.get("birthday");     //필수 X
 //        String pickup = (String) bookingMap.get("pickup");              //필수 X
@@ -62,7 +63,7 @@ public class BookingService {
         Integer adult_numInt = Integer.parseInt(adult_num);
         Integer child_numInt = Integer.parseInt(child_num);
 
-        if ((adult_numInt + child_numInt) > bookingMapper.getMaxpeopleByroomId(pensionID, roomId)) {
+        if ((adult_numInt + child_numInt) > bookingMapper.getMaxpeopleByroomId(intAID, roomId)) {
             return commonFunction.makeReturn("jsonp","", "투숙인원 초과!");
         }
 
@@ -131,7 +132,7 @@ public class BookingService {
     public String confirmBooking(String BookingIdx) {
         //order_no (예약번호) 만 태움
         Map<String, Object> bookingMap = bookingMapper.getBookingInfoFromBookingIdx(BookingIdx);
-        String orderNo = (String) bookingMap.get("order_no");
+        String orderNo = (String) bookingMap.get("strRsvCode");
         OkHttpClient client = new OkHttpClient().newBuilder().build();
         String requestURI = "?";
         requestURI += "auth_key=" + Constants.gpAuth + "&order_no=" + orderNo;
@@ -160,8 +161,8 @@ public class BookingService {
 
     public String cancelBooking(String BookingIdx) {
         //order_no (예약번호) 만 태움
-//        Map<String, Object> bookingMap = bookingMapper.getBookingInfoFromBookingIdx(intBookingIdx);
-        String orderNo = BookingIdx;//(String) bookingMap.get("order_no");
+        Map<String, Object> bookingMap = bookingMapper.getBookingInfoFromBookingIdx(BookingIdx);
+        String orderNo = (String) bookingMap.get("strRsvCode");
         OkHttpClient client = new OkHttpClient().newBuilder().build();
         String requestURI = "?";
         requestURI += "auth_key=" + Constants.gpAuth + "&order_no=" + orderNo;
@@ -212,7 +213,7 @@ public class BookingService {
     public String searchOrder(String BookingIdx) {
         //order_no (예약번호) 만 태움
         Map<String, Object> bookingMap = bookingMapper.getBookingInfoFromBookingIdx(BookingIdx);
-        String orderNo = (String) bookingMap.get("order_no");
+        String orderNo = (String) bookingMap.get("strRsvCode");
         OkHttpClient client = new OkHttpClient().newBuilder().build();
         String requestURI = "?";
         requestURI += "auth_key=" + Constants.gpAuth + "&order_no=" + orderNo;
@@ -238,7 +239,7 @@ public class BookingService {
     private String getCancelFee(String BookingIdx) {
         //order_no (예약번호) 만 태움
         Map<String, Object> bookingMap = bookingMapper.getBookingInfoFromBookingIdx(BookingIdx);
-        String orderNo = (String) bookingMap.get("order_no");
+        String orderNo = (String) bookingMap.get("strRsvCode");
         OkHttpClient client = new OkHttpClient().newBuilder().build();
         String requestURI = "?";
         requestURI += "auth_key=" + Constants.gpAuth + "&order_no=" + orderNo;

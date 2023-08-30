@@ -37,7 +37,7 @@
          WHERE RS.intRsvID = #{BookingIdx}
     </select>
 
-    <select id="getMaxpeopleByroomId">
+    <select id="getMaxpeopleByroomId" resultType="int">
         SELECT intQuanMax
         FROM PLNDSTAY.dbo.RMTYPE
         WHERE intAID = #{pensionID} AND strRmtypeID = #{roomID}
