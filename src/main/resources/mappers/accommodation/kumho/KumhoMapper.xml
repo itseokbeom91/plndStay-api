@@ -8,19 +8,25 @@
         EXEC PLNDSTAY.dbo.spGW_RSV_STAY_UPDATE_PROCESS ${intRsvID}, #{strStatusCode}, #{strRsvRmNum}, ''
     </select>
 
-    <update id="updateBookingStatus" parameterType="String">
-        UPDATE test_Booking SET strBookingProcess = #{strBookingProcess}
-        WHERE intBookingID = ${intBookingID}
+    <update id="updateStrStatusCode" parameterType="String">
+        UPDATE PLNDSTAY.dbo.RSV_STAY SET strStatusCode = #{strStatusCode}
+        WHERE intRsvID = ${intRsvID}
     </update>
 
-    <select id="updateGoods" resultType="String">
+    <select id="updateStock" resultType="String">
         EXEC PLNDSTAY.dbo.spGW_STOCK_TEMP_REGIST #{intAID}, #{intRmIdx}, '', #{strStockDatas}, ''
     </select>
 
-    <select id="getRmtypeIDNIntAID" parameterType="int" resultType="Map">
-        SELECT strRmtypeID, intAID
-        FROM PLNDSTAY.dbo.RMTYPE
-        WHERE intIdx = ${intRmIdx}
+    <select id="getRmtypeInfo" parameterType="int" resultType="Map">
+        SELECT
+            R.strRmtypeID
+            , R.intAID
+            , ALI.strLocalCode
+        FROM PLNDSTAY.dbo.RMTYPE R WITH(NOLOCK)
+		INNER JOIN PLNDSTAY.dbo.ACCOMM_ACM_LOCAL AAL WITH(NOLOCK) ON R.intAID = AAL.intAID
+            INNER JOIN PLNDSTAY.dbo.ACM_LOCAL_INFO ALI WITH(NOLOCK) ON AAL.intALIIdx = ALI.intIdx
+        WHERE R.intIdx = 1417
+            AND ALI.strRmCode = R.strRmtypeID
     </select>
 
     <select id="getReservation" resultType="RsvStayDto">
@@ -29,14 +35,14 @@
 
     <select id="getIntStep" parameterType="int" resultType="int">
         SELECT intStep
-        FROM RMTYPE
+        FROM PLNDSTAY.dbo.RMTYPE
         WHERE intIdx = ${intRmIdx}
           AND intDepth = 2
     </select>
 
     <select id="getBreakfastYn" parameterType="int" resultType="int">
         SELECT COUNT(intRmIdx)
-        FROM RM_ICON
+        FROM PLNDSTAY.dbo.RM_ICON
         WHERE intRmIdx = ${intRmIdx}
             AND strCateCode = '01'
     </select>

@@ -13,13 +13,11 @@ public interface KumhoMapper {
 
     String updateRsvStay(int intBookingID, String strStatusCode, String strRsvRmNum, int intRmCnt);
 
-    int updateBookingStatus(int intBookingID, String strBookingProcess);
+    int updateStrStatusCode(int intRsvID, String strStatusCode);
 
-    String updateGoods(int intAID, int intRmIdx, String strStockDatas);
+    String updateStock(int intAID, int intRmIdx, String strStockDatas);
 
-    Map<String, Object> getRmtypeIDNIntAID(int intRmIdx);
-
-    String getStrLocalCode(int intAID, String strRmtypeID);
+    Map<String, Object> getRmtypeInfo(int intRmIdx);
 
     int getIntStep(int intRmIdx);
 
