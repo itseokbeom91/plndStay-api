@@ -16,5 +16,21 @@
           AND intOMKIdx = 7
     </select>
 
+    <select id="getMaxSsgSeq" resultType="int">
+        SELECT MAX(SR.intSsgSeq) FROM STOCK_REAL SR WITH(NOLOCK)
+        INNER JOIN STOCK_OMK SO ON SR.intIdx = SO.intStockIdx
+        WHERE SR.intAID = ${intAID}
+          AND SO.intOMKIdx = 7
+    </select>
+
+    <select id="getCntTempStock" resultType="int">
+        SELECT COUNT(SR.intIdx) FROM STOCK_REAL SR WITH(NOLOCK)
+        INNER JOIN STOCK_OMK SO ON SR.intIdx = SO.intStockIdx
+        WHERE SR.intAID = ${intAID}
+        AND SO.intOMKIdx = 7
+        AND SR.dateSales &lt; dateadd(day,100,#{strDate})
+        AND SR.intSsgSeq IS NULL OR SR.intSsgSeq = ''
+    </select>
+
 
 </mapper>

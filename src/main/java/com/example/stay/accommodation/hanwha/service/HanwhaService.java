@@ -411,11 +411,12 @@ public class HanwhaService {
      * @param strStartDate
      * @return
      */
-    public String getPackageList(String strAccommId, String strStartDate){ // 패키지 목록 조회 : 06
+    public String getPackageList(String strAccommId, String strStartDate, String resultType){ // 패키지 목록 조회 : 06
 
         String statusCode = "200";
         String message = "";
         String result = "";
+        String resultJson = "";
 
         try {
             JSONObject mainObject = getCommonHeader("06");
@@ -446,6 +447,9 @@ public class HanwhaService {
             // 결과값 매핑
             String resultData = "";
             JSONArray jsonArray = (JSONArray) new JSONParser().parse(jsonNode.get("Data").get("ds_result").toString());
+
+            resultJson = jsonArray.toString();
+
             if(resultCode.equals("1")){
                 for(Object object : jsonArray){
                     JSONObject jsonObject = (JSONObject) JSONValue.parse(object.toString());
@@ -467,7 +471,7 @@ public class HanwhaService {
                 result = hanwhaMapper.packageList(resultData);
 
                 if(result.equals("저장완료")){
-                    message = "피키지 등록 완료";
+                    message = "패키지 등록 완료";
                 }else{
                     message = " 패키지 등록 실패";
                 }
@@ -483,7 +487,7 @@ public class HanwhaService {
             e.printStackTrace();
         }
 
-        return commonFunction.makeReturn("json", statusCode, message);
+        return commonFunction.makeReturn(resultType, statusCode, message, resultJson);
     }
 
 

@@ -21,9 +21,10 @@ public class HanwhaController {
     }
 
     @GetMapping("/packageList")
-    public void getPackageList(String accommId, String startDate){
+    public void getPackageList(String localCode, String strDate, String resultType){
 
-        hanwhaService.getPackageList(accommId, startDate);
+        String result = hanwhaService.getPackageList(localCode, strDate, resultType);
+        System.out.println(result);
 
     }
 
