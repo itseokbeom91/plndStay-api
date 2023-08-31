@@ -26,7 +26,7 @@ public class BookingService {
 
     CommonFunction commonFunction = new CommonFunction();
 
-    public String createBooking(String BookingIdx) {
+    public String createBooking(String dataType, String BookingIdx) {
         // request parameter 중 예약자명, 고객요청사항은 base64 encoding하여 전송
         // 펜션ID, 객실ID, 결제여부 (O, X), 입실일(yyyy-mm-dd), 숙박일 수, 예약자명, hp1, hp2, hp3, 이메일, 생년월일(yyyy-mm-dd), 성인수, 아동수, 픽업신청여부(O, X), 도착시간구분(AM, PM), 도착시간, 객실요금, 총 요금(추가인원 금액을 포함한), 요청사항, 캐릭터셋
         // pension_id, room_id, charge_flag, startdate, daytype, name, hp1, hp2, hp3, email, birthday, adult_num, child_num, pickup, ampm, ar_time, room_price, total_price, memo, char
@@ -64,7 +64,7 @@ public class BookingService {
         Integer child_numInt = Integer.parseInt(child_num);
 
         if ((adult_numInt + child_numInt) > bookingMapper.getMaxpeopleByroomId(intAID, roomId)) {
-            return commonFunction.makeReturn("jsonp","", "투숙인원 초과!");
+            return commonFunction.makeReturn(dataType,"", "투숙인원 초과!");
         }
 
 //        requestURI += "auth_key=" + Constants.gpAuth + "&pension_id=" + pensionID + "&room_id=" + roomId + "&charge_flag=" + chargeFlag + "&startdate=" + startDate +
@@ -81,7 +81,7 @@ public class BookingService {
                 .build();
 //        예약전 예약 가능 여부 확인
 
-        String orderYn = searchRoom(roomId, startDate, daytype);
+        String orderYn = searchRoom("jsonp", roomId, startDate, daytype);
         orderYn = orderYn.substring(5,orderYn.length()-1);
         try {
             JSONParser jsonParser = new JSONParser();
@@ -110,26 +110,26 @@ public class BookingService {
                 분기처리 확인해서 할 것
                 처리결과 코드 (S : 정상 처리 / P : 필수 파라미터 누락 / E : 파라미터 형식 오류 / D : 이미 예약된 객실
                  */
-                    return commonFunction.makeReturn("jsonp",(String) responseJson.get("result_cd"), (String) responseJson.get("result_msg"));
+                    return commonFunction.makeReturn(dataType,(String) responseJson.get("result_cd"), (String) responseJson.get("result_msg"));
                 }
 
-                return commonFunction.makeReturn("jsonp",(String) responseJson.get("result_cd"), (String) responseJson.get("result_msg"), resultJson);
+                return commonFunction.makeReturn(dataType,(String) responseJson.get("result_cd"), (String) responseJson.get("result_msg"), resultJson);
             } else {
                 if ("1".equals(resultArr[1])) {
                     //입실일에 예약이 이미 되어 있음
-                    return commonFunction.makeReturn("jsonp","200", "입실일에 예약이 이미 되어 있음");
+                    return commonFunction.makeReturn(dataType,"200", "입실일에 예약이 이미 되어 있음");
                 } else {
                     //입실일로부터 나오는숫자의 박째에 예약이 이미되어있음
-                    return commonFunction.makeReturn("jsonp","200", "입실일로부터 나오는숫자의 "+ resultArr[1].replaceAll("/", ",") +"박째에 예약이 이미되어 있음");
+                    return commonFunction.makeReturn(dataType,"200", "입실일로부터 나오는숫자의 "+ resultArr[1].replaceAll("/", ",") +"박째에 예약이 이미되어 있음");
                 }
             }
         } catch (Exception e) {
-            return commonFunction.makeReturn("jsonp","500", e.getMessage());
+            return commonFunction.makeReturn(dataType,"500", e.getMessage());
         }
 
     }
 
-    public String confirmBooking(String BookingIdx) {
+    public String confirmBooking(String dataType, String BookingIdx) {
         //order_no (예약번호) 만 태움
         Map<String, Object> bookingMap = bookingMapper.getBookingInfoFromBookingIdx(BookingIdx);
         String orderNo = (String) bookingMap.get("strRsvCode");
@@ -151,15 +151,15 @@ public class BookingService {
             resultJson.put("result_msg", result.split("::")[1]);
             if (resultJson.get("result_cd").equals("S")) {
                 //예약 확정 -- 예약상태를 변경하여야하나?
-                return commonFunction.makeReturn("jsonp","", "", resultJson);
+                return commonFunction.makeReturn(dataType,"", "", resultJson);
             }
-            return commonFunction.makeReturn("jsonp","", "", resultJson);
+            return commonFunction.makeReturn(dataType,"", "", resultJson);
         } catch (Exception e) {
-            return commonFunction.makeReturn("jsonp","500", "");
+            return commonFunction.makeReturn(dataType,"500", "");
         }
     }
 
-    public String cancelBooking(String BookingIdx) {
+    public String cancelBooking(String dataType, String BookingIdx) {
         //order_no (예약번호) 만 태움
         Map<String, Object> bookingMap = bookingMapper.getBookingInfoFromBookingIdx(BookingIdx);
         String orderNo = (String) bookingMap.get("strRsvCode");
@@ -180,13 +180,13 @@ public class BookingService {
                 //취소 성공
                 resultJson.put("order_no", responseBody.split("::")[2]);
             }
-            return commonFunction.makeReturn("jsonp","", "", resultJson);
+            return commonFunction.makeReturn(dataType,"", "", resultJson);
         } catch (Exception e) {
-            return commonFunction.makeReturn("jsonp","500", e.getMessage());
+            return commonFunction.makeReturn(dataType,"500", e.getMessage());
         }
     }
     @Async
-    public String searchRoom(String roomId, String startDate, String daytype) {
+    public String searchRoom(String dataType, String roomId, String startDate, String daytype) {
         //room_id, startdate, daytype(박수)
         OkHttpClient client = new OkHttpClient().newBuilder().build();
         String requestURI = "?";
@@ -201,16 +201,16 @@ public class BookingService {
             if (response.isSuccessful()) {
                 //response 파싱
                 String responseBody = response.body().string();
-                return commonFunction.makeReturn("jsonp","", "", responseBody);
+                return commonFunction.makeReturn(dataType,"", "", responseBody);
             } else {
-                return commonFunction.makeReturn("jsonp","", "", "");
+                return commonFunction.makeReturn(dataType,"", "", "");
             }
         } catch (Exception e) {
-            return commonFunction.makeReturn("jsonp","500", e.getMessage());
+            return commonFunction.makeReturn(dataType,"500", e.getMessage());
         }
     }
 
-    public String searchOrder(String BookingIdx) {
+    public String searchOrder(String dataType, String BookingIdx) {
         //order_no (예약번호) 만 태움
         Map<String, Object> bookingMap = bookingMapper.getBookingInfoFromBookingIdx(BookingIdx);
         String orderNo = (String) bookingMap.get("strRsvCode");
@@ -230,13 +230,13 @@ public class BookingService {
             JSONObject resultJson = new JSONObject();
             resultJson.put("result_cd", result.split("::")[0]);
             resultJson.put("result_msg", result.split("::")[1]);
-            return commonFunction.makeReturn("jsonp",String.valueOf(response.code()), response.message(), resultJson);
+            return commonFunction.makeReturn(dataType,String.valueOf(response.code()), response.message(), resultJson);
         } catch (Exception e) {
-            return commonFunction.makeReturn("jsonp","500", e.getMessage());
+            return commonFunction.makeReturn(dataType,"500", e.getMessage());
         }
     }
 
-    private String getCancelFee(String BookingIdx) {
+    private String getCancelFee(String dataType, String BookingIdx) {
         //order_no (예약번호) 만 태움
         Map<String, Object> bookingMap = bookingMapper.getBookingInfoFromBookingIdx(BookingIdx);
         String orderNo = (String) bookingMap.get("strRsvCode");
@@ -256,9 +256,9 @@ public class BookingService {
             JSONObject resultJson = new JSONObject();
             resultJson.put("result_cd", result.split("::")[0]);
             resultJson.put("result_msg", result.split("::")[1]);
-            return commonFunction.makeReturn("jsonp",String.valueOf(response.code()), response.message(), resultJson);
+            return commonFunction.makeReturn(dataType,String.valueOf(response.code()), response.message(), resultJson);
         } catch (Exception e) {
-            return commonFunction.makeReturn("jsonp","500", e.getMessage());
+            return commonFunction.makeReturn(dataType,"500", e.getMessage());
         }
     }
 }
