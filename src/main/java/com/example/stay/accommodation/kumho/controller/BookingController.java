@@ -55,10 +55,10 @@ public class BookingController {
     /**
      * 재고 등록 및 수정
      */
-    @GetMapping("updateGoods")
+    @GetMapping("updateStock")
     @ResponseBody
-    public String getRemainCountList(String dataType, String strFromDate, String strToDate, int intRmIdx, HttpServletRequest httpServletRequest){
-        return bookingService.updateGoods(dataType, strFromDate, strToDate, intRmIdx, httpServletRequest);
+    public String updateStock(String dataType, String strFromDate, String strToDate, int intRmIdx, HttpServletRequest httpServletRequest){
+        return bookingService.updateStock(dataType, strFromDate, strToDate, intRmIdx, httpServletRequest);
     }
 
 //    @GetMapping("getRemainCount")
