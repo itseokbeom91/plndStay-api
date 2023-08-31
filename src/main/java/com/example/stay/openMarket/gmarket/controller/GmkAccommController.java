@@ -8,6 +8,9 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import javax.servlet.http.HttpServletRequest;
+import java.io.BufferedReader;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 
 @Controller
 @RequestMapping("/gmk/accomm/*")
@@ -27,6 +30,11 @@ public class GmkAccommController {
     @GetMapping("/testHmac")
     public void testHmac(){
         HmacGenerater.generate("");
+    }
+
+    @GetMapping("/getPriceNStock")
+    public String getPriceNStock(HttpServletRequest httpServletRequest){
+        return gmkAccommService.getPriceNStock(httpServletRequest);
     }
 
 }

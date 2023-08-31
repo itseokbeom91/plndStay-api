@@ -1,5 +1,6 @@
 package com.example.stay.accommodation.kumho.mapper;
 
+import com.example.stay.openMarket.common.dto.RsvStayDto;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.util.List;
@@ -13,9 +14,9 @@ public interface SpavisMapper {
 
     int updateStrNote(String strNote, String strCouponNo);
 
-    int insertTicket(String strTicketNo,int intRsvID, String strSalesDate,String strExpiredDate,int intCost,int intSales);
+    String insertTicket(String strTicketDatas);
 
-    int getIntRsvIDCnt(int intRsvID);
+//    int getIntRsvIDCnt(int intRsvID);
 
     int getStrTicketNoCnt(String strTicketNo);
 
@@ -26,4 +27,6 @@ public interface SpavisMapper {
     int getMaxIdx();
 
     int insertKkoMsg(String receiver, String sender, String kkoMsg);
+
+    RsvStayDto getRsvStayInfo(int intRsvID);
 }

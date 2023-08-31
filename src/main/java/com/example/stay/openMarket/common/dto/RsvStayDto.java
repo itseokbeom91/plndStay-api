@@ -38,9 +38,23 @@ public class RsvStayDto {
     private String strAcctBank;
     private String strIP;
     private String strRemark;
+    private Date dateCreated;
     private int intProcSID;
     private int intCanceledSID;
     private int intDealIdx;
     private int intBCIdx;
     private int intVouIdx;
+
+    private String strRmtypeID;
+    private String strLocalCode;
+    private String strPkgCode;
+    private String datePurchase;
+    private double moneyCostA;
+    private double moneyCostC;
+    private double moneySalesA;
+    private double moneySalesC;
+
+
+    // RM_OPTION
+
 }

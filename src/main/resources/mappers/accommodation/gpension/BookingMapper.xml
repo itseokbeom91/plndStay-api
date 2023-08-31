@@ -3,16 +3,49 @@
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper namespace="com.example.stay.accommodation.gpension.mapper.AccommMapper">
-    <select id="getBookingInfoFromBookingIdx">
---         SELECT /* 예약 ID*/
---         FROM /* 예약_테이블*/
---         WHERE '예약' = #{intBookingIdx}
+<mapper namespace="com.example.stay.accommodation.gpension.mapper.BookingMapper">
+    <select id="getBookingInfoFromBookingIdx" resultType="HashMap">
+         SELECT RS.strDeleteYn
+              , RS.strStatusCode
+              , RS.strRsvSite
+              , RS.strRsvCode
+              , RS.intAID
+              , RS.intRmIdx
+              , RS.intRmCnt
+              , RS.intQuantityA
+              , RS.intQuantityC
+              , RS.intQuantityB
+              , RS.dateCheckIn
+              , RS.dateCheckOut
+              , RS.strRmtypeName
+              , RS.strRmOptName
+              , RS.intUID
+              , RS.strOrdName
+              , RS.strOrdPhone
+              , RS.strOrdEmail
+              , RS.strRcvName
+              , RS.strRcvPhone
+              , RS.strRcvEmail
+              , RS.strRsvRmNum
+              , RS.strRemark
+              , RS.dateCreated
+              , R.strRmtypeID
+            , A.strPropertyID as pensionId
+         FROM PLNDSTAY.dbo.RSV_STAY RS
+         INNER JOIN PLNDSTAY.dbo.ACCOMM A with(nolock) on A.intAID = RS.intAID
+        INNER JOIN PLNDSTAY.dbo.RMTYPE R with(nolock) on R.intIdx = RS.intRmIdx
+         WHERE RS.intRsvID = #{BookingIdx}
     </select>
 
-    <select id="getMaxpeopleByroomId">
+    <select id="getMaxpeopleByroomId" resultType="int">
         SELECT intQuanMax
         FROM PLNDSTAY.dbo.RMTYPE
         WHERE intAID = #{pensionID} AND strRmtypeID = #{roomID}
     </select>
+
+    <update id="updateBooking">
+        UPDATE PLNDSTAY.dbo.RSV_STAY SET
+                                         strRsvCode = #{orderID}
+        WHERE intRsvID = #{intRsvID}
+    </update>
 </mapper>

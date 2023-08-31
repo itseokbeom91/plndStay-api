@@ -4,54 +4,46 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="com.example.stay.accommodation.kumho.mapper.KumhoMapper">
-    <select id="getBookingByIntBookingID" resultType="BookingDto">
-        SELECT
-            B.intCondoID,
-            B.intRoomID,
-            B.intRateID,
-            C.accomm_id AS accommId,
-            RT.room_type_id AS strRoomTypeId,
-            convert(varchar(10), B.checkInDate, 120) AS checkInDate,
-            convert(varchar(10), B.checkOutDate, 120) AS checkOutDate,
-            RP.strRatePlanId,
-            RP.strMealCode,
-            ISNULL(B.intPersonCount, RT.standpeopleCnt) AS intPersonCount,
-            B.strRecvName,
-            B.strRecvPhone,
-            B.strRecvEmail,
-            B.intRoomCount,
-            B.strBookingProcess,
-            B.strSpBookingId
-        FROM test_Booking B WITH(NOLOCK)
-            LEFT JOIN test_condo C WITH(NOLOCK) ON B.intCondoID = C.intCondoID
-            LEFT JOIN test_room_type RT WITH(NOLOCK) ON B.intRoomID = RT.intRoomID
-            LEFT JOIN test_rate_plan RP WITH(NOLOCK) ON B.intRateID = RP.intRateID
-        WHERE B.intBookingID = ${intBookingID}
+    <select id="updateRsvStay" resultType="String">
+        EXEC PLNDSTAY.dbo.spGW_RSV_STAY_UPDATE_PROCESS ${intRsvID}, #{strStatusCode}, #{strRsvRmNum}, ''
     </select>
 
-    <select id="updateBooking" resultType="String">
-        EXEC spGW_BOOKING_UPDATE_PROCESS ${intBookingID}, #{strBookingProcess}, #{strSpBookingId}, ${intRoomCount}, ''
-    </select>
-
-    <update id="updateBookingStatus" parameterType="String">
-        UPDATE test_Booking SET strBookingProcess = #{strBookingProcess}
-        WHERE intBookingID = ${intBookingID}
+    <update id="updateStrStatusCode" parameterType="String">
+        UPDATE PLNDSTAY.dbo.RSV_STAY SET strStatusCode = #{strStatusCode}
+        WHERE intRsvID = ${intRsvID}
     </update>
 
-    <select id="updateGoods" resultType="String">
+    <select id="updateStock" resultType="String">
         EXEC PLNDSTAY.dbo.spGW_STOCK_TEMP_REGIST #{intAID}, #{intRmIdx}, '', #{strStockDatas}, ''
     </select>
 
-    <select id="getRmtypeIDNIntAID" parameterType="int" resultType="Map">
-        SELECT strRmtypeID, intAID
-        FROM PLNDSTAY.dbo.RMTYPE
-        WHERE intIdx = ${intRmIdx}
+    <select id="getRmtypeInfo" parameterType="int" resultType="Map">
+        SELECT
+            R.strRmtypeID
+            , R.intAID
+            , ALI.strLocalCode
+        FROM PLNDSTAY.dbo.RMTYPE R WITH(NOLOCK)
+		INNER JOIN PLNDSTAY.dbo.ACCOMM_ACM_LOCAL AAL WITH(NOLOCK) ON R.intAID = AAL.intAID
+            INNER JOIN PLNDSTAY.dbo.ACM_LOCAL_INFO ALI WITH(NOLOCK) ON AAL.intALIIdx = ALI.intIdx
+        WHERE R.intIdx = 1417
+            AND ALI.strRmCode = R.strRmtypeID
     </select>
 
-    <select id="getStrLocalCode" resultType="String">
-        SELECT strLocalCode
-        FROM PLNDSTAY.dbo.ACM_LOCAL_INFO
-        WHERE intAID = ${intAID}
-            AND strRmCode = #{strRmtypeID}
+    <select id="getReservation" resultType="RsvStayDto">
+        EXEC PLNDSTAY.dbo.spGW_RSV_STAY_INFO ${intRsvID}
+    </select>
+
+    <select id="getIntStep" parameterType="int" resultType="int">
+        SELECT intStep
+        FROM PLNDSTAY.dbo.RMTYPE
+        WHERE intIdx = ${intRmIdx}
+          AND intDepth = 2
+    </select>
+
+    <select id="getBreakfastYn" parameterType="int" resultType="int">
+        SELECT COUNT(intRmIdx)
+        FROM PLNDSTAY.dbo.RM_ICON
+        WHERE intRmIdx = ${intRmIdx}
+            AND strCateCode = '01'
     </select>
 </mapper>

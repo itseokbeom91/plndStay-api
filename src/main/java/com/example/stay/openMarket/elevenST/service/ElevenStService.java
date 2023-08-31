@@ -35,14 +35,20 @@ public class ElevenStService {
     XmlUtility xmlUtility = new XmlUtility();
 
 
-
+    /**
+     * 11번가 상품등록 API
+     * @param accommID  : 등록하고자 하는 숙소ID
+     * @param bgnDay    : 판매 시작일자 (yyyyMMdd)
+     * @param endDay    : 판매 종료일자 (yyyyMMdd)
+     * @return
+     */
     public String regProduct(String accommID, String bgnDay, String endDay) {
         try {
             URL url = new URL(Constants.elevenUrl + "/rest/prodservices/product");
             Map<String, Object>map = elevenStMapper.getAccomm(accommID);
             map.put("aplBgnDy", bgnDay);
             map.put("aplEndDy", endDay);
-            map.put("selPrc", "100000000");
+            map.put("selPrc", "100000000"); // 대표가이니 가장 낮은가격이 되련지 아님 상품매칭시 대표가격이 등록되는건지 확인 필요
             map.put("prdImage01", "https://cdn.imweb.me/thumbnail/20221018/2fa9b7c3276c7.png");
             StringBuffer sb = new StringBuffer();
             sb.append("<Product>");
@@ -50,7 +56,7 @@ public class ElevenStService {
             sb.append("<selMthdCd>01</selMthdCd>"); //판매방식 01:고정가판매, 04:예약판매, 05:중고판매 이 외의 코드는 사용 X
             sb.append("<dispCtgrNo>1018070</dispCtgrNo>"); //카테고리 넘버는 소카테고리 넘버 (2878 => 1017895(국내숙박) => 1017902(호텔) => 지역 (ex: 서울 1018070)  //호텔, 리조트, 모텔, 펜션, 게스트하우스등 있음
 //            sb.append("<prdNm>" + map.get("prdNm") + "</prdNm>");
-            sb.append("<prdNm>" + map.get("strSubject") + "[TEST상품/주문불가]</prdNm>"); //상품명
+            sb.append("<prdNm><![CDATA[" + map.get("strSubject") + "[TEST상품/주문불가]]]></prdNm>"); //상품명 추후 배포시 TEST관련 문구 제거
             sb.append("<sellerPrdCd>" + map.get("intAID") + "</sellerPrdCd>");
             sb.append("<prdImage01>" + map.get("prdImage01") + "</prdImage01>");
 //            sb.append("<prdImage02>" + map.get("prdImage02") + "</prdImage02>");
@@ -58,7 +64,7 @@ public class ElevenStService {
             sb.append("<htmlDetail><![CDATA[" + map.get("strDescription") + "]]></htmlDetail>");
             sb.append("<selTermUseYn>Y</selTermUseYn>"); //판매기간 (N: 즉시 영구판매)
             sb.append("<brand>febHotel</brand>"); //브랜드명
-            sb.append("<ProductNotification>"); //상품정보고시 호텔/펜션예약(891037)
+            sb.append("<ProductNotification>"); //상품정보고시 호텔/펜션예약(891037) 고정값
             sb.append("<type>891037</type>");
             sb.append("<item>");
             sb.append("<code>23754785</code>");//객실타입/등급
@@ -91,7 +97,7 @@ public class ElevenStService {
             sb.append("</ProductNotification>");
 
 //            Map<String, Object> map3 = new HashMap<>();
-            List<Map<String, Object>> listMap = new ArrayList<>();
+            List<Map<String, Object>> listMap = new ArrayList<>(); //TEST용임 실 옵션생성시 어떻게 들어올지 의사협의 필요
             for (int j = 0; j<3; j++) {
                 int date = 20230901;
                 int price = 1000000;
@@ -335,12 +341,21 @@ public class ElevenStService {
             sb.append("<htmlDetail>01</htmlDetail>");
 
 
+
         } catch (Exception e) {
 
         }
         return "";
     }
 
+    /**
+     * 주문 취소
+     * @param ordNo             : 주문번호
+     * @param ordPrdSeq         : 주문순번
+     * @param ordCnRsnCd        : 사유코드 06: 배송지연, 07: 상품/가격정보 오입력, 08: 상품품절, 09: 옵션품절, 10: 고객변심, 99: 기타
+     * @param ordCnDtlsRsn      : 사유
+     * @return
+     */
     public String setRejectOrder(String ordNo, String ordPrdSeq, String ordCnRsnCd, String ordCnDtlsRsn) {
         try {
             URL url = new URL(Constants.elevenUrl + "/rest/claimservice/refrejectorder/" + ordNo + "/" + ordPrdSeq + "/" + ordCnRsnCd + "/" + ordCnDtlsRsn);
@@ -559,6 +574,10 @@ public class ElevenStService {
         }
     }
 
+    /**
+     * 주문 목록 조회
+     * @return
+     */
     public String getOrderList() {
         //YYYYMMDDHHmm 형식으로 전달되어야함
         try {
@@ -608,6 +627,65 @@ public class ElevenStService {
 
 
             return commonFunction.makeReturn("jsonp", "200", "OK", listMap);
+        } catch (Exception e) {
+            return commonFunction.makeReturn("jsonp", "500", e.getMessage());
+        }
+    }
+
+    public String updatePrdAmt(String prdNo) {
+        try {
+            URL url = new URL(Constants.elevenUrl + "/rest/prodservice/product/priceCoupon/" + prdNo);
+            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+            conn.setDoOutput(true);
+            conn.setInstanceFollowRedirects(false);
+            conn.setRequestMethod("PUT");
+            conn.setRequestProperty("openapikey", Constants.elevenApiKey);
+            conn.setRequestProperty("Content-Type", "text/xml; charset=euc-kr");
+            conn.getResponseCode();
+            LogWriter lw = new LogWriter("POST", url.toString(), System.currentTimeMillis());
+            return commonFunction.makeReturn("jsonp", "200", "OK", "OK");
+        } catch (Exception e) {
+            return commonFunction.makeReturn("jsonp", "500", e.getMessage());
+        }
+    }
+
+    public String updatePrdOption(String prdNo) {
+        try {
+            URL url = new URL(Constants.elevenUrl + "/rest/prodservice/updateProductOption/" + prdNo);
+            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+            StringBuffer sb = new StringBuffer();
+            sb.append("<?xml version=\"1.0\" encoding=\"euc-kr\" standalone=\"yes\"?>");
+            sb.append("<Product>");
+            //옵션 설정
+            sb.append("<optSelectYn>Y</optSelectYn>");
+            sb.append("<txtColCnt>1</txtColCnt>");
+            sb.append("<optionAllQty>9999</optionAllQty>"); // 각 옵션별 재고 수량 전체 더해서 입력
+            sb.append("<optionAllAddPrc>0</optionAllAddPrc>");
+            sb.append("<prdExposeClfCd>01</prdExposeClfCd>");
+            sb.append("<optMixYn>N</optMixYn>");
+            //AS-IS 기준
+            sb.append("<ProductOptionExt>");
+            sb.append("<ProductOption>");
+
+            sb.append("<colOptPrice>0</colOptPrice>");
+            sb.append("<colOptCount>1</colOptCount>");
+            sb.append("<colCount/>");
+            sb.append("<optWght/>");
+            sb.append("<useYn>Y</useYn>");
+            sb.append("<colSellerStockCd></colSellerStockCd>");
+            sb.append("<optionMappingKey><![CDATA[투숙일자:20230901†" + "객실타입:xxx ]]></optionMappingKey>");
+            
+            sb.append("</ProductOption>");
+            sb.append("</ProductOptionExt>");
+            sb.append("</Product>");
+            conn.setDoOutput(true);
+            conn.setInstanceFollowRedirects(false);
+            conn.setRequestMethod("PUT");
+            conn.setRequestProperty("openapikey", Constants.elevenApiKey);
+            conn.setRequestProperty("Content-Type", "text/xml; charset=euc-kr");
+            conn.getResponseCode();
+            LogWriter lw = new LogWriter("POST", url.toString(), System.currentTimeMillis());
+            return commonFunction.makeReturn("jsonp", "200", "OK", "OK");
         } catch (Exception e) {
             return commonFunction.makeReturn("jsonp", "500", e.getMessage());
         }
