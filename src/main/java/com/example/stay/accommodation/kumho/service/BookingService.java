@@ -51,9 +51,7 @@ public class BookingService {
 
             int intRmIdx = rsvStayDto.getIntRmIdx();
             String strRmtypeID = rsvStayDto.getStrRmtypeID();
-
-            String ipark_resno = Integer.toString(intRsvID); // 예약번호
-
+            String ipark_resno = String.format("%015d", intRsvID); // 예약번호
             String area = rsvStayDto.getStrLocalCode(); // 사업장(통영, 화순, 설악, 제주)
 
             SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd");
@@ -65,8 +63,7 @@ public class BookingService {
             Date outDate = rsvStayDto.getDateCheckOut();
             nights_count = ((outDate.getTime() - inDate.getTime()) / 1000) / (24*60*60);
 
-//            int intStep = kumhoMapper.getIntStep(intRmIdx);
-            int intStep = 2;
+            int intStep = kumhoMapper.getIntStep(intRmIdx);
             String event_div = ""; // 객실예약인지 패키지인지
             String morning_aqua = "";  // 패키지 상품구분
             if(intStep == 1){
@@ -116,7 +113,7 @@ public class BookingService {
 
                 // 금호측에 예약이 완료됐으면 우리 DB 상태값 업데이트
                 if(resultCode.equals("S")){
-                    String result = kumhoMapper.updateRsvStay(intRsvID, "4", strRsvRmNum, room_count);
+                    String result = kumhoMapper.updateRsvStay(intRsvID, "4", strRsvRmNum);
                     if(result.equals("저장완료")){
                         message = "예약완료";
                     }else{
@@ -140,36 +137,6 @@ public class BookingService {
         }
         return commonFunction.makeReturn(dataType, statusCode, message);
     }
-
-    // 예약 시 잔여 객실 수 조회
-//    public int getRemainCount(String fr_date, String to_date, String area, String room_type){
-//        int remainCount = 0;
-//        try{
-//            String kumhoUrl = "inter05.asp?groupid=" + Constants.groupId + "&fr_date=" + fr_date + "&to_date=" + to_date
-//                            + "&area=" + area + "&site=" + site + "&room_type=" + room_type;
-//
-//            Document document = callKumhoAPI(kumhoUrl);
-//            if(document != null){
-//                NodeList roomList = document.getElementsByTagName("room");
-//                for(int i=0; i< roomList.getLength(); i++) {
-//                    Node node = roomList.item(i);
-//                    if (node.getNodeType() == Node.ELEMENT_NODE) {
-//                        Element element = (Element) node;
-//
-//                        String rdate = xmlUtility.getTagValue("rdate", element).trim();
-//                        if(rdate.equals("F")){
-//                            remainCount = -1;
-//                        }else{
-//                            remainCount = Integer.parseInt(xmlUtility.getTagValue("remainCount", element));
-//                        }
-//                    }
-//                }
-//            }
-//        }catch (Exception e){
-//            e.printStackTrace();
-//        }
-//        return remainCount;
-//    }
 
     // 재고 등록 및 수정
     public String updateStock(String dataType, String strFromDate, String strToDate, int intRmIdx, HttpServletRequest httpServletRequest){
@@ -287,10 +254,11 @@ public class BookingService {
                                     }
                                     int intOmkStock = intStock;
 
-                                    int intCost = 0, intSales = 0, intExtraA = 0, intExtraB = 0, intExtraC = 0, intOmkSales = 0;
+                                    // 금호는 가격을 안줌
+                                    int intCost = 0, intSales = 0, intExtraA = 0, intExtraB = 0, intExtraC = 0;
 
                                     strStockDatas += dateSales + "|^|" + intStock + "|^|" + intCost + "|^|" + intSales + "|^|"
-                                            + intExtraA + "|^|" + intExtraC + "|^|" + intExtraB + "|^|" + intOmkStock + "|^|"  + intOmkSales+ "{{|}}";
+                                            + intExtraA + "|^|" + intExtraC + "|^|" + intExtraB + "|^|" + intOmkStock + "|^|" + "{{|}}";
 
 
                                 }
@@ -338,10 +306,11 @@ public class BookingService {
                                 int intStock = Integer.parseInt(xmlUtility.getTagValue("remainCount", element));
                                 int intOmkStock = intStock;
 
-                                int intCost = 0, intSales = 0, intExtraA = 0, intExtraB = 0, intExtraC = 0, intOmkSales = 0;
+                                // 금호는 가격을 안줌
+                                int intCost = 0, intSales = 0, intExtraA = 0, intExtraB = 0, intExtraC = 0;
 
                                 strStockDatas += dateSales + "|^|" + intStock + "|^|" + intCost + "|^|" + intSales + "|^|"
-                                        + intExtraA + "|^|" + intExtraC + "|^|" + intExtraB + "|^|" + intOmkStock + "|^|"  + intOmkSales+ "{{|}}";
+                                        + intExtraA + "|^|" + intExtraC + "|^|" + intExtraB + "|^|" + intOmkStock + "|^|" + "{{|}}";
                             }
                         }
                     }
@@ -387,9 +356,9 @@ public class BookingService {
             String arrive_date = sdf.format(rsvStayDto.getDateCheckIn()); // 도착일자
 
             String reserv_year = arrive_date.substring(0, 4);
-            String reserv_number = Integer.toString(intRsvID);
+            String reserv_number = rsvStayDto.getStrRsvRmNum();
 
-            String kumhoUrl = Constants.kumhoUrl + "inter02.asp?area=" + area + "&site=" + site + "&reserv_year=" + reserv_year
+            String kumhoUrl = "inter02.asp?area=" + area + "&site=" + site + "&reserv_year=" + reserv_year
                     + "&reserv_number=" + reserv_number;
 
 //            String kumhoUrl = "inter02.asp?area=4&site=1&reserv_year=2023&reserv_number=40154";
@@ -401,8 +370,9 @@ public class BookingService {
                 String resultMsg = document.getElementsByTagName("resultMsg").item(0).getChildNodes().item(0).getNodeValue();
                 if(resultCode.equals("S")){
                     // DB 상태값 변경
-                    int result = kumhoMapper.updateStrStatusCode(intRsvID, "5");
-                    if(result > 0){
+                    String strRsvRmNum = rsvStayDto.getStrRsvRmNum();
+                    String result = kumhoMapper.updateRsvStay(intRsvID, "5", strRsvRmNum);
+                    if(result.equals("저장완료")){
                         message = "예약 취소 완료";
                     }else{
                         message = "예약 취소 실패";
@@ -483,6 +453,8 @@ public class BookingService {
                     resultMap.put("strRcvName", strRcvName);
                     resultMap.put("strRcvTel", strRcvTel);
                     resultMap.put("strRcvPhone", strRcvPhone);
+
+                    message = "예약 조회 완료";
 
                 }else{
                     message = URLDecoder.decode(resultMsg, "utf-8");
@@ -567,10 +539,7 @@ public class BookingService {
                         resultMap.add("reservMap", reservMap);
                     }
 
-                }else if(resultCode.equals("F")){
-                    message = URLDecoder.decode(resultMsg, "utf-8");
-
-                }else if(resultCode.equals("0")){
+                }else{
                     message = URLDecoder.decode(resultMsg, "utf-8");
                 }
             }else{
@@ -597,6 +566,7 @@ public class BookingService {
         String strUrl = "";
         String message = "";
         long startTime = System.currentTimeMillis();
+
         try{
             URL url = new URL(Constants.kumhoUrl + kumhoUrl);
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
@@ -605,6 +575,8 @@ public class BookingService {
             conn.setReadTimeout(10000);
             conn.setRequestProperty("Content-Type", "application/xml");
             conn.setRequestProperty("Accept-Charset", "UTF-8");
+
+            LogWriter logWriter = new LogWriter(conn.getRequestMethod(), conn.getURL().toString(), startTime);
 
             if(conn.getResponseCode() == 200){
                 method = conn.getRequestMethod();
@@ -619,12 +591,12 @@ public class BookingService {
 
                 message = URLDecoder.decode(result, "utf-8");
             }else{
+                logWriter.add("responseCode : " + conn.getResponseCode());
                 message = "금호 API 호출 실패";
             }
 
             conn.disconnect();
 
-            LogWriter logWriter = new LogWriter(conn.getRequestMethod(), conn.getURL().toString(), startTime);
             logWriter.add(message);
             logWriter.log(0);
         }catch (Exception e){
