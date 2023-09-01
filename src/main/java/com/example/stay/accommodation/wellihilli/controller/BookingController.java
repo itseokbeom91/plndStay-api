@@ -40,14 +40,16 @@ public class BookingController {
 
     // 체크인 날짜에 해당되는 객실 수량 및 계산된 총 요금 조회
     @GetMapping("getTotalPrice")
-    public void getTotalPrice(String pyung, String sDate, String eDate, String sleep, String roomCount, String roomType, String pkgCode){
-        bookingService.getTotalPrice(pyung, sDate, eDate, sleep, roomCount, roomType, pkgCode);
+    @ResponseBody
+    public String getTotalPrice(String dataType, String pyung, String sDate, String eDate, String sleep, String roomCount, String roomType, String pkgCode){
+        return bookingService.getTotalPrice(dataType, pyung, sDate, eDate, sleep, roomCount, roomType, pkgCode);
     }
 
     // 1박 이상일경우 일자별 요금 데이터 조회
     @GetMapping("getDayPrice")
-    public void getDayPrice(String pyung, String sDate, String eDate, String sleep, String roomCount, String roomType, String pkgCode){
-        bookingService.getDayPrice(pyung, sDate, eDate, sleep, roomCount, roomType, pkgCode);
+    @ResponseBody
+    public String getDayPrice(String dataType, String pyung, String sDate, String eDate, String sleep, String roomCount, String roomType, String pkgCode){
+        return bookingService.getDayPrice(dataType, pyung, sDate, eDate, sleep, roomCount, roomType, pkgCode);
     }
 
     // 예약
