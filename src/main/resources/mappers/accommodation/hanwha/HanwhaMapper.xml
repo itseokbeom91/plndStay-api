@@ -21,4 +21,11 @@
         EXEC PLNDSTAY.dbo.spGW_STOCK_TEMP_REGIST ${intAID}, ${intRmIdx}, #{strPackageCode}, #{strStockData}, ''
     </select>
 
+    <select id="getLcdCode" resultType="map">
+        select ali.strLocalCode from ACM_LOCAL_INFO ali with(nolock)
+        inner join ACCOMM acm with(nolock) on left(ali.strLocalCode, 2) = LEFT(acm.strPropertyID, 2)
+        where acm.intAID = ${intAID}
+          and ali.strFlag = '02'
+        group by ali.strLocalCode
+    </select>
 </mapper>

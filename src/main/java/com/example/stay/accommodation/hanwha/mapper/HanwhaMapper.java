@@ -2,6 +2,7 @@ package com.example.stay.accommodation.hanwha.mapper;
 
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Map;
 
 @Repository
@@ -14,4 +15,6 @@ public interface HanwhaMapper {
     Map<String, String> getPkgLcdID(int intPkgIdx);
 
     String insertStock(int intAID, int intRmIdx, String strPackageCode, String strStockData);
+
+    List<Map<String, String>> getLcdCode(int intAID);
 }

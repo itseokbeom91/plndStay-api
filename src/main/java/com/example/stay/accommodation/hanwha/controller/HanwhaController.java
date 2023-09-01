@@ -14,7 +14,7 @@ public class HanwhaController {
     private HanwhaService hanwhaService;
 
     @GetMapping("/capa")
-    public void getCapa(int intAID, int intRmIdx, int intPkgIdx, String startDate, String endDate){
+    public void getCapa(int intAID, int intRmIdx, String intPkgIdx, String startDate, String endDate){
 
         String result = hanwhaService.getCapa(intAID, intRmIdx, intPkgIdx, startDate, endDate);
         System.out.println(result);

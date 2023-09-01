@@ -315,7 +315,7 @@ public class HanwhaService {
      * @param strEndDate
      * @return
      */
-    public String getCapa(int intAID, int intRmIdx, int intPkgIdx, String strStartDate, String strEndDate){ // 캐파조회 : 05
+    public String getCapa(int intAID, int intRmIdx, String strIntPkgIdx, String strStartDate, String strEndDate){ // 캐파조회 : 05
 
         String statusCode = "200";
         String message = "";
@@ -326,80 +326,172 @@ public class HanwhaService {
             JSONObject dataObject = new JSONObject();
             JSONObject detailObject = new JSONObject();
 
-            Map<String, String> pkgLcdMap = hanwhaMapper.getPkgLcdID(intPkgIdx);
+            String strLcdId = "";
+            String strPackageCode = "";
 
             String strRoomTypeId = hanwhaMapper.getRmID(intAID, intRmIdx);
-            String strLcdId = pkgLcdMap.get("strLocalCode").toString();
-            String strPackageCode = pkgLcdMap.get("strPkgCode").toString();
 
+            if(strIntPkgIdx.length() > 0){
 
-            detailObject.put("CUST_NO", Constants.hanwhaCustNo);
-            detailObject.put("CONT_NO", Constants.hanwhaContNo);
-            detailObject.put("LOC_CD", strLcdId);
-            detailObject.put("ROOM_TYPE_CD", strRoomTypeId);
-            detailObject.put("PAKG_NO", strPackageCode);
-            detailObject.put("STRT_DATE", strStartDate);
-            detailObject.put("END_DATE", strEndDate);
+                int intPkgIdx = Integer.parseInt(strIntPkgIdx);
 
-            List<Object> dataList = new ArrayList<>();
-            dataList.add(detailObject);
+                Map<String, String> pkgLcdMap = hanwhaMapper.getPkgLcdID(intPkgIdx);
+                strLcdId = pkgLcdMap.get("strLocalCode").toString();
+                strPackageCode = pkgLcdMap.get("strPkgCode").toString();
 
-            dataObject.put("ds_search", dataList);
+                detailObject.put("CUST_NO", Constants.hanwhaCustNo);
+                detailObject.put("CONT_NO", Constants.hanwhaContNo);
+                detailObject.put("LOC_CD", strLcdId);
+                detailObject.put("ROOM_TYPE_CD", strRoomTypeId);
+                detailObject.put("PAKG_NO", strPackageCode);
+                detailObject.put("STRT_DATE", strStartDate);
+                detailObject.put("END_DATE", strEndDate);
 
-            mainObject.put("Data", dataObject);
+                List<Object> dataList = new ArrayList<>();
+                dataList.add(detailObject);
 
-            System.out.println(mainObject);
+                dataObject.put("ds_search", dataList);
+
+                mainObject.put("Data", dataObject);
+
+                System.out.println(mainObject);
 
 //            JsonNode jsonNode = commonService.callJsonApi("hanwha", "", mainObject);
-            JsonNode jsonNode = commonFunction.callJsonApi("hanwha", "", mainObject, "", "POST");
+                JsonNode jsonNode = commonFunction.callJsonApi("hanwha", "", mainObject, "", "POST");
 
 
 
-            // 통신결과 0:실패, 1:성공
-            JSONObject codeObject = (JSONObject) new JSONParser().parse(jsonNode.get("MessageHeader").get("MSG_DATA_SUB").get(0).toString());
-            String resultCode = codeObject.get("MSG_INDC_CD").toString();
+                // 통신결과 0:실패, 1:성공
+                JSONObject codeObject = (JSONObject) new JSONParser().parse(jsonNode.get("MessageHeader").get("MSG_DATA_SUB").get(0).toString());
+                String resultCode = codeObject.get("MSG_INDC_CD").toString();
 
-            System.out.println(jsonNode.get("Data").has("ds_roomStatus"));
+                System.out.println(jsonNode.get("Data").has("ds_roomStatus"));
 
-            if(jsonNode.get("Data").has("ds_roomStatus") == true){
-                JSONArray jsonArray = (JSONArray) new JSONParser().parse(jsonNode.get("Data").get("ds_roomStatus").toString());
-                if(resultCode.equals("1")){
-                    String strStockDatas = "";
-                    for(Object object : jsonArray){
-                        JSONObject jsonObject = (JSONObject) JSONValue.parse(object.toString());
+                if(jsonNode.get("Data").has("ds_roomStatus") == true){
+                    JSONArray jsonArray = (JSONArray) new JSONParser().parse(jsonNode.get("Data").get("ds_roomStatus").toString());
+                    if(resultCode.equals("1")){
+                        String strStockDatas = "";
+                        for(Object object : jsonArray){
+                            JSONObject jsonObject = (JSONObject) JSONValue.parse(object.toString());
 
-                        String strStockLcd = jsonObject.get("LOC_CD").toString();
-                        String strStockRMId = jsonObject.get("ROOM_TYPE_CD").toString();
-                        String strStockDate = jsonObject.get("SESN_DATE").toString();
-                        int intStock = Integer.parseInt(jsonObject.get("RSRV_POSBL_CNT").toString());
+                            String strStockLcd = jsonObject.get("LOC_CD").toString();
+                            String strStockRMId = jsonObject.get("ROOM_TYPE_CD").toString();
+                            String strStockDate = jsonObject.get("SESN_DATE").toString();
+                            int intStock = Integer.parseInt(jsonObject.get("RSRV_POSBL_CNT").toString());
 
-                        // 일별 객실료 조회
-                        int[] intPriceData = getPrice(strStockLcd, strStockRMId, strPackageCode, strStockDate);
+                            // 일별 객실료 조회
+                            int[] intPriceData = getPrice(strStockLcd, strStockRMId, strPackageCode, strStockDate);
 
-                        strStockDatas += strStockDate + "|^|" + intStock + "|^|" + intPriceData[1] + "|^|" + intPriceData[0] + "|^|0|^|0|^|0|^|" + intStock + "|^|" + intPriceData[0] + "{{|}}";
+                            strStockDatas += strStockDate + "|^|" + intStock + "|^|" + intPriceData[1] + "|^|" + intPriceData[0] + "|^|0|^|0|^|0|^|" + intStock + "{{|}}";
 
-                    }
-                    if(strStockDatas.length() > 1){
-                        strStockDatas = strStockDatas.substring(0, strStockDatas.length()-5);
-                    }
+                        }
+                        if(strStockDatas.length() > 1){
+                            strStockDatas = strStockDatas.substring(0, strStockDatas.length()-5);
+                        }
 
-                    result = hanwhaMapper.insertStock(intAID, intRmIdx, strPackageCode, strStockDatas);
+                        result = hanwhaMapper.insertStock(intAID, intRmIdx, strPackageCode, strStockDatas);
 
-                    String strResult = result.substring(result.length()-4);
-                    if(strResult.equals("저장완료")){
-                        message = "재고 등록 및 수정 완료";
+                        String strResult = result.substring(result.length()-4);
+                        if(strResult.equals("저장완료")){
+                            message = "재고 등록 및 수정 완료";
+                        }else{
+                            message = " 재고 등록 및 수정 실패";
+                        }
                     }else{
-                        message = " 재고 등록 및 수정 실패";
+                        message = "error";
                     }
                 }else{
-                    message = "error";
+                    message = "패키지와 매칭되는 룸타입이 없습니다.";
                 }
-            }else{
-                message = "패키지와 매칭되는 룸타입이 없습니다.";
-            }
 
-            result = jsonNode.toString();
-            System.out.println(result);
+                result = jsonNode.toString();
+                System.out.println(result);
+
+            }else{
+
+                System.out.println("testttt");
+
+                List<Map<String, String>> lcdMap = hanwhaMapper.getLcdCode(intAID);
+
+                for (Map<String, String> map : lcdMap){
+
+                    strLcdId = map.get("strLocalCode");
+
+
+                    detailObject.put("CUST_NO", Constants.hanwhaCustNo);
+                    detailObject.put("CONT_NO", Constants.hanwhaContNo);
+                    detailObject.put("LOC_CD", strLcdId);
+                    detailObject.put("ROOM_TYPE_CD", strRoomTypeId);
+                    detailObject.put("PAKG_NO", strPackageCode);
+                    detailObject.put("STRT_DATE", strStartDate);
+                    detailObject.put("END_DATE", strEndDate);
+
+                    List<Object> dataList = new ArrayList<>();
+                    dataList.add(detailObject);
+
+                    dataObject.put("ds_search", dataList);
+
+                    mainObject.put("Data", dataObject);
+
+                    System.out.println(mainObject);
+
+//            JsonNode jsonNode = commonService.callJsonApi("hanwha", "", mainObject);
+                    JsonNode jsonNode = commonFunction.callJsonApi("hanwha", "", mainObject, "", "POST");
+
+
+
+                    // 통신결과 0:실패, 1:성공
+                    JSONObject codeObject = (JSONObject) new JSONParser().parse(jsonNode.get("MessageHeader").get("MSG_DATA_SUB").get(0).toString());
+                    String resultCode = codeObject.get("MSG_INDC_CD").toString();
+
+                    System.out.println(jsonNode.get("Data").has("ds_roomStatus"));
+
+                    if(jsonNode.get("Data").has("ds_roomStatus") == true){
+                        JSONArray jsonArray = (JSONArray) new JSONParser().parse(jsonNode.get("Data").get("ds_roomStatus").toString());
+                        if(resultCode.equals("1")){
+                            String strStockDatas = "";
+                            for(Object object : jsonArray){
+                                JSONObject jsonObject = (JSONObject) JSONValue.parse(object.toString());
+
+                                String strStockLcd = jsonObject.get("LOC_CD").toString();
+                                String strStockRMId = jsonObject.get("ROOM_TYPE_CD").toString();
+                                String strStockDate = jsonObject.get("SESN_DATE").toString();
+                                int intStock = Integer.parseInt(jsonObject.get("RSRV_POSBL_CNT").toString());
+
+                                // 일별 객실료 조회
+                                int[] intPriceData = getPrice(strStockLcd, strStockRMId, strPackageCode, strStockDate);
+
+                                strStockDatas += strStockDate + "|^|" + intStock + "|^|" + intPriceData[1] + "|^|" + intPriceData[0] + "|^|0|^|0|^|0|^|" + intStock + "{{|}}";
+
+                            }
+                            if(strStockDatas.length() > 1){
+                                strStockDatas = strStockDatas.substring(0, strStockDatas.length()-5);
+                            }
+
+                            result = hanwhaMapper.insertStock(intAID, intRmIdx, strPackageCode, strStockDatas);
+
+                            String strResult = result.substring(result.length()-4);
+                            if(strResult.equals("저장완료")){
+                                message = "재고 등록 및 수정 완료";
+                            }else{
+                                message = " 재고 등록 및 수정 실패";
+                            }
+                        }else{
+                            message = "error";
+                        }
+                    }else{
+                        message = "패키지와 매칭되는 룸타입이 없습니다.";
+                    }
+
+                    result = jsonNode.toString();
+                    System.out.println(result);
+
+                }
+
+            }
+            // localCode 두개인경우
+
+
 
         }catch (Exception e){
             message = "재고 등록 실패";
