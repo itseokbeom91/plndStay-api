@@ -1,6 +1,7 @@
 package com.example.stay.accommodation.kumho.mapper;
 
 import com.example.stay.openMarket.common.dto.BookingDto;
+import com.example.stay.openMarket.common.dto.RsvStayDto;
 import org.springframework.stereotype.Repository;
 
 import java.util.Map;
@@ -8,15 +9,16 @@ import java.util.Map;
 @Repository
 public interface KumhoMapper {
 
-    BookingDto getBookingByIntBookingID(int intBookingID);
+    RsvStayDto getReservation(int intRsvID);
 
-    String updateBooking(int intBookingID, String strBookingProcess, String strSpBookingId, int intRoomCount);
+    String updateRsvStay(int intRsvID, String strStatusCode, String strRsvRmNum);
 
-    int updateBookingStatus(int intBookingID, String strBookingProcess);
+    String updateStock(int intAID, int intRmIdx, String strStockDatas);
 
-    String updateGoods(int intAID, int intRmIdx, String strStockDatas);
+    Map<String, Object> getRmtypeInfo(int intRmIdx);
 
-    Map<String, Object> getRmtypeIDNIntAID(int intRmIdx);
+    int getIntStep(int intRmIdx);
 
-    String getStrLocalCode(int intAID, String strRmtypeID);
+    int getBreakfastYn(int intRmIdx);
+
 }

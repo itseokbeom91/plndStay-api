@@ -16,14 +16,16 @@ public class HanwhaController {
     @GetMapping("/capa")
     public void getCapa(int intAID, int intRmIdx, int intPkgIdx, String startDate, String endDate){
 
-        hanwhaService.getCapa(intAID, intRmIdx, intPkgIdx, startDate, endDate);
+        String result = hanwhaService.getCapa(intAID, intRmIdx, intPkgIdx, startDate, endDate);
+        System.out.println(result);
 
     }
 
     @GetMapping("/packageList")
-    public void getPackageList(String accommId, String startDate){
+    public void getPackageList(String localCode, String strDate, String resultType){
 
-        hanwhaService.getPackageList(accommId, startDate);
+        String result = hanwhaService.getPackageList(localCode, strDate, resultType);
+        System.out.println(result);
 
     }
 
@@ -41,14 +43,14 @@ public class HanwhaController {
 
     }
 
-    @GetMapping("/cancel")
+    @GetMapping("/bookingCancel")
     public void bookingCancel(){
 
         hanwhaService.bookingCancel();
 
     }
 
-    @GetMapping("/update")
+    @GetMapping("/bookingUpdate")
     public void bookingModify(String strRsrvNo, String strDate, String strRoomCnt, String strStaycnt, String strReserveName, String strReservePhone, String strStayName, String strStayPhone){
 
         hanwhaService.bookingModify(strRsrvNo, strDate, strRoomCnt, strStaycnt, strReserveName, strReservePhone, strStayName, strStayPhone);

@@ -17,7 +17,7 @@ import java.net.URLEncoder;
 import java.text.SimpleDateFormat;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
-import java.util.Date;
+import java.util.*;
 
 @Service("wellihilli.BookingService")
 public class BookingService {
@@ -76,7 +76,7 @@ public class BookingService {
                         SimpleDateFormat sdf2 = new SimpleDateFormat("yyyy-MM-dd");
                         String strDateSales = sdf2.format(yearDate);
 
-                        double doubleOmkSales = 0;
+//                        double doubleOmkSales = 0;
 
                         int year = Integer.parseInt(strDateSales.substring(0, 4));
                         int month = Integer.parseInt(strDateSales.substring(5, 7));
@@ -88,25 +88,25 @@ public class BookingService {
                         /**
                          * 임시
                          */
-                        double weekday = 1.09; // 일~목
-                        double friday = 1.09; // 금
-                        double saturday = 1.1; // 토
-
-                        if(dayOfWeek.getValue() == 7 || dayOfWeek.getValue() == 1 || dayOfWeek.getValue() == 2 ||
-                                dayOfWeek.getValue() == 3 || dayOfWeek.getValue() == 4){
-                            doubleOmkSales = intSales * weekday;
-                        }else if(dayOfWeek.getValue() == 5){
-                            doubleOmkSales = intSales * friday;
-                        }else if(dayOfWeek.getValue() == 6){
-                            doubleOmkSales = intSales * saturday;
-                        }
+//                        double weekday = 1.09; // 일~목
+//                        double friday = 1.09; // 금
+//                        double saturday = 1.1; // 토
+//
+//                        if(dayOfWeek.getValue() == 7 || dayOfWeek.getValue() == 1 || dayOfWeek.getValue() == 2 ||
+//                                dayOfWeek.getValue() == 3 || dayOfWeek.getValue() == 4){
+//                            doubleOmkSales = intSales * weekday;
+//                        }else if(dayOfWeek.getValue() == 5){
+//                            doubleOmkSales = intSales * friday;
+//                        }else if(dayOfWeek.getValue() == 6){
+//                            doubleOmkSales = intSales * saturday;
+//                        }
 
                         int intExtraA = 0;
                         int intExtraC= 0;
                         int intExtraB = 0;
 
                         strStockDatas +=strRmtypeID + "|^|" + strDateSales + "|^|" + intStock + "|^|" + intCost + "|^|" + intSales + "|^|"
-                                + intExtraA + "|^|" + intExtraC + "|^|" + intExtraB + "|^|" + intOmkStock + "|^|"  + doubleOmkSales+ "{{|}}";
+                                + intExtraA + "|^|" + intExtraC + "|^|" + intExtraB + "|^|" + intOmkStock + "{{|}}";
                     }
                 }
 
@@ -171,7 +171,11 @@ public class BookingService {
     }
 
     // 체크인 날짜에 해당되는 객실 수량 및 계산된 총 요금 조회
-    public void getTotalPrice(String pyung, String sDate, String eDate, String sleep, String roomCount, String roomType, String pkgCode){
+    public String getTotalPrice(String dataType, String pyung, String sDate, String eDate, String sleep, String roomCount, String roomType, String pkgCode){
+        String statusCode = "200";
+        String message = "";
+        Map<String, Object> resultMap = new HashMap<>();
+        List<Map<String, Object>> resultListMap = new ArrayList<>();
         LogWriter logWriter = new LogWriter(System.currentTimeMillis());
         try{
             String strUrl = Constants.whpUrl + ":8070/api/vapi/reservation/room_fee_info?s_resrm=C&s_pyung=" + pyung +
@@ -192,23 +196,30 @@ public class BookingService {
                 int intDc = Integer.parseInt(jsonObject.get("dc").toString()); // 할증/할인
                 int intExtraPrice = Integer.parseInt(jsonObject.get("appendPay").toString()); // 추가요금
 
-                System.out.println("intTotalPrice : " + intTotalPrice);
-                System.out.println("intSumPrice : " + intSumPrice);
-                System.out.println("intStandardPrice : " + intStandardPrice);
-                System.out.println("intSalePrice : " + intSalePrice);
-                System.out.println("intDc : " + intDc);
-                System.out.println("intExtraPrice : " + intExtraPrice);
+                resultMap.put("intTotalPrice", intTotalPrice);
+                resultMap.put("intSumPrice", intSumPrice);
+                resultMap.put("intStandardPrice", intStandardPrice);
+                resultMap.put("intSalePrice : ", intSalePrice);
+                resultMap.put("intDc", intDc);
+                resultMap.put("intExtraPrice", intExtraPrice);
 
             }
         }catch (Exception e){
             e.printStackTrace();
+            statusCode = "500";
+            message = "조회 실패";
             logWriter.add("error : " + e.getMessage());
             logWriter.log(0);
         }
+        return commonFunction.makeReturn(dataType, statusCode, message, resultMap);
     }
 
+
     // 1박 이상일경우 일자별 요금 데이터 조회
-    public void getDayPrice(String pyung, String sDate, String eDate, String sleep, String roomCount, String roomType, String pkgCode){
+    public String getDayPrice(String dataType, String pyung, String sDate, String eDate, String sleep, String roomCount, String roomType, String pkgCode){
+        String statusCode = "200";
+        String message = "";
+        List<Map<String, Object>> resultListMap = new ArrayList<>();
         LogWriter logWriter = new LogWriter(System.currentTimeMillis());
         try{
             String strUrl = Constants.whpUrl + ":8070/api/vapi/reservation/room_day_fee_list?s_resrm=C&s_pyung=" + pyung +
@@ -232,20 +243,26 @@ public class BookingService {
                     int intExtraPrice = Integer.parseInt(jsonObject.get("appendAmt").toString()); // 추가요금
                     int intDc = Integer.parseInt(jsonObject.get("dc").toString()); // 할증/할인율
 
+                    Map<String, Object> resultMap = new HashMap<>();
 
-                    System.out.println("intTotalPrice : " + intTotalPrice);
-                    System.out.println("intSumPrice : " + intSumPrice);
-                    System.out.println("intStandardPrice : " + intStandardPrice);
-                    System.out.println("intSalePrice : " + intSalePrice);
-                    System.out.println("intDc : " + intDc);
-                    System.out.println("intExtraPrice : " + intExtraPrice);
+                    resultMap.put("intTotalPrice", intTotalPrice);
+                    resultMap.put("intSumPrice", intSumPrice);
+                    resultMap.put("intStandardPrice", intStandardPrice);
+                    resultMap.put("intSalePrice : ", intSalePrice);
+                    resultMap.put("intDc", intDc);
+                    resultMap.put("intExtraPrice", intExtraPrice);
+
+                    resultListMap.add(resultMap);
                 }
             }
         }catch (Exception e){
             e.printStackTrace();
+            statusCode = "500";
+            message = "조회 실패";
             logWriter.add("error : " + e.getMessage());
             logWriter.log(0);
         }
+        return commonFunction.makeReturn(dataType, statusCode, message, resultListMap);
     }
 
     // 예약
@@ -258,13 +275,13 @@ public class BookingService {
 
         try{
             // TODO : 우리 예약 테이블에서 정보 가져와서 세팅
-            String strCheckIn = "20230823";
-            String strCheckOut = "20230824";
+            String strCheckIn = "20230920";
+            String strCheckOut = "20230921";
             String pyung = "13";
             String sleep = "1";
             String roomCount = "1";
             String roomType = "S";
-            String pkgCode = "k049";
+            String pkgCode = "k646";
             // 예약 가능한지 확인
             if(checkAvailBooking(pyung, strCheckIn, sleep, roomCount, roomType)){
                 // 예약 api 호출

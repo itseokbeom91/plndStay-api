@@ -28,27 +28,27 @@ public class BookingController {
 
     @GetMapping("/createBooking")
     @ResponseBody
-    public String createBooking(String BookingIdx) {
-        return bookingService.createBooking(BookingIdx);
+    public String createBooking(String dataType, String BookingIdx) {
+        return bookingService.createBooking(dataType, BookingIdx);
     }
     @GetMapping("/checkBooking")
     @ResponseBody
-    public String confirmBooking(String BookingIdx) {
-        return bookingService.confirmBooking(BookingIdx);
+    public String confirmBooking(String dataType, String BookingIdx) {
+        return bookingService.confirmBooking(dataType,BookingIdx);
     }
     @GetMapping("/cancelBooking")
     @ResponseBody
-    public String cancelBooking(String BookingIdx) {
-        return bookingService.cancelBooking(BookingIdx);
+    public String cancelBooking(String dataType, String BookingIdx) {
+        return bookingService.cancelBooking(dataType,BookingIdx);
     }
     @GetMapping("/searchRoom")
     @ResponseBody
-    public String searchRoom(String roomId, String startDate, String daytype) {
-        return bookingService.searchRoom(roomId, startDate, daytype);
+    public String searchRoom(String dataType, String roomId, String startDate, String daytype) {
+        return bookingService.searchRoom(dataType,roomId, startDate, daytype);
     }
     @GetMapping("/searchOrder")
     @ResponseBody
-    public String searchOrder(String BookingIdx) {
-        return bookingService.searchOrder(BookingIdx);
+    public String searchOrder(String dataType, String BookingIdx) {
+        return bookingService.searchOrder(dataType,BookingIdx);
     }
 }

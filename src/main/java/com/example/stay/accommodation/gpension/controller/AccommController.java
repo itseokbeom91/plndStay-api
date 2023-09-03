@@ -24,56 +24,56 @@ public class AccommController {
 
     @GetMapping("/getPensionList")
     @ResponseBody
-    public String getPensionList(){
-        return accommService.getPensionList();
+    public String getPensionList(String dataType){
+        return accommService.getPensionList(dataType);
     }
 
     @GetMapping("/getPensionInfo")
     @ResponseBody
-    public String getPensionInfo(String pensionId){
-        return accommService.getPensionInfo(pensionId);
+    public String getPensionInfo(String dataType, String pensionId){
+        return accommService.getPensionInfo(dataType, pensionId);
     }
 
     @GetMapping("/getPensionStatus")
     @ResponseBody
-    public String getPensionStatus(String pensionId, String sDate, String eDate){
-        return accommService.getPensionStatus(pensionId, sDate, eDate);
+    public String getPensionStatus(String dataType, String pensionId, String sDate, String eDate){
+        return accommService.getPensionStatus(dataType, pensionId, sDate, eDate);
     }
 
     @GetMapping("/getPensionDailyInfo")
     @ResponseBody
-    public String getPensionDailyInfo(String pensionId, String sDate, String eDate){
-        return accommService.getPensionDailyInfo(pensionId, sDate, eDate);
+    public String getPensionDailyInfo(String dataType, String pensionId, String sDate, String eDate){
+        return accommService.getPensionDailyInfo(dataType, pensionId, sDate, eDate);
     }
 
     @GetMapping("/getPensionMainList")
     @ResponseBody
-    public String getPensionMainList(){
-        return accommService.getPensionMainList();
+    public String getPensionMainList(String dataType){
+        return accommService.getPensionMainList(dataType);
     }
 
     @GetMapping("/getRoomInfo")
     @ResponseBody
-    public String getRoomInfo(String pensionId, String roomId){
-        return accommService.getRoomInfo(pensionId, roomId);
+    public String getRoomInfo(String dataType, String pensionId, String roomId){
+        return accommService.getRoomInfo(dataType, pensionId, roomId);
     }
 
     @GetMapping("/getRoomPriceInfo")
     @ResponseBody
-    public String getRoomPriceInfo(String pensionId){
-        return accommService.getRoomPriceInfo(pensionId);
+    public String getRoomPriceInfo(String dataType, String pensionId){
+        return accommService.getRoomPriceInfo(dataType, pensionId);
     }
 
     @GetMapping("/getPensionModList")
     @ResponseBody
-    public String getPensionModList(String lastDate){
-        return accommService.getPensionModList(lastDate);
+    public String getPensionModList(String dataType, String lastDate){
+        return accommService.getPensionModList(dataType, lastDate);
     }
 
     @GetMapping("/insertGP")
     @ResponseBody
-    public String insertAccomm(){
-        return accommService.insertGP();
+    public String insertAccomm(String dataType){
+        return accommService.insertGP(dataType);
     }
     @GetMapping("/testup")
     @ResponseBody
@@ -85,7 +85,7 @@ public class AccommController {
     @ResponseBody
     public ModelAndView testMV() throws ParseException {
         ModelAndView mv = new ModelAndView();
-        String test = getPensionList();
+        String test = getPensionList("jsonp");
         test = test.substring(5, test.length() - 1);
         JSONParser jsonParser = new JSONParser();
         JSONObject responseJson = (JSONObject) jsonParser.parse(test);

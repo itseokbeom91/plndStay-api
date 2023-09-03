@@ -32,7 +32,7 @@ public class BookingService {
 
     Gson gson = new GsonBuilder().setPrettyPrinting().create();
     //패키지 목록 조회
-    public String getPackageList(HttpServletRequest httpServletRequest) {
+    public String getPackageList(String dataType, HttpServletRequest httpServletRequest) {
         long startTime = System.currentTimeMillis();
         OkHttpClient client = new OkHttpClient().newBuilder().build();
 
@@ -67,18 +67,18 @@ public class BookingService {
                 JSONObject responseJson = (JSONObject) jsonParser.parse(responseBody);
 
                 List<Map<String, Object>> resultList = (List<Map<String, Object>>) responseJson.get("resultList");
-                return commonFunction.makeReturn("jsonp", statusCode, msg, responseJson);
+                return commonFunction.makeReturn(dataType, statusCode, msg, responseJson);
             } else {
-                return commonFunction.makeReturn("jsonp", String.valueOf(response.code()), response.message());
+                return commonFunction.makeReturn(dataType, String.valueOf(response.code()), response.message());
             }
 
         } catch (Exception e) {
-            return commonFunction.makeReturn("jsonp", "500", e.getMessage(), result);
+            return commonFunction.makeReturn(dataType, "500", e.getMessage(), result);
         }
 
     }
     //패키지 상세 조회
-    public String getPackageInfo(String pkgNo, HttpServletRequest httpServletRequest) {
+    public String getPackageInfo(String dataType, String pkgNo, HttpServletRequest httpServletRequest) {
         long startTime = System.currentTimeMillis();
         OkHttpClient client = new OkHttpClient().newBuilder().build();
 
@@ -113,18 +113,18 @@ public class BookingService {
             if(response.isSuccessful()) {
                 System.out.println(responseJson);
 
-                return commonFunction.makeReturn("jsonp", "","", responseJson);
+                return commonFunction.makeReturn(dataType, "","", responseJson);
             } else {
-                return commonFunction.makeReturn("jsonp", String.valueOf(response.code()), response.message(), responseJson);
+                return commonFunction.makeReturn(dataType, String.valueOf(response.code()), response.message(), responseJson);
             }
 
         } catch (Exception e) {
-            return commonFunction.makeReturn("jsonp", "500", e.getMessage(), result);
+            return commonFunction.makeReturn(dataType, "500", e.getMessage(), result);
         }
 
     }
     //패키지 현황 조회
-    public String getPackageStatus(String pkgNo, String storeCd, String sDate, String rmTypeCd, String ciYmd, HttpServletRequest httpServletRequest) {
+    public String getPackageStatus(String dataType, String pkgNo, String storeCd, String sDate, String rmTypeCd, String ciYmd, HttpServletRequest httpServletRequest) {
         long startTime = System.currentTimeMillis();
         OkHttpClient client = new OkHttpClient().newBuilder()
                 .connectTimeout(100, TimeUnit.SECONDS)
@@ -200,7 +200,7 @@ public class BookingService {
                 재고, 원가, 판매가
                  */
 
-                return commonFunction.makeReturn("jsonp", "","", responseJson);
+                return commonFunction.makeReturn(dataType, "","", responseJson);
             } else {
                 //예약 실패시
                 //response 파싱
@@ -208,7 +208,7 @@ public class BookingService {
                 JSONParser jsonParser = new JSONParser();
                 JSONObject responseJson = (JSONObject) jsonParser.parse(responseBody);
 
-                return commonFunction.makeReturn("jsonp", "","", responseJson);
+                return commonFunction.makeReturn(dataType, "","", responseJson);
             }
 
         } catch (Exception e) {
@@ -216,10 +216,10 @@ public class BookingService {
             System.out.println(e.getMessage());
             System.out.println("responseJson ::: 에러 출력!");
         }
-        return commonFunction.makeReturn("jsonp", statusCode, msg, result);
+        return commonFunction.makeReturn(dataType, statusCode, msg, result);
     }
     //패키지 요금 조회
-    public String getPackageAmount(String pkgNo, String storeCd, String sDate, String rmTypeCd, String ciYmd, String nights, String rmCnt, HttpServletRequest httpServletRequest) {
+    public String getPackageAmount(String dataType, String pkgNo, String storeCd, String sDate, String rmTypeCd, String ciYmd, String nights, String rmCnt, HttpServletRequest httpServletRequest) {
         long startTime = System.currentTimeMillis();
         OkHttpClient client = new OkHttpClient().newBuilder()
                 .connectTimeout(100, TimeUnit.SECONDS)
@@ -300,28 +300,28 @@ public class BookingService {
 //                    String saleRmAmt = resultList.get(i).get("saleRmAmt").toString();
                 }
 
-                return commonFunction.makeReturn("jsonp", statusCode, msg, responseJson);
+                return commonFunction.makeReturn(dataType, statusCode, msg, responseJson);
 
 
 
             } else {
                 statusCode = String.valueOf(response.code());
                 msg = (String) responseJson.get("error");
-                return commonFunction.makeReturn("jsonp", statusCode,msg, responseJson);
+                return commonFunction.makeReturn(dataType, statusCode,msg, responseJson);
             }
 
         } catch (Exception e) {
             System.out.println("e ::: 에러 출력! == " + e);
             System.out.println(e.getMessage());
             System.out.println("responseJson ::: 에러 출력!");
-            return commonFunction.makeReturn("jsonp", "500", e.getMessage(), result);
+            return commonFunction.makeReturn(dataType, "500", e.getMessage(), result);
 
         }
 
 
     }
     //예약
-    public String reservation(String pkgNo, String storeCd, String ciYmd, String rmTypeCd, String comRsvNo, String userName, String userTel, String payAmt, String adultCnt, String childCnt ,HttpServletRequest httpServletRequest) {
+    public String reservation(String dataType, String pkgNo, String storeCd, String ciYmd, String rmTypeCd, String comRsvNo, String userName, String userTel, String payAmt, String adultCnt, String childCnt ,HttpServletRequest httpServletRequest) {
         long startTime = System.currentTimeMillis();
         OkHttpClient client = new OkHttpClient().newBuilder().build();
 
@@ -367,21 +367,21 @@ public class BookingService {
                 JSONObject responseJson = (JSONObject) jsonParser.parse(responseBody);
 
 
-                return commonFunction.makeReturn("jsonp", "","", responseJson);
+                return commonFunction.makeReturn(dataType, "","", responseJson);
             }
 
         } catch (Exception e) {
             System.out.println("e ::: 에러 출력! == " + e);
             System.out.println(e.getMessage());
             System.out.println("responseJson ::: 에러 출력!");
-            return commonFunction.makeReturn("jsonp", "500", e.getMessage(), result);
+            return commonFunction.makeReturn(dataType, "500", e.getMessage(), result);
         }
 
-        return commonFunction.makeReturn("jsonp", statusCode, msg, result);
+        return commonFunction.makeReturn(dataType, statusCode, msg, result);
 
     }
     //영업장 목록조회
-    public String getRoomList(HttpServletRequest httpServletRequest) {
+    public String getRoomList(String dataType, HttpServletRequest httpServletRequest) {
         long startTime = System.currentTimeMillis();
         OkHttpClient client = new OkHttpClient().newBuilder().build();
 
@@ -417,7 +417,7 @@ public class BookingService {
                 JSONObject responseJson = (JSONObject) jsonParser.parse(responseBody);
                 List<Map<String, Object>> resultList = (List<Map<String, Object>>) responseJson.get("resultList");
 
-                return commonFunction.makeReturn("jsonp", "","", responseJson);
+                return commonFunction.makeReturn(dataType, "","", responseJson);
 
             }
 
@@ -425,15 +425,15 @@ public class BookingService {
             System.out.println("e ::: 에러 출력! == " + e);
             System.out.println(e.getMessage());
             System.out.println("responseJson ::: 에러 출력!");
-            return commonFunction.makeReturn("jsonp", "500", e.getMessage(), result);
+            return commonFunction.makeReturn(dataType, "500", e.getMessage(), result);
         }
 
-        return commonFunction.makeReturn("jsonp", statusCode, msg, result);
+        return commonFunction.makeReturn(dataType, statusCode, msg, result);
 
     }
 
     //객실 요금 조회
-    public String getRoomAmount(HttpServletRequest httpServletRequest, String storeCd, String sMonth) {
+    public String getRoomAmount(String dataType, HttpServletRequest httpServletRequest, String storeCd, String sMonth) {
         long startTime = System.currentTimeMillis();
         OkHttpClient client = new OkHttpClient().newBuilder().build();
 
@@ -471,23 +471,23 @@ public class BookingService {
             if(response.isSuccessful() && responseJson.get("resultMsg").equals("SUCCESS")) {
 
                 List<Map<String, Object>> resultList = (List<Map<String, Object>>) responseJson.get("resultList");
-                return commonFunction.makeReturn("jsonp", statusCode, msg, responseJson);
+                return commonFunction.makeReturn(dataType, statusCode, msg, responseJson);
 
 
             }
-            return commonFunction.makeReturn("jsonp", statusCode, responseJson.get("resultMsg").toString(), responseJson);
+            return commonFunction.makeReturn(dataType, statusCode, responseJson.get("resultMsg").toString(), responseJson);
 
         } catch (Exception e) {
             System.out.println("e ::: 에러 출력! == " + e);
             System.out.println(e.getMessage());
             System.out.println("responseJson ::: 에러 출력!");
-            return commonFunction.makeReturn("jsonp", "500", e.getMessage(), result);
+            return commonFunction.makeReturn(dataType, "500", e.getMessage(), result);
         }
 
     }
 
     //객실 현황 조회
-    public String getRoomStatus(HttpServletRequest httpServletRequest, String storeCd, String sDate) {
+    public String getRoomStatus(String dataType, HttpServletRequest httpServletRequest, String storeCd, String sDate) {
         long startTime = System.currentTimeMillis();
         OkHttpClient client = new OkHttpClient().newBuilder().build();
 
@@ -524,7 +524,7 @@ public class BookingService {
                 JSONObject responseJson = (JSONObject) jsonParser.parse(responseBody);
 
                 List<Map<String, Object>> resultList = (List<Map<String, Object>>) responseJson.get("resultList");
-                return commonFunction.makeReturn("jsonp", statusCode, msg, responseJson);
+                return commonFunction.makeReturn(dataType, statusCode, msg, responseJson);
 
 
             } else {
@@ -535,22 +535,22 @@ public class BookingService {
                 JSONObject responseJson = (JSONObject) jsonParser.parse(responseBody);
 
                 List<Map<String, Object>> resultList = (List<Map<String, Object>>) responseJson.get("resultList");
-                return commonFunction.makeReturn("jsonp", statusCode, msg, responseJson);
+                return commonFunction.makeReturn(dataType, statusCode, msg, responseJson);
             }
 
         } catch (Exception e) {
             System.out.println("e ::: 에러 출력! == " + e);
             System.out.println(e.getMessage());
             System.out.println("responseJson ::: 에러 출력!");
-            return commonFunction.makeReturn("jsonp", "500", e.getMessage());
+            return commonFunction.makeReturn(dataType, "500", e.getMessage());
         }
 
-        //return commonFunction.makeReturn("jsonp", statusCode, msg, result);
+        //return commonFunction.makeReturn(dataType, statusCode, msg, result);
 
     }
 
     //TO-DO 재고현황과 요금 가져와서 하나의 데이터로 조립해줘야 함
-    public String getStockAndInsert(HttpServletRequest httpServletRequest) {
+    public String getStockAndInsert(String dataType, HttpServletRequest httpServletRequest) {
 
         //패키지의 경우 패키지번호, 영업장코드, 조회시작일자로 (가장 많은 데이터 추출하기위함)
         //룸온리의 경우 영업장코드, 조회시작일자
@@ -576,8 +576,8 @@ public class BookingService {
                 int oldStockListsize = stockList.size();
                 pkgNo = (String) pkgcdAndStorecd.get(i).get("strPkgCode");
                 storeCd = (String) pkgcdAndStorecd.get(i).get("strStoreCode");
-                String packStatus = getPackageStatus(pkgNo, storeCd, sDate, null, null, httpServletRequest);
-                String packAmount = getPackageAmount(pkgNo, storeCd, sDate, null, null, "1", "1", httpServletRequest);
+                String packStatus = getPackageStatus("jsonp", pkgNo, storeCd, sDate, null, null, httpServletRequest);
+                String packAmount = getPackageAmount("jsonp", pkgNo, storeCd, sDate, null, null, "1", "1", httpServletRequest);
                 JSONParser jsonParser = new JSONParser();
                 JSONObject packStatusJson = (JSONObject) jsonParser.parse(packStatus.substring(5, packStatus.length()-1));
                 JSONObject packAmountJson = (JSONObject) jsonParser.parse(packAmount.substring(5, packAmount.length()-1));
@@ -627,14 +627,14 @@ public class BookingService {
             System.out.println(packageStockDatas);
 //            String insertResult = bookingMapper.insertRoom("", "", packageStockDatas, "", strType);
 //            stockResultJson.put("insertResult", insertResult);
-            return commonFunction.makeReturn("jsonp", "", "", stockResultJson);
+            return commonFunction.makeReturn(dataType, "", "", stockResultJson);
 
         } catch (Exception e) {
-            return commonFunction.makeReturn("jsonp", "500", e.getMessage());
+            return commonFunction.makeReturn(dataType, "500", e.getMessage());
         }
     }
 
-    public String getSettlement(String stndDt){
+    public String getSettlement(String dataType, String stndDt){
         OkHttpClient client = new OkHttpClient().newBuilder().build();
 
         String statusCode ="";
@@ -670,7 +670,7 @@ public class BookingService {
                 JSONObject responseJson = (JSONObject) jsonParser.parse(responseBody);
 
                 List<Map<String, Object>> resultList = (List<Map<String, Object>>) responseJson.get("resultList");
-                return commonFunction.makeReturn("jsonp", statusCode, msg, responseJson);
+                return commonFunction.makeReturn(dataType, statusCode, msg, responseJson);
 
 
             } else {
@@ -681,14 +681,14 @@ public class BookingService {
                 JSONObject responseJson = (JSONObject) jsonParser.parse(responseBody);
 
                 List<Map<String, Object>> resultList = (List<Map<String, Object>>) responseJson.get("resultList");
-                return commonFunction.makeReturn("jsonp", statusCode, msg, responseJson);
+                return commonFunction.makeReturn(dataType, statusCode, msg, responseJson);
             }
 
         } catch (Exception e) {
             System.out.println("e ::: 에러 출력! == " + e);
             System.out.println(e.getMessage());
             System.out.println("responseJson ::: 에러 출력!");
-            return commonFunction.makeReturn("jsonp", "500", e.getMessage());
+            return commonFunction.makeReturn(dataType, "500", e.getMessage());
         }
     }
 
@@ -700,8 +700,8 @@ public class BookingService {
         String msg = "";
         String result = "";
 
-        String packageResponseResult = getPackageList(httpServletRequest);
-        String RoomResponseResult = getRoomList(httpServletRequest);
+        String packageResponseResult = getPackageList("jsonp", httpServletRequest);
+        String RoomResponseResult = getRoomList("jsonp", httpServletRequest);
 
 
 

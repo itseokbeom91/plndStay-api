@@ -4,7 +4,26 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="com.example.stay.accommodation.kumho.mapper.SpavisMapper">
-    <select id="couponList" resultType="String">
+    <select id="getRsvStayInfo" parameterType="int" resultType="RsvStayDto">
+        SELECT
+            RS.strRcvName
+            , RS.strRcvPhone
+            , RS.strRcvEmail
+            , RS.dateCreated
+            , RS.intRmCnt
+            , RS.dateCheckOut
+            , RO.datePurchase
+            , RO.moneyCostA
+            , RO.moneyCostC
+            , RO.moneySalesA
+            , RO.moneySalesC
+        FROM PLNDSTAY.dbo.RSV_STAY RS WITH(NOLOCK)
+        INNER JOIN PLNDSTAY.dbo.RM_OPTION RO WITH(NOLOCK) ON RO.intRmIdx = RS.intRmIdx
+        WHERE RS.intRsvID = ${intRsvID}
+    </select>
+
+
+    <select id="getPrepayList" resultType="String">
         SELECT ticketNo FROM ASAN_TICKET_CONDO
 --         WHERE CONVERT(DATE,regdate) >= CONVERT(DATE,'2021-01-01')
 --         AND strUseYn = 'N'
@@ -27,26 +46,21 @@
         WHERE ticketNo =  #{strCouponNo}
     </update>
 
-    <insert id="insertTicket">
-        INSERT INTO ASAN_SPAVIS_TICKET(
-            strTicketNo, intRsvID, dateSales, dateExpired, moneyCost, moneySales, strUseStatus, dateModified
-        )
-        VALUES (
-            #{strTicketNo}, ${intRsvID}, #{strSalesDate}, #{strExpiredDate}, ${intCost}, ${intSales}, 'W', GETDATE()
-        )
-    </insert>
-
-    <select id="getIntRsvID" resultType="int">
-        SELECT COUNT(intRsvID)
-        FROM
-        WHERE intRsvID = ${intRsvID}
+    <select id="insertTicket" resultType="String">
+        EXEC PLNDSTAY.dbo.spSPAIVS_TICKET_REGIST #{strTicketDatas}, ''
     </select>
 
-    <select id="getStrTicketNo" resultType="int">
-        SELECT COUNT(strTicketNo)
-        FROM PLNDSTAY.dbo.ASAN_SPAVIS_TICKET
-        WHERE strTicketNo = #{strTicketNo}
-    </select>
+<!--    <select id="getIntRsvID" resultType="int">-->
+<!--        SELECT COUNT(intRsvID)-->
+<!--        FROM-->
+<!--        WHERE intRsvID = ${intRsvID}-->
+<!--    </select>-->
+
+<!--    <select id="getStrTicketNo" resultType="int">-->
+<!--        SELECT COUNT(strTicketNo)-->
+<!--        FROM PLNDSTAY.dbo.ASAN_SPAVIS_TICKET-->
+<!--        WHERE strTicketNo = #{strTicketNo}-->
+<!--    </select>-->
 
     <update id="updateTicketStatus">
         UPDATE PLNDSTAY.dbo.ASAN_SPAVIS_TICKET
@@ -79,6 +93,15 @@
         )
     </insert>
 
+    <update id="updateStrStatusCode">
+        UPDATE PLNDSTAY.dbo.RSV_STAY
+            SET strStatusCode = #{strStatusCode}
+        WHERE intRsvID = ${intRsvID}
+    </update>
 
+    <select id="getTicketList" resultType="String">
+        SELECT strTicketNo
+        WHERE intRsvID = ${intRsvID}
+    </select>
 
 </mapper>

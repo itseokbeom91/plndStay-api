@@ -10,8 +10,8 @@ public class RsvStayDto {
     private String strDeleteYn;
     private int intSettleID;
     private String strPayType;
-    private String strRsvFlag;
-    private int intOMKIdx;
+    private String strStatusCode;
+    private String strRsvSite;
     private String strRsvCode;
     private int intAID;
     private int intRmIdx;
@@ -19,10 +19,10 @@ public class RsvStayDto {
     private int intQuantityA;
     private int intQuantityC;
     private int intQuantityB;
-    private Date dateEnterIn;
-    private Date dateEnterOut;
-    private String strSeller;
-    private String strSupplier;
+    private Date dateCheckIn;
+    private Date dateCheckOut;
+    private int intSeller;
+    private int intSupplier;
     private String strRmtypeName;
     private String strRmOptName;
     private int intUID;
@@ -38,9 +38,23 @@ public class RsvStayDto {
     private String strAcctBank;
     private String strIP;
     private String strRemark;
+    private Date dateCreated;
     private int intProcSID;
     private int intCanceledSID;
     private int intDealIdx;
     private int intBCIdx;
     private int intVouIdx;
+
+    private String strRmtypeID;
+    private String strLocalCode;
+    private String strPkgCode;
+    private String datePurchase;
+    private double moneyCostA;
+    private double moneyCostC;
+    private double moneySalesA;
+    private double moneySalesC;
+
+
+    // RM_OPTION
+
 }

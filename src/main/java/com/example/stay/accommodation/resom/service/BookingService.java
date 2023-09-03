@@ -30,7 +30,7 @@ public class BookingService {
     CommonFunction commonFunction = new CommonFunction();
 
     //패키지 목록 조회
-    public String getPackageList() {
+    public String getPackageList(String dataType) {
         long startTime = System.currentTimeMillis();
 
         OkHttpClient client = new OkHttpClient().newBuilder().build();
@@ -100,12 +100,12 @@ public class BookingService {
                 }
 
 
-                return  commonFunction.makeReturn("jsonp","", "", responseJson);
+                return  commonFunction.makeReturn(dataType,"", "", responseJson);
             } else {
-                return  commonFunction.makeReturn("jsonp",String.valueOf(response.code()), response.message());
+                return  commonFunction.makeReturn(dataType,String.valueOf(response.code()), response.message());
             }
         } catch (Exception e) {
-            return commonFunction.makeReturn("jsonp","500", e.getMessage());
+            return commonFunction.makeReturn(dataType,"500", e.getMessage());
 
         }
 
@@ -113,7 +113,7 @@ public class BookingService {
     }
 
     //영업장 목록 조회
-    public String getStoreList() {
+    public String getStoreList(String dataType) {
         long startTime = System.currentTimeMillis();
 
         OkHttpClient client = new OkHttpClient().newBuilder().build();
@@ -146,12 +146,12 @@ public class BookingService {
                 JSONObject responseJson = (JSONObject) jsonParser.parse(responseBody);
                 System.out.println(responseJson);
 
-                return  commonFunction.makeReturn("jsonp","","", responseJson);
+                return  commonFunction.makeReturn(dataType,"","", responseJson);
             } else {
-                return  commonFunction.makeReturn("jsonp",String.valueOf(response.code()), response.message());
+                return  commonFunction.makeReturn(dataType,String.valueOf(response.code()), response.message());
             }
         } catch (Exception e) {
-            return commonFunction.makeReturn("jsonp","500", e.getMessage());
+            return commonFunction.makeReturn(dataType,"500", e.getMessage());
 
         }
 
@@ -159,7 +159,7 @@ public class BookingService {
     }
 
     //패키지 상세목록 조회
-    public String getPackageInfo(String pkgNo) {
+    public String getPackageInfo(String dataType, String pkgNo) {
         long startTime = System.currentTimeMillis();
 
         OkHttpClient client = new OkHttpClient().newBuilder().build();
@@ -193,12 +193,12 @@ public class BookingService {
                 JSONObject responseJson = (JSONObject) jsonParser.parse(responseBody);
                 System.out.println(responseJson);
 
-                return  commonFunction.makeReturn("jsonp","","", responseJson);
+                return  commonFunction.makeReturn(dataType,"","", responseJson);
             } else {
-                return  commonFunction.makeReturn("jsonp",String.valueOf(response.code()), response.message());
+                return  commonFunction.makeReturn(dataType,String.valueOf(response.code()), response.message());
             }
         } catch (Exception e) {
-            return commonFunction.makeReturn("jsonp","500", e.getMessage());
+            return commonFunction.makeReturn(dataType,"500", e.getMessage());
 
         }
 
@@ -206,7 +206,7 @@ public class BookingService {
     }
 
     //패키지 현황 조회 (영업장별)
-    public String getPackageStatus(String pkgNo, String storeCd, String sDate) {
+    public String getPackageStatus(String dataType, String pkgNo, String storeCd, String sDate) {
         long startTime = System.currentTimeMillis();
 
         OkHttpClient client = new OkHttpClient().newBuilder().build();
@@ -242,12 +242,12 @@ public class BookingService {
                 JSONObject responseJson = (JSONObject) jsonParser.parse(responseBody);
                 System.out.println(responseJson);
 
-                return  commonFunction.makeReturn("jsonp","","", responseJson);
+                return  commonFunction.makeReturn(dataType,"","", responseJson);
             } else {
-                return  commonFunction.makeReturn("jsonp",String.valueOf(response.code()), response.message());
+                return  commonFunction.makeReturn(dataType,String.valueOf(response.code()), response.message());
             }
         } catch (Exception e) {
-            return commonFunction.makeReturn("jsonp","500", e.getMessage());
+            return commonFunction.makeReturn(dataType,"500", e.getMessage());
 
         }
 
@@ -255,7 +255,7 @@ public class BookingService {
     }
 
     //패키지 현황 조회 (영업장, 객실유형별)
-    public String getPackageStatus(String pkgNo, String storeCd, String sDate, String rmTypeCd) {
+    public String getPackageStatus(String dataType, String pkgNo, String storeCd, String sDate, String rmTypeCd) {
         long startTime = System.currentTimeMillis();
 
         OkHttpClient client = new OkHttpClient().newBuilder().build();
@@ -294,12 +294,12 @@ public class BookingService {
 
                 List< Map<String, Object> > resultList = (List<Map<String, Object>>) responseJson.get("resultList");
 
-                return  commonFunction.makeReturn("jsonp","","", responseJson);
+                return  commonFunction.makeReturn(dataType,"","", responseJson);
             } else {
-                return  commonFunction.makeReturn("jsonp",String.valueOf(response.code()), response.message());
+                return  commonFunction.makeReturn(dataType,String.valueOf(response.code()), response.message());
             }
         } catch (Exception e) {
-            return commonFunction.makeReturn("jsonp","500", e.getMessage());
+            return commonFunction.makeReturn(dataType,"500", e.getMessage());
 
         }
 
@@ -307,7 +307,7 @@ public class BookingService {
     }
 
     //패키지 현황 조회 (영업장, 객실유형, 이용일자별)
-    public String getPackageStatus(String pkgNo, String storeCd, String rmTypeCd, String sDate, String nights) {
+    public String getPackageStatus(String dataType, String pkgNo, String storeCd, String rmTypeCd, String sDate, String nights) {
         long startTime = System.currentTimeMillis();
 
         OkHttpClient client = new OkHttpClient().newBuilder().build();
@@ -345,12 +345,12 @@ public class BookingService {
                 JSONObject responseJson = (JSONObject) jsonParser.parse(responseBody);
                 System.out.println(responseJson);
 
-                return  commonFunction.makeReturn("jsonp","","", responseJson);
+                return  commonFunction.makeReturn(dataType,"","", responseJson);
             } else {
-                return  commonFunction.makeReturn("jsonp",String.valueOf(response.code()), response.message());
+                return  commonFunction.makeReturn(dataType,String.valueOf(response.code()), response.message());
             }
         } catch (Exception e) {
-            return commonFunction.makeReturn("jsonp","500", e.getMessage());
+            return commonFunction.makeReturn(dataType,"500", e.getMessage());
 
         }
 
@@ -358,7 +358,7 @@ public class BookingService {
     }
 
     //패키지 현황 조회 (영업장별 월 시작과 종료)
-    public String getPackageStatusMonth(String pkgNo, String storeCd, String sDate, String nights) {
+    public String getPackageStatusMonth(String dataType, String pkgNo, String storeCd, String sDate, String nights) {
         long startTime = System.currentTimeMillis();
 
         OkHttpClient client = new OkHttpClient().newBuilder().build();
@@ -395,12 +395,12 @@ public class BookingService {
                 JSONObject responseJson = (JSONObject) jsonParser.parse(responseBody);
                 System.out.println(responseJson);
 
-                return  commonFunction.makeReturn("jsonp","","", responseJson);
+                return  commonFunction.makeReturn(dataType,"","", responseJson);
             } else {
-                return  commonFunction.makeReturn("jsonp",String.valueOf(response.code()), response.message());
+                return  commonFunction.makeReturn(dataType,String.valueOf(response.code()), response.message());
             }
         } catch (Exception e) {
-            return commonFunction.makeReturn("jsonp","500", e.getMessage());
+            return commonFunction.makeReturn(dataType,"500", e.getMessage());
 
         }
 
@@ -408,7 +408,7 @@ public class BookingService {
     }
 
     //패키지 요금 조회 (영업장별)
-    public String getPackageAmount(String pkgNo, String storeCd, String sDate) {
+    public String getPackageAmount(String dataType, String pkgNo, String storeCd, String sDate) {
         long startTime = System.currentTimeMillis();
 
         OkHttpClient client = new OkHttpClient().newBuilder().build();
@@ -443,18 +443,18 @@ public class BookingService {
                 JSONObject responseJson = (JSONObject) jsonParser.parse(responseBody);
                 System.out.println(responseJson);
 
-                return  commonFunction.makeReturn("jsonp","","", responseJson);
+                return  commonFunction.makeReturn(dataType,"","", responseJson);
             } else {
-                return  commonFunction.makeReturn("jsonp",String.valueOf(response.code()), response.message());
+                return  commonFunction.makeReturn(dataType,String.valueOf(response.code()), response.message());
             }
         } catch (Exception e) {
-            return commonFunction.makeReturn("jsonp","500", e.getMessage());
+            return commonFunction.makeReturn(dataType,"500", e.getMessage());
         }
 
     }
 
     //패키지 요금 조회 (영업장, 객실유형별)
-    public String getPackageAmount(String pkgNo, String storeCd, String sDate, String rmTypeCd) {
+    public String getPackageAmount(String dataType, String pkgNo, String storeCd, String sDate, String rmTypeCd) {
         long startTime = System.currentTimeMillis();
 
         OkHttpClient client = new OkHttpClient().newBuilder().build();
@@ -495,7 +495,7 @@ public class BookingService {
                     System.out.println("이곳에 조회실패시에 대한 로직 구현 필요!");
 
 
-                    return commonFunction.makeReturn("jsonp","", "", responseJson);
+                    return commonFunction.makeReturn(dataType,"", "", responseJson);
                 }
                 List< Map<String, Object> > resultList = (List<Map<String, Object>>) responseJson.get("resultList");
 
@@ -505,18 +505,18 @@ public class BookingService {
                 }
 
 
-                return  commonFunction.makeReturn("jsonp","","", responseJson);
+                return  commonFunction.makeReturn(dataType,"","", responseJson);
             } else {
-                return  commonFunction.makeReturn("jsonp",String.valueOf(response.code()), response.message());
+                return  commonFunction.makeReturn(dataType,String.valueOf(response.code()), response.message());
             }
         } catch (Exception e) {
-            return commonFunction.makeReturn("jsonp","500", e.getMessage());
+            return commonFunction.makeReturn(dataType,"500", e.getMessage());
         }
 
     }
 
     //패키지 요금 조회 (영업장, 객실유형, 이용일자별)
-    public String getPackageAmount(String pkgNo, String storeCd, String sDate, String rmTypeCd, String nights) {
+    public String getPackageAmount(String dataType, String pkgNo, String storeCd, String sDate, String rmTypeCd, String nights) {
         long startTime = System.currentTimeMillis();
 
         OkHttpClient client = new OkHttpClient().newBuilder().build();
@@ -554,18 +554,18 @@ public class BookingService {
                 JSONObject responseJson = (JSONObject) jsonParser.parse(responseBody);
                 System.out.println(responseJson);
 
-                return  commonFunction.makeReturn("jsonp","","", responseJson);
+                return  commonFunction.makeReturn(dataType,"","", responseJson);
             } else {
-                return  commonFunction.makeReturn("jsonp",String.valueOf(response.code()), response.message());
+                return  commonFunction.makeReturn(dataType,String.valueOf(response.code()), response.message());
             }
         } catch (Exception e) {
-            return commonFunction.makeReturn("jsonp","500", e.getMessage());
+            return commonFunction.makeReturn(dataType,"500", e.getMessage());
         }
 
     }
 
     //패키지 예약
-    public String createBooking(String pkgNo, String storeCd, String ciYmd, String rmTypeCd, String comRsvNo, String userName, String userTel, String payAmt, String adultCnt, String childCnt, String channelCd, String channelNm) {
+    public String createBooking(String dataType, String pkgNo, String storeCd, String ciYmd, String rmTypeCd, String comRsvNo, String userName, String userTel, String payAmt, String adultCnt, String childCnt, String channelCd, String channelNm) {
         long startTime = System.currentTimeMillis();
 
         OkHttpClient client = new OkHttpClient().newBuilder().build();
@@ -592,9 +592,9 @@ public class BookingService {
 
         //TO-DO 에약전 현황조회로 공실여부 먼저 파악해야함
         // API 호출말고 DB select로 구현할것
-        String roomCount = getPackageStatus(pkgNo, storeCd, ciYmd, rmTypeCd);
+        String roomCount = getPackageStatus("jsonp", pkgNo, storeCd, ciYmd, rmTypeCd);
 
-        String statusCount = getPackageStatus(pkgNo, storeCd, ciYmd);
+        String statusCount = getPackageStatus("jsonp", pkgNo, storeCd, ciYmd);
 
         Request request = new Request.Builder()
                 .url(Constants.resomPath + "/reservation")
@@ -616,24 +616,24 @@ public class BookingService {
                 JSONParser jsonParser = new JSONParser();
                 JSONObject responseJson = (JSONObject) jsonParser.parse(responseBody);
                 if(responseJson.get("resultCode").toString().equals("0000")){
-                    return  commonFunction.makeReturn("jsonp","","", responseJson);
+                    return  commonFunction.makeReturn(dataType,"","", responseJson);
                     //TO-DO 예약성공시 아래에 DB update 로직 추가
                 } else {
                     //예약 실패시
-                    return  commonFunction.makeReturn("jsonp","","", responseJson);
+                    return  commonFunction.makeReturn(dataType,"","", responseJson);
                 }
             } else {
-                return  commonFunction.makeReturn("jsonp",String.valueOf(response.code()), response.message());
+                return  commonFunction.makeReturn(dataType,String.valueOf(response.code()), response.message());
             }
         } catch (Exception e) {
-            return commonFunction.makeReturn("jsonp","500", e.getMessage());
+            return commonFunction.makeReturn(dataType,"500", e.getMessage());
 
         }
 
     }
 
     //패키지 연박예약
-    public String createBooking(String pkgNo, String storeCd, String ciYmd, String rmTypeCd, String comRsvNo, String userName, String userTel, String payAmt, String adultCnt, String childCnt, String channelCd, String channelNm, String nights, String rmCnt) {
+    public String createBooking(String dataType, String pkgNo, String storeCd, String ciYmd, String rmTypeCd, String comRsvNo, String userName, String userTel, String payAmt, String adultCnt, String childCnt, String channelCd, String channelNm, String nights, String rmCnt) {
         long startTime = System.currentTimeMillis();
 
         OkHttpClient client = new OkHttpClient().newBuilder().build();
@@ -680,18 +680,18 @@ public class BookingService {
                 JSONObject responseJson = (JSONObject) jsonParser.parse(responseBody);
                 System.out.println(responseJson);
 
-                return  commonFunction.makeReturn("jsonp","","", responseJson);
+                return  commonFunction.makeReturn(dataType,"","", responseJson);
             } else {
-                return  commonFunction.makeReturn("jsonp",String.valueOf(response.code()), response.message());
+                return  commonFunction.makeReturn(dataType,String.valueOf(response.code()), response.message());
             }
         } catch (Exception e) {
-            return commonFunction.makeReturn("jsonp","500", e.getMessage());
+            return commonFunction.makeReturn(dataType,"500", e.getMessage());
         }
 
     }
 
     //예약 취소
-    public String cancelBooking(String roomRsvNo, String pkgSaleSeq, String roomRsvSeq, String comRsvNo) {
+    public String cancelBooking(String dataType, String roomRsvNo, String pkgSaleSeq, String roomRsvSeq, String comRsvNo) {
         long startTime = System.currentTimeMillis();
 
         OkHttpClient client = new OkHttpClient().newBuilder().build();
@@ -728,20 +728,20 @@ public class BookingService {
                 JSONObject responseJson = (JSONObject) jsonParser.parse(responseBody);
                 System.out.println(responseJson);
 
-                return  commonFunction.makeReturn("jsonp","","", responseJson);
+                return  commonFunction.makeReturn(dataType,"","", responseJson);
 
             } else {
-                return  commonFunction.makeReturn("jsonp",String.valueOf(response.code()), response.message());
+                return  commonFunction.makeReturn(dataType,String.valueOf(response.code()), response.message());
             }
         } catch (Exception e) {
-            return commonFunction.makeReturn("jsonp","500", e.getMessage());
+            return commonFunction.makeReturn(dataType,"500", e.getMessage());
 
         }
 
     }
 
     //예약 대사
-    public String reservationList(String stndDt) {
+    public String reservationList(String dataType, String stndDt) {
         long startTime = System.currentTimeMillis();
 
         OkHttpClient client = new OkHttpClient().newBuilder().build();
@@ -775,13 +775,13 @@ public class BookingService {
                 System.out.println(responseJson);
                 if(responseJson.get("resultCode").toString().equals("0000")){
                     //예약조회의 경우 rsvList로 반환됨 참고 요망
-                    return  commonFunction.makeReturn("jsonp","","", responseJson);
+                    return  commonFunction.makeReturn(dataType,"","", responseJson);
 
                 } else {
 
                 }
 
-                return  commonFunction.makeReturn("jsonp","","", responseJson);
+                return  commonFunction.makeReturn(dataType,"","", responseJson);
 
             } else {
                 //response 파싱
@@ -790,18 +790,18 @@ public class BookingService {
                 JSONParser jsonParser = new JSONParser();
                 JSONObject responseJson = (JSONObject) jsonParser.parse(responseBody);
                 System.out.println(responseJson);
-                return  commonFunction.makeReturn("jsonp",String.valueOf(response.code()), response.message());
+                return  commonFunction.makeReturn(dataType,String.valueOf(response.code()), response.message());
 
             }
         } catch (Exception e) {
-            return commonFunction.makeReturn("jsonp","500", e.getMessage());
+            return commonFunction.makeReturn(dataType,"500", e.getMessage());
 
         }
 
     }
 
     //이용자 정보 변경
-    public String updateGuest(String roomRsvSeq, String pkgSaleSeq, String guestNm, String mpNo) {
+    public String updateGuest(String dataType, String roomRsvSeq, String pkgSaleSeq, String guestNm, String mpNo) {
         long startTime = System.currentTimeMillis();
 
         OkHttpClient client = new OkHttpClient().newBuilder().build();
@@ -838,16 +838,16 @@ public class BookingService {
                 JSONObject responseJson = (JSONObject) jsonParser.parse(responseBody);
                 System.out.println(responseJson);
 
-                return  commonFunction.makeReturn("jsonp","","", responseJson);
+                return  commonFunction.makeReturn(dataType,"","", responseJson);
 
             } else {
-                return  commonFunction.makeReturn("jsonp", String.valueOf(response.code()), response.message());
+                return  commonFunction.makeReturn(dataType, String.valueOf(response.code()), response.message());
             }
         } catch (Exception e) {
             System.out.println("e ::: 에러 출력! == " + e);
             System.out.println(e.getMessage());
             System.out.println("responseJson ::: 에러 출력!");
-            return commonFunction.makeReturn("jsonp","500", e.getMessage());
+            return commonFunction.makeReturn(dataType,"500", e.getMessage());
 
         }
 
@@ -855,7 +855,7 @@ public class BookingService {
     }
 
     //패키지 예약조회
-    public String getPackageBookingInfo(String ciYmd, String roomRsvNo, String guestNm, String mpNo) {
+    public String getPackageBookingInfo(String dataType, String ciYmd, String roomRsvNo, String guestNm, String mpNo) {
         long startTime = System.currentTimeMillis();
 
         OkHttpClient client = new OkHttpClient().newBuilder().build();
@@ -887,7 +887,7 @@ public class BookingService {
                 JSONObject responseJson = (JSONObject) jsonParser.parse(responseBody);
                 System.out.println(responseJson);
 
-                return  commonFunction.makeReturn("jsonp","","", responseJson);
+                return  commonFunction.makeReturn(dataType,"","", responseJson);
 
             } else {
 
@@ -896,17 +896,17 @@ public class BookingService {
                 JSONParser jsonParser = new JSONParser();
                 JSONObject responseJson = (JSONObject) jsonParser.parse(responseBody);
                 System.out.println(responseJson);
-                return  commonFunction.makeReturn("jsonp", String.valueOf(response.code()), response.message());
+                return  commonFunction.makeReturn(dataType, String.valueOf(response.code()), response.message());
             }
         } catch (Exception e) {
-            return commonFunction.makeReturn("jsonp","500", e.getMessage());
+            return commonFunction.makeReturn(dataType,"500", e.getMessage());
 
         }
 
     }
 
     //패키지 예약취소 (고객정보)
-    public String cancelPackage(String ciYmd, String roomRsvNo, String guestNm, String mpNo) {
+    public String cancelPackage(String dataType, String ciYmd, String roomRsvNo, String guestNm, String mpNo) {
         long startTime = System.currentTimeMillis();
 
         OkHttpClient client = new OkHttpClient().newBuilder().build();
@@ -944,20 +944,20 @@ public class BookingService {
                 System.out.println(responseJson);
                 //TO-DO 이용자정보 변경 성공시 예약테이블 수정해야함
 
-                return  commonFunction.makeReturn("jsonp","","", responseJson);
+                return  commonFunction.makeReturn(dataType,"","", responseJson);
 
             } else {
-                return  commonFunction.makeReturn("jsonp", String.valueOf(response.code()), response.message());
+                return  commonFunction.makeReturn(dataType, String.valueOf(response.code()), response.message());
             }
         } catch (Exception e) {
-            return commonFunction.makeReturn("jsonp","500", e.getMessage());
+            return commonFunction.makeReturn(dataType,"500", e.getMessage());
 
         }
 
     }
 
     //TO-DO 재고현황과 요금 가져와서 하나의 데이터로 조립해줘야 함
-    public String getStockAndInsert(HttpServletRequest httpServletRequest) {
+    public String getStockAndInsert(String dataType, HttpServletRequest httpServletRequest) {
 
         //패키지의 경우 패키지번호, 영업장코드, 조회시작일자로 (가장 많은 데이터 추출하기위함)
         //패키지 리스트에서 패키지번호, 영업장번호 빼오고(strPkgCode, strStoreCode)
@@ -979,8 +979,8 @@ public class BookingService {
                 int oldStockListsize = stockList.size();
                 pkgNo = (String) pkgcdAndStorecd.get(i).get("strPkgCode");
                 storeCd = (String) pkgcdAndStorecd.get(i).get("strStoreCode");
-                String packStatus = getPackageStatus(pkgNo, storeCd, sDate);
-                String packAmount = getPackageAmount(pkgNo, storeCd, sDate);
+                String packStatus = getPackageStatus("jsonp", pkgNo, storeCd, sDate);
+                String packAmount = getPackageAmount("jsonp", pkgNo, storeCd, sDate);
                 JSONParser jsonParser = new JSONParser();
                 JSONObject packStatusJson = (JSONObject) jsonParser.parse(packStatus.substring(5, packStatus.length()-1));
                 JSONObject packAmountJson = (JSONObject) jsonParser.parse(packAmount.substring(5, packAmount.length()-1));
@@ -1016,19 +1016,19 @@ public class BookingService {
             System.out.println(packageStockDatas);
 //            String insertResult = bookingMapper.insertRoom("", "", packageStockDatas, "", strType);
 //            stockResultJson.put("insertResult", insertResult);
-            return commonFunction.makeReturn("jsonp","", "", stockResultJson);
+            return commonFunction.makeReturn(dataType,"", "", stockResultJson);
 
         } catch (Exception e) {
-            return commonFunction.makeReturn("jsonp","500", e.getMessage());
+            return commonFunction.makeReturn(dataType,"500", e.getMessage());
         }
     }
 
     //insert
-    public String insertRESOM(HttpServletRequest httpServletRequest) {
+    public String insertRESOM(String dataType, HttpServletRequest httpServletRequest) {
         String result = "";
 
-        String packageResponseResult = getPackageList();
-        String RoomResponseResult = getStoreList();
+        String packageResponseResult = getPackageList("jsonp");
+        String RoomResponseResult = getStoreList("jsonp");
         JSONObject resultResponseJson = new JSONObject();
 
         JSONParser jsonParser = new JSONParser();
@@ -1121,9 +1121,9 @@ public class BookingService {
             System.out.println(roomData);
             result = insertResult;
             resultResponseJson.put("insertResult", result);
-            return commonFunction.makeReturn("jsonp","", "", resultResponseJson);
+            return commonFunction.makeReturn(dataType,"", "", resultResponseJson);
         } catch (Exception e) {
-            return commonFunction.makeReturn("jsonp","500", e.getMessage());
+            return commonFunction.makeReturn(dataType,"500", e.getMessage());
 
         }
 

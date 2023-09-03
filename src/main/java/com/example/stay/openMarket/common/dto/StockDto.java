@@ -5,6 +5,7 @@ import lombok.Data;
 @Data
 public class StockDto {
 
+    private int intIdx;
     private String dateSales;
     private String strRmtypeName;
     private String strCpItemCode;

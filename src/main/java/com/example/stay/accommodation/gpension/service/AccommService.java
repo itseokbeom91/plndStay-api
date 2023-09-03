@@ -30,7 +30,7 @@ public class AccommService {
     @Autowired
     private AccommMapper accommMapper;
 
-    public String getPensionList() {
+    public String getPensionList(String dataType) {
 
         OkHttpClient client = new OkHttpClient().newBuilder().build();
 
@@ -77,17 +77,17 @@ public class AccommService {
                     resultJson.put("manage_type", resultList.get(i).get("manage_type"));
                     resultListMap.add(resultJson);
                 }
-                return  commonFunction.makeReturn("jsonp",String.valueOf(response.code()), response.message(), resultListMap);
+                return  commonFunction.makeReturn(dataType,String.valueOf(response.code()), response.message(), resultListMap);
             } else {
-                return commonFunction.makeReturn("jsonp",String.valueOf(response.code()), response.message(), result);
+                return commonFunction.makeReturn(dataType,String.valueOf(response.code()), response.message(), result);
             }
         } catch (Exception e) {
-            return commonFunction.makeReturn("jsonp",String.valueOf(e),e.getMessage());
+            return commonFunction.makeReturn(dataType,String.valueOf(e),e.getMessage());
         }
 
     }
 
-    public String getPensionInfo(String pensionId){
+    public String getPensionInfo(String dataType, String pensionId){
 
         OkHttpClient client = new OkHttpClient().newBuilder().build();
 
@@ -113,7 +113,7 @@ public class AccommService {
             JSONObject resultJson = (JSONObject) responseJson.get("result");
             if(response.isSuccessful()) {
                 if (!resultJson.get("result_cd").equals("S")) {
-                    return commonFunction.makeReturn("jsonp",String.valueOf(response.code()), response.message(), resultJson);
+                    return commonFunction.makeReturn(dataType,String.valueOf(response.code()), response.message(), resultJson);
                 }
                 JSONObject pensionInfotData = (JSONObject) responseJson.get("pension_info");
                     String refundRule = (String) pensionInfotData.get("refund_rule");
@@ -142,9 +142,9 @@ public class AccommService {
 
                 responseJson.put("room_data", roomListDataTmp);
                 responseJson.put("cancel_data", cancelListData);
-                return commonFunction.makeReturn("jsonp","", "", responseJson);
+                return commonFunction.makeReturn(dataType,"", "", responseJson);
             } else {
-                return commonFunction.makeReturn("jsonp","", "", responseJson);
+                return commonFunction.makeReturn(dataType,"", "", responseJson);
             }
 
 
@@ -154,7 +154,7 @@ public class AccommService {
 
     }
 
-    public String getPensionStatus(String pensionId, String sDate, String eDate) {
+    public String getPensionStatus(String dataType, String pensionId, String sDate, String eDate) {
         OkHttpClient client = new OkHttpClient().newBuilder().build();
 
         String requesttURI = "?";
@@ -189,21 +189,21 @@ public class AccommService {
 //                    System.out.println(roomMap.get("room_id"));
 //                    System.out.println(base64Decode((String) roomMap.get("room_name")));
                     }
-                    return commonFunction.makeReturn("jsonp","200", "OK", responseJson);
+                    return commonFunction.makeReturn(dataType,"200", "OK", responseJson);
 
                 } else {
-                    return commonFunction.makeReturn("jsonp",String.valueOf(response.code()), response.message(), resultJson);
+                    return commonFunction.makeReturn(dataType,String.valueOf(response.code()), response.message(), resultJson);
                 }
             } else {
-                return commonFunction.makeReturn("jsonp",String.valueOf(response.code()), response.message(), "");
+                return commonFunction.makeReturn(dataType,String.valueOf(response.code()), response.message(), "");
             }
         } catch (Exception e) {
-            return commonFunction.makeReturn("jsonp",String.valueOf(e), e.getMessage());
+            return commonFunction.makeReturn(dataType,String.valueOf(e), e.getMessage());
         }
 
     }
 
-    public String getPensionDailyInfo(String pensionId, String sDate, String eDate) {
+    public String getPensionDailyInfo(String dataType, String pensionId, String sDate, String eDate) {
         OkHttpClient client = new OkHttpClient().newBuilder()
                 .connectTimeout(100, TimeUnit.SECONDS)
                 .readTimeout(100,TimeUnit.SECONDS)
@@ -227,17 +227,17 @@ public class AccommService {
                 String responseBody = response.body().string();
                 JSONParser jsonParser = new JSONParser();
                 JSONObject responseJson = (JSONObject) jsonParser.parse(responseBody);
-                return commonFunction.makeReturn("jsonp","", "", responseJson);
+                return commonFunction.makeReturn(dataType,"", "", responseJson);
             } else {
-                return commonFunction.makeReturn("jsonp","", "", "");
+                return commonFunction.makeReturn(dataType,"", "", "");
             }
         } catch (Exception e) {
-            return commonFunction.makeReturn("jsonp",e.toString(), e.getMessage(), "");
+            return commonFunction.makeReturn(dataType,e.toString(), e.getMessage(), "");
         }
 
     }
 
-    public String getPensionMainList() {
+    public String getPensionMainList(String dataType) {
         OkHttpClient client = new OkHttpClient().newBuilder().build();
         String requestURI = "?";
         requestURI += "auth_key=" + Constants.gpAuth;
@@ -253,16 +253,16 @@ public class AccommService {
                 String responseBody = response.body().string();
                 JSONParser jsonParser = new JSONParser();
                 JSONObject responseJson = (JSONObject) jsonParser.parse(responseBody);
-                return commonFunction.makeReturn("jsonp","", "", responseJson);
+                return commonFunction.makeReturn(dataType,"", "", responseJson);
             } else {
-                return commonFunction.makeReturn("jsonp","", "", "");
+                return commonFunction.makeReturn(dataType,"", "", "");
             }
         } catch (Exception e) {
-            return commonFunction.makeReturn("jsonp","", "", "");
+            return commonFunction.makeReturn(dataType,"", "", "");
         }
     }
 
-    public String getRoomInfo(String pensionId, String roomId) {
+    public String getRoomInfo(String dataType, String pensionId, String roomId) {
         OkHttpClient client = new OkHttpClient().newBuilder().build();
         String requestURI = "?";
         requestURI += "auth_key=" + Constants.gpAuth + "&pension_id=" + pensionId + "&room_id=" + roomId + "&detail_yn=Y";
@@ -278,16 +278,16 @@ public class AccommService {
                 String responseBody = response.body().string();
                 JSONParser jsonParser = new JSONParser();
                 JSONObject responseJson = (JSONObject) jsonParser.parse(responseBody);
-                return commonFunction.makeReturn("jsonp","", "", responseJson);
+                return commonFunction.makeReturn(dataType,"", "", responseJson);
             } else {
-                return commonFunction.makeReturn("jsonp","", "", "");
+                return commonFunction.makeReturn(dataType,"", "", "");
             }
         } catch (Exception e) {
-            return commonFunction.makeReturn("jsonp","", "", "");
+            return commonFunction.makeReturn(dataType,"", "", "");
         }
     }
 
-    public String getRoomPriceInfo(String pensionId) {
+    public String getRoomPriceInfo(String dataType, String pensionId) {
         OkHttpClient client = new OkHttpClient().newBuilder().build();
         String requestURI = "?";
         requestURI += "auth_key=" + Constants.gpAuth + "&pension_id=" + pensionId + "&detail_yn=Y";
@@ -313,18 +313,18 @@ public class AccommService {
                     scheduleTmp.add(map);
                 }
                 responseJson.put("schedule_data", scheduleTmp);
-                return commonFunction.makeReturn("jsonp", "", "", responseJson);
+                return commonFunction.makeReturn(dataType, "", "", responseJson);
             } else {
-                return commonFunction.makeReturn("jsonp","", "", "");
+                return commonFunction.makeReturn(dataType,"", "", "");
             }
         } catch (Exception e) {
-            return commonFunction.makeReturn("jsonp","", "", "");
+            return commonFunction.makeReturn(dataType,"", "", "");
         }
     }
 
 //    정보변경 내역 조회 (변경내역 조회하여 삭제된 숙소의 경우 ACCOMM테이블에 삭제여부, 노출여부 변경시켜줘야함)
 //    변경된 항목은 일 배치를 통해 수정되니 제휴중단된 항목에 대해서만 삭제/노출 여부 변경
-    public String getPensionModList(String lastDate){
+    public String getPensionModList(String dataType, String lastDate){
         OkHttpClient client = new OkHttpClient().newBuilder().build();
         String requestURI = "?";
         Date nowDate = new Date();
@@ -357,20 +357,20 @@ public class AccommService {
                     String roomId = (String) map.get("room_id");
 //                    accommMapper.updateDelRoom(pensionId, roomId);
                 }
-                return commonFunction.makeReturn("jsonp", "", "",  responseJson);
+                return commonFunction.makeReturn(dataType, "", "",  responseJson);
 
             } else {
-                return commonFunction.makeReturn("jsonp", String.valueOf(response.code()), response.message(), "");
+                return commonFunction.makeReturn(dataType, String.valueOf(response.code()), response.message(), "");
             }
         } catch (Exception e) {
-            return commonFunction.makeReturn("jsonp", "500", e.getMessage());
+            return commonFunction.makeReturn(dataType, "500", e.getMessage());
         }
     }
 
 
     //시설, 객실 INSERT
-    public String insertGP() {
-        String accommData = getPensionList();
+    public String insertGP(String dataType) {
+        String accommData = getPensionList("jsonp");
         accommData = accommData.substring(5, accommData.length() - 1);
         String strAccommData = "";
         String strRoomData = "";
@@ -394,8 +394,8 @@ public class AccommService {
                 String longi = (String) map.get("longi");
 
 
-                String roomData = getPensionStatus(map.get("pension_id").toString(), dateFormat.format(nowDate), dateFormat.format(eDate));
-                String pensionInfo = getPensionInfo(map.get("pension_id").toString());
+                String roomData = getPensionStatus("jsonp", map.get("pension_id").toString(), dateFormat.format(nowDate), dateFormat.format(eDate));
+                String pensionInfo = getPensionInfo("jsonp", map.get("pension_id").toString());
                 roomData = roomData.substring(5, roomData.length() - 1);
                 JSONObject roomJson = (JSONObject) jsonParser.parse(roomData);
                 roomJson = (JSONObject) roomJson.get("result");
@@ -520,9 +520,9 @@ public class AccommService {
 //            String insertResult = accommMapper.insertAccommTotal(strAccommData, strRoomData, "", "GP");
 //            System.out.println(insertResult);
 //
-            return commonFunction.makeReturn("jsonp", "200","", "insertResult");
+            return commonFunction.makeReturn(dataType, "200","", "insertResult");
         } catch (Exception e) {
-            return commonFunction.makeReturn("jsonp","500", String.valueOf(e), e.getMessage());
+            return commonFunction.makeReturn(dataType,"500", String.valueOf(e), e.getMessage());
         }
 
 
@@ -531,7 +531,7 @@ public class AccommService {
     public String updatePenaltyData() throws ParseException {
         List<Map<String, Object>> list = accommMapper.getPensionList();
         for (Map<String, Object> s : list) {
-            String result = getPensionInfo(s.get("GPID").toString());
+            String result = getPensionInfo("jsonp", s.get("GPID").toString());
             result = result.substring(5, result.length() - 1);
             JSONParser jsonParser = new JSONParser();
             JSONObject resultJson = (JSONObject) jsonParser.parse(result);

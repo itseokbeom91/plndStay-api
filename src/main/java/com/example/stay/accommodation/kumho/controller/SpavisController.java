@@ -26,10 +26,10 @@ public class SpavisController {
     private SpavisMapper spavisMapper;
 
     // 선납권 사용여부 조회 - 1개씩
-    @GetMapping("checkCouponStatus")
+    @GetMapping("checkPrepayStatus")
     @ResponseBody
     public String checkCouponStatus(String dataType, HttpServletRequest httpServletRequest, String strCouponNo){
-        return spavisService.checkCouponStatus(dataType, httpServletRequest, strCouponNo);
+        return spavisService.checkPrepayStatus(dataType, httpServletRequest, strCouponNo);
     }
 
 //    // 선납권 사용여부 조회 - 여러개(동기)
@@ -39,42 +39,42 @@ public class SpavisController {
 //        return spavisService.checkCouponListStatus(dataType, httpServletRequest);
 //    }
 
-    // 선납권 사용여부 조회 - 여러개(비동기)
-    @GetMapping("checkCouponListStatus2")
-    @ResponseBody
-    public String checkCouponListStatus2(String dataType, HttpServletRequest httpServletRequest){
-        LogWriter logWriter = new LogWriter(httpServletRequest.getMethod(), httpServletRequest.getServletPath(), System.currentTimeMillis());
-        String statusCode = "200";
-        String message = "";
-
-        try{
-            List<String> couponList = spavisMapper.couponList();
-
-            int failCount = 0;
-            for(int i=0; i< couponList.size(); i++){
-                int result = spavisService.checkCouponListStatus2(httpServletRequest, couponList.get(i));
-                if(result<0){
-                    failCount +=1;
-                }
-            }
-
-            if(failCount == 0){
-                message = "쿠폰 사용여부 조회 완료";
-            }else{
-                message = failCount + "건 조회 실패";
-            }
-
-            logWriter.add(message);
-            logWriter.log(0);
-        }catch (Exception e){
-            statusCode = "500";
-            logWriter.add("error : " + e.getMessage());
-            logWriter.log(0);
-        }
-
-        CommonFunction commonFunction = new CommonFunction();
-        return commonFunction.makeReturn(dataType, statusCode, message);
-    }
+//    // 선납권 사용여부 조회 - 여러개(비동기)
+//    @GetMapping("checkPrepayListStatus")
+//    @ResponseBody
+//    public String checkPrepayListStatus(String dataType, HttpServletRequest httpServletRequest){
+//        LogWriter logWriter = new LogWriter(httpServletRequest.getMethod(), httpServletRequest.getServletPath(), System.currentTimeMillis());
+//        String statusCode = "200";
+//        String message = "";
+//
+//        try{
+//            List<String> prepayList = spavisMapper.getPrepayList();
+//
+//            int failCount = 0;
+//            for(int i=0; i< prepayList.size(); i++){
+//                int result = spavisService.checkPrepayListStatus(httpServletRequest, prepayList.get(i));
+//                if(result<0){
+//                    failCount +=1;
+//                }
+//            }
+//
+//            if(failCount == 0){
+//                message = "선납권 사용여부 조회 완료";
+//            }else{
+//                message = failCount + "건 조회 실패";
+//            }
+//
+//            logWriter.add(message);
+//            logWriter.log(0);
+//        }catch (Exception e){
+//            statusCode = "500";
+//            logWriter.add("error : " + e.getMessage());
+//            logWriter.log(0);
+//        }
+//
+//        CommonFunction commonFunction = new CommonFunction();
+//        return commonFunction.makeReturn(dataType, statusCode, message);
+//    }
 
     // 티켓 발권
     @GetMapping("orderTicket")
