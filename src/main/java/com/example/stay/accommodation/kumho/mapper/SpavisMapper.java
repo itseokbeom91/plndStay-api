@@ -8,19 +8,19 @@ import java.util.List;
 @ResponseBody
 public interface SpavisMapper {
 
-    List<String> getPrepayList();
-
-    int updateCouponDates(String datePurchase, String dateExpired, String strCouponNo);
-
-    int updateStrNote(String strNote, String strCouponNo);
+//    List<String> getPrepayList();
+//
+//    int updateCouponDates(String datePurchase, String dateExpired, String strCouponNo);
+//
+//    int updateStrNote(String strNote, String strCouponNo);
 
     String insertTicket(String strTicketDatas);
 
 //    int getIntRsvIDCnt(int intRsvID);
 
-    int getStrTicketNoCnt(String strTicketNo);
+    int getStrTicketNoCnt(String strRsvID, String strTicketNo);
 
-    int updateTicketStatus(String strUseStatus, String dateUsed, String strTicketNo, int intRsvID);
+    int updateTicketStatus(String strUseStatus, String dateUsed, String strTicketNo, String strRsvID);
 
     int cancelAllTicket(int intRsvID);
 
