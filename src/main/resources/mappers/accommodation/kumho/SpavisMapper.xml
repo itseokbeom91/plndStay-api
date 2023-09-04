@@ -101,6 +101,7 @@
 
     <select id="getTicketList" resultType="String">
         SELECT strTicketNo
+        FROM PLNDSTAY.dbo.ASAN_SPAVIS_TICKET
         WHERE intRsvID = ${intRsvID}
     </select>
 
