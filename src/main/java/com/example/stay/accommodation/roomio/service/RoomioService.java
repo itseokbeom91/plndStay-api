@@ -58,7 +58,7 @@ public class RoomioService {
                     String strRoomDatas = roomObject.get("result").toString();
 
                     String strResult = roomioMapper.insertAccomm(strHotelId, strHotelName, strRoomDatas);
-
+                    System.out.println(strResult);
                     result = forObject.toJSONString();
                 }
             }
@@ -104,40 +104,37 @@ public class RoomioService {
 
                 JSONObject listObject = (JSONObject) new JSONParser().parse(object.toString());
 
-                // 룸타입 사용여부
-                String strState = listObject.get("room_state").toString();
-                if(strState.equals("Y")){
 
-                    String strRoomId = listObject.get("room_id").toString();
-                    String strRoomName = listObject.get("room_name").toString();
+                String strRoomId = listObject.get("room_id").toString();
+                String strRoomName = listObject.get("room_name").toString();
+                String strRoomState = listObject.get("room_state").toString();
 
-                    String strPkgDatas = "";
+                String strPkgDatas = "";
 
-                    System.out.println(strRoomId);
+                System.out.println(strRoomId);
 
-                    // 패키지 정보
-                    JSONArray pkgArray = (JSONArray) new JSONParser().parse(listObject.get("pkg").toString());
-                    for(Object pkgObject : pkgArray){
+                // 패키지 정보
+                JSONArray pkgArray = (JSONArray) new JSONParser().parse(listObject.get("pkg").toString());
+                for(Object pkgObject : pkgArray){
 
-                        JSONObject inJsonObject = (JSONObject) new JSONParser().parse(pkgObject.toString());
+                    JSONObject inJsonObject = (JSONObject) new JSONParser().parse(pkgObject.toString());
 
-                        String strPkgState = inJsonObject.get("pkg_state").toString();
-                        String strPkgCode = inJsonObject.get("pkg_code").toString();
-                        String strPkgName = inJsonObject.get("pkg_name").toString();
-                        String strPkgDesc = inJsonObject.get("pkg_desc").toString();
+                    String strPkgState = inJsonObject.get("pkg_state").toString();
+                    String strPkgCode = inJsonObject.get("pkg_code").toString();
+                    String strPkgName = inJsonObject.get("pkg_name").toString();
+                    String strPkgDesc = inJsonObject.get("pkg_desc").toString();
 
-                        strPkgDatas += strPkgCode + "|^|" + strPkgName + "|^|" + strPkgDesc + "|^|" + strPkgState + "{{^}}";
-                        
+                    strPkgDatas += strPkgCode + "|^|" + strPkgName + "|^|" + strPkgDesc + "|^|" + strPkgState + "{{^}}";
 
-                    }
-
-                    if(strPkgDatas.length() > 1){
-                        strPkgDatas = strPkgDatas.substring(0, strPkgDatas.length()-5);
-                    }
-
-                    resultDatas += strRoomId + "|~|" + strRoomName + "|~|" + strPkgDatas + "{{~}}";
 
                 }
+
+                if(strPkgDatas.length() > 1){
+                    strPkgDatas = strPkgDatas.substring(0, strPkgDatas.length()-5);
+                }
+
+                resultDatas += strRoomId + "|~|" + strRoomName + "|~|" + strRoomState + "|~|" + strPkgDatas + "{{~}}";
+
 
             }
 
