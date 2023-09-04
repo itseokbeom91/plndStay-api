@@ -534,7 +534,7 @@ public class BookingService {
                             reservMap.put("dateCheckIn", xmlUtility.getTagValue("ps_arrive_date", element));
                             reservMap.put("dateCheckOut", xmlUtility.getTagValue("ps_leave_date", element));
                             reservMap.put("strRcvDate", xmlUtility.getTagValue("ps_reserv_date", element));
-                            reservMap.put("intRsvID", xmlUtility.getTagValue("ps_ipark_resno", element));
+                            reservMap.put("kumhoIntRsvID", xmlUtility.getTagValue("ps_ipark_resno", element));
                         }
                         resultMap.add("reservMap", reservMap);
                     }
