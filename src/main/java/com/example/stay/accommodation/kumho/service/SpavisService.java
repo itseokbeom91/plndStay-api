@@ -436,12 +436,14 @@ public class SpavisService {
     }
 
     // 티켓 사용여부 조회(건별)
+    // 취소티켓 조회불가
+    // 미사용 -> 날짜 지났는데 미사용
     public String checkTicketStatus(String dataType, HttpServletRequest httpServletRequest, int intRsvID){
         String statusCode = "200";
         String message = "";
         LogWriter logWriter = new LogWriter(httpServletRequest.getMethod(), httpServletRequest.getServletPath(),
                 httpServletRequest.getQueryString(), System.currentTimeMillis());
-        Map<String, Object> resultMap = new HashMap<>();
+        List<Map<String, Object>> resultMapList = new ArrayList<>();
         try{
             List<String> ticketList = spavisMapper.getTicketList(intRsvID);
 
@@ -459,8 +461,7 @@ public class SpavisService {
             String spavisUrl = "social_interface/socif03.asp?order_no=" + strOrderID + "&coupon_no=" + tickets +
                                 "&Cust_id=" + Constants.tkCustomerID;
 
-//            String spavisUrl = "social_interface/socif03.asp?order_no=" + intRsvID + "&coupon_no=" + strTicketNo +
-//                    "&Cust_id=" + Constants.tkCustomerID;
+//            String spavisUrl = "social_interface/socif03.asp?order_no=" + intRsvID + "&coupon_no=" + strTicketNo + "&Cust_id=" + Constants.tkCustomerID;
 
             Document document = callSpavisAPI(spavisUrl);
             if(document != null){
@@ -469,27 +470,31 @@ public class SpavisService {
                 if(resultCode.equals("S")){
                     NodeList reservList = document.getElementsByTagName("rtn_coupon");
                     for (int i = 0; i < reservList.getLength(); i++) {
+                        Map<String, Object> resultMap = new HashMap<>();
                         Node node = reservList.item(i);
                         if (node.getNodeType() == Node.ELEMENT_NODE) {
                             Element element = (Element) node;
 
+                            String strTicketNo = xmlUtility.getTagValue("rtn_coupon_no", element);
                             // 예약(R), 미사용(N), 사용(I), 취소(C)
-                            String strUseStatus = document.getElementsByTagName("rtn_status_div").item(0).getChildNodes().item(0).getNodeValue();
-                            String strResultDate = document.getElementsByTagName("rtn_result_date").item(0).getChildNodes().item(0).getNodeValue();
+                            String strTicketStatus = xmlUtility.getTagValue("rtn_status_div", element);
+                            String strResultDate = xmlUtility.getTagValue("rtn_result_date", element);
 
-                            if(strUseStatus.equals("P")){
-                                strUseStatus = "발행";
-                            }else{
-                                strUseStatus = "사용";
+                            if(strTicketStatus.equals("R")){
+                                strTicketStatus = "예약";
+                            }else if(strTicketStatus.equals("N")){
+                                strTicketStatus = "미사용";
+                            }else if(strTicketStatus.equals("I")){
+                                strTicketStatus = "사용";
+                            }else if(strTicketStatus.equals("C")){
+                                strTicketStatus = "취소";
                             }
 
-                            SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd HHmmss");
-                            SimpleDateFormat sdf2 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-                            strResultDate = sdf2.format(sdf.parse(strResultDate));
-
-                            resultMap.put("티켓 상태값", strUseStatus);
+                            resultMap.put("티켓 번호", strTicketNo);
+                            resultMap.put("티켓 상태값", strTicketStatus);
                             resultMap.put("예약/사용/취소일시", strResultDate);
 
+                            resultMapList.add(resultMap);
                             message = "티켓 사용여부 조회 완료";
                         }
                     }
@@ -508,10 +513,11 @@ public class SpavisService {
             logWriter.add("error : " + e.getMessage());
             logWriter.log(0);
         }
-        return commonFunction.makeReturn(dataType, statusCode, message, resultMap);
+        return commonFunction.makeReturn(dataType, statusCode, message, resultMapList);
     }
 
     // 티켓 사용여부 조회(일별)
+    // 구매날짜
     public String checkTicketStatusByDate(String dataType, HttpServletRequest httpServletRequest, String searchDate){
         String statusCode = "200";
         String message = "";
@@ -533,14 +539,22 @@ public class SpavisService {
                         if (node.getNodeType() == Node.ELEMENT_NODE) {
                             Element element = (Element) node;
 
+                            String strTicketNo = xmlUtility.getTagValue("rtn_coupon_no", element);
                             // 예약(R), 미사용(N), 사용(I), 취소(C)
                             String strTicketStatus = xmlUtility.getTagValue("rtn_status_div", element);
-
                             String strResultDate = xmlUtility.getTagValue("rtn_result_date", element); // 사용 안했으면 null값이 옴
-                            SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd HHmmss");
-                            SimpleDateFormat sdf2 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-                            strResultDate = sdf2.format(sdf.parse(strResultDate));
 
+                            if(strTicketStatus.equals("R")){
+                                strTicketStatus = "예약";
+                            }else if(strTicketStatus.equals("N")){
+                                strTicketStatus = "미사용";
+                            }else if(strTicketStatus.equals("I")){
+                                strTicketStatus = "사용";
+                            }else if(strTicketStatus.equals("C")){
+                                strTicketStatus = "취소";
+                            }
+
+                            resultMap.put("티켓 번호", strTicketNo);
                             resultMap.put("티켓 상태값", strTicketStatus);
                             resultMap.put("사용일시", strResultDate);
 
