@@ -307,15 +307,17 @@ public class HanwhaService {
 
 
     /**
-     * 케파조회
+     * 케파 조회
      * @param intAID
      * @param intRmIdx
-     * @param intPkgIdx
+     * @param strIntPkgIdx
+     * @param strLocalCode
      * @param strStartDate
      * @param strEndDate
+     * @param dataType
      * @return
      */
-    public String getCapa(int intAID, int intRmIdx, String strIntPkgIdx, String strLocalCode, String strStartDate, String strEndDate){ // 캐파조회 : 05
+    public String getCapa(int intAID, int intRmIdx, String strIntPkgIdx, String strLocalCode, String strStartDate, String strEndDate, String dataType){ // 캐파조회 : 05
 
         String statusCode = "200";
         String message = "";
@@ -411,7 +413,7 @@ public class HanwhaService {
             e.printStackTrace();
         }
 
-        return commonFunction.makeReturn("json", statusCode, message);
+        return commonFunction.makeReturn(dataType, statusCode, message);
     }
 
     /**
