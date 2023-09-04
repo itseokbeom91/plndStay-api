@@ -23,7 +23,7 @@ public class RoomioService {
      * 시설 목록조회
      * @return
      */
-    public String getAccomm(){
+    public String getAccomm(String dataType){
 
         String statusCode = "200";
         String message = "";
@@ -70,12 +70,12 @@ public class RoomioService {
             e.printStackTrace();
         }
 
-        return commonFunction.makeReturn("json", statusCode, message, result);
+        return commonFunction.makeReturn(dataType, statusCode, message, result);
     }
 
 
     /**
-     * 객실 목록 조회
+     * 객실 목록 조회 - 시설 조회 안에 삽입
      * @param strHotelId
      * @return
      */
