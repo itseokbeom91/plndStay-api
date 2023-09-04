@@ -8,7 +8,7 @@ import java.util.List;
 @ResponseBody
 public interface SpavisMapper {
 
-    List<String> couponList();
+    List<String> getPrepayList();
 
     int updateCouponDates(String datePurchase, String dateExpired, String strCouponNo);
 
@@ -29,4 +29,8 @@ public interface SpavisMapper {
     int insertKkoMsg(String receiver, String sender, String kkoMsg);
 
     RsvStayDto getRsvStayInfo(int intRsvID);
+
+    int updateStrStatusCode(String strStatusCode, int intRsvID);
+
+    List<String> getTicketList(int intRsvID);
 }

@@ -8,11 +8,6 @@
         EXEC PLNDSTAY.dbo.spGW_RSV_STAY_UPDATE_PROCESS ${intRsvID}, #{strStatusCode}, #{strRsvRmNum}, ''
     </select>
 
-    <update id="updateStrStatusCode" parameterType="String">
-        UPDATE PLNDSTAY.dbo.RSV_STAY SET strStatusCode = #{strStatusCode}
-        WHERE intRsvID = ${intRsvID}
-    </update>
-
     <select id="updateStock" resultType="String">
         EXEC PLNDSTAY.dbo.spGW_STOCK_TEMP_REGIST #{intAID}, #{intRmIdx}, '', #{strStockDatas}, ''
     </select>

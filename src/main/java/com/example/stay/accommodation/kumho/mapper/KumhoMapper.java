@@ -9,11 +9,9 @@ import java.util.Map;
 @Repository
 public interface KumhoMapper {
 
-    RsvStayDto getReservation(int intBookingID);
+    RsvStayDto getReservation(int intRsvID);
 
-    String updateRsvStay(int intBookingID, String strStatusCode, String strRsvRmNum, int intRmCnt);
-
-    int updateStrStatusCode(int intRsvID, String strStatusCode);
+    String updateRsvStay(int intRsvID, String strStatusCode, String strRsvRmNum);
 
     String updateStock(int intAID, int intRmIdx, String strStockDatas);
 

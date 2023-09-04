@@ -23,7 +23,7 @@
     </select>
 
 
-    <select id="couponList" resultType="String">
+    <select id="getPrepayList" resultType="String">
         SELECT ticketNo FROM ASAN_TICKET_CONDO
 --         WHERE CONVERT(DATE,regdate) >= CONVERT(DATE,'2021-01-01')
 --         AND strUseYn = 'N'
@@ -94,9 +94,14 @@
     </insert>
 
     <update id="updateStrStatusCode">
-        UPDATE RSV_STAY
+        UPDATE PLNDSTAY.dbo.RSV_STAY
             SET strStatusCode = #{strStatusCode}
         WHERE intRsvID = ${intRsvID}
     </update>
+
+    <select id="getTicketList" resultType="String">
+        SELECT strTicketNo
+        WHERE intRsvID = ${intRsvID}
+    </select>
 
 </mapper>
