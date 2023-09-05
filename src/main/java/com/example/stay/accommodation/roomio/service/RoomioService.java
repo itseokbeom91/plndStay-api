@@ -171,9 +171,9 @@ public class RoomioService {
             jsonObject.put("m","getRoomState");
             jsonObject.put("cd","7634");
             jsonObject.put("hotel_id",strHotelId);
-            jsonObject.put("room_id",strHotelId);
-            jsonObject.put("st_date",strHotelId);
-            jsonObject.put("ed_date",strHotelId);
+            jsonObject.put("room_id",strRoomId);
+            jsonObject.put("st_date",strStartDate);
+            jsonObject.put("ed_date",strEndDate);
 
             JsonNode jsonNode = commonFunction.callJsonApi("roomio","", jsonObject, "http://api.roomio.co.kr/", "POST");
 
@@ -188,13 +188,25 @@ public class RoomioService {
         return commonFunction.makeReturn("json", statusCode, message);
     }
 
-    public String getPrice(){
+    public String getPrice(String strHotelId, String strRoomId, String strStartDate, String strEndDate){
 
         String statusCode = "200";
         String message = "";
         String result = "";
 
         try {
+
+            JSONObject jsonObject = new JSONObject();
+            jsonObject.put("m","getRoomPrice");
+            jsonObject.put("cd","7634");
+            jsonObject.put("hotel_id",strHotelId);
+            jsonObject.put("room_id",strRoomId);
+            jsonObject.put("st_date",strStartDate);
+            jsonObject.put("ed_date",strEndDate);
+
+            JsonNode jsonNode = commonFunction.callJsonApi("roomio","", jsonObject, "http://api.roomio.co.kr/", "POST");
+
+            System.out.println(jsonNode);
 
         }catch (Exception e){
             message = " 실패";

@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 @Controller
 @RequestMapping("/hanwha/*")
@@ -14,18 +15,24 @@ public class HanwhaController {
     private HanwhaService hanwhaService;
 
     @GetMapping("/capa")
-    public void getCapa(int intAID, int intRmIdx, String intPkgIdx, String strLocalCode, String startDate, String endDate, String dataType){
+    @ResponseBody
+    public String getCapa(int intAID, int intRmIdx, String intPkgIdx, String strLocalCode, String startDate, String endDate, String dataType){
 
         String result = hanwhaService.getCapa(intAID, intRmIdx, intPkgIdx, strLocalCode, startDate, endDate, dataType);
         System.out.println(result);
 
+        return result;
+
     }
 
     @GetMapping("/packageList")
-    public void getPackageList(String localCode, String strDate, String dataType){
+    @ResponseBody
+    public String getPackageList(String localCode, String strDate, String dataType){
 
         String result = hanwhaService.getPackageList(localCode, strDate, dataType);
         System.out.println(result);
+
+        return result;
 
     }
 

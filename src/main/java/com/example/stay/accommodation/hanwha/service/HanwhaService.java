@@ -434,6 +434,15 @@ public class HanwhaService {
             JSONObject dataObject = new JSONObject();
             JSONObject detailObject = new JSONObject();
 
+            // 날짜 없을시 오늘날짜 넣기
+            if(strStartDate.length() == 0){
+
+                // 현재날짜 구하기(yyyyMMdd)
+                LocalDate localDate = LocalDate.now();
+                DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyyMMdd");
+                strStartDate = localDate.format(dateFormatter);
+
+            }
 
             detailObject.put("CUST_NO", Constants.hanwhaCustNo);
             detailObject.put("CONT_NO", Constants.hanwhaContNo);
