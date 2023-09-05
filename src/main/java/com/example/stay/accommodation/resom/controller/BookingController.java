@@ -97,13 +97,13 @@ public class BookingController {
     //연박 예약
     @GetMapping("/createBooking")
     @ResponseBody
-    public String createBooking2(String dataType, String pkgNo, String storeCd, String ciYmd, String rmTypeCd, String comRsvNo, String userName, String userTel, String payAmt, String adultCnt, String childCnt, String channelCd, String channelNm, String nights, String rmCnt) {
-        return bookingService.createBooking(dataType, pkgNo, storeCd, ciYmd, rmTypeCd, comRsvNo, userName, userTel, payAmt, adultCnt, childCnt, channelCd, channelNm, nights, rmCnt);
+    public String createBooking2(String dataType, String bookingIdx, HttpServletRequest httpServletRequest) {
+        return bookingService.createBooking(dataType, bookingIdx, httpServletRequest);
     }
 
     @GetMapping("/insertRESOM")
     @ResponseBody
-    public String insertSONO(String dataType, HttpServletRequest httpServletRequest) {
+    public String insertRESOM(String dataType, HttpServletRequest httpServletRequest) {
         return bookingService.insertRESOM(dataType, httpServletRequest);
     }
 
