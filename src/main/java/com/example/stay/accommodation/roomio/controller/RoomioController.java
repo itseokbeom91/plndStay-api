@@ -31,7 +31,11 @@ public class RoomioController {
     public void bookingState(){}
 
     @GetMapping("/getPrice")
-    public void getPrice(){}
+    public void getPrice(String strHotelId, String strRoomId, String startDate, String endDate){
+
+        roomioService.getPrice(strHotelId, strRoomId, startDate, endDate);
+
+    }
 
     @GetMapping("/booking")
     public void booking(){}
