@@ -1,6 +1,7 @@
 package com.example.stay.accommodation.sono.controller;
 
 import com.example.stay.accommodation.sono.service.BookingService;
+import org.apache.ibatis.annotations.Param;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
@@ -41,8 +42,8 @@ public class BookingController {
 
     @GetMapping("/reservation")
     @ResponseBody
-    public String reservation(String dataType,String pkgNo, String storeCd, String ciYmd, String rmTypeCd, String comRsvNo, String userName, String userTel, String payAmt, String adultCnt, String childCnt ,HttpServletRequest httpServletRequest){
-        return  bookingService.reservation(dataType, pkgNo, storeCd, ciYmd, rmTypeCd, comRsvNo, userName, userTel, payAmt, adultCnt, childCnt ,httpServletRequest);
+    public String reservation(String dataType, String bookingIdx ,HttpServletRequest httpServletRequest){
+        return  bookingService.reservation(dataType, bookingIdx ,httpServletRequest);
     }
 
     @GetMapping("/getRoomList")
