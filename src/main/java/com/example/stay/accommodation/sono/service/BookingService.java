@@ -254,7 +254,7 @@ public class BookingService {
                 재고, 원가, 판매가
                  */
 
-                return commonFunction.makeReturn(dataType, "","", responseJson);
+                return commonFunction.makeReturn(dataType, "200","OK", responseJson);
             } else {
                 //예약 실패시
                 //response 파싱
@@ -262,7 +262,7 @@ public class BookingService {
                 JSONParser jsonParser = new JSONParser();
                 JSONObject responseJson = (JSONObject) jsonParser.parse(responseBody);
 
-                return commonFunction.makeReturn(dataType, "","", responseJson);
+                return commonFunction.makeReturn(dataType, "200","OK", responseJson);
             }
 
         } catch (Exception e) {
@@ -423,7 +423,7 @@ public class BookingService {
                 JSONObject responseJson = (JSONObject) jsonParser.parse(responseBody);
 
 
-                return commonFunction.makeReturn(dataType, "","", responseJson);
+                return commonFunction.makeReturn(dataType, "200","OK", responseJson);
             }
 
         } catch (Exception e) {
@@ -473,7 +473,7 @@ public class BookingService {
                 JSONObject responseJson = (JSONObject) jsonParser.parse(responseBody);
                 List<Map<String, Object>> resultList = (List<Map<String, Object>>) responseJson.get("resultList");
 
-                return commonFunction.makeReturn(dataType, "","", responseJson);
+                return commonFunction.makeReturn(dataType, "200","OK", responseJson);
 
             }
 
@@ -683,7 +683,7 @@ public class BookingService {
             System.out.println(packageStockDatas);
 //            String insertResult = bookingMapper.insertRoom("", "", packageStockDatas, "", strType);
 //            stockResultJson.put("insertResult", insertResult);
-            return commonFunction.makeReturn(dataType, "", "", stockResultJson);
+            return commonFunction.makeReturn(dataType, "200", "OK", stockResultJson);
 
         } catch (Exception e) {
             return commonFunction.makeReturn(dataType, "500", e.getMessage());

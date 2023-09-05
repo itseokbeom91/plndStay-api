@@ -142,9 +142,9 @@ public class AccommService {
 
                 responseJson.put("room_data", roomListDataTmp);
                 responseJson.put("cancel_data", cancelListData);
-                return commonFunction.makeReturn(dataType,"", "", responseJson);
+                return commonFunction.makeReturn(dataType,"200", "OK", responseJson);
             } else {
-                return commonFunction.makeReturn(dataType,"", "", responseJson);
+                return commonFunction.makeReturn(dataType,"500", response.message(), responseJson);
             }
 
 
@@ -227,9 +227,9 @@ public class AccommService {
                 String responseBody = response.body().string();
                 JSONParser jsonParser = new JSONParser();
                 JSONObject responseJson = (JSONObject) jsonParser.parse(responseBody);
-                return commonFunction.makeReturn(dataType,"", "", responseJson);
+                return commonFunction.makeReturn(dataType,"200", "OK", responseJson);
             } else {
-                return commonFunction.makeReturn(dataType,"", "", "");
+                return commonFunction.makeReturn(dataType,"500", response.message(), "");
             }
         } catch (Exception e) {
             return commonFunction.makeReturn(dataType,e.toString(), e.getMessage(), "");
@@ -253,12 +253,12 @@ public class AccommService {
                 String responseBody = response.body().string();
                 JSONParser jsonParser = new JSONParser();
                 JSONObject responseJson = (JSONObject) jsonParser.parse(responseBody);
-                return commonFunction.makeReturn(dataType,"", "", responseJson);
+                return commonFunction.makeReturn(dataType,"200", "OK", responseJson);
             } else {
-                return commonFunction.makeReturn(dataType,"", "", "");
+                return commonFunction.makeReturn(dataType,"500", response.message(), "");
             }
         } catch (Exception e) {
-            return commonFunction.makeReturn(dataType,"", "", "");
+            return commonFunction.makeReturn(dataType,"500", e.getMessage(), "");
         }
     }
 
@@ -278,12 +278,12 @@ public class AccommService {
                 String responseBody = response.body().string();
                 JSONParser jsonParser = new JSONParser();
                 JSONObject responseJson = (JSONObject) jsonParser.parse(responseBody);
-                return commonFunction.makeReturn(dataType,"", "", responseJson);
+                return commonFunction.makeReturn(dataType,"200", "OK", responseJson);
             } else {
-                return commonFunction.makeReturn(dataType,"", "", "");
+                return commonFunction.makeReturn(dataType,"500", response.message(), "");
             }
         } catch (Exception e) {
-            return commonFunction.makeReturn(dataType,"", "", "");
+            return commonFunction.makeReturn(dataType,"500", e.getMessage(), "");
         }
     }
 
@@ -313,12 +313,12 @@ public class AccommService {
                     scheduleTmp.add(map);
                 }
                 responseJson.put("schedule_data", scheduleTmp);
-                return commonFunction.makeReturn(dataType, "", "", responseJson);
+                return commonFunction.makeReturn(dataType, "200", "OK", responseJson);
             } else {
-                return commonFunction.makeReturn(dataType,"", "", "");
+                return commonFunction.makeReturn(dataType,"500", response.message(), "");
             }
         } catch (Exception e) {
-            return commonFunction.makeReturn(dataType,"", "", "");
+            return commonFunction.makeReturn(dataType,"500", e.getMessage(), "");
         }
     }
 
@@ -357,10 +357,10 @@ public class AccommService {
                     String roomId = (String) map.get("room_id");
 //                    accommMapper.updateDelRoom(pensionId, roomId);
                 }
-                return commonFunction.makeReturn(dataType, "", "",  responseJson);
+                return commonFunction.makeReturn(dataType, "200", "OK",  responseJson);
 
             } else {
-                return commonFunction.makeReturn(dataType, String.valueOf(response.code()), response.message(), "");
+                return commonFunction.makeReturn(dataType, "500", response.message(), "");
             }
         } catch (Exception e) {
             return commonFunction.makeReturn(dataType, "500", e.getMessage());
@@ -520,7 +520,7 @@ public class AccommService {
 //            String insertResult = accommMapper.insertAccommTotal(strAccommData, strRoomData, "", "GP");
 //            System.out.println(insertResult);
 //
-            return commonFunction.makeReturn(dataType, "200","", "insertResult");
+            return commonFunction.makeReturn(dataType, "200","OK", "insertResult");
         } catch (Exception e) {
             return commonFunction.makeReturn(dataType,"500", String.valueOf(e), e.getMessage());
         }
