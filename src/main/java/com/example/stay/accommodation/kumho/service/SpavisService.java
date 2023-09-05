@@ -241,6 +241,7 @@ public class SpavisService {
             String classDiv = ""; // 성인 : A, 소아 : B
             double doubleSales = 0;
             double doubleCost = rsvStayDto.getMoneyCostA();
+            // 성인/소아 요금 존재 여부로 구분
             // 성인일 경우
             if(doubleCost != 0){
                 classDiv = "A";
@@ -278,13 +279,13 @@ public class SpavisService {
             int ticketNo = 0;
             String strTicketDatas = "";
             for(int i=0; i<useCount; i++){
-
                 // TR_ + 티켓 테이블의 MAX(idx) + 1 로 생성
                 if(i==0){
                     ticketNo = spavisMapper.getMaxIdx()+1;
                 }else{
                     ticketNo += 1;
                 }
+                // TODO : TR_로 변경
                 String strTicketNo = "TEST_" + ticketNo;
 
                 if(i == useCount-1){
@@ -435,20 +436,19 @@ public class SpavisService {
     }
 
     // 티켓 사용여부 조회(건별)
+    // 취소티켓 조회불가
+    // 미사용 -> 날짜 지났는데 미사용
     public String checkTicketStatus(String dataType, HttpServletRequest httpServletRequest, int intRsvID){
         String statusCode = "200";
         String message = "";
         LogWriter logWriter = new LogWriter(httpServletRequest.getMethod(), httpServletRequest.getServletPath(),
                 httpServletRequest.getQueryString(), System.currentTimeMillis());
-        Map<String, Object> resultMap = new HashMap<>();
+        List<Map<String, Object>> resultMapList = new ArrayList<>();
         try{
-            /**
-             * TODO : 예약번호로 정보 가져오기 - 티켓 여러장일 경우 ,로 구분해서 보내기
-             */
             List<String> ticketList = spavisMapper.getTicketList(intRsvID);
 
             String strOrderID = String.valueOf(intRsvID);
-            String strTicketNo = "TR_30494";
+
             String tickets = "";
             for(int i=0; i< ticketList.size(); i++){
                 if(i == ticketList.size() -1){
@@ -461,8 +461,7 @@ public class SpavisService {
             String spavisUrl = "social_interface/socif03.asp?order_no=" + strOrderID + "&coupon_no=" + tickets +
                                 "&Cust_id=" + Constants.tkCustomerID;
 
-//            String spavisUrl = "social_interface/socif03.asp?order_no=" + intRsvID + "&coupon_no=" + strTicketNo +
-//                    "&Cust_id=" + Constants.tkCustomerID;
+//            String spavisUrl = "social_interface/socif03.asp?order_no=" + intRsvID + "&coupon_no=" + strTicketNo + "&Cust_id=" + Constants.tkCustomerID;
 
             Document document = callSpavisAPI(spavisUrl);
             if(document != null){
@@ -471,27 +470,31 @@ public class SpavisService {
                 if(resultCode.equals("S")){
                     NodeList reservList = document.getElementsByTagName("rtn_coupon");
                     for (int i = 0; i < reservList.getLength(); i++) {
+                        Map<String, Object> resultMap = new HashMap<>();
                         Node node = reservList.item(i);
                         if (node.getNodeType() == Node.ELEMENT_NODE) {
                             Element element = (Element) node;
 
+                            String strTicketNo = xmlUtility.getTagValue("rtn_coupon_no", element);
                             // 예약(R), 미사용(N), 사용(I), 취소(C)
-                            String strUseStatus = document.getElementsByTagName("rtn_status_div").item(0).getChildNodes().item(0).getNodeValue();
-                            String dateUsed = document.getElementsByTagName("rtn_result_date").item(0).getChildNodes().item(0).getNodeValue();
+                            String strTicketStatus = xmlUtility.getTagValue("rtn_status_div", element);
+                            String strResultDate = xmlUtility.getTagValue("rtn_result_date", element);
 
-                            if(strUseStatus.equals("P")){
-                                strUseStatus = "발행";
-                            }else{
-                                strUseStatus = "사용";
+                            if(strTicketStatus.equals("R")){
+                                strTicketStatus = "예약";
+                            }else if(strTicketStatus.equals("N")){
+                                strTicketStatus = "미사용";
+                            }else if(strTicketStatus.equals("I")){
+                                strTicketStatus = "사용";
+                            }else if(strTicketStatus.equals("C")){
+                                strTicketStatus = "취소";
                             }
 
-                            SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd HHmmss");
-                            SimpleDateFormat sdf2 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-                            dateUsed = sdf2.format(sdf.parse(dateUsed));
+                            resultMap.put("티켓 번호", strTicketNo);
+                            resultMap.put("티켓 상태값", strTicketStatus);
+                            resultMap.put("예약/사용/취소일시", strResultDate);
 
-                            resultMap.put("티켓 상태값", strUseStatus);
-                            resultMap.put("예약/사용/취소일시", dateUsed);
-
+                            resultMapList.add(resultMap);
                             message = "티켓 사용여부 조회 완료";
                         }
                     }
@@ -510,16 +513,17 @@ public class SpavisService {
             logWriter.add("error : " + e.getMessage());
             logWriter.log(0);
         }
-        return commonFunction.makeReturn(dataType, statusCode, message, resultMap);
+        return commonFunction.makeReturn(dataType, statusCode, message, resultMapList);
     }
 
     // 티켓 사용여부 조회(일별)
+    // 구매날짜
     public String checkTicketStatusByDate(String dataType, HttpServletRequest httpServletRequest, String searchDate){
         String statusCode = "200";
         String message = "";
         LogWriter logWriter = new LogWriter(httpServletRequest.getMethod(), httpServletRequest.getServletPath(),
                 httpServletRequest.getQueryString(), System.currentTimeMillis());
-
+        List<Map<String, Object>> resultMapList = new ArrayList<>();
         try{
             String spavisUrl = "social_interface/socif05.asp?cust_id=" + Constants.tkCustomerID + "&result_date=" + searchDate;
 
@@ -530,20 +534,31 @@ public class SpavisService {
                 if(resultCode.equals("S")) {
                     NodeList reservList = document.getElementsByTagName("rtn_coupon");
                     for (int i = 0; i < reservList.getLength(); i++) {
+                        Map<String, Object> resultMap = new HashMap<>();
                         Node node = reservList.item(i);
                         if (node.getNodeType() == Node.ELEMENT_NODE) {
                             Element element = (Element) node;
 
+                            String strTicketNo = xmlUtility.getTagValue("rtn_coupon_no", element);
                             // 예약(R), 미사용(N), 사용(I), 취소(C)
                             String strTicketStatus = xmlUtility.getTagValue("rtn_status_div", element);
-
                             String strResultDate = xmlUtility.getTagValue("rtn_result_date", element); // 사용 안했으면 null값이 옴
-//                            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-//                            Date resultDate = sdf.parse(strResultDate);
 
-                            System.out.println("strTicketStatus : " + strTicketStatus);
-                            System.out.println("resultDate : " + strResultDate);
+                            if(strTicketStatus.equals("R")){
+                                strTicketStatus = "예약";
+                            }else if(strTicketStatus.equals("N")){
+                                strTicketStatus = "미사용";
+                            }else if(strTicketStatus.equals("I")){
+                                strTicketStatus = "사용";
+                            }else if(strTicketStatus.equals("C")){
+                                strTicketStatus = "취소";
+                            }
 
+                            resultMap.put("티켓 번호", strTicketNo);
+                            resultMap.put("티켓 상태값", strTicketStatus);
+                            resultMap.put("사용일시", strResultDate);
+
+                            resultMapList.add(resultMap);
                         }
                     }
                     message = "티켓 사용여부 조회 완료";
@@ -565,7 +580,7 @@ public class SpavisService {
             logWriter.add("error : " + e.getMessage());
         }
         logWriter.log(0);
-        return commonFunction.makeReturn(dataType, statusCode, message);
+        return commonFunction.makeReturn(dataType, statusCode, message, resultMapList);
     }
 
     // 티켓 발권 처리(스파비스에서 호출)
@@ -577,14 +592,11 @@ public class SpavisService {
         String successYn = "F";
         String result = "";
         try{
-            // 주문번호 우리 DB에 있는지 확인
-            int intRsvID = Integer.parseInt(strRsvID);
-
             // 티켓번호 우리 DB에 있는지 확인
-            int ticketCnt = spavisMapper.getStrTicketNoCnt(strTicketNo);
+            int ticketCnt = spavisMapper.getStrTicketNoCnt(strRsvID, strTicketNo);
             if(ticketCnt > 0){
                 // 상태값, 사용일시 업데이트 -> 성공하면 result = "S";
-                int updateResult = spavisMapper.updateTicketStatus(strUseStatus, dateUsed, strTicketNo, intRsvID);
+                int updateResult = spavisMapper.updateTicketStatus(strUseStatus, dateUsed, strTicketNo, strRsvID);
 
                 if(updateResult > 0){
                     successYn = "S";
@@ -612,7 +624,6 @@ public class SpavisService {
 
         return result;
     }
-
 
     public Document callSpavisAPI(String spavisUrl){
         Document document = null;

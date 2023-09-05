@@ -14,17 +14,17 @@ public class HanwhaController {
     private HanwhaService hanwhaService;
 
     @GetMapping("/capa")
-    public void getCapa(int intAID, int intRmIdx, int intPkgIdx, String startDate, String endDate){
+    public void getCapa(int intAID, int intRmIdx, String intPkgIdx, String strLocalCode, String startDate, String endDate, String dataType){
 
-        String result = hanwhaService.getCapa(intAID, intRmIdx, intPkgIdx, startDate, endDate);
+        String result = hanwhaService.getCapa(intAID, intRmIdx, intPkgIdx, strLocalCode, startDate, endDate, dataType);
         System.out.println(result);
 
     }
 
     @GetMapping("/packageList")
-    public void getPackageList(String localCode, String strDate, String resultType){
+    public void getPackageList(String localCode, String strDate, String dataType){
 
-        String result = hanwhaService.getPackageList(localCode, strDate, resultType);
+        String result = hanwhaService.getPackageList(localCode, strDate, dataType);
         System.out.println(result);
 
     }

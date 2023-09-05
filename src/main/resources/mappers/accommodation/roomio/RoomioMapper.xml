@@ -6,7 +6,7 @@
 <mapper namespace="com.example.stay.accommodation.roomio.mapper.RoomioMapper">
 
     <select id="insertAccomm" resultType="String">
-
+        EXEC PLNDSTAY.dbo.spRMO_ACCOMM_REGIST #{strHotelId}, #{strHotelName}, #{strRoomDatas}, ''
     </select>
 
 </mapper>

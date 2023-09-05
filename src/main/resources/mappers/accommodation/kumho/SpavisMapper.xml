@@ -70,7 +70,7 @@
             </if>
             dateModified = GETDATE()
         WHERE strTicketNo = #{strTicketNo}
-            AND intRsvID = ${intRsvID}
+            AND intRsvID = #{strRsvID}
     </update>
 
     <update id="cancelAllTicket">
@@ -101,7 +101,16 @@
 
     <select id="getTicketList" resultType="String">
         SELECT strTicketNo
+        FROM PLNDSTAY.dbo.ASAN_SPAVIS_TICKET
         WHERE intRsvID = ${intRsvID}
+    </select>
+
+    <select id="getStrTicketNoCnt">
+        SELECT
+            COUNT(intIdx)
+        FROM PLNDSTAY.dbo.ASAN_SPAVIS_TICKET
+        WHERE intRsvID = #{strRsvID}
+            AND strTicketNo = #{strTicketNo}
     </select>
 
 </mapper>

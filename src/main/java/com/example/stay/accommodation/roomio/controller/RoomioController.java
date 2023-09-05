@@ -14,9 +14,9 @@ public class RoomioController {
     RoomioService roomioService;
 
     @GetMapping("/getAccomm")
-    public void getAccomm(){
+    public void getAccomm(String dataType){
 
-        roomioService.getAccomm();
+        roomioService.getAccomm(dataType);
 
     }
 
