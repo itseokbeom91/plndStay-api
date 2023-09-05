@@ -5,6 +5,39 @@
 
 <mapper namespace="com.example.stay.accommodation.resom.mapper.BookingMapper">
 
+    <select id="getBookingInfoFromBookingIdx" resultType="HashMap">
+        SELECT RS.strDeleteYn
+             , RS.strStatusCode
+             , RS.strRsvSite
+             , RS.strRsvCode
+             , RS.intAID
+             , RS.intRmIdx
+             , RS.intRmCnt
+             , RS.intQuantityA
+             , RS.intQuantityC
+             , RS.intQuantityB
+             , RS.dateCheckIn
+             , RS.dateCheckOut
+             , RS.strRmtypeName
+             , RS.strRmOptName
+             , RS.intUID
+             , RS.strOrdName
+             , RS.strOrdPhone
+             , RS.strOrdEmail
+             , RS.strRcvName
+             , RS.strRcvPhone
+             , RS.strRcvEmail
+             , RS.strRsvRmNum
+             , RS.strRemark
+             , RS.dateCreated
+             , R.strRmtypeID
+             , A.strPropertyID
+        FROM PLNDSTAY.dbo.RSV_STAY RS
+                 INNER JOIN PLNDSTAY.dbo.ACCOMM A with(nolock) on A.intAID = RS.intAID
+            INNER JOIN PLNDSTAY.dbo.RMTYPE R with(nolock) on R.intIdx = RS.intRmIdx
+        WHERE RS.intRsvID = #{BookingIdx}
+    </select>
+
     <select id="insertRoom" parameterType="String" resultType="String">
         EXEC PLNDSTAY.dbo.spRESOM_ACCOMM_REGIST #{strPackageDatas},  #{strRoomDatas}, #{strStockDatas}, #{strAccommDatas}, #{strType}, ''
     </select>

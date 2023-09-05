@@ -5,13 +5,15 @@ import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
 
-import javax.servlet.http.HttpServletRequest;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -19,12 +21,25 @@ import java.util.Map;
 @RequestMapping("/gp/accomm/*")
 public class AccommController {
 
+
+
+
     @Autowired
     AccommService accommService = new AccommService();
 
-    @GetMapping("/getPensionList")
+    @GetMapping(value = "/getPensionList", params = "dataType=view")
+    public String getPensionListFrame(Model model, String dataType) throws ParseException {
+        JSONParser jsonParser = new JSONParser();
+        JSONObject responseJson = null;
+        responseJson = (JSONObject) jsonParser.parse(accommService.getPensionList(dataType));
+        List<Map<String, Object>> responseList = (List<Map<String, Object>>) responseJson.get("result");
+        model.addAttribute("test", responseList);
+        return "/testMV";
+    }
+
+    @GetMapping(value = "/getPensionList")
     @ResponseBody
-    public String getPensionList(String dataType){
+    public String getPensionList(Model model, String dataType){
         return accommService.getPensionList(dataType);
     }
 
@@ -82,10 +97,9 @@ public class AccommController {
     }
 
     @GetMapping("/testMV")
-    @ResponseBody
     public ModelAndView testMV() throws ParseException {
         ModelAndView mv = new ModelAndView();
-        String test = getPensionList("jsonp");
+        String test = (String) accommService.getPensionList("jsonp");;
         test = test.substring(5, test.length() - 1);
         JSONParser jsonParser = new JSONParser();
         JSONObject responseJson = (JSONObject) jsonParser.parse(test);

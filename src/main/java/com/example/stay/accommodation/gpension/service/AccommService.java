@@ -370,7 +370,7 @@ public class AccommService {
 
     //시설, 객실 INSERT
     public String insertGP(String dataType) {
-        String accommData = getPensionList("jsonp");
+        String accommData = getPensionList("jsonp").toString();
         accommData = accommData.substring(5, accommData.length() - 1);
         String strAccommData = "";
         String strRoomData = "";
