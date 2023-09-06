@@ -9,4 +9,7 @@
         EXEC PLNDSTAY.dbo.spRMO_ACCOMM_REGIST #{strHotelId}, #{strHotelName}, #{strRoomDatas}, ''
     </select>
 
+    <select id="getRsvInfo" resultType="rsvStayDto">
+        exec PLNDSTAY.dbo.spGW_RSV_STAY_INFO ${intRsvID}
+    </select>
 </mapper>
