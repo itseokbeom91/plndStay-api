@@ -56,15 +56,19 @@ public class BookingService {
                 .build();
 
         LogWriter logWriter = new LogWriter(request.method(), request.url().toString(), startTime);
+        logWriter.addRequest(body.toString());
 
         try {
             Response response = client.newCall(request).execute();
 
             if(response.isSuccessful()) {
+                logWriter.add("ResponseCode :: " + response.code());
+                logWriter.add("ResponseMsg :: " + response.message());
                 //response 파싱
                 String responseBody = response.body().string();
                 JSONParser jsonParser = new JSONParser();
                 JSONObject responseJson = (JSONObject) jsonParser.parse(responseBody);
+                logWriter.add(String.valueOf(responseJson));
 
                 List<Map<String, Object>> packageResultList = (List<Map<String, Object>>) responseJson.get("resultList");
 
@@ -120,13 +124,19 @@ public class BookingService {
                     }
 
                 }
+                logWriter.log(0);
                 String updateResult = bookingMapper.insertRoom(pkgData, "", "", "", "01");
                 return commonFunction.makeReturn(dataType, statusCode, msg, responseJson);
             } else {
+                logWriter.add("ResponseCode :: " + response.code());
+                logWriter.add("ResponseMsg :: " + response.message());
+                logWriter.log(0);
                 return commonFunction.makeReturn(dataType, String.valueOf(response.code()), response.body().string());
             }
 
         } catch (Exception e) {
+            logWriter.add("error : " + e.getMessage());
+            logWriter.log(3);
             return commonFunction.makeReturn(dataType, "500", e.getMessage(), result);
         }
 
@@ -375,11 +385,11 @@ public class BookingService {
 
     }
     //예약
-    public String reservation(String dataType, String bookingIdx ,HttpServletRequest httpServletRequest) {
+    public String reservation(String dataType, String intRsvID ,HttpServletRequest httpServletRequest) {
         long startTime = System.currentTimeMillis();
         OkHttpClient client = new OkHttpClient().newBuilder().build();
 
-        Map<String, Object> bookingMap = bookingMapper.getBookingInfoFromBookingIdx(bookingIdx);
+        Map<String, Object> bookingMap = bookingMapper.getBookingInfoFromBookingIdx(intRsvID);
 
 
         String statusCode ="";
