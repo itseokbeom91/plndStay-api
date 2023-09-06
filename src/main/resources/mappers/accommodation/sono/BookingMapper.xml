@@ -6,7 +6,7 @@
 <mapper namespace="com.example.stay.accommodation.sono.mapper.BookingMapper">
 
     <select id="localInsert" resultType="String">
-        EXEC PLNDSTAY.dbo.spGW_ACM_LOCAL_INFO_UPDATE '', '', '01', #{strDatas}, '', ''
+        EXEC PLNDSTAY.dbo.spCM_ACM_LOCAL_INFO_UPDATE '01', #{strDatas}, ''
     </select>
 
     <select id="getBookingInfoFromBookingIdx" resultType="HashMap">
