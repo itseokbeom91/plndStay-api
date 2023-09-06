@@ -8,7 +8,12 @@ import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.GetMapping;
+
+import java.util.HashMap;
+import java.util.Map;
 
 @Service
 public class RoomioService {
@@ -188,7 +193,15 @@ public class RoomioService {
         return commonFunction.makeReturn("json", statusCode, message);
     }
 
-    public String getPrice(String strHotelId, String strRoomId, String strStartDate, String strEndDate){
+    /**
+     * 일자별 가격조회
+     * @param strHotelId
+     * @param strRoomId
+     * @param strStartDate
+     * @param strEndDate
+     * @return
+     */
+    public String getPrice(String strHotelId, String strRoomId, String strStartDate, String strEndDate, String dataType){
 
         String statusCode = "200";
         String message = "";
@@ -206,7 +219,73 @@ public class RoomioService {
 
             JsonNode jsonNode = commonFunction.callJsonApi("roomio","", jsonObject, "http://api.roomio.co.kr/", "POST");
 
+            String errorCode = jsonNode.get("error").toString();
+
+            // 0 : 성공
+            if(errorCode.equals("0")){
+                JSONArray listArray = (JSONArray) new JSONParser().parse(jsonNode.get("list").toString());
+                System.out.println("success");
+
+                // roomTypeListMap, ratePlanListMap 담을 map 생성
+                Map<String, Map> roomTypeListMap = new HashMap<String, Map>();
+                // 하나의 roomType에 여러개의 ratePlan이 있을 수 있어서 LinkedMultiValueMap 사용
+                MultiValueMap<String, Map> ratePlanListMap = new LinkedMultiValueMap<>();
+
+                // 이거일듯
+                String roomDatas = "";
+
+                for (Object object : listArray){
+
+                    JSONObject listObject = (JSONObject) new JSONParser().parse(object.toString());
+
+                    JSONObject valObject = new JSONObject();
+
+                    String strRoomType = listObject.get("room_type").toString(); // 1:룸온리, 2:패키지
+                    String strPkgCode = listObject.get("pkg_code").toString();
+                    String strCheckIndate = listObject.get("check_in").toString();
+                    String strSeason = listObject.get("season").toString(); // 1:비수기, 2:준성수기, 3:성수기, 4:극성수기
+                    String strPrice = listObject.get("a_price").toString();
+                    String strRoomCnt = listObject.get("room_cnt").toString();
+                    String strAddAdult = listObject.get("add_adult").toString();
+                    String strAddChild = listObject.get("add_child").toString();
+                    String strAddBaby = listObject.get("add_baby").toString();
+                    String strFreeCancel = listObject.get("cancel_able").toString(); // 무료취소여부 1:입실 1일전 무료취소, 2:입실 2일전 무료취소
+                    String strRoomState = listObject.get("room_state").toString(); // ??
+                    String strSPrice = listObject.get("s_price").toString(); // ??
+
+                    valObject.put("dateSales", strCheckIndate);
+                    valObject.put("intStock", strRoomCnt);
+                    valObject.put("moneySales", strPrice);
+                    valObject.put("moneyExtraA", strAddAdult);
+                    valObject.put("moneyExtraC", strAddChild);
+                    valObject.put("moneyExtraB", strAddBaby);
+                    valObject.put("dateSales", strCheckIndate);
+
+
+//                    System.out.println(listObject);
+
+                    if(strRoomType.equals("1")){
+                        ratePlanListMap.add("roomOnly", valObject);
+
+                        roomDatas += "roomOnly|^|" + strCheckIndate + "|^|" + strRoomCnt + "|^|" + strPrice + "|^|" + strAddAdult + "|^|" + strAddChild + "|^|" + strAddBaby + "|^|" + strCheckIndate + "{{^}}";
+                    }else{
+                        ratePlanListMap.add(strPkgCode, valObject);
+
+                        roomDatas += strPkgCode + "|^|" + strCheckIndate + "|^|" + strRoomCnt + "|^|" + strPrice + "|^|" + strAddAdult + "|^|" + strAddChild + "|^|" + strAddBaby + "|^|" + strCheckIndate + "{{^}}";
+                    }
+
+                }
+                System.out.println(ratePlanListMap);
+                System.out.println(roomDatas);
+                // roomDatas에 hotelId값으로 갈껀지 intAID로 갈껀지 결정 후 작업
+
+
+            }else{
+                System.out.println("fail");
+            }
+
             System.out.println(jsonNode);
+
 
         }catch (Exception e){
             message = " 실패";
@@ -214,16 +293,26 @@ public class RoomioService {
             e.printStackTrace();
         }
 
-        return commonFunction.makeReturn("json", statusCode, message);
+        return commonFunction.makeReturn(dataType, statusCode, message);
     }
 
-    public String booking(){
+    public String booking(int intRsvID){
 
         String statusCode = "200";
         String message = "";
         String result = "";
 
         try {
+
+
+
+            JSONObject jsonObject = new JSONObject();
+            jsonObject.put("m","getRoomState");
+            jsonObject.put("cd","7634");
+
+            JsonNode jsonNode = commonFunction.callJsonApi("roomio","", jsonObject, "http://api.roomio.co.kr/", "POST");
+
+            System.out.println(jsonNode);
 
         }catch (Exception e){
             message = " 실패";
