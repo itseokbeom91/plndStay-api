@@ -574,12 +574,12 @@ public class BookingService {
     }
 
     //패키지 예약
-    public String createBooking(String dataType,String bookingIdx, HttpServletRequest httpServletRequest) {
+    public String createBooking(String dataType,String intRsvID, HttpServletRequest httpServletRequest) {
         long startTime = System.currentTimeMillis();
 
         OkHttpClient client = new OkHttpClient().newBuilder().build();
 
-        Map<String, Object> bookingMap = bookingMapper.getBookingInfoFromBookingIdx(bookingIdx);
+        Map<String, Object> bookingMap = bookingMapper.getBookingInfoFromBookingIdx(intRsvID);
 
         JSONObject test = new JSONObject();
         JSONObject requestJson = new JSONObject();
@@ -627,6 +627,8 @@ public class BookingService {
                 JSONParser jsonParser = new JSONParser();
                 JSONObject responseJson = (JSONObject) jsonParser.parse(responseBody);
                 if(responseJson.get("resultCode").toString().equals("0000")){
+                    bookingMapper.updateBooking(intRsvID, "0", responseJson.get("roomRsvNo").toString());
+
                     return  commonFunction.makeReturn(dataType,"200","OK", responseJson);
                     //TO-DO 예약성공시 아래에 DB update 로직 추가
                 } else {
@@ -702,17 +704,22 @@ public class BookingService {
     }
 
     //예약 취소
-    public String cancelBooking(String dataType, String roomRsvNo, String pkgSaleSeq, String roomRsvSeq, String comRsvNo) {
+    public String cancelBooking(String dataType, String intRsvID) throws ParseException {
         long startTime = System.currentTimeMillis();
 
         OkHttpClient client = new OkHttpClient().newBuilder().build();
 
+        String bookInfo = getPackageBookingInfo("json", intRsvID);
+        JSONParser jsonParser = new JSONParser();
+        JSONObject infoJson = (JSONObject) jsonParser.parse(bookInfo);
+
+
         JSONObject test = new JSONObject();
         JSONObject requestJson = new JSONObject();
-        requestJson.put("comRsvNo", comRsvNo);
-        requestJson.put("roomRsvNo", roomRsvNo);
-        requestJson.put("pkgSaleSeq", pkgSaleSeq);
-        requestJson.put("roomRsvSeq", roomRsvSeq);
+        requestJson.put("comRsvNo", infoJson.get("comRsvNo"));
+        requestJson.put("roomRsvNo", infoJson.get("rsvNo"));
+        requestJson.put("pkgSaleSeq", infoJson.get("pkgSaleSeq"));
+        requestJson.put("roomRsvSeq", infoJson.get("keyRsvNo"));
         requestJson.put("businessId", Constants.resomId);
         requestJson.put("language", Constants.resomLanguage);
         String contents = requestJson.toJSONString();
@@ -735,9 +742,10 @@ public class BookingService {
                 //response 파싱
                 String responseBody = response.body().string();
 
-                JSONParser jsonParser = new JSONParser();
                 JSONObject responseJson = (JSONObject) jsonParser.parse(responseBody);
                 System.out.println(responseJson);
+
+                bookingMapper.updateBooking(intRsvID, "5", responseJson.get("roomRsvNo").toString());
 
                 return  commonFunction.makeReturn(dataType,"200","OK", responseJson);
 
@@ -865,14 +873,16 @@ public class BookingService {
     }
 
     //패키지 예약조회
-    public String getPackageBookingInfo(String dataType, String ciYmd, String roomRsvNo, String guestNm, String mpNo) {
+    public String getPackageBookingInfo(String dataType, String intRsvID) {
         long startTime = System.currentTimeMillis();
+
+        Map<String, Object> bookingMap = bookingMapper.getBookingInfoFromBookingIdx(intRsvID);
 
         OkHttpClient client = new OkHttpClient().newBuilder().build();
 
         JSONObject test = new JSONObject();
         JSONObject requestJson = new JSONObject();
-        String requestUrl = "?ciYmd=" + ciYmd + "&businessId=" + Constants.resomId + "&language=" + Constants.resomLanguage + "&roomRsvNo=" + roomRsvNo + "&guestNm=" + guestNm + "&mpNo=" + mpNo;
+        String requestUrl = "?ciYmd=" + bookingMap.get("dateCheckIn") + "&businessId=" + Constants.resomId + "&language=" + Constants.resomLanguage + "&roomRsvNo=" + bookingMap.get("strRsvRmNum") + "&guestNm=" + bookingMap.get("strRcvName") + "&mpNo=" + bookingMap.get("strRcvPhone");
         String contents = requestJson.toJSONString();
         MediaType mediaType = MediaType.parse("application/json;");
         RequestBody body = RequestBody.create(mediaType, contents);

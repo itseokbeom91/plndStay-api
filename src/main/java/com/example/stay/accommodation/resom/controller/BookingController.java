@@ -1,6 +1,7 @@
 package com.example.stay.accommodation.resom.controller;
 
 import com.example.stay.accommodation.resom.service.BookingService;
+import org.json.simple.parser.ParseException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
@@ -71,8 +72,8 @@ public class BookingController {
 
     @GetMapping("/cancelBooking")
     @ResponseBody
-    public String cancelBooking(String dataType, String roomRsvNo, String pkgSaleSeq, String roomRsvSeq, String comRsvNo) {
-        return bookingService.cancelBooking(dataType, roomRsvNo, pkgSaleSeq, roomRsvSeq, comRsvNo);
+    public String cancelBooking(String dataType, String bookingIdx) throws ParseException {
+        return bookingService.cancelBooking(dataType, bookingIdx);
     }
 
     @GetMapping("/updateGuest")
@@ -83,8 +84,8 @@ public class BookingController {
 
     @GetMapping("/getPackageBookingInfo")
     @ResponseBody
-    public String getPackageBookingInfo(String dataType, String ciYmd, String roomRsvNo, String guestNm, String mpNo) {
-        return bookingService.getPackageBookingInfo(dataType, ciYmd, roomRsvNo, guestNm, mpNo);
+    public String getPackageBookingInfo(String dataType, String bookingIdx) {
+        return bookingService.getPackageBookingInfo(dataType, bookingIdx);
     }
 
     //예약 조회
