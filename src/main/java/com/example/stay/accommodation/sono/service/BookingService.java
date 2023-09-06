@@ -492,6 +492,7 @@ public class BookingService {
                     }
 
                 }
+                localInfo = localInfo.substring(0, localInfo.length()-5);
 
                 String inserResult = bookingMapper.localInsert(localInfo);
 

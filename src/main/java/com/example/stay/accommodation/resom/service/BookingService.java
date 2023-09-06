@@ -161,6 +161,8 @@ public class BookingService {
                             resultmap.get("rmTypeCd") + "|^|" + resultmap.get("rmTypeNm") + "{{|}}";
                 }
 
+                localInfo = localInfo.substring(0, localInfo.length()-5);
+
                 String insertResult = bookingMapper.localInsert(localInfo);
 
                 return  commonFunction.makeReturn(dataType,"200","OK", responseJson);
