@@ -513,7 +513,7 @@ public class BookingService {
     }
 
     //객실 요금 조회
-    public String getRoomAmount(String dataType, HttpServletRequest httpServletRequest, String storeCd, String sMonth) {
+    public String getRoomAmount(String dataType, HttpServletRequest httpServletRequest, String storeCd, String rmTypeCd, String ciYmd, String nights) {
         long startTime = System.currentTimeMillis();
         OkHttpClient client = new OkHttpClient().newBuilder().build();
 
@@ -526,13 +526,16 @@ public class BookingService {
         requestJson.put("businessId", Constants.sonoRoomId);
         requestJson.put("language", Constants.sonoLanguage);
         requestJson.put("storeCd", storeCd);
-        requestJson.put("sMonth", sMonth);
+        requestJson.put("rmTypeCd", rmTypeCd);
+        requestJson.put("ciYmd", ciYmd);
+        requestJson.put("nights", nights);
+        requestJson.put("rmCnt", "1");
         String contents = requestJson.toJSONString();
         MediaType mediaType = MediaType.parse("application/json");
         RequestBody body = RequestBody.create(mediaType, contents);
 
         Request request = new Request.Builder()
-                .url(Constants.sonoRoomPath + "/amountList01")
+                .url(Constants.sonoRoomPath + "/amountList02")
                 .method("POST", body)
                 .addHeader("X-AUTH-TOKEN", Constants.sonoRoomAuth)
                 .addHeader("Content-Type", "application/json")
