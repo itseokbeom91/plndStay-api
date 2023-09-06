@@ -125,7 +125,7 @@ public class BookingService {
 
                 }
                 logWriter.log(0);
-                String updateResult = bookingMapper.insertRoom(pkgData, "", "", "", "01");
+//                String updateResult = bookingMapper.insertRoom(pkgData, "", "", "", "01");
                 return commonFunction.makeReturn(dataType, statusCode, msg, responseJson);
             } else {
                 logWriter.add("ResponseCode :: " + response.code());
@@ -753,7 +753,7 @@ public class BookingService {
                 JSONObject responseJson = (JSONObject) jsonParser.parse(responseBody);
 
                 List<Map<String, Object>> resultList = (List<Map<String, Object>>) responseJson.get("resultList");
-                return commonFunction.makeReturn(dataType, statusCode, msg, responseJson);
+                return commonFunction.makeReturn(dataType, "200", "OK", responseJson);
 
 
             } else {
@@ -764,7 +764,7 @@ public class BookingService {
                 JSONObject responseJson = (JSONObject) jsonParser.parse(responseBody);
 
                 List<Map<String, Object>> resultList = (List<Map<String, Object>>) responseJson.get("resultList");
-                return commonFunction.makeReturn(dataType, statusCode, msg, responseJson);
+                return commonFunction.makeReturn(dataType, "200", "OK", responseJson);
             }
 
         } catch (Exception e) {
@@ -816,7 +816,9 @@ public class BookingService {
                 String curRsvYN = (String) roomResultList.get(i).get("curRsvYN");
                 String curRsvTime = (String) roomResultList.get(i).get("todayRsvTime");
                 String stayNights = String.valueOf(roomResultList.get(i).get("stayNights"));
-                if(curRsvTime.length() == 4){curRsvTime = curRsvTime.substring(0, 2) + ":" + curRsvTime.substring(2, 4);}
+                if(curRsvTime!=null){
+                    if(curRsvTime.length() == 4){curRsvTime = curRsvTime.substring(0, 2) + ":" + curRsvTime.substring(2, 4);}
+                }
 
                 //roomData = 삭제여부 |^| 사용여부 |^| 기준인원 |^| 최대인원 |^| 룸데이터 |^| 최소숙박 |^| 최대숙박일 |^| 조식 |^| depth |^| 환불여부
 

@@ -73,7 +73,7 @@ public class AccommController {
         return accommService.getRoomInfo(dataType, pensionId, roomId);
     }
 
-    @GetMapping("/getRoomPriceInfo")
+    @GetMapping("/getRoomPrice")
     @ResponseBody
     public String getRoomPriceInfo(String dataType, String pensionId){
         return accommService.getRoomPriceInfo(dataType, pensionId);
@@ -81,8 +81,8 @@ public class AccommController {
 
     @GetMapping("/getPensionModList")
     @ResponseBody
-    public String getPensionModList(String dataType, String lastDate){
-        return accommService.getPensionModList(dataType, lastDate);
+    public String getPensionModList(String dataType, String endDate){
+        return accommService.getPensionModList(dataType, endDate);
     }
 
     @GetMapping("/insertGP")

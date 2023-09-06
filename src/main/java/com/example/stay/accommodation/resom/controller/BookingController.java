@@ -34,37 +34,37 @@ public class BookingController {
         return bookingService.getPackageInfo(dataType, pkgNo);
     }
 
-    @GetMapping("/getPackageStatus1")
+    @GetMapping("/getPackageStock1")
     @ResponseBody
     public String getPackageStatus(String dataType, String pkgNo, String storeCd, String sDate) {
         return bookingService.getPackageStatus(dataType, pkgNo, storeCd, sDate);
     }
 
-    @GetMapping("/getPackageStatus2")
+    @GetMapping("/getPackageStock2")
     @ResponseBody
     public String getPackageStatus(String dataType, String pkgNo, String storeCd, String sDate, String rmTypeCd) {
         return bookingService.getPackageStatus(dataType, pkgNo, storeCd, sDate, rmTypeCd);
     }
 
-    @GetMapping("/getPackageStatus3")
+    @GetMapping("/getPackageStock3")
     @ResponseBody
     public String getPackageStatusMonth(String dataType, String pkgNo, String storeCd, String rmTypeCd, String sDate, String nights) {
         return bookingService.getPackageStatus(dataType, pkgNo, storeCd, rmTypeCd, sDate, nights);
     }
 
-    @GetMapping("/getPackageAmount1")
+    @GetMapping("/getPackagePrice1")
     @ResponseBody
     public String getPackageAmount(String dataType, String pkgNo, String storeCd, String sDate) {
         return bookingService.getPackageAmount(dataType, pkgNo, storeCd, sDate);
     }
 
-    @GetMapping("/getPackageAmount2")
+    @GetMapping("/getPackagePrice2")
     @ResponseBody
     public String getPackageAmount(String dataType, String pkgNo, String storeCd, String sDate, String rmTypeCd) {
         return bookingService.getPackageAmount(dataType, pkgNo, storeCd, sDate, rmTypeCd);
     }
 
-    @GetMapping("/getPackageAmount3")
+    @GetMapping("/getPackagePrice3")
     @ResponseBody
     public String getPackageAmount(String dataType, String pkgNo, String storeCd, String sDate, String rmTypeCd, String nights) {
         return bookingService.getPackageAmount(dataType, pkgNo, storeCd, sDate, rmTypeCd, nights);
@@ -76,7 +76,7 @@ public class BookingController {
         return bookingService.cancelBooking(dataType, bookingIdx);
     }
 
-    @GetMapping("/updateGuest")
+    @GetMapping("/updateBookingInfo")
     @ResponseBody
     public String updateGuest(String dataType, String bookingIdx, String mpNo, String guestNm) throws ParseException {
         return bookingService.updateGuest(dataType, bookingIdx, mpNo, guestNm);
@@ -89,7 +89,7 @@ public class BookingController {
     }
 
     //예약 조회
-    @GetMapping("/reservationList")
+    @GetMapping("/getBookingList")
     @ResponseBody
     public String reservationList(String dataType, String stndDt) {
         return bookingService.reservationList(dataType, stndDt);
@@ -102,13 +102,13 @@ public class BookingController {
         return bookingService.createBooking(dataType, bookingIdx, httpServletRequest);
     }
 
-    @GetMapping("/insertRESOM")
+    @GetMapping("/insertAccommInfo")
     @ResponseBody
     public String insertRESOM(String dataType, HttpServletRequest httpServletRequest) {
         return bookingService.insertRESOM(dataType, httpServletRequest);
     }
 
-    @GetMapping("/stockResult")
+    @GetMapping("/updateStock")
     @ResponseBody
     public String getStockAndInsert(String dataType, HttpServletRequest httpServletRequest) {
         return bookingService.getStockAndInsert(dataType, httpServletRequest);
