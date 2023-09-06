@@ -34,8 +34,8 @@ public class BookingController {
     // 재고 등록 및 수정
     @GetMapping("updateGoods")
     @ResponseBody
-    public String updateGoods(String dataType, HttpServletRequest httpServletRequest, int intRmIdx, String startDate, String endDate, String pkgCode){
-        return bookingService.updateGoods(dataType, httpServletRequest, intRmIdx, startDate, endDate, pkgCode);
+    public String updateGoods(String dataType, HttpServletRequest httpServletRequest, int intRmIdx, String startDate, String endDate){
+        return bookingService.updateGoods(dataType, httpServletRequest, intRmIdx, startDate, endDate);
     }
 
     // 체크인 날짜에 해당되는 객실 수량 및 계산된 총 요금 조회
@@ -55,29 +55,29 @@ public class BookingController {
     // 예약
     @GetMapping("createBooking")
     @ResponseBody
-    public String createBooking(String dataType, int intBookingIdx, HttpServletRequest httpServletRequest){
-        return bookingService.createBooking(dataType, intBookingIdx, httpServletRequest);
+    public String createBooking(String dataType, int intRsvID, HttpServletRequest httpServletRequest){
+        return bookingService.createBooking(dataType, intRsvID, httpServletRequest);
     }
 
     // 예약 취소
     @GetMapping("cancelBooking")
     @ResponseBody
-    public String cancelBooking(String dataType, int intBookingIdx, HttpServletRequest httpServletRequest){
-        return bookingService.cancelBooking(dataType, intBookingIdx, httpServletRequest);
+    public String cancelBooking(String dataType, int intRsvID, HttpServletRequest httpServletRequest){
+        return bookingService.cancelBooking(dataType, intRsvID, httpServletRequest);
     }
 
     // 예약 수정
     @GetMapping("modifyBooking")
     @ResponseBody
-    public String modifyBooking(String dataType, int intBookingIdx, HttpServletRequest httpServletRequest){
-        return bookingService.modifyBooking(dataType, intBookingIdx, httpServletRequest);
+    public String modifyBooking(String dataType, int intRsvID, HttpServletRequest httpServletRequest){
+        return bookingService.modifyBooking(dataType, intRsvID, httpServletRequest);
     }
 
     // 예약 상세 조회
     @GetMapping("checkBooking")
     @ResponseBody
-    public String checkBooking(String dataType, int intBookingIdx, HttpServletRequest httpServletRequest){
-        return bookingService.checkBooking(dataType, intBookingIdx, httpServletRequest);
+    public String checkBooking(String dataType, int intRsvID, HttpServletRequest httpServletRequest){
+        return bookingService.checkBooking(dataType, intRsvID, httpServletRequest);
     }
 
     // 예약 리스트 조회(체크인날짜 기준)
@@ -86,9 +86,9 @@ public class BookingController {
     @ResponseBody
     public String checkBookingList(String dataType, HttpServletRequest httpServletRequest,
                                    @Nullable String searchFlag, @Nullable String searchData, String sDate, String eDate,
-                                   @Nullable String rsvFlag){
+                                   @Nullable String rsvFlag, String strPkgCode){
         return bookingService.checkBookingList(dataType, httpServletRequest, searchFlag, searchData,
-                                                sDate, eDate, rsvFlag);
+                                                sDate, eDate, rsvFlag, strPkgCode);
     }
 
 
