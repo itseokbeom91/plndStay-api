@@ -482,6 +482,19 @@ public class BookingService {
                 JSONParser jsonParser = new JSONParser();
                 JSONObject responseJson = (JSONObject) jsonParser.parse(responseBody);
                 List<Map<String, Object>> resultList = (List<Map<String, Object>>) responseJson.get("resultList");
+                String localInfo ="";
+                for (Map<String, Object>resultmap : resultList){
+
+                    List<Map<String, Object>> roomList = (List<Map<String, Object>>) resultmap.get("roomTypeList");
+                    for (Map<String, Object>roomMap : roomList){
+                        localInfo += "|^|" + resultmap.get("storeCd") + "|^|" + resultmap.get("storeNm") + "|^|" + resultmap.get("lcalCd") + "|^|" + resultmap.get("lcalNm") + "|^|";
+                        localInfo += roomMap.get("rmTypeCd") + "|^|" + roomMap.get("rmTypeNm") + "{{|}}";
+                    }
+
+                }
+
+                String inserResult = bookingMapper.localInsert(localInfo);
+
 
                 return commonFunction.makeReturn(dataType, "200","OK", responseJson);
 

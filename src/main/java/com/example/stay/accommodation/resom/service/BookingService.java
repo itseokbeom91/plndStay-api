@@ -154,6 +154,14 @@ public class BookingService {
                 JSONParser jsonParser = new JSONParser();
                 JSONObject responseJson = (JSONObject) jsonParser.parse(responseBody);
                 System.out.println(responseJson);
+                List<Map<String, Object>> resultList = (List<Map<String, Object>>) responseJson.get("storeList");
+                String localInfo ="";
+                for (Map<String, Object>resultmap : resultList){
+                    localInfo += "|^|" + "|^|" +  "|^|" + resultmap.get("storeCd") + "|^|" + resultmap.get("storeNm") + "|^|" +
+                            resultmap.get("rmTypeCd") + "|^|" + resultmap.get("rmTypeNm") + "{{|}}";
+                }
+
+                String insertResult = bookingMapper.localInsert(localInfo);
 
                 return  commonFunction.makeReturn(dataType,"200","OK", responseJson);
             } else {
@@ -819,15 +827,19 @@ public class BookingService {
     }
 
     //이용자 정보 변경
-    public String updateGuest(String dataType, String roomRsvSeq, String pkgSaleSeq, String guestNm, String mpNo) {
+    public String updateGuest(String dataType, String intRsvID, String mpNo, String guestNm) throws ParseException {
         long startTime = System.currentTimeMillis();
 
         OkHttpClient client = new OkHttpClient().newBuilder().build();
 
+        String bookinfo = getPackageBookingInfo("json", intRsvID);
+        JSONParser jsonParser = new JSONParser();
+        JSONObject infoJson = (JSONObject) jsonParser.parse(bookinfo);
+
         JSONObject test = new JSONObject();
         JSONObject requestJson = new JSONObject();
-        requestJson.put("roomRsvSeq", roomRsvSeq);
-        requestJson.put("pkgSaleSeq", pkgSaleSeq);
+        requestJson.put("roomRsvSeq", infoJson.get("keyRsvNo"));
+        requestJson.put("pkgSaleSeq", infoJson.get("pkgSaleSeq"));
         requestJson.put("guestNm", guestNm);
         requestJson.put("mpNo", mpNo);
         requestJson.put("businessId", Constants.resomId);
@@ -852,7 +864,6 @@ public class BookingService {
                 //response 파싱
                 String responseBody = response.body().string();
 
-                JSONParser jsonParser = new JSONParser();
                 JSONObject responseJson = (JSONObject) jsonParser.parse(responseBody);
                 System.out.println(responseJson);
 

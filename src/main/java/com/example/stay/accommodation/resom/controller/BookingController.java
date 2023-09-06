@@ -78,8 +78,8 @@ public class BookingController {
 
     @GetMapping("/updateGuest")
     @ResponseBody
-    public String updateGuest(String dataType, String roomRsvSeq, String pkgSaleSeq, String guestNm, String mpNo) {
-        return bookingService.updateGuest(dataType, roomRsvSeq, pkgSaleSeq, guestNm, mpNo);
+    public String updateGuest(String dataType, String bookingIdx, String mpNo, String guestNm) throws ParseException {
+        return bookingService.updateGuest(dataType, bookingIdx, mpNo, guestNm);
     }
 
     @GetMapping("/getPackageBookingInfo")
