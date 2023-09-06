@@ -296,13 +296,15 @@ public class RoomioService {
         return commonFunction.makeReturn(dataType, statusCode, message);
     }
 
-    public String booking(){
+    public String booking(int intRsvID){
 
         String statusCode = "200";
         String message = "";
         String result = "";
 
         try {
+
+
 
             JSONObject jsonObject = new JSONObject();
             jsonObject.put("m","getRoomState");

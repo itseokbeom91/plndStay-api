@@ -38,7 +38,10 @@ public class RoomioController {
     }
 
     @GetMapping("/booking")
-    public void booking(){}
+    public void booking(int intRsvID){
+
+        roomioService.booking(intRsvID);
+    }
 
     @GetMapping("/bookingInfo")
     public void bookingInfo(){}

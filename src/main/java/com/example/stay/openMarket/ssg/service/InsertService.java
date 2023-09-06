@@ -4,9 +4,7 @@ import com.example.stay.common.util.CommonFunction;
 import com.example.stay.openMarket.common.dto.AccommDto;
 import com.example.stay.openMarket.common.dto.CondoDto;
 import com.example.stay.openMarket.common.dto.StockDto;
-import com.example.stay.openMarket.common.mapper.CommonApiMapper;
 import com.example.stay.openMarket.common.mapper.CommonMapper;
-import com.example.stay.openMarket.common.service.CommonApiService;
 import com.example.stay.common.util.Constants;
 import com.example.stay.openMarket.common.service.CommonService;
 import com.example.stay.openMarket.ssg.mapper.SsgMapper;
@@ -246,7 +244,6 @@ public class InsertService {
             Date date = new Date();
             String strNow = dateFormat.format(date);
 
-            //List<StockDto> stockList = commonApiMapper.getStockList(intAID, "SSG", strNow);
             List<StockDto> stockList = commonMapper.getStockList(intAID, 7, strNow);
 
             List<Object> uitemList = new ArrayList<>();
@@ -338,7 +335,6 @@ public class InsertService {
             JSONObject salesPrcObject = new JSONObject();
             JSONObject salesPrcInfoObject = new JSONObject();
 
-            //int intSellprc = commonApiMapper.getMinPrice(intAID, strNow);
 
             int intSellprc = commonMapper.getMinPrice(intAID, strNow);
             System.out.println(intSellprc);

@@ -4,9 +4,7 @@ import com.example.stay.common.util.CommonFunction;
 import com.example.stay.openMarket.common.dto.AccommDto;
 import com.example.stay.openMarket.common.dto.CondoDto;
 import com.example.stay.openMarket.common.dto.StockDto;
-import com.example.stay.openMarket.common.mapper.CommonApiMapper;
 import com.example.stay.openMarket.common.mapper.CommonMapper;
-import com.example.stay.openMarket.common.service.CommonApiService;
 import com.example.stay.common.util.Constants;
 import com.example.stay.openMarket.common.service.CommonService;
 import com.example.stay.openMarket.ssg.mapper.SsgMapper;
@@ -30,11 +28,6 @@ import java.util.Scanner;
 @Service
 public class UpdateService {
 
-    @Autowired
-    private CommonApiService commonApiService;
-
-    @Autowired
-    private CommonApiMapper commonApiMapper;
 
     @Autowired
     private CommonService commonService;
@@ -61,7 +54,6 @@ public class UpdateService {
             String strItemId = accommDto.getStrPdtCode();
 
             // api로 가져온 ssg 시설 정보
-            //JsonNode jsonNode = commonApiService.callJsonApi(strItemId, "SSG", "getInfo", new JSONObject());
 
             JsonNode jsonNode = commonFunction.callJsonApi("SSG", "", new JSONObject(), "https://eapi.ssgadm.com/item/0.4/viewItem.ssg?itemId=" + strItemId, "POST");
             JSONObject object = (JSONObject) new JSONParser().parse(jsonNode.get("result").toString());
@@ -198,7 +190,6 @@ public class UpdateService {
                     }
 
 
-                    //List<StockDto> stockList = commonApiMapper.getStockList(intAID, "SSG", strNow);
                     List<StockDto> stockList = commonMapper.getStockList(intAID, 7, strNow);
 
                     List<Object> uitemList = new ArrayList<>();
@@ -344,10 +335,9 @@ public class UpdateService {
             //result = resultObject.toJSONString();
 
             // api 호출
-            //JsonNode resultNode = commonApiService.callJsonApi(strItemId, "SSG", "update", resultObject);
-//            JsonNode resultNode = commonFunction.callJsonApi("SSG", "", resultObject, "https://eapi.ssgadm.com/item/0.4/updateItem.ssg", "POST");
-//            result = resultNode.toString();
-//            System.out.println(result);
+            JsonNode resultNode = commonFunction.callJsonApi("SSG", "", resultObject, "https://eapi.ssgadm.com/item/0.4/updateItem.ssg", "POST");
+            result = resultNode.toString();
+            System.out.println(result);
 
 
         }catch (Exception e){
