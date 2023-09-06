@@ -11,7 +11,7 @@ public interface ElysianMapper {
 
     int getIntAID(int intRmIdx);
 
-    Map<String, String> getPackage(int intRmIdx);
+    String getStrPkgCode(int intRmIdx);
 
     RsvStayDto getReservation(int intRsvID);
 

@@ -38,17 +38,10 @@ public class BookingService {
         String message = "";
 
         try{
-            // TODO : intRmIdx로 패키지 정보 가져오기
-            Map<String, String> pkgMap = elysianMapper.getPackage(intRmIdx);
-            String strPkgCode = pkgMap.get("strPkgCode");
-            String strPkgSubCode = pkgMap.get("strPkgCode");
+            String strPkgCode = elysianMapper.getStrPkgCode(intRmIdx);
 
 //            strPkgCode = "90004884";
-            // TODO : 서브코드 1-2-3-1-2-3 / 1-2-3 ?
-            String pcode_seq = "1";
-            String[] subPkgArr = strPkgSubCode.split("-");
-
-            String elysUrl = "type=SB&pcode=" + strPkgCode + "&pcode_seq=" + pcode_seq + "&sdate=" + sdate + "&edate=" + edate;
+            String elysUrl = "type=SB&pcode=" + strPkgCode + "&sdate=" + sdate + "&edate=" + edate;
 
             String strResponse = callElysAPI(elysUrl);
 
@@ -166,16 +159,15 @@ public class BookingService {
             String name  = rsvStayDto.getStrOrdName();
             String pcode  = rsvStayDto.getStrPkgCode();
 
-            String pcode_seq  = rsvStayDto.getStrPkgSubCode();
-            String pkgSubArr [] = pcode_seq.split("-");
+            String strPkgSubCode  = rsvStayDto.getStrPkgSubCode();
+            String pkgSubArr [] = strPkgSubCode.split("-");
             
             Date dateCheckIn = rsvStayDto.getDateCheckIn();
             Calendar calendar = Calendar.getInstance();
             calendar.setTime(dateCheckIn);
-            int week = calendar.get(Calendar.DAY_OF_WEEK); // 요일 1 : 일 ~ 7 : 토
-            
-            // TODO : 패키지 서브코드 (pcode_seq)랑 체크인날짜의 요일 맞춰서 보낼 것
+            int intWeek = calendar.get(Calendar.DAY_OF_WEEK); // 요일 1 : 일 ~ 7 : 토
 
+            String pcode_seq = pkgSubArr[intWeek];
 
             SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd");
             String bdate = sdf.format(rsvStayDto.getDateCheckIn()); // 도착일자
