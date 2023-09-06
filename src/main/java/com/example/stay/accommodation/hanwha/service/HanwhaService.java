@@ -444,6 +444,8 @@ public class HanwhaService {
 
             }
 
+            if(strAccommId == null){strAccommId = "";}
+
             detailObject.put("CUST_NO", Constants.hanwhaCustNo);
             detailObject.put("CONT_NO", Constants.hanwhaContNo);
             detailObject.put("LOC_CD", strAccommId);
