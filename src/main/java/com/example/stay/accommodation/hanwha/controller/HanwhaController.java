@@ -2,6 +2,7 @@ package com.example.stay.accommodation.hanwha.controller;
 
 import com.example.stay.accommodation.hanwha.service.HanwhaService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -27,7 +28,7 @@ public class HanwhaController {
 
     @GetMapping("/packageList")
     @ResponseBody
-    public String getPackageList(String localCode, String strDate, String dataType){
+    public String getPackageList(@Nullable String localCode, String strDate, String dataType){
 
         String result = hanwhaService.getPackageList(localCode, strDate, dataType);
         System.out.println(result);

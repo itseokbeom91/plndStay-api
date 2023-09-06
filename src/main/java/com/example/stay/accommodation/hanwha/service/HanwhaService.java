@@ -434,6 +434,8 @@ public class HanwhaService {
             JSONObject dataObject = new JSONObject();
             JSONObject detailObject = new JSONObject();
 
+            if(strStartDate == null){strStartDate = "";}
+
             // 날짜 없을시 오늘날짜 넣기
             if(strStartDate.length() == 0){
 
@@ -443,6 +445,8 @@ public class HanwhaService {
                 strStartDate = localDate.format(dateFormatter);
 
             }
+
+            if(strAccommId == null){strAccommId = "";}
 
             detailObject.put("CUST_NO", Constants.hanwhaCustNo);
             detailObject.put("CONT_NO", Constants.hanwhaContNo);

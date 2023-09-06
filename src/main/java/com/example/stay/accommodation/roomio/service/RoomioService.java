@@ -2,6 +2,7 @@ package com.example.stay.accommodation.roomio.service;
 
 import com.example.stay.accommodation.roomio.mapper.RoomioMapper;
 import com.example.stay.common.util.CommonFunction;
+import com.example.stay.openMarket.common.dto.RsvStayDto;
 import com.fasterxml.jackson.databind.JsonNode;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
@@ -304,15 +305,17 @@ public class RoomioService {
 
         try {
 
+            RsvStayDto rsvStayDto = roomioMapper.getRsvInfo(intRsvID);
 
+            System.out.println(rsvStayDto);
 
             JSONObject jsonObject = new JSONObject();
             jsonObject.put("m","getRoomState");
             jsonObject.put("cd","7634");
 
-            JsonNode jsonNode = commonFunction.callJsonApi("roomio","", jsonObject, "http://api.roomio.co.kr/", "POST");
+//            JsonNode jsonNode = commonFunction.callJsonApi("roomio","", jsonObject, "http://api.roomio.co.kr/", "POST");
 
-            System.out.println(jsonNode);
+//            System.out.println(jsonNode);
 
         }catch (Exception e){
             message = " 실패";
