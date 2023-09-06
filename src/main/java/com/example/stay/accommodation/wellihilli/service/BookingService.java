@@ -4,6 +4,7 @@ import com.example.stay.accommodation.wellihilli.mapper.WellihilliMapper;
 import com.example.stay.common.util.CommonFunction;
 import com.example.stay.common.util.Constants;
 import com.example.stay.common.util.LogWriter;
+import com.example.stay.openMarket.common.dto.RsvStayDto;
 import com.fasterxml.jackson.databind.JsonNode;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
@@ -15,8 +16,6 @@ import org.springframework.stereotype.Service;
 import javax.servlet.http.HttpServletRequest;
 import java.net.URLEncoder;
 import java.text.SimpleDateFormat;
-import java.time.DayOfWeek;
-import java.time.LocalDate;
 import java.util.*;
 
 @Service("wellihilli.BookingService")
@@ -28,14 +27,16 @@ public class BookingService {
     CommonFunction commonFunction = new CommonFunction();
 
     // 재고 등록 및 수정
-    public String updateGoods(String dataType, HttpServletRequest httpServletRequest, int intRmIdx, String startDate, String endDate, String pkgCode){
+    public String updateGoods(String dataType, HttpServletRequest httpServletRequest, int intRmIdx, String startDate, String endDate){
         String statusCode  = "200";
         String message = "";
         LogWriter logWriter = new LogWriter(httpServletRequest.getMethod(), httpServletRequest.getServletPath(),
                 httpServletRequest.getQueryString(), System.currentTimeMillis());
 
         try{
-            String strUrl = Constants.whpUrl + ":8070/api/vapi/reservation/calendar?s_vendor_code=" + pkgCode +
+            String strPkgcode = wellihilliMapper.getStrPkgCode(intRmIdx);
+
+            String strUrl = Constants.whpUrl + ":8070/api/vapi/reservation/calendar?s_vendor_code=" + strPkgcode +
                     "&sresrm=C&s_arrday=" + startDate + "&s_today=" + endDate;
             String method = "GET";
 
@@ -76,31 +77,6 @@ public class BookingService {
                         SimpleDateFormat sdf2 = new SimpleDateFormat("yyyy-MM-dd");
                         String strDateSales = sdf2.format(yearDate);
 
-//                        double doubleOmkSales = 0;
-
-                        int year = Integer.parseInt(strDateSales.substring(0, 4));
-                        int month = Integer.parseInt(strDateSales.substring(5, 7));
-                        int day = Integer.parseInt(strDateSales.substring(8,10));
-
-                        LocalDate date = LocalDate.of(year, month, day);
-                        DayOfWeek dayOfWeek = date.getDayOfWeek();
-
-                        /**
-                         * 임시
-                         */
-//                        double weekday = 1.09; // 일~목
-//                        double friday = 1.09; // 금
-//                        double saturday = 1.1; // 토
-//
-//                        if(dayOfWeek.getValue() == 7 || dayOfWeek.getValue() == 1 || dayOfWeek.getValue() == 2 ||
-//                                dayOfWeek.getValue() == 3 || dayOfWeek.getValue() == 4){
-//                            doubleOmkSales = intSales * weekday;
-//                        }else if(dayOfWeek.getValue() == 5){
-//                            doubleOmkSales = intSales * friday;
-//                        }else if(dayOfWeek.getValue() == 6){
-//                            doubleOmkSales = intSales * saturday;
-//                        }
-
                         int intExtraA = 0;
                         int intExtraC= 0;
                         int intExtraB = 0;
@@ -126,7 +102,7 @@ public class BookingService {
                 }
 
             }else{
-                message = "재고 등록/수정 실패 - api 응답 코드 : " + code;
+                message = "웰리힐리 api 호출 실패";
             }
             logWriter.add(message);
             logWriter.log(0);
@@ -141,7 +117,7 @@ public class BookingService {
     }
 
     // 예약 가능 여부 조회
-    public boolean checkAvailBooking(String pyung, String sDate, String sleep, String roomCount, String roomType){
+    public boolean checkAvailBooking(String pyung, String sDate, long sleep, int roomCount, String roomType){
         LogWriter logWriter = new LogWriter(System.currentTimeMillis());
         boolean avail = false;
 
@@ -266,7 +242,7 @@ public class BookingService {
     }
 
     // 예약
-    public String createBooking(String dataType, int intBookingIdx, HttpServletRequest httpServletRequest){
+    public String createBooking(String dataType, int intRsvID, HttpServletRequest httpServletRequest){
         String statusCode = "200";
         String message = "";
 
@@ -274,47 +250,70 @@ public class BookingService {
                 httpServletRequest.getQueryString(), System.currentTimeMillis());
 
         try{
-            // TODO : 우리 예약 테이블에서 정보 가져와서 세팅
-            String strCheckIn = "20230920";
-            String strCheckOut = "20230921";
-            String pyung = "13";
-            String sleep = "1";
-            String roomCount = "1";
-            String roomType = "S";
-            String pkgCode = "k646";
+            RsvStayDto rsvStayDto = wellihilliMapper.getReservation(intRsvID);
+//            String strCheckIn = "20230920";
+//            String strCheckOut = "20230921";
+//            String pyung = "13";
+//            String sleep = "1";
+//            String roomCount = "1";
+//            String roomType = "S";
+//            String pkgCode = "k646";
+            String strRsvName = rsvStayDto.getStrRcvName();
+            String strRsvPhone = rsvStayDto.getStrRcvPhone();
+            Date dateCheckIn = rsvStayDto.getDateCheckIn();
+            Date dateCheckOut = rsvStayDto.getDateCheckOut();
+            String strRmtypeID = rsvStayDto.getStrRmtypeID();
+            String pyung = strRmtypeID.substring(0,2);
+            String roomType = strRmtypeID.substring(2);
+
+            long sleep = ((dateCheckOut.getTime() - dateCheckIn.getTime()) / 1000) / (24*60*60);
+
+            int intRmCnt = rsvStayDto.getIntRmCnt();
+            String strPkgCode = rsvStayDto.getStrPkgCode();
+            strPkgCode = "k049";
+
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd");
+            String strCheckIn = sdf.format(dateCheckIn);
+            String strCheckOut = sdf.format(dateCheckOut);
+
             // 예약 가능한지 확인
-            if(checkAvailBooking(pyung, strCheckIn, sleep, roomCount, roomType)){
-                // 예약 api 호출
+            if(checkAvailBooking(pyung, strCheckIn, sleep, intRmCnt, roomType)){
                 String strUrl = Constants.whpUrl + ":8070/api/vapi/reservation/room_access_regist";
                 String method = "POST";
 
                 JSONObject requestJson = new JSONObject();
-                requestJson.put("s_access_cd", pkgCode + "-101");
+                requestJson.put("s_access_cd", strPkgCode + "-101");
                 requestJson.put("s_resvno", "");
                 requestJson.put("s_fit", "F");
                 requestJson.put("s_resrm", "C");
                 requestJson.put("s_pyung", pyung);
-                requestJson.put("s_travelcd", pkgCode);
-                requestJson.put("s_roomsu", roomCount);
+                requestJson.put("s_travelcd", strPkgCode);
+                requestJson.put("s_roomsu", intRmCnt);
                 requestJson.put("s_arrday", strCheckIn);
                 requestJson.put("s_nightsu", sleep);
                 requestJson.put("s_deptday", strCheckOut);
-                requestJson.put("s_guest", "개발테스트");
+                requestJson.put("s_guest", strRsvName);
                 requestJson.put("s_resvname", "㈜동무해피데이즈");
-                requestJson.put("s_resvtel", "01029405275");
+                requestJson.put("s_resvtel", strRsvPhone);
                 requestJson.put("s_recordck", "R");
                 requestJson.put("s_typeRoom", roomType);
 
+                // 예약 api 호출
                 JsonNode jsonNode = commonFunction.callJsonApi("", "", requestJson, strUrl, method);
                 String code = jsonNode.get("status").toString();
                 if(code.equals("200")){
                     JSONObject jsonObject = (JSONObject) new JSONParser().parse(jsonNode.get("data").toString());
                     String returnCode = jsonObject.get("rtn").toString();
+                    String strRsvRmNum = "";
 
-                    System.out.println("returnCode : " + returnCode);
                     // 예약 성공
                     if(returnCode.equals("1")){
-                        message = "예약성공";
+                        String result = wellihilliMapper.updateRsvStay(intRsvID, "4", strRsvRmNum);
+                        if(result.equals("저장완료")){
+                            message = "예약완료";
+                        }else{
+                            message = "예약실패";
+                        }
                     }else {
                         message = "예약 실패";
                     }
@@ -339,7 +338,7 @@ public class BookingService {
     }
 
     // 예약 취소
-    public String cancelBooking(String dataType, int intBookingIdx, HttpServletRequest httpServletRequest){
+    public String cancelBooking(String dataType, int intRsvID, HttpServletRequest httpServletRequest){
         String statusCode = "200";
         String message = "";
 
@@ -347,34 +346,60 @@ public class BookingService {
                 httpServletRequest.getQueryString(), System.currentTimeMillis());
 
         try{
-            // 우리 예약 테이블에서 정보 가져와서 세팅
-            String pkgCode = "k049";
+            RsvStayDto rsvStayDto = wellihilliMapper.getReservation(intRsvID);
 
-            // 예약 취소 api 호출
+            String strRsvRmNum = rsvStayDto.getStrRsvRmNum();
+            String strRsvName = rsvStayDto.getStrRcvName();
+            String strRsvPhone = rsvStayDto.getStrRcvPhone();
+            Date dateCheckIn = rsvStayDto.getDateCheckIn();
+            Date dateCheckOut = rsvStayDto.getDateCheckOut();
+            String strRmtypeID = rsvStayDto.getStrRmtypeID();
+            String pyung = strRmtypeID.substring(0,2);
+            String roomType = strRmtypeID.substring(2);
+
+            long sleep = ((dateCheckOut.getTime() - dateCheckIn.getTime()) / 1000) / (24*60*60);
+
+            int intRmCnt = rsvStayDto.getIntRmCnt();
+            String strPkgCode = rsvStayDto.getStrPkgCode();
+            strPkgCode = "k049";
+
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd");
+            String strCheckIn = sdf.format(dateCheckIn);
+            String strCheckOut = sdf.format(dateCheckOut);
+
             String strUrl = Constants.whpUrl + ":8070/api/vapi/reservation/room_access_regist";
             String method = "POST";
 
             JSONObject requestJson = new JSONObject();
-            requestJson.put("s_access_cd", pkgCode + "-101");
-            requestJson.put("s_resvno", "T50928");
+            requestJson.put("s_access_cd", strPkgCode + "-101");
+            requestJson.put("s_resvno", strRsvRmNum);
             requestJson.put("s_fit", "F");
             requestJson.put("s_resrm", "C");
-            requestJson.put("s_pyung", "13");
-            requestJson.put("s_travelcd", "K049");
-            requestJson.put("s_roomsu", "1");
-            requestJson.put("s_arrday", "20230823");
-            requestJson.put("s_nightsu", "1");
-            requestJson.put("s_deptday", "20230824");
-            requestJson.put("s_guest", "개발테스트");
+            requestJson.put("s_pyung", pyung);
+            requestJson.put("s_travelcd", strPkgCode);
+            requestJson.put("s_roomsu", intRmCnt);
+            requestJson.put("s_arrday", strCheckIn);
+            requestJson.put("s_nightsu", sleep);
+            requestJson.put("s_deptday", strCheckOut);
+            requestJson.put("s_guest", strRsvName);
             requestJson.put("s_resvname", "㈜동무해피데이즈");
-            requestJson.put("s_resvtel", "01029405275");
+            requestJson.put("s_resvtel", strRsvPhone);
             requestJson.put("s_recordck", "C");
-            requestJson.put("s_typeRoom", "S");
+            requestJson.put("s_typeRoom", roomType);
 
+            // 예약 취소 api 호출
             JsonNode jsonNode = commonFunction.callJsonApi("", "", requestJson, strUrl, method);
             String code = jsonNode.get("status").toString();
             if(code.equals("200")){
-                message = "예약 취소 완료";
+                // api 호출 성공시???
+
+                // 예약 테이블 상태값 업데이트
+                String result = wellihilliMapper.updateRsvStay(intRsvID, "5", strRsvRmNum);
+                if(result.equals("저장완료")){
+                    message = "예약 취소 완료";
+                }else{
+                    message = "예약 취소 실패";
+                }
             }else{
                 message = "예약 취소 실패";
             }
@@ -392,7 +417,7 @@ public class BookingService {
     }
     
     // 예약 수정
-    public String modifyBooking(String dataType, int intBookingIdx, HttpServletRequest httpServletRequest){
+    public String modifyBooking(String dataType, int intRsvID, HttpServletRequest httpServletRequest){
         String statusCode = "200";
         String message = "";
 
@@ -400,33 +425,51 @@ public class BookingService {
                 httpServletRequest.getQueryString(), System.currentTimeMillis());
 
         try{
-            // 우리 예약 테이블에서 정보 가져와서 세팅
-            String pkgCode = "k049";
+            RsvStayDto rsvStayDto = wellihilliMapper.getReservation(intRsvID);
+
+            String strRsvCode = rsvStayDto.getStrRsvCode();
+            String strRsvName = rsvStayDto.getStrRcvName();
+            String strRsvPhone = rsvStayDto.getStrRcvPhone();
+            Date dateCheckIn = rsvStayDto.getDateCheckIn();
+            Date dateCheckOut = rsvStayDto.getDateCheckOut();
+            String strRmtypeID = rsvStayDto.getStrRmtypeID();
+            String pyung = strRmtypeID.substring(0,2);
+            String roomType = strRmtypeID.substring(2);
+
+            long sleep = ((dateCheckOut.getTime() - dateCheckIn.getTime()) / 1000) / (24*60*60);
+
+            int intRmCnt = rsvStayDto.getIntRmCnt();
+            String strPkgCode = rsvStayDto.getStrPkgCode();
+
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd");
+            String strCheckIn = sdf.format(dateCheckIn);
+            String strCheckOut = sdf.format(dateCheckOut);
 
             // 예약 수정 api 호출
             String strUrl = Constants.whpUrl + ":8070/api/vapi/reservation/room_access_regist";
             String method = "POST";
 
             JSONObject requestJson = new JSONObject();
-            requestJson.put("s_access_cd", pkgCode + "-101");
-            requestJson.put("s_resvno", "T50928");
+            requestJson.put("s_access_cd", strPkgCode + "-101");
+            requestJson.put("s_resvno", strRsvCode);
             requestJson.put("s_fit", "F");
             requestJson.put("s_resrm", "C");
-            requestJson.put("s_pyung", "13");
-            requestJson.put("s_travelcd", pkgCode);
-            requestJson.put("s_roomsu", "1");
-            requestJson.put("s_arrday", "20230823");
-            requestJson.put("s_nightsu", "1");
-            requestJson.put("s_deptday", "20230824");
-            requestJson.put("s_guest", "개발테스트");
+            requestJson.put("s_pyung", pyung);
+            requestJson.put("s_travelcd", strPkgCode);
+            requestJson.put("s_roomsu", intRmCnt);
+            requestJson.put("s_arrday", strCheckIn);
+            requestJson.put("s_nightsu", sleep);
+            requestJson.put("s_deptday", strCheckOut);
+            requestJson.put("s_guest", strRsvName);
             requestJson.put("s_resvname", "㈜동무해피데이즈");
-            requestJson.put("s_resvtel", "01029405275");
+            requestJson.put("s_resvtel", strRsvPhone);
             requestJson.put("s_recordck", "U");
-            requestJson.put("s_typeRoom", "S");
+            requestJson.put("s_typeRoom", roomType);
 
             JsonNode jsonNode = commonFunction.callJsonApi("", "", requestJson, strUrl, method);
             String code = jsonNode.get("status").toString();
             if(code.equals("200")){
+                // TODO : 호출 성공하면?
                 message = "예약 수정 완료";
             }else{
                 message = "예약 수정 실패";
@@ -445,16 +488,18 @@ public class BookingService {
     }
 
     // 예약 상세 조회
-    public String checkBooking(String dataType, int intBookingIdx, HttpServletRequest httpServletRequest){
+    public String checkBooking(String dataType, int intRsvID, HttpServletRequest httpServletRequest){
         String statusCode = "200";
         String message = "";
 
         LogWriter logWriter = new LogWriter(httpServletRequest.getMethod(), httpServletRequest.getServletPath(),
                 httpServletRequest.getQueryString(), System.currentTimeMillis());
 
+        Map<String, Object> resultMap = new HashMap<>();
+
         try{
-            String strBookingID = "O80894";
-            String strUrl = Constants.whpUrl + ":8070/api/vapi/reservation/rsv_detail?s_resvno=" + strBookingID;
+            String strRsvCode = wellihilliMapper.getStrRsvCode(intRsvID);
+            String strUrl = Constants.whpUrl + ":8070/api/vapi/reservation/rsv_detail?s_resvno=" + strRsvCode;
             String method = "GET";
 
             JsonNode jsonNode = commonFunction.callJsonApi("", "", new JSONObject(), strUrl, method);
@@ -482,27 +527,27 @@ public class BookingService {
 
     // 예약 리스트 조회(체크인날짜 기준)
     public String checkBookingList(String dataType, HttpServletRequest httpServletRequest, String searchFlag, String searchData,
-                                   String sDate, String eDate, String rsvFlag){
+                                   String sDate, String eDate, String rsvFlag, String strPkgCode){
         String statusCode = "200";
         String message = "";
 
         LogWriter logWriter = new LogWriter(httpServletRequest.getMethod(), httpServletRequest.getServletPath(),
                 httpServletRequest.getQueryString(), System.currentTimeMillis());
 
+        List<Map<String, Object>> resultMapList = new ArrayList<>();
         try{
-            if(searchFlag == null){
+            // 추가 검색 부분 없으면 그냥 시작, 종료일에 해당하는 리스트 조회
+            if(searchFlag == null){ // 검색 구분(1 : 예약번호, 2 : 투숙객명)
                 searchFlag = "";
             }
-            if(searchData == null){
+            if(searchData == null){ // 검색어
                 searchData = "";
             }
-            if(rsvFlag == null){
+            if(rsvFlag == null){ // 예약 상태값 구분(R : 예약, U : 변경, C : 취소, I : 입실)
                 rsvFlag = "";
             }
 
-            String pkgCode = "k648";
-
-            String strUrl = Constants.whpUrl + ":8070/api/vapi/reservation/rsv_list?s_travelcd=" + pkgCode +
+            String strUrl = Constants.whpUrl + ":8070/api/vapi/reservation/rsv_list?s_travelcd=" + strPkgCode +
                             "&s_flag=" + searchFlag + "&s_qrystr=" + URLEncoder.encode(searchData, "utf-8")
                             + "&s_sdate=" + sDate + "&s_fdate=" + eDate + "&s_recordck=" + rsvFlag;
 
@@ -514,11 +559,13 @@ public class BookingService {
             if(code.equals("200")) {
                 JSONArray jsonArray = (JSONArray) new JSONParser().parse(jsonNode.get("data").toString());
                 for(Object object : jsonArray) {
+                    Map<String, Object> resultMap = new HashMap<>();
+
                     JSONObject jsonObject = (JSONObject) JSONValue.parse(object.toString());
 //                    String area = jsonObject.get("area").toString().trim();
                     String recordckcd = jsonObject.get("recordckcd").toString().trim(); // 예약 구분 코드 (R:예약, U:변경, C:취소, I:입실)
 //                    String resrm = jsonObject.get("resrm").toString().trim(); // 콘도 구분
-                    String strBookingID = jsonObject.get("resvno").toString().trim(); // 예약번호
+                    String strRsvCode = jsonObject.get("resvno").toString().trim(); // 예약번호
                     String strRsvName =  jsonObject.get("guest").toString().trim();
                     String strRsvPhone = jsonObject.get("resvtel").toString().trim(); // 예약자 전화번호 : '-' 포함도 있고 아닌 것도 있음
                     String strRsvDay = jsonObject.get("resvtel").toString().trim(); // 예약일
@@ -536,8 +583,26 @@ public class BookingService {
                     int intSumPrice = Integer.parseInt(jsonObject.get("sumamt").toString().trim()); // 합계금액
                     int intTotalPrice = Integer.parseInt(jsonObject.get("totalamt").toString().trim()); // 총액
 
-//                    String bigo = jsonObject.get("resvbigo").toString().trim(); // 비고
+                    String bigo = jsonObject.get("resvbigo").toString().trim(); // 비고
 
+                    resultMap.put("예약 상태값", recordckcd);
+                    resultMap.put("예약번호", strRsvCode);
+                    resultMap.put("투숙자명", strRsvName);
+                    resultMap.put("투숙자 핸드폰번호", strRsvPhone);
+                    resultMap.put("예약일", strRsvDay);
+                    resultMap.put("체크인 날짜", strCheckIn);
+                    resultMap.put("체크아웃 날짜", strCheckOut);
+                    resultMap.put("숙박일수", intSleep);
+                    resultMap.put("평형", pyung);
+                    resultMap.put("객실타입", roomType);
+                    resultMap.put("정가", intStandardPrice);
+                    resultMap.put("할인율", intDiscount);
+                    resultMap.put("판매가", intSalePrice);
+                    resultMap.put("합계금액", intSumPrice);
+                    resultMap.put("총액", intTotalPrice);
+                    resultMap.put("비고", bigo);
+
+                    resultMapList.add(resultMap);
                 }
             }else{
                 message = "예약리스트 조회 실패";
@@ -551,7 +616,7 @@ public class BookingService {
         }
         logWriter.log(0);
 
-        return commonFunction.makeReturn(dataType, statusCode, message);
+        return commonFunction.makeReturn(dataType, statusCode, message, resultMapList);
     }
 
 
