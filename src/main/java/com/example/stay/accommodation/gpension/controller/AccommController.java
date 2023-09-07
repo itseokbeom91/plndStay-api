@@ -10,6 +10,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
 
@@ -28,7 +29,7 @@ public class AccommController {
     AccommService accommService = new AccommService();
 
     @GetMapping(value = "/getPensionList", params = "dataType=view")
-    public String getPensionListFrame(Model model, String dataType) throws ParseException {
+    public String getPensionListFrame(Model model, @RequestParam(required = false, defaultValue="jsonp") String dataType) throws ParseException {
         JSONParser jsonParser = new JSONParser();
         JSONObject responseJson = null;
         responseJson = (JSONObject) jsonParser.parse(accommService.getPensionList(dataType));
@@ -39,55 +40,55 @@ public class AccommController {
 
     @GetMapping(value = "/getPensionList")
     @ResponseBody
-    public String getPensionList(Model model, String dataType){
+    public String getPensionList(Model model, @RequestParam(required = false, defaultValue="jsonp") String dataType){
         return accommService.getPensionList(dataType);
     }
 
     @GetMapping("/getPensionInfo")
     @ResponseBody
-    public String getPensionInfo(String dataType, String pensionId){
+    public String getPensionInfo(@RequestParam(required = false, defaultValue="jsonp") String dataType, String pensionId){
         return accommService.getPensionInfo(dataType, pensionId);
     }
 
     @GetMapping("/getPensionStatus")
     @ResponseBody
-    public String getPensionStatus(String dataType, String pensionId, String sDate, String eDate){
+    public String getPensionStatus(@RequestParam(required = false, defaultValue="jsonp") String dataType, String pensionId, String sDate, String eDate){
         return accommService.getPensionStatus(dataType, pensionId, sDate, eDate);
     }
 
     @GetMapping("/getPensionDailyInfo")
     @ResponseBody
-    public String getPensionDailyInfo(String dataType, String pensionId, String sDate, String eDate){
+    public String getPensionDailyInfo(@RequestParam(required = false, defaultValue="jsonp") String dataType, String pensionId, String sDate, String eDate){
         return accommService.getPensionDailyInfo(dataType, pensionId, sDate, eDate);
     }
 
     @GetMapping("/getPensionMainList")
     @ResponseBody
-    public String getPensionMainList(String dataType){
+    public String getPensionMainList(@RequestParam(required = false, defaultValue="jsonp") String dataType){
         return accommService.getPensionMainList(dataType);
     }
 
     @GetMapping("/getRoomInfo")
     @ResponseBody
-    public String getRoomInfo(String dataType, String pensionId, String roomId){
+    public String getRoomInfo(@RequestParam(required = false, defaultValue="jsonp") String dataType, String pensionId, String roomId){
         return accommService.getRoomInfo(dataType, pensionId, roomId);
     }
 
     @GetMapping("/getRoomPrice")
     @ResponseBody
-    public String getRoomPriceInfo(String dataType, String pensionId){
+    public String getRoomPriceInfo(@RequestParam(required = false, defaultValue="jsonp") String dataType, String pensionId){
         return accommService.getRoomPriceInfo(dataType, pensionId);
     }
 
     @GetMapping("/getPensionModList")
     @ResponseBody
-    public String getPensionModList(String dataType, String endDate){
+    public String getPensionModList(@RequestParam(required = false, defaultValue="jsonp") String dataType, String endDate){
         return accommService.getPensionModList(dataType, endDate);
     }
 
     @GetMapping("/insertGP")
     @ResponseBody
-    public String insertAccomm(String dataType){
+    public String insertAccomm(@RequestParam(required = false, defaultValue="jsonp") String dataType){
         return accommService.insertGP(dataType);
     }
     @GetMapping("/testup")
