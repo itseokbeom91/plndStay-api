@@ -304,7 +304,7 @@ public class BookingService {
                 if(code.equals("200")){
                     JSONObject jsonObject = (JSONObject) new JSONParser().parse(jsonNode.get("data").toString());
                     String returnCode = jsonObject.get("rtn").toString();
-                    String strRsvRmNum = "";
+                    String strRsvRmNum = jsonObject.get("resvno").toString();
 
                     // 예약 성공
                     if(returnCode.equals("1")){
@@ -319,7 +319,7 @@ public class BookingService {
                     }
 
                 }else{
-                    message = "예약 실패";
+                    message = "웰리힐리 api 호출 실패";
                 }
             }else{
                 message = "예약 불가";
@@ -391,17 +391,22 @@ public class BookingService {
             JsonNode jsonNode = commonFunction.callJsonApi("", "", requestJson, strUrl, method);
             String code = jsonNode.get("status").toString();
             if(code.equals("200")){
-                // api 호출 성공시???
+                JSONObject jsonObject = (JSONObject) new JSONParser().parse(jsonNode.get("data").toString());
+                String returnCode = jsonObject.get("rtn").toString();
 
-                // 예약 테이블 상태값 업데이트
-                String result = wellihilliMapper.updateRsvStay(intRsvID, "5", strRsvRmNum);
-                if(result.equals("저장완료")){
-                    message = "예약 취소 완료";
-                }else{
-                    message = "예약 취소 실패";
+                if(returnCode.equals("1")){
+                    // 예약 테이블 상태값 업데이트
+                    String result = wellihilliMapper.updateRsvStay(intRsvID, "5", "");
+                    if(result.equals("저장완료")){
+                        message = "예약 취소 완료";
+                    }else{
+                        message = "예약 취소 실패";
+                    }
+                }else {
+                    message = "예약 실패";
                 }
             }else{
-                message = "예약 취소 실패";
+                message = "웰리힐리 api 호출 실패";
             }
 
         }catch (Exception e){
@@ -469,10 +474,17 @@ public class BookingService {
             JsonNode jsonNode = commonFunction.callJsonApi("", "", requestJson, strUrl, method);
             String code = jsonNode.get("status").toString();
             if(code.equals("200")){
-                // TODO : 호출 성공하면?
-                message = "예약 수정 완료";
+                JSONObject jsonObject = (JSONObject) new JSONParser().parse(jsonNode.get("data").toString());
+                String returnCode = jsonObject.get("rtn").toString();
+
+                if(returnCode.equals("1")) {
+                    message = "예약 수정 완료";
+                }else{
+                    message = "예약 수정 실패";
+                }
+
             }else{
-                message = "예약 수정 실패";
+                message = "웰리힐리 api 호출 실패";
             }
 
         }catch (Exception e){

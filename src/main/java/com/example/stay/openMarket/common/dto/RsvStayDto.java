@@ -57,6 +57,7 @@ public class RsvStayDto {
     private double moneySalesC;
 
     private String strRateplanID;
+    private String strPropertyID;
 
     // RM_OPTION
 

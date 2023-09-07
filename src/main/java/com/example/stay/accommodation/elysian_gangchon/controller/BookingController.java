@@ -45,10 +45,10 @@ public class BookingController {
         return bookingService.cancelBooking(dataType, intRsvID, httpServletRequest);
     }
 
-    // 예약 가능여부 조회
-    @RequestMapping("checkAvailBooking")
-    @ResponseBody
-    public void checkAvailBooking(String pcode, String pcode_seq, String sdate, int cnt){
-        bookingService.checkAvailBooking(pcode, pcode_seq, sdate, cnt);
-    }
+//    // 예약 가능여부 조회
+//    @RequestMapping("checkAvailBooking")
+//    @ResponseBody
+//    public void checkAvailBooking(String pcode, String pcode_seq, String sdate, int cnt){
+//        bookingService.checkAvailBooking(pcode, pcode_seq, sdate, cnt);
+//    }
 }
