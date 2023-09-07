@@ -76,7 +76,7 @@ public class BookingController {
         return bookingService.cancelBooking(dataType, intRsvID);
     }
 
-    @GetMapping("/updateBookingInfo")
+    @GetMapping("/updateBooking")
     @ResponseBody
     public String updateGuest(@RequestParam(required = false, defaultValue="jsonp") String dataType, String intRsvID, String mpNo, String guestNm) throws ParseException {
         return bookingService.updateGuest(dataType, intRsvID, mpNo, guestNm);

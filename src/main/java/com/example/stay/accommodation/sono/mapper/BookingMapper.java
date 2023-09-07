@@ -9,7 +9,7 @@ import java.util.Map;
 @Repository("sono.BookingMapper")
 public interface BookingMapper {
     String localInsert(String data);
-    Map<String , Object> getBookingInfoFromBookingIdx(String BookingIdx);
+    Map<String , Object> getBookingInfoFromBookingIdx(String intRsvID);
     String insertRoom(String strPackageDatas, String strRoomDatas, String strStockDatas, String strAccommDatas, String strType);
 
     String updatePackageStock(String strPackageStockDatas);

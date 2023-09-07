@@ -385,11 +385,12 @@ public class BookingService {
 
     }
     //예약
-    public String reservation(String dataType, String intRsvID ,HttpServletRequest httpServletRequest) {
+    public String createBooking(String dataType, String intRsvID ,HttpServletRequest httpServletRequest) {
         long startTime = System.currentTimeMillis();
         OkHttpClient client = new OkHttpClient().newBuilder().build();
 
         Map<String, Object> bookingMap = bookingMapper.getBookingInfoFromBookingIdx(intRsvID);
+        //Map<String, Object> bookingMap = bookingMapper.getBookingInfoFromBookingIdx(intRsvID);
 
 
         String statusCode ="";
@@ -397,11 +398,11 @@ public class BookingService {
         String result = "";
 
         JSONObject requestJson = new JSONObject();
-        requestJson.put("pkgNo", bookingMap.get("strRateplanID"));
-        requestJson.put("storeCd", bookingMap.get("intAID"));
-        requestJson.put("ciYmd", bookingMap.get("dateCheckOut"));
+        requestJson.put("pkgNo", bookingMap.get("strPkgCode"));
+        requestJson.put("storeCd", bookingMap.get("strStoreCode"));
+        requestJson.put("ciYmd", bookingMap.get("dateCheckIn").toString().replaceAll("-", ""));
         requestJson.put("rmTypeCd", bookingMap.get("strRmtypeID"));
-        requestJson.put("comRsvNo", "ss"); //우리만의 예약번호가 필요함
+        requestJson.put("comRsvNo", "2023-09-1226813"); //우리만의 예약번호가 필요함
         requestJson.put("userName", bookingMap.get("strRcvName"));
         requestJson.put("userTel", bookingMap.get("strRcvPhone"));
         requestJson.put("payAmt", "100000"); //TO-DO-- 가격 가져오기
@@ -414,9 +415,190 @@ public class BookingService {
         RequestBody body = RequestBody.create(mediaType, contents);
 
         Request request = new Request.Builder()
-                .url(Constants.sonoPackPath + "/amountList")
+                .url(Constants.sonoPackPath + "/reservation")
                 .method("POST", body)
                 .addHeader("X-AUTH-TOKEN", Constants.sonoPackAuth)
+                .addHeader("Content-Type", "application/json")
+                .build();
+
+        LogWriter logWriter = new LogWriter(request.method(), request.url().toString(), startTime);
+
+        try {
+            Response response = client.newCall(request).execute();
+
+            if(response.isSuccessful()) {
+                //response 파싱
+                String responseBody = response.body().string();
+
+                JSONParser jsonParser = new JSONParser();
+                JSONObject responseJson = (JSONObject) jsonParser.parse(responseBody);
+
+
+                return commonFunction.makeReturn(dataType, "200","OK", responseJson);
+            }
+
+        } catch (Exception e) {
+            System.out.println("e ::: 에러 출력! == " + e);
+            System.out.println(e.getMessage());
+            System.out.println("responseJson ::: 에러 출력!");
+            return commonFunction.makeReturn(dataType, "500", e.getMessage(), result);
+        }
+
+        return commonFunction.makeReturn(dataType, statusCode, msg, result);
+
+    }
+
+    public String cancelBooking(String dataType, String intRsvID ,HttpServletRequest httpServletRequest) {
+        long startTime = System.currentTimeMillis();
+        OkHttpClient client = new OkHttpClient().newBuilder().build();
+
+        Map<String, Object> bookingMap = bookingMapper.getBookingInfoFromBookingIdx(intRsvID);
+        //Map<String, Object> bookingMap = bookingMapper.getBookingInfoFromBookingIdx(intRsvID);
+
+
+        String statusCode ="";
+        String msg ="";
+        String result = "";
+
+        JSONObject requestJson = new JSONObject();
+        requestJson.put("roomRsvNo", "4652");
+        requestJson.put("roomRsvSeq", "1023914485");
+        requestJson.put("comRsvNo", "2023-09-1226813"); //우리만의 예약번호가 필요함
+        requestJson.put("businessId", Constants.sonoPackId);
+        requestJson.put("language", Constants.sonoLanguage);
+        String contents = requestJson.toJSONString();
+        MediaType mediaType = MediaType.parse("application/json");
+        RequestBody body = RequestBody.create(mediaType, contents);
+
+        Request request = new Request.Builder()
+                .url(Constants.sonoPackPath + "/cancel")
+                .method("POST", body)
+                .addHeader("X-AUTH-TOKEN", Constants.sonoPackAuth)
+                .addHeader("Content-Type", "application/json")
+                .build();
+
+        LogWriter logWriter = new LogWriter(request.method(), request.url().toString(), startTime);
+
+        try {
+            Response response = client.newCall(request).execute();
+
+            if(response.isSuccessful()) {
+                //response 파싱
+                String responseBody = response.body().string();
+
+                JSONParser jsonParser = new JSONParser();
+                JSONObject responseJson = (JSONObject) jsonParser.parse(responseBody);
+
+
+                return commonFunction.makeReturn(dataType, "200","OK", responseJson);
+            }
+
+        } catch (Exception e) {
+            System.out.println("e ::: 에러 출력! == " + e);
+            System.out.println(e.getMessage());
+            System.out.println("responseJson ::: 에러 출력!");
+            return commonFunction.makeReturn(dataType, "500", e.getMessage(), result);
+        }
+
+        return commonFunction.makeReturn(dataType, statusCode, msg, result);
+
+    }
+    //예약
+    public String createBookingRoom(String dataType, String intRsvID ,HttpServletRequest httpServletRequest) {
+        long startTime = System.currentTimeMillis();
+        OkHttpClient client = new OkHttpClient().newBuilder().build();
+
+        Map<String, Object> bookingMap = bookingMapper.getBookingInfoFromBookingIdx(intRsvID);
+        //Map<String, Object> bookingMap = bookingMapper.getBookingInfoFromBookingIdx(intRsvID);
+
+
+        String statusCode ="";
+        String msg ="";
+        String result = "";
+
+        JSONObject requestJson = new JSONObject();
+//        requestJson.put("pkgNo", bookingMap.get("strPkgCode"));
+        Date in = (Date) bookingMap.get("dateCheckIn");
+        Date out = (Date) bookingMap.get("dateCheckOut");
+        long diffDays;
+        diffDays = (out.getTime() - in.getTime()) / 1000 / (24*60*60);
+        requestJson.put("storeCd", bookingMap.get("strStoreCode"));
+        requestJson.put("ciYmd", bookingMap.get("dateCheckIn").toString().replaceAll("-", ""));
+        requestJson.put("rmTypeCd", bookingMap.get("strRmtypeID"));
+        requestJson.put("nights", diffDays);
+        requestJson.put("rmCnt", bookingMap.get("intRmCnt"));
+        requestJson.put("comRsvNo", "2023-09-1226813"); //우리만의 예약번호가 필요함
+        requestJson.put("userName", "ㅋㅋㅋ변경도 되지롱");//bookingMap.get("strRcvName"));
+        requestJson.put("userTel", bookingMap.get("strRcvPhone"));
+        requestJson.put("payAmt", "100000"); //TO-DO-- 가격 가져오기
+        requestJson.put("adultCnt", bookingMap.get("intQuantityA"));
+        requestJson.put("childCnt", bookingMap.get("intQuantityC"));
+        requestJson.put("businessId", Constants.sonoRoomId);
+        requestJson.put("language", Constants.sonoLanguage);
+        String contents = requestJson.toJSONString();
+        MediaType mediaType = MediaType.parse("application/json");
+        RequestBody body = RequestBody.create(mediaType, contents);
+
+        Request request = new Request.Builder()
+                .url(Constants.sonoRoomPath + "/reservation")
+                .method("POST", body)
+                .addHeader("X-AUTH-TOKEN", Constants.sonoRoomAuth)
+                .addHeader("Content-Type", "application/json")
+                .build();
+
+        LogWriter logWriter = new LogWriter(request.method(), request.url().toString(), startTime);
+
+        try {
+            Response response = client.newCall(request).execute();
+
+            if(response.isSuccessful()) {
+                //response 파싱
+                String responseBody = response.body().string();
+
+                JSONParser jsonParser = new JSONParser();
+                JSONObject responseJson = (JSONObject) jsonParser.parse(responseBody);
+
+
+                return commonFunction.makeReturn(dataType, "200","OK", responseJson);
+            }
+
+        } catch (Exception e) {
+            System.out.println("e ::: 에러 출력! == " + e);
+            System.out.println(e.getMessage());
+            System.out.println("responseJson ::: 에러 출력!");
+            return commonFunction.makeReturn(dataType, "500", e.getMessage(), result);
+        }
+
+        return commonFunction.makeReturn(dataType, statusCode, msg, result);
+
+    }
+
+    public String cancelBookingRoom(String dataType, String intRsvID ,HttpServletRequest httpServletRequest) {
+        long startTime = System.currentTimeMillis();
+        OkHttpClient client = new OkHttpClient().newBuilder().build();
+
+        Map<String, Object> bookingMap = bookingMapper.getBookingInfoFromBookingIdx(intRsvID);
+        //Map<String, Object> bookingMap = bookingMapper.getBookingInfoFromBookingIdx(intRsvID);
+
+
+        String statusCode ="";
+        String msg ="";
+        String result = "";
+
+        JSONObject requestJson = new JSONObject();
+        requestJson.put("roomRsvNo", "4652");
+        requestJson.put("roomRsvSeq", "1023914485");
+        requestJson.put("comRsvNo", "2023-09-1226813"); //우리만의 예약번호가 필요함
+        requestJson.put("businessId", Constants.sonoRoomId);
+        requestJson.put("language", Constants.sonoLanguage);
+        String contents = requestJson.toJSONString();
+        MediaType mediaType = MediaType.parse("application/json");
+        RequestBody body = RequestBody.create(mediaType, contents);
+
+        Request request = new Request.Builder()
+                .url(Constants.sonoRoomPath + "/cancel")
+                .method("POST", body)
+                .addHeader("X-AUTH-TOKEN", Constants.sonoRoomAuth)
                 .addHeader("Content-Type", "application/json")
                 .build();
 
@@ -726,7 +908,7 @@ public class BookingService {
         String pkgData = "";
 
         JSONObject requestJson = new JSONObject();
-        requestJson.put("businessId", Constants.sonoPackId);
+        requestJson.put("businessId", Constants.sonoRoomId);
         requestJson.put("language", Constants.sonoLanguage);
         requestJson.put("type", "S");
         requestJson.put("stndDt", stndDt);
@@ -735,9 +917,9 @@ public class BookingService {
         RequestBody body = RequestBody.create(mediaType, contents);
 
         Request request = new Request.Builder()
-                .url(Constants.sonoPackPath + "/settlementNopkgNo")
+                .url(Constants.sonoRoomPath + "/settlementNopkgNo")
                 .method("POST", body)
-                .addHeader("X-AUTH-TOKEN", Constants.sonoPackAuth)
+                .addHeader("X-AUTH-TOKEN", Constants.sonoRoomAuth)
                 .addHeader("Content-Type", "application/json")
                 .build();
 
