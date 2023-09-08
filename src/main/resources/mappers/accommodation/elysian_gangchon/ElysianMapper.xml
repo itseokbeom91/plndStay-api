@@ -37,4 +37,11 @@
         FROM PLNDSTAY.dbo.RSV_STAY
         WHERE intRsvID = ${intRsvID}
     </select>
+
+    <select id="getTseq">
+        SELECT COUNT(intRsvID)
+        FROM PLNDSTAY.dbo.RSV_STAY R WITH(NOLOCK)
+            INNER JOIN PLNDSTAY.dbo.ACCOMM A WITH(NOLOCK) ON A.intAID = R.intAID
+        WHERE A.strCateCode = '49'
+    </select>
 </mapper>

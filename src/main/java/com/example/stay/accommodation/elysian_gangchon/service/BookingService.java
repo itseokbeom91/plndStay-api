@@ -173,7 +173,7 @@ public class BookingService {
             String bdate = sdf.format(rsvStayDto.getDateCheckIn()); // 도착일자
 
             int cnt = rsvStayDto.getIntRmCnt();
-            int tseq  = intRsvID;
+            int tseq  = elysianMapper.getTseq() + 1;
             String DH_CODE1 = "1006";
             String DH_CODE2 = "1030";
             String PASS = "1234";

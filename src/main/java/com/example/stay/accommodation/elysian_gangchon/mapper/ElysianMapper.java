@@ -18,4 +18,6 @@ public interface ElysianMapper {
     String updateRsvStay(int intRsvID, String strStatusCode, String strRsvRmNum);
 
     String getStrRsvRmNum(int intRsvID);
+
+    int getTseq();
 }
