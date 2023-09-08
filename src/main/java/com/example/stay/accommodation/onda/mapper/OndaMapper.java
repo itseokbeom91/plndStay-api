@@ -1,6 +1,7 @@
 package com.example.stay.accommodation.onda.mapper;
 
 import com.example.stay.openMarket.common.dto.BookingDto;
+import com.example.stay.openMarket.common.dto.RsvStayDto;
 import org.springframework.stereotype.Repository;
 
 import java.util.Map;
@@ -30,10 +31,12 @@ public interface OndaMapper {
 
     String getStrCodeByStrName(String strCateCode, String strName);
 
-    BookingDto getBookingByIntBookingID(int intOrderID);
+    RsvStayDto getReservation(int intRsvID);
 
-    String updateBooking(int intBookingID, int intCondoID, int intRoomID, int intRateID, String strSpBookingId,
-                         String strRefundPolicies, long stayDays);
+//    String updateBooking(int intBookingID, int intCondoID, int intRoomID, int intRateID, String strSpBookingId,
+//                         String strRefundPolicies, long stayDays);
 
-    int updateBookingStatus(String strBookingProcess, int intBookingID);
+    int updateStrStatusCode(String strStatusCode, int intRsvID);
+
+    String updateRsvStay(int intRsvID, String strStatusCode, String strRsvRmNum);
 }
