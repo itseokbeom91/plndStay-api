@@ -38,7 +38,7 @@
         WHERE intRsvID = ${intRsvID}
     </select>
 
-    <select id="getTseq">
+    <select id="getTseq" resultType="int">
         SELECT COUNT(intRsvID)
         FROM PLNDSTAY.dbo.RSV_STAY R WITH(NOLOCK)
             INNER JOIN PLNDSTAY.dbo.ACCOMM A WITH(NOLOCK) ON A.intAID = R.intAID
