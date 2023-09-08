@@ -13,6 +13,8 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.GetMapping;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -202,13 +204,16 @@ public class RoomioService {
      * @param strEndDate
      * @return
      */
-    public String getPrice(String strHotelId, String strRoomId, String strStartDate, String strEndDate, String dataType){
+    public String getStock(int intAID, int intRmIdx, String strStartDate, String strEndDate, String dataType){
 
         String statusCode = "200";
         String message = "";
         String result = "";
 
         try {
+
+            String strHotelId = roomioMapper.getHotelId(intAID);
+            String strRoomId = roomioMapper.getRoomId(intRmIdx);
 
             JSONObject jsonObject = new JSONObject();
             jsonObject.put("m","getRoomPrice");
@@ -225,21 +230,12 @@ public class RoomioService {
             // 0 : 성공
             if(errorCode.equals("0")){
                 JSONArray listArray = (JSONArray) new JSONParser().parse(jsonNode.get("list").toString());
-                System.out.println("success");
 
-                // roomTypeListMap, ratePlanListMap 담을 map 생성
-                Map<String, Map> roomTypeListMap = new HashMap<String, Map>();
-                // 하나의 roomType에 여러개의 ratePlan이 있을 수 있어서 LinkedMultiValueMap 사용
-                MultiValueMap<String, Map> ratePlanListMap = new LinkedMultiValueMap<>();
-
-                // 이거일듯
-                String roomDatas = "";
+                String strStockDatas = "";
 
                 for (Object object : listArray){
 
                     JSONObject listObject = (JSONObject) new JSONParser().parse(object.toString());
-
-                    JSONObject valObject = new JSONObject();
 
                     String strRoomType = listObject.get("room_type").toString(); // 1:룸온리, 2:패키지
                     String strPkgCode = listObject.get("pkg_code").toString();
@@ -254,38 +250,42 @@ public class RoomioService {
                     String strRoomState = listObject.get("room_state").toString(); // ??
                     String strSPrice = listObject.get("s_price").toString(); // ??
 
-                    valObject.put("dateSales", strCheckIndate);
-                    valObject.put("intStock", strRoomCnt);
-                    valObject.put("moneySales", strPrice);
-                    valObject.put("moneyExtraA", strAddAdult);
-                    valObject.put("moneyExtraC", strAddChild);
-                    valObject.put("moneyExtraB", strAddBaby);
-                    valObject.put("dateSales", strCheckIndate);
-
-
-//                    System.out.println(listObject);
+                    // 날짜 포맷
+                    String date = strCheckIndate.trim();
+                    SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMdd");
+                    Date dateDate = dateFormat.parse(date);
+                    SimpleDateFormat formDate = new SimpleDateFormat("yyyy-MM-dd");
+                    strCheckIndate = formDate.format(dateDate);
 
                     if(strRoomType.equals("1")){
-                        ratePlanListMap.add("roomOnly", valObject);
 
-                        roomDatas += "roomOnly|^|" + strCheckIndate + "|^|" + strRoomCnt + "|^|" + strPrice + "|^|" + strAddAdult + "|^|" + strAddChild + "|^|" + strAddBaby + "|^|" + strCheckIndate + "{{^}}";
+                        strStockDatas += "roomOnly|^|" + strCheckIndate + "|^|" + strRoomCnt + "|^|" + strPrice + "|^|" + strAddAdult + "|^|" + strAddChild + "|^|" + strAddBaby  + "{{^}}";
                     }else{
-                        ratePlanListMap.add(strPkgCode, valObject);
 
-                        roomDatas += strPkgCode + "|^|" + strCheckIndate + "|^|" + strRoomCnt + "|^|" + strPrice + "|^|" + strAddAdult + "|^|" + strAddChild + "|^|" + strAddBaby + "|^|" + strCheckIndate + "{{^}}";
+                        strStockDatas += strPkgCode + "|^|" + strCheckIndate + "|^|" + strRoomCnt + "|^|" + strPrice + "|^|" + strAddAdult + "|^|" + strAddChild + "|^|" + strAddBaby + "{{^}}";
                     }
 
                 }
-                System.out.println(ratePlanListMap);
-                System.out.println(roomDatas);
-                // roomDatas에 hotelId값으로 갈껀지 intAID로 갈껀지 결정 후 작업
+
+                if (strStockDatas.length() > 1) {
+                    strStockDatas = strStockDatas.substring(0, strStockDatas.length() - 5);
+                }
+                System.out.println(strStockDatas);
+
+                String procResult = roomioMapper.insertStock(intAID, intRmIdx, strStockDatas);
+
+                if (procResult.equals("저장완료")) {
+                    message = "재고 등록 및 수정 완료";
+                } else {
+                    message = " 재고 등록 및 수정 실패";
+                }
 
 
             }else{
                 System.out.println("fail");
             }
 
-            System.out.println(jsonNode);
+            System.out.println(message);
 
 
         }catch (Exception e){
@@ -309,9 +309,58 @@ public class RoomioService {
 
             System.out.println(rsvStayDto);
 
+            String strHotelId = "";
+            String strRoomId = "";
+            String strPrice = "";
+            String strRoomType = "";
+            String strPkgCode = "";
+            String strAddAdult = "";
+            String strAddChild = "";
+            String strAddBaby = "";
+            String strAddPrice = "";
+            String strAddCnt = "";
+            String strCheckIn = "";
+            String strCheckOut = "";
+            String strName = "";
+            String strPhone = "";
+            String strEmail = "";
+            String strRoomCnt = "";
+            String strMemo = "";
+            String strOptionName = "";
+            String strOptionPrice = "";
+            String strOptionCode = "";
+            String strOptionCnt = "";
+
             JSONObject jsonObject = new JSONObject();
-            jsonObject.put("m","getRoomState");
+            jsonObject.put("m","setRevReady");
             jsonObject.put("cd","7634");
+            jsonObject.put("hotel_id", strHotelId);
+            jsonObject.put("room_id", strRoomId);
+            jsonObject.put("rev_no", intRsvID);
+            jsonObject.put("s_price", strPrice);
+            jsonObject.put("room_type", strRoomType);
+            jsonObject.put("pkg_code", strPkgCode);
+            jsonObject.put("add_adult", strAddAdult);
+            jsonObject.put("add_child", strAddChild);
+            jsonObject.put("add_baby", strAddBaby);
+            jsonObject.put("add_man", strAddPrice);
+            jsonObject.put("add_num", strAddCnt);
+            jsonObject.put("check_in", strCheckIn);
+            jsonObject.put("check_out", strCheckOut);
+            jsonObject.put("user_name", strName);
+            jsonObject.put("user_hp", strPhone);
+            jsonObject.put("user_email", strEmail);
+            jsonObject.put("room_cnt", strRoomCnt);
+            jsonObject.put("rev_memo", strMemo);
+
+            JSONObject optionObject = new JSONObject();
+            optionObject.put("opt_name", strOptionName);
+            optionObject.put("opt_price", strOptionPrice);
+            optionObject.put("opt_code", strOptionCode);
+            optionObject.put("opt_cnt", strOptionCnt);
+
+            jsonObject.put("option", optionObject);
+
 
 //            JsonNode jsonNode = commonFunction.callJsonApi("roomio","", jsonObject, "http://api.roomio.co.kr/", "POST");
 

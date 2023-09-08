@@ -12,4 +12,16 @@
     <select id="getRsvInfo" resultType="rsvStayDto">
         exec PLNDSTAY.dbo.spGW_RSV_STAY_INFO ${intRsvID}
     </select>
+
+    <select id="getHotelId" resultType="String">
+        SELECT strPropertyID FROM dbo.ACCOMM WITH(NOLOCK) WHERE intAID = ${intAID}
+    </select>
+    
+    <select id="getRoomId" resultType="String">
+        SELECT strRmtypeID FROM dbo.RMTYPE WITH(NOLOCK) WHERE intIdx = ${intRmIdx}
+    </select>
+
+    <select id="insertStock" resultType="String">
+        EXEC dbo.spRMO_STOCK_REGIST ${intAID}, ${intRmIdx}, #{strStockDatas}, ''
+    </select>
 </mapper>

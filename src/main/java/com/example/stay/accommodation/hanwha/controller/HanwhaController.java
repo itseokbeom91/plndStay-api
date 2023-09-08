@@ -15,7 +15,7 @@ public class HanwhaController {
     @Autowired
     private HanwhaService hanwhaService;
 
-    @GetMapping("/capa")
+    @GetMapping("/getRoomStock")
     @ResponseBody
     public String getCapa(int intAID, int intRmIdx, String intPkgIdx, String strLocalCode, String startDate, String endDate, String dataType){
 
@@ -26,7 +26,7 @@ public class HanwhaController {
 
     }
 
-    @GetMapping("/packageList")
+    @GetMapping("/getPackageList")
     @ResponseBody
     public String getPackageList(@Nullable String localCode, String strDate, String dataType){
 
@@ -37,35 +37,35 @@ public class HanwhaController {
 
     }
 
-    @GetMapping("/packageDetail")
+    @GetMapping("/getPackageInfo")
     public void getPackageDetail(String packageCode){
 
         hanwhaService.getPackageDetail(packageCode);
 
     }
 
-    @GetMapping("/booking")
+    @GetMapping("/createBooking")
     public void booking(String packNo, String locCd, String RMCd, String startDate, String roomCnt, String staycnt, String reserveName, String reservePhone, String stayName, String stayPhone){
 
         hanwhaService.booking(packNo, locCd, RMCd, startDate, roomCnt, staycnt, reserveName, reservePhone, stayName, stayPhone);
 
     }
 
-    @GetMapping("/bookingCancel")
+    @GetMapping("/cancelBooking")
     public void bookingCancel(){
 
         hanwhaService.bookingCancel();
 
     }
 
-    @GetMapping("/bookingUpdate")
+    @GetMapping("/updateBooking")
     public void bookingModify(String strRsrvNo, String strDate, String strRoomCnt, String strStaycnt, String strReserveName, String strReservePhone, String strStayName, String strStayPhone){
 
         hanwhaService.bookingModify(strRsrvNo, strDate, strRoomCnt, strStaycnt, strReserveName, strReservePhone, strStayName, strStayPhone);
 
     }
 
-    @GetMapping("/bookingInfo")
+    @GetMapping("/getBookingInfo")
     public void bookingInfo(){
 
         hanwhaService.bookingInfo();

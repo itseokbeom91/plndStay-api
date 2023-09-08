@@ -47,7 +47,7 @@ public class APIHotelStoryController {
      * @param strAccommID
      * @return API 호출 리스트
      */
-    @GetMapping("/callapi")
+    @GetMapping("/getAccommInfo")
     public void callApi(String strAccommID) {
 
         apiHotelstoryService.getAccomm(strAccommID);

@@ -13,43 +13,43 @@ public class RoomioController {
     @Autowired
     RoomioService roomioService;
 
-    @GetMapping("/getAccomm")
+    @GetMapping("/getAccommInfo")
     public void getAccomm(String dataType){
 
         roomioService.getAccomm(dataType);
 
     }
 
-    @GetMapping("/getRoom")
+    @GetMapping("/getRoomInfo")
     public void getRoom(String hotelId){
 
         roomioService.getRoom(hotelId);
 
     }
 
-    @GetMapping("/bookingState")
+    @GetMapping("/getBookingState")
     public void bookingState(){}
 
-    @GetMapping("/getPrice")
-    public void getPrice(String strHotelId, String strRoomId, String startDate, String endDate, String dataType){
+    @GetMapping("/getRoomStock")
+    public void getStock(int intAID, int intRmIdx, String startDate, String endDate, String dataType){
 
-        roomioService.getPrice(strHotelId, strRoomId, startDate, endDate, dataType);
+        roomioService.getStock(intAID, intRmIdx, startDate, endDate, dataType);
 
     }
 
-    @GetMapping("/booking")
+    @GetMapping("/createBooking")
     public void booking(int intRsvID){
 
         roomioService.booking(intRsvID);
     }
 
-    @GetMapping("/bookingInfo")
+    @GetMapping("/getBookingInfo")
     public void bookingInfo(){}
 
-    @GetMapping("/bookingList")
+    @GetMapping("/getBookingList")
     public void bookingList(){}
 
-    @GetMapping("/cancel")
+    @GetMapping("/cancelBooking")
     public void bookingCancel(){}
 
 }
