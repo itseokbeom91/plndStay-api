@@ -1,5 +1,6 @@
 package com.example.stay.accommodation.hanwha.mapper;
 
+import com.example.stay.openMarket.common.dto.RsvStayDto;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -17,4 +18,6 @@ public interface HanwhaMapper {
     String insertStock(int intAID, int intRmIdx, String strPackageCode, String strStockData);
 
     List<Map<String, String>> getLcdCode(int intAID);
+
+    RsvStayDto getRsvInfo(int intRsvIdx);
 }

@@ -28,4 +28,8 @@
           and ali.strFlag = '02'
         group by ali.strLocalCode
     </select>
+
+    <select id="getRsvInfo" resultType="RsvStayDto">
+        EXEC PLNDSTAY.dbo.spGW_RSV_STAY_INFO ${intRsvIdx}
+    </select>
 </mapper>

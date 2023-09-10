@@ -13,34 +13,34 @@ public class YPBController {
     @Autowired
     private YPBService ypbService;
 
-    @GetMapping("/stock")
+    @GetMapping("/getRoomStock")
     public void getStock(int intAID, int intRmIdx, int intPkgIdx, String startDate, String endDate){
 
         ypbService.getStock(intAID, intRmIdx, intPkgIdx, startDate, endDate);
 
     }
 
-    @GetMapping("/booking")
+    @GetMapping("/createBooking")
     public void booking(){
 
         ypbService.booking();
 
     }
 
-    @GetMapping("/bookingInfo")
+    @GetMapping("/getBookingInfo")
     public void getBookingInfo(){
 
         ypbService.getBookingInfo();
 
     }
 
-    @GetMapping("/cancel")
+    @GetMapping("/cancelBooking")
     public void bookingCancel(){
 
         ypbService.bookingCancel();
     }
 
-    @GetMapping("/bookingList")
+    @GetMapping("/getBookingList")
     public void bookingList(){
 
         ypbService.getBookingList();

@@ -4,6 +4,7 @@ import com.example.stay.accommodation.hanwha.mapper.HanwhaMapper;
 
 import com.example.stay.common.util.CommonFunction;
 import com.example.stay.common.util.Constants;
+import com.example.stay.openMarket.common.dto.RsvStayDto;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.json.simple.JSONArray;
@@ -43,7 +44,7 @@ public class HanwhaService {
      * @param
      * @return
      */
-    public String booking(String strPackNo, String strLocCd, String strRMCd, String strDate, String strRoomCnt, String strStaycnt, String strReserveName, String strReservePhone, String strStayName, String strStayPhone){ // 예약요청 : 01
+    public String booking(int intRsvIdx){ // 예약요청 : 01
 
         String statusCode = "200";
         String message = "";
@@ -54,6 +55,31 @@ public class HanwhaService {
             JSONObject dataObject = new JSONObject();
             JSONObject detailObject = new JSONObject();
 
+            RsvStayDto rsvStayDto = hanwhaMapper.getRsvInfo(intRsvIdx);
+
+
+            String strPackNo = rsvStayDto.getStrPkgCode();
+            String strLocCd = rsvStayDto.getStrLocalCode();
+            String strRMCd = rsvStayDto.getStrRmtypeID();
+            String strRoomCnt = String.valueOf(rsvStayDto.getIntRmCnt());
+            String strReserveName = rsvStayDto.getStrOrdName();
+            String strReservePhone = rsvStayDto.getStrOrdPhone();
+            String strStayName = rsvStayDto.getStrRcvName();
+            String strStayPhone = rsvStayDto.getStrRcvPhone();
+
+            // 몇 박인지 구하기
+            String strStaycnt = "";
+            Date checkInDate = rsvStayDto.getDateCheckIn();
+            Date checkOutDate = rsvStayDto.getDateCheckOut();
+            long longStayCnt = (checkOutDate.getTime() - checkInDate.getTime()) / 86400000;
+            strStaycnt = String.valueOf(longStayCnt);
+            System.out.println(strStaycnt);
+
+            // 체크인 날짜 포멧
+            String strDate = new SimpleDateFormat("yyyyMMdd").format(checkInDate);
+            System.out.println(strDate);
+
+            // 번호 구하기
             String strStayPhone1 = "010";
             String strStayPhone2 = "";
             String strStayPhone3 = "";
@@ -117,11 +143,10 @@ public class HanwhaService {
 
             System.out.println(mainObject);
 
-//            JsonNode jsonNode = commonService.callJsonApi("hanwha", "", mainObject);
-            JsonNode jsonNode = commonFunction.callJsonApi("hanwha", "", mainObject, "", "POST");
-//
-            result = jsonNode.toString();
-            System.out.println(result);
+//            JsonNode jsonNode = commonFunction.callJsonApi("hanwha", "", mainObject, "", "POST");
+
+//            result = jsonNode.toString();
+//            System.out.println(result);
 
         }catch (Exception e){
             message = "예약 실패";
