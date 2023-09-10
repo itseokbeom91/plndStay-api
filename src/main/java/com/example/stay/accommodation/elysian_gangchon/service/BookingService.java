@@ -31,7 +31,7 @@ public class BookingService {
     CommonFunction commonFunction = new CommonFunction();
 
     // 재고 등록 및 수정
-    public String updateGoods(String dataType, HttpServletRequest httpServletRequest, String sdate, String edate, int intRmIdx){
+    public String updatePackagetock(String dataType, HttpServletRequest httpServletRequest, String sdate, String edate, int intRmIdx){
         LogWriter logWriter = new LogWriter(httpServletRequest.getMethod(), httpServletRequest.getServletPath(),
                 httpServletRequest.getQueryString(), System.currentTimeMillis());
         String statusCode = "200";
@@ -224,7 +224,7 @@ public class BookingService {
     }
 
     // 예약 조회
-    public String checkBooking(String dataType, int intRsvID, HttpServletRequest httpServletRequest){
+    public String getBookingInfo(String dataType, int intRsvID, HttpServletRequest httpServletRequest){
         String statusCode = "200";
         String message = "";
         LogWriter logWriter = new LogWriter(httpServletRequest.getMethod(), httpServletRequest.getServletPath(),

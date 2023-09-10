@@ -48,9 +48,9 @@ public class BookingController {
     /**
      * 예약 대사자료 조회
      */
-    @GetMapping("getBookings")
+    @GetMapping("getBookingList")
     @ResponseBody
-    public String getBookings(String dataType, String option, String strFrom, String strTo, HttpServletRequest httpServletRequest){
-        return bookingService.getBookings(dataType, option, strFrom, strTo, httpServletRequest);
+    public String getBookingList(String dataType, String option, String strFrom, String strTo, HttpServletRequest httpServletRequest){
+        return bookingService.getBookingList(dataType, option, strFrom, strTo, httpServletRequest);
     }
 }

@@ -32,10 +32,10 @@ public class BookingController {
 //    }
 
     // 재고 등록 및 수정
-    @GetMapping("updateGoods")
+    @GetMapping("getPackageStock")
     @ResponseBody
-    public String updateGoods(String dataType, HttpServletRequest httpServletRequest, int intRmIdx, String startDate, String endDate){
-        return bookingService.updateGoods(dataType, httpServletRequest, intRmIdx, startDate, endDate);
+    public String getPackageStock(String dataType, HttpServletRequest httpServletRequest, int intRmIdx, String startDate, String endDate){
+        return bookingService.getPackageStock(dataType, httpServletRequest, intRmIdx, startDate, endDate);
     }
 
     // 체크인 날짜에 해당되는 객실 수량 및 계산된 총 요금 조회
@@ -67,27 +67,27 @@ public class BookingController {
     }
 
     // 예약 수정
-    @GetMapping("modifyBooking")
+    @GetMapping("updateBooking")
     @ResponseBody
-    public String modifyBooking(String dataType, int intRsvID, HttpServletRequest httpServletRequest){
-        return bookingService.modifyBooking(dataType, intRsvID, httpServletRequest);
+    public String updateBooking(String dataType, int intRsvID, HttpServletRequest httpServletRequest){
+        return bookingService.updateBooking(dataType, intRsvID, httpServletRequest);
     }
 
     // 예약 상세 조회
-    @GetMapping("checkBooking")
+    @GetMapping("getBookingInfo")
     @ResponseBody
-    public String checkBooking(String dataType, int intRsvID, HttpServletRequest httpServletRequest){
-        return bookingService.checkBooking(dataType, intRsvID, httpServletRequest);
+    public String getBookingInfo(String dataType, int intRsvID, HttpServletRequest httpServletRequest){
+        return bookingService.getBookingInfo(dataType, intRsvID, httpServletRequest);
     }
 
     // 예약 리스트 조회(체크인날짜 기준)
     // 예약번호, 예약자 이름으로 검색 가능
-    @GetMapping("checkBookingList")
+    @GetMapping("getBookingList")
     @ResponseBody
-    public String checkBookingList(String dataType, HttpServletRequest httpServletRequest,
+    public String getBookingList(String dataType, HttpServletRequest httpServletRequest,
                                    @Nullable String searchFlag, @Nullable String searchData, String sDate, String eDate,
                                    @Nullable String rsvFlag, String strPkgCode){
-        return bookingService.checkBookingList(dataType, httpServletRequest, searchFlag, searchData,
+        return bookingService.getBookingList(dataType, httpServletRequest, searchFlag, searchData,
                                                 sDate, eDate, rsvFlag, strPkgCode);
     }
 

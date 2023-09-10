@@ -94,21 +94,21 @@ public class AccommController {
     /**
      * ONDA에서 숙소정보 가져와서 INSERT
      */
-    @GetMapping("insertAccommTotal")
+    @GetMapping("getAccommInfo")
     @ResponseBody
-    public String insertAccommTotal(String dataType, HttpServletRequest httpServletRequest){
-        return accommService.insertAccommTotal(dataType, httpServletRequest);
+    public String getAccommInfo(String dataType, HttpServletRequest httpServletRequest){
+        return accommService.getAccommInfo(dataType, httpServletRequest);
     }
 
     /**
      * 시설(시설+이미지+취소규정) 수정
      * @param propertyId
      */
-    @GetMapping("updateAccomm")
+    @GetMapping("updateAccommInfo")
     @ResponseBody
-    public String updateAccomm(String dataType, String propertyId){
+    public String updateAccommInfo(String dataType, String propertyId){
 
-        JSONObject jsonObject =  accommService.updateAccomm(propertyId);
+        JSONObject jsonObject =  accommService.updateAccommInfo(propertyId);
         String code = jsonObject.get("statusCode").toString();
         String message = jsonObject.get("message").toString();
 
@@ -122,11 +122,11 @@ public class AccommController {
      * @param strRateplanID
      * @return
      */
-    @GetMapping("updateRmtype")
+    @GetMapping("updateRmtypeInfo")
     @ResponseBody
-    public String updateRmtype(String dataType, String strPropertyID, String strRmtypeID, @Nullable String strRateplanID, HttpServletRequest httpServletRequest){
+    public String updateRmtypeInfo(String dataType, String strPropertyID, String strRmtypeID, @Nullable String strRateplanID, HttpServletRequest httpServletRequest){
 
-        JSONObject jsonObject =  accommService.updateRmtype(strPropertyID, strRmtypeID, strRateplanID, httpServletRequest);
+        JSONObject jsonObject =  accommService.updateRmtypeInfo(strPropertyID, strRmtypeID, strRateplanID, httpServletRequest);
         String code = jsonObject.get("statusCode").toString();
         String message = jsonObject.get("message").toString();
 
@@ -136,10 +136,10 @@ public class AccommController {
     /**
      * 특정 패키지의 재고 및 요금 정보 가져와서 insert or update
      */
-    @GetMapping("updateGoods")
+    @GetMapping("updateRoomStock")
     @ResponseBody
-    public String updateGoods(String dataType, int intRmIdx, String from, String to){
-        return accommService.updateGoods(dataType, intRmIdx, from, to);
+    public String updateRoomStock(String dataType, int intRmIdx, String from, String to){
+        return accommService.updateRoomStock(dataType, intRmIdx, from, to);
     }
 
     /**

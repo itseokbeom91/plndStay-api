@@ -401,7 +401,7 @@ public class BookingService {
     }
 
     // 예약 대사자료 조회
-    public String getBookings(String dataType, String option, String strFrom, String strTo, HttpServletRequest httpServletRequest){
+    public String getBookingList(String dataType, String option, String strFrom, String strTo, HttpServletRequest httpServletRequest){
         LogWriter logWriter = new LogWriter(httpServletRequest.getMethod(), httpServletRequest.getServletPath(),
                 httpServletRequest.getQueryString(), System.currentTimeMillis());
 

@@ -36,7 +36,7 @@ public class AccommService {
     Gson gson = new GsonBuilder().setPrettyPrinting().create();
 
     // 시설, 룸타입, ratePlan 등록
-    public String insertAccommTotal(String dataType, HttpServletRequest httpServletRequest){
+    public String getAccommInfo(String dataType, HttpServletRequest httpServletRequest){
         LogWriter logWriter = new LogWriter(httpServletRequest.getMethod(), httpServletRequest.getServletPath(),
                 httpServletRequest.getQueryString(), System.currentTimeMillis());
         String statusCode = "200";
@@ -458,7 +458,7 @@ public class AccommService {
     }
 
     // 시설 수정(시설+이미지+취소규정+키워드)
-    public JSONObject updateAccomm(String strPropertyID){
+    public JSONObject updateAccommInfo(String strPropertyID){
         LogWriter logWriter = new LogWriter(System.currentTimeMillis());
         String statusCode = "200";
         String message = "";
@@ -708,7 +708,7 @@ public class AccommService {
     }
 
     // 룸타입+옵션 등록 및 수정
-    public JSONObject updateRmtype(String strPropertyID, String strRmtypeID, String strRateplanID, HttpServletRequest httpServletRequest){
+    public JSONObject updateRmtypeInfo(String strPropertyID, String strRmtypeID, String strRateplanID, HttpServletRequest httpServletRequest){
         LogWriter logWriter = new LogWriter(httpServletRequest.getMethod(), httpServletRequest.getServletPath(),
                 httpServletRequest.getQueryString(), System.currentTimeMillis());
         String statusCode = "200";
@@ -903,7 +903,7 @@ public class AccommService {
 
 
     // 특정 패키지의 재고 및 요금 정보 가져와서 insert or update
-    public String updateGoods(String dataType, int intRmIdx, String from, String to){
+    public String updateRoomStock(String dataType, int intRmIdx, String from, String to){
         String statusCode = "200";
         String message = "";
 
@@ -1129,7 +1129,7 @@ public class AccommService {
 
                 if(target.equals("property")){
                     String strPropertyID = event_detail.get("property_id").toString();
-                    JSONObject updateJson = updateAccomm(strPropertyID);
+                    JSONObject updateJson = updateAccommInfo(strPropertyID);
                     result = (boolean) updateJson.get("updateResult");
                 }else if(target.equals("roomtype") || target.equals("rateplan")){
                     // roomType & ratePlane은 DB구조상 데이터 조합해서 넣어야하기 때문에 같이 수정
@@ -1139,7 +1139,7 @@ public class AccommService {
                     if(target.equals("rateplan")){
                         strRateplanID = event_detail.get("rateplan_id").toString();
                     }
-                    JSONObject updateJson = updateRmtype(strPropertyID, strRmtypeID, strRateplanID, httpServletRequest);
+                    JSONObject updateJson = updateRmtypeInfo(strPropertyID, strRmtypeID, strRateplanID, httpServletRequest);
                     result = (boolean) updateJson.get("updateResult");
                 }
             }else if(event_type.equals("status_updated")){

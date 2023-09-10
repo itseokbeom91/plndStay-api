@@ -138,7 +138,7 @@ public class BookingService {
     }
 
     // 재고 등록 및 수정
-    public String updateStock(String dataType, String strFromDate, String strToDate, int intRmIdx, HttpServletRequest httpServletRequest){
+    public String updateRoomStock(String dataType, String strFromDate, String strToDate, int intRmIdx, HttpServletRequest httpServletRequest){
         LogWriter logWriter = new LogWriter(httpServletRequest.getMethod(), httpServletRequest.getServletPath(),
                 httpServletRequest.getQueryString(), System.currentTimeMillis());
         String statusCode = "200";
@@ -396,7 +396,7 @@ public class BookingService {
     }
 
     // 예약현황 조회
-    public String getReservationStatus(String dataType, int intRsvID, HttpServletRequest httpServletRequest){
+    public String getBookingInfo(String dataType, int intRsvID, HttpServletRequest httpServletRequest){
         LogWriter logWriter = new LogWriter(httpServletRequest.getMethod(), httpServletRequest.getServletPath(),
                 httpServletRequest.getQueryString(), System.currentTimeMillis());
         String statusCode = "200";
@@ -476,7 +476,7 @@ public class BookingService {
     }
 
     // 예약 대사자료 조회
-    public String getReservations(String dataType, String strFromDate, String strToDate ,HttpServletRequest httpServletRequest){
+    public String getBookingList(String dataType, String strFromDate, String strToDate ,HttpServletRequest httpServletRequest){
         LogWriter logWriter = new LogWriter(httpServletRequest.getMethod(), httpServletRequest.getServletPath(),
                 httpServletRequest.getQueryString(), System.currentTimeMillis());
         String statusCode = "200";
