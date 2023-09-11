@@ -29,10 +29,10 @@ public class BookingService {
     Gson gson = new GsonBuilder().setPrettyPrinting().create();
 
     // 예약 전 예약 가능 여부 조회
-    public boolean checkAvailBooking(String strPropertyID, String strRmtypeID, String strRateplanID, Date dateCheckIn, Date dateCheckOut){
+    public boolean checkAvailBooking(String strPropertyID, String strRmtypeID, String strRateplanID, String strCheckIn, String strCheckOut){
         boolean availability = false;
         try{
-            String url = "properties/" + strPropertyID + "/roomtypes/" + strRmtypeID + "/rateplans/" + strRateplanID + "/checkavail?checkin=" + dateCheckIn + "&checkout=" + dateCheckOut;
+            String url = "properties/" + strPropertyID + "/roomtypes/" + strRmtypeID + "/rateplans/" + strRateplanID + "/checkavail?checkin=" + strCheckIn + "&checkout=" + strCheckOut;
 
             JSONObject responseJson = callOndaGetAPI(url);
             if(responseJson != null){
@@ -86,18 +86,21 @@ public class BookingService {
                 String strRmtypeID = rsvStayDto.getStrRmtypeID();
                 String strRateplanID = rsvStayDto.getStrRateplanID();
 
-//                int intAID = rsvStayDto.getIntAID();
-
                 Date dateCheckIn = rsvStayDto.getDateCheckIn();
                 Date dateCheckOut = rsvStayDto.getDateCheckOut();
+                
+                SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
+                String strCheckIn = simpleDateFormat.format(dateCheckIn);
+                String strCheckOut = simpleDateFormat.format(dateCheckOut);
+
                 requestJson.put("currency", "KRW");
                 requestJson.put("channel_booking_number", intRsvID);
-                requestJson.put("checkin", dateCheckIn);
-                requestJson.put("checkout", dateCheckOut);
+                requestJson.put("checkin", strCheckIn);
+                requestJson.put("checkout", strCheckOut);
 
 
                 // 예약 가능한지 확인
-                boolean availBooking = checkAvailBooking(strPropertyID, strRmtypeID, strRateplanID, dateCheckIn, dateCheckOut);
+                boolean availBooking = checkAvailBooking(strPropertyID, strRmtypeID, strRateplanID, strCheckIn, strCheckOut);
                 if(availBooking){
                     int intRmCnt = rsvStayDto.getIntRmCnt();
 
@@ -132,7 +135,6 @@ public class BookingService {
                                 childList.add(1);
                             }
 
-                            System.out.println("******************* childList : " + childList);
                             number_of_guest.put("child_age", childList);
                         }
                         rateplanJson.put("number_of_guest", number_of_guest);
@@ -161,9 +163,11 @@ public class BookingService {
                     booker.put("name", strOrdName);
                     booker.put("phone", strOrdPhone);
 
-                    if(rsvStayDto.getStrOrdEmail() != null){
-                        booker.put("email", rsvStayDto.getStrOrdEmail());
+                    String strOrdEmail = rsvStayDto.getStrOrdEmail();
+                    if(strOrdEmail == null){
+                        strOrdEmail = "condo24@condo24.com";
                     }
+                    booker.put("email", strOrdEmail);
 
                     booker.put("nationality", "KR");
                     booker.put("timezone", "Asia/Seoul");
@@ -210,11 +214,11 @@ public class BookingService {
                             int intRefundPrice = Integer.parseInt(refundPolicyJson.get("refund_amount").toString());
                             int intRefundFee = Integer.parseInt(refundPolicyJson.get("charge_amount").toString());
 
-                            // refund_policy 테이블에 inserta
+                            // refund_policy 테이블에 insert
 //                            strRefundPolicies += strUntilDate + "|^|" + intPercent + "|^|" + intRefundPrice + "|^|" + intRefundFee  + "|^|" + strRefundYN  + "|^|" + strOndaRefundType + "|^|" + "{{|}}";
                         }
 
-                        strRefundPolicies = strRefundPolicies.substring(0, strRefundPolicies.length()-5);
+//                        strRefundPolicies = strRefundPolicies.substring(0, strRefundPolicies.length()-5);
 
                         // 예약 테이블 업데이트 & 취소규정 INSERT
                         String updateResult = ondaMapper.updateRsvStay(intRsvID, "4", strRsvRmNum);
@@ -228,7 +232,7 @@ public class BookingService {
                 }else{
                     message = "예약 불가";
                 }
-            }else if(strStatusCode.equals("2")) { // 번호대기
+            }else if(strStatusCode.equals("2")) { // 번호대기였을 경우
                 // 예약 상태 조회
                 String strStatus = checkBooking(strPropertyID, intRsvID);
 
@@ -489,6 +493,8 @@ public class BookingService {
         LogWriter logWriter = new LogWriter(request.method(), request.url().toString(), startTime);
 
         try {
+            logWriter.addRequest(gson.toJson(requestJson));
+
             Response response = client.newCall(request).execute();
             if(response.isSuccessful()){
                 // response 파싱
@@ -499,7 +505,7 @@ public class BookingService {
                 message = gson.toJson(responseJson);
 
             }else{
-                message = "response code : " + response.code();
+                message = response.toString();
             }
             logWriter.add(message);
             logWriter.log(0);
@@ -531,6 +537,8 @@ public class BookingService {
         LogWriter logWriter = new LogWriter(request.method(), request.url().toString(), startTime);
 
         try {
+            logWriter.addRequest(gson.toJson(requestJson));
+
             Response response = client.newCall(request).execute();
             if(response.isSuccessful()){
                 // response 파싱
