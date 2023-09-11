@@ -50,6 +50,8 @@ public class RsvStayDto {
     private String strStoreCode;
     private String strPkgCode;
     private String strPkgSubCode;
+    private String strMapCode;
+    private String strRmOnlyYn;
     private String datePurchase;
     private double moneyCostA;
     private double moneyCostC;
