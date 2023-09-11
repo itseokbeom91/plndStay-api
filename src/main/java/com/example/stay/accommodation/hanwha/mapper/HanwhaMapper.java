@@ -19,5 +19,7 @@ public interface HanwhaMapper {
 
     List<Map<String, String>> getLcdCode(int intAID);
 
-    RsvStayDto getRsvInfo(int intRsvIdx);
+    RsvStayDto getRsvInfo(int intRsvID);
+
+    String updateRsv(int intRsvID, String strStatusCode, String strRsvRmNum);
 }

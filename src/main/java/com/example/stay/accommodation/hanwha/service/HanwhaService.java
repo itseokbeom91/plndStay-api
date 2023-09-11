@@ -44,7 +44,7 @@ public class HanwhaService {
      * @param
      * @return
      */
-    public String booking(int intRsvIdx){ // 예약요청 : 01
+    public String booking(int intRsvID){ // 예약요청 : 01
 
         String statusCode = "200";
         String message = "";
@@ -55,7 +55,7 @@ public class HanwhaService {
             JSONObject dataObject = new JSONObject();
             JSONObject detailObject = new JSONObject();
 
-            RsvStayDto rsvStayDto = hanwhaMapper.getRsvInfo(intRsvIdx);
+            RsvStayDto rsvStayDto = hanwhaMapper.getRsvInfo(intRsvID);
 
 
             String strPackNo = rsvStayDto.getStrPkgCode();
@@ -143,10 +143,31 @@ public class HanwhaService {
 
             System.out.println(mainObject);
 
-//            JsonNode jsonNode = commonFunction.callJsonApi("hanwha", "", mainObject, "", "POST");
+            JsonNode jsonNode = commonFunction.callJsonApi("hanwha", "", mainObject, "", "POST");
 
-//            result = jsonNode.toString();
-//            System.out.println(result);
+            result = jsonNode.toString();
+            System.out.println(result);
+
+            // 통신결과 0:실패, 1:성공
+            JSONObject codeObject = (JSONObject) new JSONParser().parse(jsonNode.get("MessageHeader").get("MSG_DATA_SUB").get(0).toString());
+            String resultCode = codeObject.get("MSG_INDC_CD").toString();
+
+            if(resultCode.equals("1")){
+                JSONObject responseObject = (JSONObject) new JSONParser().parse(jsonNode.get("Data").get("ds_prcsResult").get(0).toString());
+                String strRsvRmNum = responseObject.get("RSRV_NO").toString();
+
+                // 에악 정보 update
+                String procResult = hanwhaMapper.updateRsv(intRsvID, "4", strRsvRmNum);
+
+                if (procResult.trim().equals("저장완료")) {
+                    message = "예약 완료";
+                } else {
+                    message = "DB저장 실패[객실번호 : " + strRsvRmNum + "]";
+                }
+
+            }else{
+                message = "호출 실패";
+            }
 
         }catch (Exception e){
             message = "예약 실패";
@@ -163,7 +184,7 @@ public class HanwhaService {
      * 예약 취소
      * @return
      */
-    public String bookingCancel(){ // 예약취소 : 02
+    public String bookingCancel(int intRsvID){ // 예약취소 : 02
 
         String statusCode = "200";
         String message = "";
@@ -174,9 +195,11 @@ public class HanwhaService {
             JSONObject dataObject = new JSONObject();
             JSONObject detailObject = new JSONObject();
 
+            RsvStayDto rsvStayDto = hanwhaMapper.getRsvInfo(intRsvID);
+            String strRsvNo = String.valueOf(rsvStayDto.getIntRsvID());
 
             detailObject.put("CUST_NO", Constants.hanwhaCustNo);
-            detailObject.put("RSRV_NO", "");
+            detailObject.put("RSRV_NO", strRsvNo);
 
             List<Object> dataList = new ArrayList<>();
             dataList.add(detailObject);
@@ -187,11 +210,31 @@ public class HanwhaService {
 
             System.out.println(mainObject);
 
-//            JsonNode jsonNode = commonService.callJsonApi("hanwha", "", mainObject);
             JsonNode jsonNode = commonFunction.callJsonApi("hanwha", "", mainObject, "", "POST");
 
             result = jsonNode.toString();
             System.out.println(result);
+
+            // 통신결과 0:실패, 1:성공
+            JSONObject codeObject = (JSONObject) new JSONParser().parse(jsonNode.get("MessageHeader").get("MSG_DATA_SUB").get(0).toString());
+            String resultCode = codeObject.get("MSG_INDC_CD").toString();
+
+            if(resultCode.equals("1")){
+                JSONObject responseObject = (JSONObject) new JSONParser().parse(jsonNode.get("Data").get("ds_prcsResult").get(0).toString());
+                String strRsvRmNum = responseObject.get("RSRV_NO").toString();
+
+                // 에악 정보 update
+                String procResult = hanwhaMapper.updateRsv(intRsvID, "5", strRsvRmNum);
+
+                if (procResult.trim().equals("저장완료")) {
+                    message = "취소 완료";
+                } else {
+                    message = "DB저장 실패[객실번호 : " + strRsvRmNum + "]";
+                }
+
+            }else{
+                message = "호출 실패";
+            }
 
         }catch (Exception e){
             message = "예약 취소 실패";
@@ -235,7 +278,6 @@ public class HanwhaService {
 
             System.out.println(mainObject);
 
-//            JsonNode jsonNode = commonService.callJsonApi("hanwha", "", mainObject);
             JsonNode jsonNode = commonFunction.callJsonApi("hanwha", "", mainObject, "", "POST");
 
             result = jsonNode.toString();
@@ -251,7 +293,7 @@ public class HanwhaService {
     }
 
 
-    public String bookingModify(String strRsrvNo, String strDate, String strRoomCnt, String strStaycnt, String strReserveName, String strReservePhone, String strStayName, String strStayPhone){ // 예약 수정 : 04
+    public String bookingModify(int intRsvID){ // 예약 수정 : 04
 
         String statusCode = "200";
         String message = "";
@@ -262,6 +304,23 @@ public class HanwhaService {
             JSONObject mainObject = getCommonHeader("04");
             JSONObject dataObject = new JSONObject();
             JSONObject detailObject = new JSONObject();
+
+            RsvStayDto rsvStayDto = hanwhaMapper.getRsvInfo(intRsvID);
+            String strRsrvNo = rsvStayDto.getStrRsvRmNum();
+            String strDate = new SimpleDateFormat("yyyyMMdd").format(rsvStayDto.getDateCheckIn().toString());
+            String strRoomCnt = String.valueOf(rsvStayDto.getIntRmCnt());
+            String strReserveName = rsvStayDto.getStrOrdName();
+            String strReservePhone = rsvStayDto.getStrOrdPhone();
+            String strStayName = rsvStayDto.getStrRcvName();
+            String strStayPhone = rsvStayDto.getStrRcvPhone();
+
+            // 몇 박인지 구하기
+            String strStaycnt = "";
+            Date checkInDate = rsvStayDto.getDateCheckIn();
+            Date checkOutDate = rsvStayDto.getDateCheckOut();
+            long longStayCnt = (checkOutDate.getTime() - checkInDate.getTime()) / 86400000;
+            strStaycnt = String.valueOf(longStayCnt);
+
 
             String strStayPhone1 = "010";
             String strStayPhone2 = "";
@@ -315,10 +374,17 @@ public class HanwhaService {
 
             mainObject.put("Data", dataObject);
 
-            System.out.println(mainObject);
-
-//            JsonNode jsonNode = commonService.callJsonApi("hanwha", "", mainObject);
             JsonNode jsonNode = commonFunction.callJsonApi("hanwha", "", mainObject, "", "POST");
+
+            // 통신결과 0:실패, 1:성공
+            JSONObject codeObject = (JSONObject) new JSONParser().parse(jsonNode.get("MessageHeader").get("MSG_DATA_SUB").get(0).toString());
+            String resultCode = codeObject.get("MSG_INDC_CD").toString();
+
+            if(resultCode.equals("1")){
+                message = "수정 완료";
+            }else{
+                message = "호출 실패";
+            }
 
         }catch (Exception e){
             message = "예약 취소 실패";
@@ -357,12 +423,15 @@ public class HanwhaService {
             String strRoomTypeId = hanwhaMapper.getRmID(intAID, intRmIdx); // 룸타입코드
 
             // 패키지idx 있을시
-            if(strIntPkgIdx.length() > 0) {
-                int intPkgIdx = Integer.parseInt(strIntPkgIdx);
+            if(strIntPkgIdx != null){
+                if(strIntPkgIdx.length() > 0) {
+                    int intPkgIdx = Integer.parseInt(strIntPkgIdx);
 
-                Map<String, String> pkgLcdMap = hanwhaMapper.getPkgLcdID(intPkgIdx);
-                strPackageCode = pkgLcdMap.get("strPkgCode").toString();
+                    Map<String, String> pkgLcdMap = hanwhaMapper.getPkgLcdID(intPkgIdx);
+                    strPackageCode = pkgLcdMap.get("strPkgCode").toString();
+                }
             }
+
 
             detailObject.put("CUST_NO", Constants.hanwhaCustNo);
             detailObject.put("CONT_NO", Constants.hanwhaContNo);
@@ -405,6 +474,13 @@ public class HanwhaService {
 
                         // 일별 객실료 조회
                         int[] intPriceData = getPrice(strStockLcd, strStockRMId, strPackageCode, strStockDate);
+
+                        // 날짜 포맷
+                        String date = strStockDate.trim();
+                        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMdd");
+                        Date dateDate = dateFormat.parse(date);
+                        SimpleDateFormat formDate = new SimpleDateFormat("yyyy-MM-dd");
+                        strStockDate = formDate.format(dateDate);
 
                         strStockDatas += strStockDate + "|^|" + intStock + "|^|" + intPriceData[1] + "|^|" + intPriceData[0] + "|^|0|^|0|^|0|^|" + intStock + "{{|}}";
 

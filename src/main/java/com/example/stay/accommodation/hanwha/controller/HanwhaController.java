@@ -45,23 +45,23 @@ public class HanwhaController {
     }
 
     @GetMapping("/createBooking")
-    public void booking(int intRsvIdx){
+    public void booking(int intRsvID){
 
-        hanwhaService.booking(intRsvIdx);
+        hanwhaService.booking(intRsvID);
 
     }
 
     @GetMapping("/cancelBooking")
-    public void bookingCancel(){
+    public void bookingCancel(int intRsvID){
 
-        hanwhaService.bookingCancel();
+        hanwhaService.bookingCancel(intRsvID);
 
     }
 
     @GetMapping("/updateBooking")
-    public void bookingModify(String strRsrvNo, String strDate, String strRoomCnt, String strStaycnt, String strReserveName, String strReservePhone, String strStayName, String strStayPhone){
+    public void bookingModify(int intRsvID){
 
-        hanwhaService.bookingModify(strRsrvNo, strDate, strRoomCnt, strStaycnt, strReserveName, strReservePhone, strStayName, strStayPhone);
+        hanwhaService.bookingModify(intRsvID);
 
     }
 

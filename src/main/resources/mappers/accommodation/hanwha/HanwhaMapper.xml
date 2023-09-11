@@ -30,6 +30,10 @@
     </select>
 
     <select id="getRsvInfo" resultType="RsvStayDto">
-        EXEC PLNDSTAY.dbo.spGW_RSV_STAY_INFO ${intRsvIdx}
+        EXEC PLNDSTAY.dbo.spGW_RSV_STAY_INFO ${intRsvID}
+    </select>
+
+    <select id="updateRsv" resultType="String">
+        EXEC PLNDSTAY.dbo.spGW_RSV_STAY_UPDATE_PROCESS ${intRsvID}, #{strStatusCode}, #{strRsvRmNum}, ''
     </select>
 </mapper>
