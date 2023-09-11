@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 @Controller("gpension.BookingController")
@@ -28,27 +29,27 @@ public class BookingController {
 
     @GetMapping("/createBooking")
     @ResponseBody
-    public String createBooking(String dataType, String BookingIdx) {
-        return bookingService.createBooking(dataType, BookingIdx);
+    public String createBooking(@RequestParam(required = false, defaultValue="jsonp") String dataType, String intRsvID) {
+        return bookingService.createBooking(dataType, intRsvID);
     }
     @GetMapping("/checkBooking")
     @ResponseBody
-    public String confirmBooking(String dataType, String BookingIdx) {
-        return bookingService.confirmBooking(dataType,BookingIdx);
+    public String confirmBooking(@RequestParam(required = false, defaultValue="jsonp") String dataType, String intRsvID) {
+        return bookingService.confirmBooking(dataType,intRsvID);
     }
     @GetMapping("/cancelBooking")
     @ResponseBody
-    public String cancelBooking(String dataType, String BookingIdx) {
-        return bookingService.cancelBooking(dataType,BookingIdx);
+    public String cancelBooking(@RequestParam(required = false, defaultValue="jsonp") String dataType, String intRsvID) {
+        return bookingService.cancelBooking(dataType,intRsvID);
     }
-    @GetMapping("/searchRoom")
+    @GetMapping("/getRoomStock")
     @ResponseBody
-    public String searchRoom(String dataType, String roomId, String startDate, String daytype) {
+    public String searchRoom(@RequestParam(required = false, defaultValue="jsonp") String dataType, String roomId, String startDate, String daytype) {
         return bookingService.searchRoom(dataType,roomId, startDate, daytype);
     }
-    @GetMapping("/searchOrder")
+    @GetMapping("/getBookingInfo")
     @ResponseBody
-    public String searchOrder(String dataType, String BookingIdx) {
-        return bookingService.searchOrder(dataType,BookingIdx);
+    public String searchOrder(@RequestParam(required = false, defaultValue="jsonp") String dataType, String intRsvID) {
+        return bookingService.searchOrder(dataType,intRsvID);
     }
 }

@@ -14,10 +14,9 @@
         WHERE intIdx = ${intRmIdx}
     </select>
 
-    <select id="getStrPkgCode" parameterType="int" resultType="map">
+    <select id="getStrPkgCode" parameterType="int" resultType="String">
         SELECT
             AP.strPkgCode
-            , AP.strPkgSubCode
         FROM PLNDSTAY.dbo.ACM_PACKAGE_INFO AP WITH(NOLOCK)
 			INNER JOIN PLNDSTAY.dbo.ACM_PACKAGE_RM_DATA APR WITH(NOLOCK) ON AP.intIdx = APR.intAPIIdx
             INNER JOIN PLNDSTAY.dbo.RMTYPE R WITH(NOLOCK) ON R.strRmtypeID = APR.strRmCode
@@ -37,5 +36,12 @@
         SELECT strRsvRmNum
         FROM PLNDSTAY.dbo.RSV_STAY
         WHERE intRsvID = ${intRsvID}
+    </select>
+
+    <select id="getTseq" resultType="int">
+        SELECT COUNT(intRsvID)
+        FROM PLNDSTAY.dbo.RSV_STAY R WITH(NOLOCK)
+            INNER JOIN PLNDSTAY.dbo.ACCOMM A WITH(NOLOCK) ON A.intAID = R.intAID
+        WHERE A.strCateCode = '49'
     </select>
 </mapper>

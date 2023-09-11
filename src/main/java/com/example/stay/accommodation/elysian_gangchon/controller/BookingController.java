@@ -18,10 +18,10 @@ public class BookingController {
 
 
     // 재고 등록 및 수정
-    @RequestMapping("updateGoods")
+    @RequestMapping("updatePackagetock")
     @ResponseBody
-    public String updateGoods(String dataType, HttpServletRequest httpServletRequest, String sdate, String edate, int intRmIdx){
-        return bookingService.updateGoods(dataType, httpServletRequest, sdate, edate, intRmIdx);
+    public String updatePackagetock(String dataType, HttpServletRequest httpServletRequest, String sdate, String edate, int intRmIdx){
+        return bookingService.updatePackagetock(dataType, httpServletRequest, sdate, edate, intRmIdx);
     }
 
     // 예약
@@ -32,10 +32,10 @@ public class BookingController {
     }
 
     // 예약 조회
-    @RequestMapping("checkBooking")
+    @RequestMapping("getBookingInfo")
     @ResponseBody
-    public String checkBooking(String dataType, int intRsvID, HttpServletRequest httpServletRequest){
-        return bookingService.checkBooking(dataType, intRsvID, httpServletRequest);
+    public String getBookingInfo(String dataType, int intRsvID, HttpServletRequest httpServletRequest){
+        return bookingService.getBookingInfo(dataType, intRsvID, httpServletRequest);
     }
 
     // 예약 취소
@@ -45,10 +45,10 @@ public class BookingController {
         return bookingService.cancelBooking(dataType, intRsvID, httpServletRequest);
     }
 
-    // 예약 가능여부 조회
-    @RequestMapping("checkAvailBooking")
-    @ResponseBody
-    public void checkAvailBooking(String pcode, String pcode_seq, String sdate, int cnt){
-        bookingService.checkAvailBooking(pcode, pcode_seq, sdate, cnt);
-    }
+//    // 예약 가능여부 조회
+//    @RequestMapping("checkAvailBooking")
+//    @ResponseBody
+//    public void checkAvailBooking(String pcode, String pcode_seq, String sdate, int cnt){
+//        bookingService.checkAvailBooking(pcode, pcode_seq, sdate, cnt);
+//    }
 }

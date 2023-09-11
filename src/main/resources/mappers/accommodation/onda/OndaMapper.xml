@@ -56,17 +56,31 @@
           AND A.strDeleteYn = 'N'
     </select>
 
-    <select id="getStrCodeByStrName" parameterType="String" resultType="String">
-        SELECT strCode
-        FROM PLNDSTAY.dbo.CODE_SYSTEM WITH(NOLOCK)
-        WHERE
-            strCateCode = #{strCateCode}
-          AND strName = #{strName}
-    </select>
+<!--    <select id="getStrCodeByStrName" parameterType="String" resultType="String">-->
+<!--        SELECT strCode-->
+<!--        FROM PLNDSTAY.dbo.CODE_SYSTEM WITH(NOLOCK)-->
+<!--        WHERE strCateCode = #{strCateCode}-->
+<!--          AND strName = #{strName}-->
+<!--    </select>-->
 
     <select id="getPropertyID" parameterType="int" resultType="String">
         SELECT strPropertyID
         FROM PLNDSTAY.dbo.ACCOMM WITH(NOLOCK)
         WHERE intAID = ${intAID}
     </select>
+
+    <select id="getReservation" resultType="RsvStayDto">
+        EXEC PLNDSTAY.dbo.spGW_RSV_STAY_INFO ${intRsvID}
+    </select>
+
+<!--    <update id="updateStrStatusCode">-->
+<!--        UPDATE PLNDSTAY.dbo.RSV_STAY-->
+<!--        SET strStatusCode = #{strStatusCode}-->
+<!--        WHERE intRsvID = ${intRsvID}-->
+<!--    </update>-->
+
+    <select id="updateRsvStay" resultType="String">
+        EXEC PLNDSTAY.dbo.spGW_RSV_STAY_UPDATE_PROCESS ${intRsvID}, #{strStatusCode}, #{strRsvRmNum}, ''
+    </select>
+
 </mapper>

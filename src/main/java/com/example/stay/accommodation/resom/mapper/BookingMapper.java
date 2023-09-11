@@ -8,6 +8,7 @@ import java.util.Map;
 
 @Repository("resom.BookingMapper")
 public interface BookingMapper {
+    String localInsert(String data);
 
     String updateBooking(String intRsvID, String strStatusCode, String strRsvRmNum);
 

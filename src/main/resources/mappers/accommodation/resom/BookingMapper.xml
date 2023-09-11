@@ -5,6 +5,10 @@
 
 <mapper namespace="com.example.stay.accommodation.resom.mapper.BookingMapper">
 
+    <select id="localInsert" resultType="String">
+        EXEC PLNDSTAY.dbo.spCM_ACM_LOCAL_INFO_UPDATE 'RE', #{strDatas}, ''
+    </select>
+
     <select id="updateBooking" parameterType="String" resultType="String">
         EXEC PLNDSTAY.dbo.spGW_RSV_STAY_UPDATE_PROCESS #{intRsvID}, #{strStatusCode}, #{strRsvRmNum}
     </select>

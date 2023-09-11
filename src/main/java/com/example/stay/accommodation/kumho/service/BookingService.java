@@ -4,6 +4,8 @@ import com.example.stay.accommodation.kumho.mapper.KumhoMapper;
 import com.example.stay.common.util.*;
 import com.example.stay.openMarket.common.dto.BookingDto;
 import com.example.stay.openMarket.common.dto.RsvStayDto;
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
@@ -21,10 +23,7 @@ import java.net.URL;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 @Service("kumho.BookingService")
@@ -73,7 +72,7 @@ public class BookingService {
                 event_div = "1";
                 morning_aqua = rsvStayDto.getStrPkgCode(); // 패키지 코드
             }
-            
+
             String use_name = rsvStayDto.getStrRcvName(); // 사용자명
             String use_phone = rsvStayDto.getStrRcvPhone().replace("-",""); // 사용자 전화번호
             String use_cell_phone = use_phone; // 사용자 휴대폰번호
@@ -139,7 +138,7 @@ public class BookingService {
     }
 
     // 재고 등록 및 수정
-    public String updateStock(String dataType, String strFromDate, String strToDate, int intRmIdx, HttpServletRequest httpServletRequest){
+    public String updateRoomStock(String dataType, String strFromDate, String strToDate, int intRmIdx, HttpServletRequest httpServletRequest){
         LogWriter logWriter = new LogWriter(httpServletRequest.getMethod(), httpServletRequest.getServletPath(),
                 httpServletRequest.getQueryString(), System.currentTimeMillis());
         String statusCode = "200";
@@ -397,7 +396,7 @@ public class BookingService {
     }
 
     // 예약현황 조회
-    public String getReservationStatus(String dataType, int intRsvID, HttpServletRequest httpServletRequest){
+    public String getBookingInfo(String dataType, int intRsvID, HttpServletRequest httpServletRequest){
         LogWriter logWriter = new LogWriter(httpServletRequest.getMethod(), httpServletRequest.getServletPath(),
                 httpServletRequest.getQueryString(), System.currentTimeMillis());
         String statusCode = "200";
@@ -431,7 +430,7 @@ public class BookingService {
                     // <resultMsg>20230610/1/27A/1//N/1/박운주대표/양선경/010-111-1111/010-111-1111/예약현황이 조회되었습니다.</resultMsg>
                     String[] strResult = resultMsg.split("/");
                     String dateCheckIn = strResult[0]; // 체크인 날짜
-                    String stayDays = strResult[1]; // 숙박일 수 
+                    String stayDays = strResult[1]; // 숙박일 수
                     String strRmtypeID = strResult[2]; // 룸타입
                     String intRmCnt = strResult[3]; // 객실 수
                     String intQuantity = strResult[4]; // 인원
@@ -477,73 +476,83 @@ public class BookingService {
     }
 
     // 예약 대사자료 조회
-    public String getReservations(String dataType, String strFromDate, String strToDate ,HttpServletRequest httpServletRequest){
+    public String getBookingList(String dataType, String strFromDate, String strToDate ,HttpServletRequest httpServletRequest){
         LogWriter logWriter = new LogWriter(httpServletRequest.getMethod(), httpServletRequest.getServletPath(),
                 httpServletRequest.getQueryString(), System.currentTimeMillis());
         String statusCode = "200";
         String message = "";
-        MultiValueMap<String, Map> resultMap = new LinkedMultiValueMap<>();
+        JSONArray resultJsonArr = new JSONArray();
         try{
-            String kumhoUrl = "inter07.asp?groupid=" + Constants.groupId + "&fr_date=" + strFromDate + "&to_date=" + strToDate;
+            for(String groupId : Constants.groupIdArr){
+                JSONObject rsvJson = new JSONObject();
+                rsvJson.put("groupId", groupId);
 
-            Document document = callKumhoAPI(kumhoUrl);
-            if(document != null){
-                String resultCode = document.getElementsByTagName("resultCode").item(0).getChildNodes().item(0).getNodeValue();
-                String resultMsg = URLDecoder.decode(document.getElementsByTagName("resultMsg").item(0).getChildNodes().item(0).getNodeValue(), "utf-8");
-                if(resultCode.equals("S")){
-                    NodeList reservList = document.getElementsByTagName("rserve");
-                    for(int i=0; i< reservList.getLength(); i++){
-                        Map<String, Object> reservMap = new HashMap<>();
-                        Node node = reservList.item(i);
-                        if(node.getNodeType() == Node.ELEMENT_NODE) {
-                            Element element = (Element) node;
+                JSONArray reservations = new JSONArray();
 
-                            // TODO : 추후 예약정보 어떻게 내려줄건지
-                            // 금호
-                            String area = xmlUtility.getTagValue("ps_area", element);
-                            if(area.equals("1")){
-                                area = "통영";
-                            }else if(area.equals("2")){
-                                area = "화순";
-                            }else if(area.equals("3")){
-                                area = "설악";
-                            }else if(area.equals("4")){
-                                area = "제주";
-                            }else if(area.equals("5")){
-                                area = "아산";
+                String kumhoUrl = "inter07.asp?groupid=" + groupId + "&fr_date=" + strFromDate + "&to_date=" + strToDate;
+
+                Document document = callKumhoAPI(kumhoUrl);
+                if(document != null){
+                    String resultCode = document.getElementsByTagName("resultCode").item(0).getChildNodes().item(0).getNodeValue();
+                    String resultMsg = URLDecoder.decode(document.getElementsByTagName("resultMsg").item(0).getChildNodes().item(0).getNodeValue(), "utf-8");
+
+                    if(resultCode.equals("S")) {
+                        NodeList rcvList = document.getElementsByTagName("rserve");
+                        for (int i = 0; i < rcvList.getLength(); i++) {
+                            JSONObject jsonObject = new JSONObject();
+
+                            Node node = rcvList.item(i);
+                            if (node.getNodeType() == Node.ELEMENT_NODE) {
+                                Element element = (Element) node;
+
+                                // 금호
+                                String area = xmlUtility.getTagValue("ps_area", element);
+                                if (area.equals("1")) {
+                                    area = "통영";
+                                } else if (area.equals("2")) {
+                                    area = "화순";
+                                } else if (area.equals("3")) {
+                                    area = "설악";
+                                } else if (area.equals("4")) {
+                                    area = "제주";
+                                } else if (area.equals("5")) {
+                                    area = "아산";
+                                }
+                                jsonObject.put("strLocalCode", area);
+
+                                jsonObject.put("strRcvYear", xmlUtility.getTagValue("ps_reserv_year", element));
+                                jsonObject.put("strRsvRmNum", xmlUtility.getTagValue("ps_reserv_number", element));
+
+                                String strStatusCode = xmlUtility.getTagValue("ps_reserv_status", element);
+                                if (strStatusCode.equals("R")) {
+                                    strStatusCode = "예약";
+                                } else if (strStatusCode.equals("C")) {
+                                    strStatusCode = "취소";
+                                } else if (strStatusCode.equals("I")) {
+                                    strStatusCode = "사용";
+                                } else if (strStatusCode.equals("N")) {
+                                    strStatusCode = "노쇼";
+                                }
+                                jsonObject.put("strStatusCode", strStatusCode);
+
+                                jsonObject.put("strRmtypeID", xmlUtility.getTagValue("ps_room_type", element));
+                                jsonObject.put("dateModified", xmlUtility.getTagValue("ps_modify_date", element));
+                                jsonObject.put("dateCheckIn", xmlUtility.getTagValue("ps_arrive_date", element));
+                                jsonObject.put("dateCheckOut", xmlUtility.getTagValue("ps_leave_date", element));
+                                jsonObject.put("strRcvDate", xmlUtility.getTagValue("ps_reserv_date", element));
+                                jsonObject.put("kumhoIntRsvID", xmlUtility.getTagValue("ps_ipark_resno", element));
+
+                                reservations.add(jsonObject);
                             }
-                            reservMap.put("strLocalCode", area);
-
-                            reservMap.put("strRcvYear", xmlUtility.getTagValue("ps_reserv_year", element));
-                            reservMap.put("strRsvRmNum", xmlUtility.getTagValue("ps_reserv_number", element));
-
-                            String strStatusCode = xmlUtility.getTagValue("ps_reserv_status", element);
-                            if(strStatusCode.equals("R")){
-                                strStatusCode = "예약";
-                            }else if(strStatusCode.equals("C")){
-                                strStatusCode = "취소";
-                            }else if(strStatusCode.equals("I")){
-                                strStatusCode = "사용";
-                            }else if(strStatusCode.equals("N")){
-                                strStatusCode = "노쇼";
-                            }
-                            reservMap.put("strStatusCode", strStatusCode);
-
-                            reservMap.put("strRmtypeID", xmlUtility.getTagValue("ps_room_type", element));
-                            reservMap.put("dateModified", xmlUtility.getTagValue("ps_modify_date", element));
-                            reservMap.put("dateCheckIn", xmlUtility.getTagValue("ps_arrive_date", element));
-                            reservMap.put("dateCheckOut", xmlUtility.getTagValue("ps_leave_date", element));
-                            reservMap.put("strRcvDate", xmlUtility.getTagValue("ps_reserv_date", element));
-                            reservMap.put("kumhoIntRsvID", xmlUtility.getTagValue("ps_ipark_resno", element));
                         }
-                        resultMap.add("reservMap", reservMap);
-                    }
 
+                    }
                 }else{
-                    message = URLDecoder.decode(resultMsg, "utf-8");
+                    message = "금호 API 호출 실패";
                 }
-            }else{
-                message = "금호 API 호출 실패";
+
+                rsvJson.put("rsv", reservations);
+                resultJsonArr.add(rsvJson);
             }
 
             logWriter.add(message);
@@ -556,7 +565,7 @@ public class BookingService {
             e.printStackTrace();
         }
 
-        return commonFunction.makeReturn(dataType, statusCode, message, resultMap);
+        return commonFunction.makeReturn(dataType, statusCode, message, resultJsonArr);
     }
 
     // 금호 api 호출

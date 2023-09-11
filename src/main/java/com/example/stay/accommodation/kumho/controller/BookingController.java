@@ -37,28 +37,28 @@ public class BookingController {
     /**
      * 예약 현황 조회
      */
-    @GetMapping("getReservationStatus")
+    @GetMapping("getBookingInfo")
     @ResponseBody
-    public String getReservationStatus(String dataType, int intRsvID, HttpServletRequest httpServletRequest) {
-        return bookingService.getReservationStatus(dataType, intRsvID, httpServletRequest);
+    public String getBookingInfo(String dataType, int intRsvID, HttpServletRequest httpServletRequest) {
+        return bookingService.getBookingInfo(dataType, intRsvID, httpServletRequest);
     }
 
     /**
      * 예약 대사자료 조회
      */
-    @GetMapping("getReservations")
+    @GetMapping("getBookingList")
     @ResponseBody
-    public String getReservations(String dataType, String strFromDate, String strToDate, HttpServletRequest httpServletRequest){
-        return bookingService.getReservations(dataType, strFromDate, strToDate, httpServletRequest);
+    public String getBookingList(String dataType, String strFromDate, String strToDate, HttpServletRequest httpServletRequest){
+        return bookingService.getBookingList(dataType, strFromDate, strToDate, httpServletRequest);
     }
 
     /**
      * 재고 등록 및 수정
      */
-    @GetMapping("updateStock")
+    @GetMapping("updateRoomStock")
     @ResponseBody
-    public String updateStock(String dataType, String strFromDate, String strToDate, int intRmIdx, HttpServletRequest httpServletRequest){
-        return bookingService.updateStock(dataType, strFromDate, strToDate, intRmIdx, httpServletRequest);
+    public String updateRoomStock(String dataType, String strFromDate, String strToDate, int intRmIdx, HttpServletRequest httpServletRequest){
+        return bookingService.updateRoomStock(dataType, strFromDate, strToDate, intRmIdx, httpServletRequest);
     }
 
 //    @GetMapping("getRemainCount")

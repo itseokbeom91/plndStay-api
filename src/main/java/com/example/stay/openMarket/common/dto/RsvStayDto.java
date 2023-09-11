@@ -47,8 +47,11 @@ public class RsvStayDto {
 
     private String strRmtypeID;
     private String strLocalCode;
+    private String strStoreCode;
     private String strPkgCode;
     private String strPkgSubCode;
+    private String strMapCode;
+    private String strRmOnlyYn;
     private String datePurchase;
     private double moneyCostA;
     private double moneyCostC;
@@ -56,7 +59,8 @@ public class RsvStayDto {
     private double moneySalesC;
 
     private String strRateplanID;
+    private String strPropertyID;
 
-    // RM_OPTION
+    private double moneyCost;
 
 }

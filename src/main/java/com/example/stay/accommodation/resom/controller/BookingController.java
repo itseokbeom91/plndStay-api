@@ -18,99 +18,99 @@ public class BookingController {
 
     @GetMapping("/getPackageList")
     @ResponseBody
-    public String getPackageList(String dataType) {
+    public String getPackageList(@RequestParam(required = false, defaultValue="jsonp") String dataType) {
         return  bookingService.getPackageList(dataType);
     }
 
     @GetMapping("/getStoreList")
     @ResponseBody
-    public String getStoreList(String dataType){
+    public String getStoreList(@RequestParam(required = false, defaultValue="jsonp") String dataType){
         return  bookingService.getStoreList(dataType);
     }
 
     @GetMapping("/getPackageInfo")
     @ResponseBody
-    public String getPackageInfo(String dataType, String pkgNo) {
+    public String getPackageInfo(@RequestParam(required = false, defaultValue="jsonp") String dataType, String pkgNo) {
         return bookingService.getPackageInfo(dataType, pkgNo);
     }
 
-    @GetMapping("/getPackageStatus1")
+    @GetMapping("/getPackageStock1")
     @ResponseBody
-    public String getPackageStatus(String dataType, String pkgNo, String storeCd, String sDate) {
+    public String getPackageStatus(@RequestParam(required = false, defaultValue="jsonp") String dataType, String pkgNo, String storeCd, String sDate) {
         return bookingService.getPackageStatus(dataType, pkgNo, storeCd, sDate);
     }
 
-    @GetMapping("/getPackageStatus2")
+    @GetMapping("/getPackageStock2")
     @ResponseBody
-    public String getPackageStatus(String dataType, String pkgNo, String storeCd, String sDate, String rmTypeCd) {
+    public String getPackageStatus(@RequestParam(required = false, defaultValue="jsonp") String dataType, String pkgNo, String storeCd, String sDate, String rmTypeCd) {
         return bookingService.getPackageStatus(dataType, pkgNo, storeCd, sDate, rmTypeCd);
     }
 
-    @GetMapping("/getPackageStatus3")
+    @GetMapping("/getPackageStock3")
     @ResponseBody
-    public String getPackageStatusMonth(String dataType, String pkgNo, String storeCd, String rmTypeCd, String sDate, String nights) {
+    public String getPackageStatusMonth(@RequestParam(required = false, defaultValue="jsonp") String dataType, String pkgNo, String storeCd, String rmTypeCd, String sDate, String nights) {
         return bookingService.getPackageStatus(dataType, pkgNo, storeCd, rmTypeCd, sDate, nights);
     }
 
-    @GetMapping("/getPackageAmount1")
+    @GetMapping("/getPackagePrice1")
     @ResponseBody
-    public String getPackageAmount(String dataType, String pkgNo, String storeCd, String sDate) {
+    public String getPackageAmount(@RequestParam(required = false, defaultValue="jsonp") String dataType, String pkgNo, String storeCd, String sDate) {
         return bookingService.getPackageAmount(dataType, pkgNo, storeCd, sDate);
     }
 
-    @GetMapping("/getPackageAmount2")
+    @GetMapping("/getPackagePrice2")
     @ResponseBody
-    public String getPackageAmount(String dataType, String pkgNo, String storeCd, String sDate, String rmTypeCd) {
+    public String getPackageAmount(@RequestParam(required = false, defaultValue="jsonp") String dataType, String pkgNo, String storeCd, String sDate, String rmTypeCd) {
         return bookingService.getPackageAmount(dataType, pkgNo, storeCd, sDate, rmTypeCd);
     }
 
-    @GetMapping("/getPackageAmount3")
+    @GetMapping("/getPackagePrice3")
     @ResponseBody
-    public String getPackageAmount(String dataType, String pkgNo, String storeCd, String sDate, String rmTypeCd, String nights) {
+    public String getPackageAmount(@RequestParam(required = false, defaultValue="jsonp") String dataType, String pkgNo, String storeCd, String sDate, String rmTypeCd, String nights) {
         return bookingService.getPackageAmount(dataType, pkgNo, storeCd, sDate, rmTypeCd, nights);
     }
 
     @GetMapping("/cancelBooking")
     @ResponseBody
-    public String cancelBooking(String dataType, String bookingIdx) throws ParseException {
-        return bookingService.cancelBooking(dataType, bookingIdx);
+    public String cancelBooking(@RequestParam(required = false, defaultValue="jsonp") String dataType, String intRsvID) throws ParseException {
+        return bookingService.cancelBooking(dataType, intRsvID);
     }
 
-    @GetMapping("/updateGuest")
+    @GetMapping("/updateBooking")
     @ResponseBody
-    public String updateGuest(String dataType, String roomRsvSeq, String pkgSaleSeq, String guestNm, String mpNo) {
-        return bookingService.updateGuest(dataType, roomRsvSeq, pkgSaleSeq, guestNm, mpNo);
+    public String updateGuest(@RequestParam(required = false, defaultValue="jsonp") String dataType, String intRsvID, String mpNo, String guestNm) throws ParseException {
+        return bookingService.updateGuest(dataType, intRsvID, mpNo, guestNm);
     }
 
     @GetMapping("/getPackageBookingInfo")
     @ResponseBody
-    public String getPackageBookingInfo(String dataType, String bookingIdx) {
-        return bookingService.getPackageBookingInfo(dataType, bookingIdx);
+    public String getPackageBookingInfo(@RequestParam(required = false, defaultValue="jsonp") String dataType, String intRsvID) {
+        return bookingService.getPackageBookingInfo(dataType, intRsvID);
     }
 
     //예약 조회
-    @GetMapping("/reservationList")
+    @GetMapping("/getBookingList")
     @ResponseBody
-    public String reservationList(String dataType, String stndDt) {
+    public String reservationList(@RequestParam(required = false, defaultValue="jsonp") String dataType, String stndDt) {
         return bookingService.reservationList(dataType, stndDt);
     }
 
     //연박 예약
     @GetMapping("/createBooking")
     @ResponseBody
-    public String createBooking2(String dataType, String bookingIdx, HttpServletRequest httpServletRequest) {
-        return bookingService.createBooking(dataType, bookingIdx, httpServletRequest);
+    public String createBooking2(@RequestParam(required = false, defaultValue="jsonp") String dataType, String intRsvID, HttpServletRequest httpServletRequest) {
+        return bookingService.createBooking(dataType, intRsvID, httpServletRequest);
     }
 
-    @GetMapping("/insertRESOM")
+    @GetMapping("/insertAccommInfo")
     @ResponseBody
-    public String insertRESOM(String dataType, HttpServletRequest httpServletRequest) {
+    public String insertRESOM(@RequestParam(required = false, defaultValue="jsonp") String dataType, HttpServletRequest httpServletRequest) {
         return bookingService.insertRESOM(dataType, httpServletRequest);
     }
 
-    @GetMapping("/stockResult")
+    @GetMapping("/updateStock")
     @ResponseBody
-    public String getStockAndInsert(String dataType, HttpServletRequest httpServletRequest) {
+    public String getStockAndInsert(@RequestParam(required = false, defaultValue="jsonp") String dataType, HttpServletRequest httpServletRequest) {
         return bookingService.getStockAndInsert(dataType, httpServletRequest);
     }
     @GetMapping("/test")

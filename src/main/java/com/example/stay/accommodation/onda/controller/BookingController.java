@@ -24,8 +24,8 @@ public class BookingController {
      */
     @GetMapping("createBooking")
     @ResponseBody
-    public String createBooking(String dataType, int intBookingID, HttpServletRequest httpServletRequest) {
-        return bookingService.createBookingInfo(dataType, intBookingID, httpServletRequest);
+    public String createBooking(String dataType, int intRsvID, HttpServletRequest httpServletRequest) {
+        return bookingService.createBooking(dataType, intRsvID, httpServletRequest);
     }
 
     /**
@@ -33,24 +33,24 @@ public class BookingController {
      */
     @GetMapping("cancelBooking")
     @ResponseBody
-    public String cancelBooking(String dataType, int intBookingID, HttpServletRequest httpServletRequest) {
-        return bookingService.cancelBookingInfo(dataType, intBookingID, httpServletRequest);
+    public String cancelBooking(String dataType, int intRsvID, HttpServletRequest httpServletRequest) {
+        return bookingService.cancelBooking(dataType, intRsvID, httpServletRequest);
     }
 
 
     @GetMapping("getCancelPolicy")
     @ResponseBody
-    public void getCancelPolicy(String propertyId, String roomTypeId, String ratePlanId,
+    public void getCancelPolicy(String strPropertyID, String roomTypeId, String ratePlanId,
                                 String strCheckInDate, String strCheckOutDate, HttpServletRequest httpServletRequest){
-        bookingService.getCancelPolicy(propertyId, roomTypeId, ratePlanId, strCheckInDate, strCheckOutDate, httpServletRequest);
+        bookingService.getCancelPolicy(strPropertyID, roomTypeId, ratePlanId, strCheckInDate, strCheckOutDate, httpServletRequest);
     }
 
     /**
      * 예약 대사자료 조회
      */
-    @GetMapping("getBookings")
+    @GetMapping("getBookingList")
     @ResponseBody
-    public String getBookings(String dataType, String option, String strFrom, String strTo, HttpServletRequest httpServletRequest){
-        return bookingService.getBookings(dataType, option, strFrom, strTo, httpServletRequest);
+    public String getBookingList(String dataType, String option, String strFrom, String strTo, HttpServletRequest httpServletRequest){
+        return bookingService.getBookingList(dataType, option, strFrom, strTo, httpServletRequest);
     }
 }
