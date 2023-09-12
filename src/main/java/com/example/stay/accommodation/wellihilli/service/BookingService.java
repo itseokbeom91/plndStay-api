@@ -269,7 +269,7 @@ public class BookingService {
             long sleep = ((dateCheckOut.getTime() - dateCheckIn.getTime()) / 1000) / (24*60*60);
 
             int intRmCnt = rsvStayDto.getIntRmCnt();
-            String strPkgCode = rsvStayDto.getStrPkgCode();
+            String strPkgCode = rsvStayDto.getStrMapCode(); // 웰리힐리는 룸온리 패키지 코드가 있음
             strPkgCode = "k049";
 
             SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd");
@@ -360,7 +360,7 @@ public class BookingService {
             long sleep = ((dateCheckOut.getTime() - dateCheckIn.getTime()) / 1000) / (24*60*60);
 
             int intRmCnt = rsvStayDto.getIntRmCnt();
-            String strPkgCode = rsvStayDto.getStrPkgCode();
+            String strPkgCode = rsvStayDto.getStrMapCode();
             strPkgCode = "k049";
 
             SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd");
@@ -444,7 +444,7 @@ public class BookingService {
             long sleep = ((dateCheckOut.getTime() - dateCheckIn.getTime()) / 1000) / (24*60*60);
 
             int intRmCnt = rsvStayDto.getIntRmCnt();
-            String strPkgCode = rsvStayDto.getStrPkgCode();
+            String strPkgCode = rsvStayDto.getStrMapCode();
 
             SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd");
             String strCheckIn = sdf.format(dateCheckIn);

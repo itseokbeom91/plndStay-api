@@ -44,4 +44,22 @@
             INNER JOIN PLNDSTAY.dbo.ACCOMM A WITH(NOLOCK) ON A.intAID = R.intAID
         WHERE A.strCateCode = '49'
     </select>
+
+    <select id="getCancelRules">
+        SELECT
+            intDay
+            , intPercent
+        FROM PLNDSTAY.dbo.ACCOMM_CANCEL_RULES
+        WHERE intAID = ${intAID}
+            strFlag = #{strFlag}
+        ORDER BY intIdx ASC
+
+    </select>
+
+    <select id="getCancelFlag" parameterType="String" resultType="String">
+        SELECT
+            strRateName
+        FROM PLNDSTAY.dbo.OMK_RATE WITH(NOLOCK)
+        WHERE dateRate BETWEEN CONVERT(DATE, #{strCheckIn}) AND DATEADD(DAY, -1, CONVERT(DATE, #{strCheckOut}))
+    </select>
 </mapper>
