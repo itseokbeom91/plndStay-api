@@ -62,15 +62,16 @@ public class BookingService {
             Date outDate = rsvStayDto.getDateCheckOut();
             nights_count = ((outDate.getTime() - inDate.getTime()) / 1000) / (24*60*60);
 
-            int intStep = kumhoMapper.getIntStep(intRmIdx);
             String event_div = ""; // 객실예약인지 패키지인지
-            String morning_aqua = "";  // 패키지 상품구분
-            if(intStep == 1){
+            String morning_aqua = "";  // 패키지 상품일 경우 패키지 코드
+            String strMapCode = rsvStayDto.getStrMapCode();
+            // 룸온리 상품일 경우
+            if(strMapCode.equals("RMONLY")){
                 event_div = "0";
                 morning_aqua = "";
-            }else{
+            }else{ // 패키지 상품일 경우
                 event_div = "1";
-                morning_aqua = rsvStayDto.getStrPkgCode(); // 패키지 코드
+                morning_aqua = strMapCode;
             }
 
             String use_name = rsvStayDto.getStrRcvName(); // 사용자명

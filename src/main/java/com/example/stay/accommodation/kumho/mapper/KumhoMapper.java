@@ -17,8 +17,6 @@ public interface KumhoMapper {
 
     Map<String, Object> getRmtypeInfo(int intRmIdx);
 
-    int getIntStep(int intRmIdx);
-
     int getBreakfastYn(int intRmIdx);
 
 }

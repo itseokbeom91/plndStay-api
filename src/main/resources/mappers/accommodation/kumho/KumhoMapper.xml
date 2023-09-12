@@ -28,13 +28,6 @@
         EXEC PLNDSTAY.dbo.spGW_RSV_STAY_INFO ${intRsvID}
     </select>
 
-    <select id="getIntStep" parameterType="int" resultType="int">
-        SELECT intStep
-        FROM PLNDSTAY.dbo.RMTYPE
-        WHERE intIdx = ${intRmIdx}
-          AND intDepth = 2
-    </select>
-
     <select id="getBreakfastYn" parameterType="int" resultType="int">
         SELECT COUNT(intRmIdx)
         FROM PLNDSTAY.dbo.RM_ICON
