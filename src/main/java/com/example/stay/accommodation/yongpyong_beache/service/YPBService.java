@@ -2,6 +2,7 @@ package com.example.stay.accommodation.yongpyong_beache.service;
 
 import com.example.stay.accommodation.yongpyong_beache.mapper.YPBMapper;
 import com.example.stay.common.util.CommonFunction;
+import com.example.stay.openMarket.common.dto.RsvStayDto;
 import com.fasterxml.jackson.databind.JsonNode;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
@@ -10,6 +11,7 @@ import org.json.simple.parser.JSONParser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -131,7 +133,7 @@ public class YPBService {
     }
 
 
-    public String booking(){
+    public String booking(int intRsvID){
 
         String statusCode = "200";
         String message = "";
@@ -141,6 +143,13 @@ public class YPBService {
 
             JSONObject mainObject = getCommonHeader("booking");
             JSONObject dataObject = new JSONObject();
+
+            RsvStayDto rsvStayDto = ypbMapper.getRsvInfo(intRsvID);
+            String strLocalCode = rsvStayDto.getStrLocalCode();
+            String strRmCode = rsvStayDto.getStrRmtypeID();
+            String strDate = new SimpleDateFormat("yyyyMMdd").format(rsvStayDto.getDateCheckIn().toString());
+            String strPkgCode = rsvStayDto.getStrMapCode();
+            String strRsvID = String.valueOf(intRsvID);
 
             dataObject.put("brch_cd", "11"); // 용평 : 11 / 비체 : 22
             dataObject.put("outlet_cd", "223001"); // 영업장 코드
@@ -188,7 +197,7 @@ public class YPBService {
     }
 
 
-    public String getBookingInfo(){
+    public String getBookingInfo(int intRsvID){
 
         String statusCode = "200";
         String message = "";
@@ -245,7 +254,7 @@ public class YPBService {
     }
 
 
-    public String bookingCancel(){
+    public String bookingCancel(int intRsvID){
 
         String statusCode = "200";
         String message = "";

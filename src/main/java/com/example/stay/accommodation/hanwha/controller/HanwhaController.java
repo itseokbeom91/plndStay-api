@@ -23,7 +23,6 @@ public class HanwhaController {
         System.out.println(result);
 
         return result;
-
     }
 
     @GetMapping("/getPackageList")
@@ -34,42 +33,51 @@ public class HanwhaController {
         System.out.println(result);
 
         return result;
-
     }
 
     @GetMapping("/getPackageInfo")
-    public void getPackageDetail(String packageCode){
+    public String getPackageDetail(String packageCode){
 
-        hanwhaService.getPackageDetail(packageCode);
+        String result = hanwhaService.getPackageDetail(packageCode);
+        System.out.println(result);
 
+        return result;
     }
 
     @GetMapping("/createBooking")
-    public void booking(int intRsvID){
+    public String booking(int intRsvID){
 
-        hanwhaService.booking(intRsvID);
+        String result = hanwhaService.booking(intRsvID);
+        System.out.println(result);
 
+        return result;
     }
 
     @GetMapping("/cancelBooking")
-    public void bookingCancel(int intRsvID){
+    public String bookingCancel(int intRsvID){
 
-        hanwhaService.bookingCancel(intRsvID);
+        String result = hanwhaService.bookingCancel(intRsvID);
+        System.out.println(result);
 
+        return result;
     }
 
     @GetMapping("/updateBooking")
-    public void bookingModify(int intRsvID){
+    public String bookingModify(int intRsvID){
 
-        hanwhaService.bookingModify(intRsvID);
+        String result = hanwhaService.bookingModify(intRsvID);
+        System.out.println(result);
 
+        return result;
     }
 
     @GetMapping("/getBookingInfo")
-    public void bookingInfo(){
+    public String bookingInfo(){
 
-        hanwhaService.bookingInfo();
+        String result = hanwhaService.bookingInfo();
+        System.out.println(result);
 
+        return result;
     }
 
 }

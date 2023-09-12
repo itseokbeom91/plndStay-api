@@ -14,36 +14,47 @@ public class YPBController {
     private YPBService ypbService;
 
     @GetMapping("/getRoomStock")
-    public void getStock(int intAID, int intRmIdx, int intPkgIdx, String startDate, String endDate){
+    public String getStock(int intAID, int intRmIdx, int intPkgIdx, String startDate, String endDate){
 
-        ypbService.getStock(intAID, intRmIdx, intPkgIdx, startDate, endDate);
+        String result = ypbService.getStock(intAID, intRmIdx, intPkgIdx, startDate, endDate);
+        System.out.println(result);
 
+        return result;
     }
 
     @GetMapping("/createBooking")
-    public void booking(){
+    public String booking(int intRsvID){
 
-        ypbService.booking();
+        String result = ypbService.booking(intRsvID);
+        System.out.println(result);
 
+        return result;
     }
 
     @GetMapping("/getBookingInfo")
-    public void getBookingInfo(){
+    public String getBookingInfo(int intRsvID){
 
-        ypbService.getBookingInfo();
+        String result =ypbService.getBookingInfo(intRsvID);
+        System.out.println(result);
 
+        return result;
     }
 
     @GetMapping("/cancelBooking")
-    public void bookingCancel(){
+    public String bookingCancel(int intRsvID){
 
-        ypbService.bookingCancel();
+        String result =ypbService.bookingCancel(intRsvID);
+        System.out.println(result);
+
+        return result;
     }
 
     @GetMapping("/getBookingList")
-    public void bookingList(){
+    public String bookingList(){
 
-        ypbService.getBookingList();
+        String result = ypbService.getBookingList();
+        System.out.println(result);
 
+        return result;
     }
 }
