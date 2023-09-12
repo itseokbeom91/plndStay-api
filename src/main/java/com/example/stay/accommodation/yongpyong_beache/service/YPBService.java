@@ -2,6 +2,7 @@ package com.example.stay.accommodation.yongpyong_beache.service;
 
 import com.example.stay.accommodation.yongpyong_beache.mapper.YPBMapper;
 import com.example.stay.common.util.CommonFunction;
+import com.example.stay.common.util.Constants;
 import com.example.stay.openMarket.common.dto.RsvStayDto;
 import com.fasterxml.jackson.databind.JsonNode;
 import org.json.simple.JSONArray;
@@ -40,19 +41,18 @@ public class YPBService {
 
             Map<String, String> acmRmMap = ypbMapper.getAcmRmID(intAID, intRmIdx);
             Map<String, String> pkgLcdMap = ypbMapper.getPkgLcdID(intPkgIdx);
-            System.out.println(acmRmMap);
-            System.out.println(pkgLcdMap);
+
             String strProertyId = acmRmMap.get("strPropertyID").toString();
             String strRoomTypeCode = acmRmMap.get("strRmtypeID").toString();
             String strLcdCode = pkgLcdMap.get("strLocalCode").toString();
             String strPackageCode = pkgLcdMap.get("strPkgCode").toString();
 
 
-            String strCustNo = "1199719"; // default 용평
-            String strCateCode = "37"; // default 용평
-            if(strProertyId.equals("22")){ // 비체
-                strCustNo = "1178413";
-                strCateCode = "38";
+            String strCustNo = "";
+            if(strProertyId.equals("11")) { // 용평
+                strCustNo = Constants.yongpyongCode;
+            }else if(strProertyId.equals("22")){ // 비체
+                strCustNo = Constants.beacheCode;
             }
 
             dataObject.put("brch_cd", strProertyId); // 용평 : 11 / 비체 : 22
@@ -145,41 +145,58 @@ public class YPBService {
             JSONObject dataObject = new JSONObject();
 
             RsvStayDto rsvStayDto = ypbMapper.getRsvInfo(intRsvID);
+            String strPropertyId = rsvStayDto.getStrPropertyID();
             String strLocalCode = rsvStayDto.getStrLocalCode();
-            String strRmCode = rsvStayDto.getStrRmtypeID();
+            String strRmTypeID = rsvStayDto.getStrRmtypeID();
             String strDate = new SimpleDateFormat("yyyyMMdd").format(rsvStayDto.getDateCheckIn().toString());
             String strPkgCode = rsvStayDto.getStrMapCode();
             String strRsvID = String.valueOf(intRsvID);
+            String strPgkName = rsvStayDto.getStrPkgName();
+            String strName = rsvStayDto.getStrRcvName();
+            String strPhone = rsvStayDto.getStrRcvPhone();
 
-            dataObject.put("brch_cd", "11"); // 용평 : 11 / 비체 : 22
-            dataObject.put("outlet_cd", "223001"); // 영업장 코드
-            dataObject.put("room_type_cd", "41D");
-            dataObject.put("arrv_date", "20230714");
+            String strCustNo = "";
+            if(strPropertyId.equals("11")) { // 용평
+                strCustNo = Constants.yongpyongCode;
+            }else if(strPropertyId.equals("22")){ // 비체
+                strCustNo = Constants.beacheCode;
+            }
+
+            dataObject.put("brch_cd", strPropertyId); // 용평 : 11 / 비체 : 22
+            dataObject.put("outlet_cd", strLocalCode); // 영업장 코드
+            dataObject.put("room_type_cd", strRmTypeID);
+            dataObject.put("arrv_date", strDate);
             dataObject.put("rsvpl_type_cd", "07"); // condo24
-            dataObject.put("pkg_cd", "MOP2330");
-            dataObject.put("bkng_id", "2023-0714-10891958677"); // 주문번호
-            dataObject.put("rem", "MOP2330패키지"); // 패키지 상품명
-            dataObject.put("cust_no", "1199719"); // 용평 : 1199719 / 비체 : 1178413
-            dataObject.put("guest_name", "개발테스트"); // 투숙객명
-            dataObject.put("guest_contp", "01012345678"); // 투숙객 연락처
+            dataObject.put("pkg_cd", strPkgCode);
+            dataObject.put("bkng_id", strRsvID); // 주문번호
+            dataObject.put("rem", strPgkName); // 패키지 상품명
+            dataObject.put("cust_no", strCustNo); // 용평 : 1199719 / 비체 : 1178413
+            dataObject.put("guest_name", strName); // 투숙객명
+            dataObject.put("guest_contp", strPhone); // 투숙객 연락처
             dataObject.put("guest_sms_send_yn", "N"); // 취소 메세지 전송 여부
 
             mainObject.put("DATA", dataObject);
 
             System.out.println(mainObject);
 
-//            JsonNode jsonNode = commonService.callJsonApi("YPB", "booking", mainObject);
             JsonNode jsonNode = commonFunction.callJsonApi("YPB", "booking", mainObject, "", "POST");
 
             // 통신결과 0:실패, 1:성공
             JSONObject codeObject = (JSONObject) new JSONParser().parse(jsonNode.get("HEADER").toString());
             String resultCode = codeObject.get("statusCode").toString();
 
-            JSONArray jsonArray = (JSONArray) new JSONParser().parse(jsonNode.get("DATA").toString());
+            JSONObject resultObject = (JSONObject) new JSONParser().parse(jsonNode.get("DATA").toString());
+            String strRmCode = resultObject.get("rsrv_no").toString();
 
             if(resultCode.equals("1")){
                 // 프로시저 작업 해야함
-                message = "예약 완료";
+                String procResult = ypbMapper.updateRsv(intRsvID, "4", strRmCode);
+                if(procResult.equals("저장완료")){
+                    message = "예약 완료";
+                }else{
+                    message = "DB저장 실패[객실번호 : " + strRmCode + "]";
+                }
+
             }else{
                 message = "호출 실패";
             }
@@ -208,23 +225,35 @@ public class YPBService {
             JSONObject mainObject = getCommonHeader("bookingInfo");
             JSONObject dataObject = new JSONObject();
 
-            dataObject.put("brch_cd", "11"); // 용평 : 11 / 비체 : 22
-            dataObject.put("rsrv_no", "233368778"); // 예약번호
-            dataObject.put("outlet_cd", "223001"); // 영업장 코드
+            RsvStayDto rsvStayDto = ypbMapper.getRsvInfo(intRsvID);
+            String strPropertyId = rsvStayDto.getStrPropertyID();
+            String strRmNum = rsvStayDto.getStrRsvRmNum();;
+            String strPkgCode = rsvStayDto.getStrMapCode();
+            String strRsvID = String.valueOf(intRsvID);
+            String strName = rsvStayDto.getStrRcvName();
+            String strPhone = rsvStayDto.getStrRcvPhone();
+
+            String strCustNo = "";
+            if(strPropertyId.equals("11")) { // 용평
+                strCustNo = Constants.yongpyongCode;
+            }else if(strPropertyId.equals("22")){ // 비체
+                strCustNo = Constants.beacheCode;
+            }
+
+            dataObject.put("brch_cd", strPropertyId); // 용평 : 11 / 비체 : 22
+            dataObject.put("rsrv_no", strRmNum); // 예약번호
+            dataObject.put("outlet_cd", ""); // 영업장 코드
             dataObject.put("room_type_cd", "");
             dataObject.put("arrv_date", "");
             dataObject.put("rsvpl_type_cd", "07"); // condo24
-            dataObject.put("pkg_cd", "MOP2330");
-            dataObject.put("bkng_id", "2023-0714-10891958677"); // 주문번호
-            dataObject.put("cust_no", "1199719"); // 용평 : 1199719 / 비체 : 1178413
-            dataObject.put("guest_name", "개발테스트"); // 투숙객명
-            dataObject.put("guest_contp", "01012345678"); // 투숙객 연락처
+            dataObject.put("pkg_cd", strPkgCode);
+            dataObject.put("bkng_id", strRsvID); // 주문번호
+            dataObject.put("cust_no", strCustNo); // 용평 : 1199719 / 비체 : 1178413
+            dataObject.put("guest_name", strName); // 투숙객명
+            dataObject.put("guest_contp", strPhone); // 투숙객 연락처
 
             mainObject.put("DATA", dataObject);
 
-            System.out.println(mainObject);
-
-//            JsonNode jsonNode = commonService.callJsonApi("YPB", "bookingInfo", mainObject);
             JsonNode jsonNode = commonFunction.callJsonApi("YPB", "bookingInfo", mainObject, "", "POST");
 
             // 통신결과 0:실패, 1:성공
@@ -235,13 +264,10 @@ public class YPBService {
 
             if(resultCode.equals("1")){
 
-                System.out.println(resultObject);
-                result = resultObject.toJSONString();
-                message = "예약 완료";
+                message = "조회 완료";
             }else{
                 message = "호출 실패";
             }
-
 
         }catch (Exception e){
             message = "예약 조회 실패";
@@ -265,25 +291,59 @@ public class YPBService {
             JSONObject mainObject = getCommonHeader("bookingCancel");
             JSONObject dataObject = new JSONObject();
 
-            dataObject.put("brch_cd", "11"); // 용평 : 11 / 비체 : 22
-            dataObject.put("rsrv_no", "233368778"); // 예약번호
-            dataObject.put("outlet_cd", "223001"); // 영업장 코드
-            dataObject.put("room_type_cd", "41D");
-            dataObject.put("arrv_date", "20230714");
+            RsvStayDto rsvStayDto = ypbMapper.getRsvInfo(intRsvID);
+            String strPropertyId = rsvStayDto.getStrPropertyID();
+            String strRmNum = rsvStayDto.getStrRsvRmNum();;
+            String strLocalCode = rsvStayDto.getStrLocalCode();
+            String strRmTypeID = rsvStayDto.getStrRmtypeID();
+            String strDate = new SimpleDateFormat("yyyyMMdd").format(rsvStayDto.getDateCheckIn().toString());
+            String strPkgCode = rsvStayDto.getStrMapCode();
+            String strRsvID = String.valueOf(intRsvID);
+            String strName = rsvStayDto.getStrRcvName();
+            String strPhone = rsvStayDto.getStrRcvPhone();
+
+            String strCustNo = "";
+            if(strPropertyId.equals("11")) { // 용평
+                strCustNo = Constants.yongpyongCode;
+            }else if(strPropertyId.equals("22")){ // 비체
+                strCustNo = Constants.beacheCode;
+            }
+
+            dataObject.put("brch_cd", strPropertyId); // 용평 : 11 / 비체 : 22
+            dataObject.put("rsrv_no", strRmNum); // 예약번호
+            dataObject.put("outlet_cd", strLocalCode); // 영업장 코드
+            dataObject.put("room_type_cd", strRmTypeID);
+            dataObject.put("arrv_date", strDate);
             dataObject.put("rsvpl_type_cd", "07"); // condo24
-            dataObject.put("pkg_cd", "MOP2330");
-            dataObject.put("bkng_id", "2023-0714-10891958677"); // 주문번호
-            dataObject.put("cust_no", "1199719"); // 용평 : 1199719 / 비체 : 1178413
-            dataObject.put("guest_name", "개발테스트"); // 투숙객명
-            dataObject.put("guest_contp", "01012345678"); // 투숙객 연락처
+            dataObject.put("pkg_cd", strPkgCode);
+            dataObject.put("bkng_id", strRsvID); // 주문번호
+            dataObject.put("cust_no", strCustNo); // 용평 : 1199719 / 비체 : 1178413
+            dataObject.put("guest_name", strName); // 투숙객명
+            dataObject.put("guest_contp", strPhone); // 투숙객 연락처
             dataObject.put("guest_sms_send_yn", "N"); // 취소 메세지 전송 여부
 
             mainObject.put("DATA", dataObject);
 
             System.out.println(mainObject);
 
-//            JsonNode jsonNode = commonService.callJsonApi("YPB", "bookingCancel", mainObject);
             JsonNode jsonNode = commonFunction.callJsonApi("YPB", "bookingCancel", mainObject, "", "POST");
+
+            // 통신결과 0:실패, 1:성공
+            JSONObject codeObject = (JSONObject) new JSONParser().parse(jsonNode.get("HEADER").toString());
+            String resultCode = codeObject.get("statusCode").toString();
+
+            if(resultCode.equals("1")){
+                // 프로시저 작업 해야함
+                String procResult = ypbMapper.updateRsv(intRsvID, "5", strRmNum);
+                if(procResult.equals("저장완료")){
+                    message = "취소 완료";
+                }else{
+                    message = "DB저장 실패";
+                }
+
+            }else{
+                message = "호출 실패";
+            }
 
             result = jsonNode.toString();
             System.out.println(result);
@@ -317,7 +377,6 @@ public class YPBService {
 
             System.out.println(mainObject);
 
-//            JsonNode jsonNode = commonService.callJsonApi("YPB", "bookingList", mainObject);
             JsonNode jsonNode = commonFunction.callJsonApi("YPB", "bookingList", mainObject, "", "POST");
 
             result = jsonNode.toString();

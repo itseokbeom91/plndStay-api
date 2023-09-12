@@ -15,4 +15,6 @@ public interface YPBMapper {
     String insertStock(int intAID, int intRmIdx, String strPackageCode, String strStockData);
 
     RsvStayDto getRsvInfo(int intRsvID);
+
+    String updateRsv(int intRsvID, String strStatusCode, String strRsvRmNum);
 }
