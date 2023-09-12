@@ -1,8 +1,10 @@
 package com.example.stay.accommodation.elysian_gangchon.mapper;
 
+import com.example.stay.openMarket.common.dto.CancelRulesDto;
 import com.example.stay.openMarket.common.dto.RsvStayDto;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Map;
 
 @Repository
@@ -20,4 +22,8 @@ public interface ElysianMapper {
     String getStrRsvRmNum(int intRsvID);
 
     int getTseq();
+
+    List<String> getCancelFlag(String strCheckIn, String strCheckOut);
+
+    List<CancelRulesDto> getCancelRules(int intAID, String strFlag);
 }

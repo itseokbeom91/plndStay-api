@@ -4,6 +4,7 @@ import com.example.stay.accommodation.elysian_gangchon.mapper.ElysianMapper;
 import com.example.stay.common.util.CommonFunction;
 import com.example.stay.common.util.Constants;
 import com.example.stay.common.util.LogWriter;
+import com.example.stay.openMarket.common.dto.CancelRulesDto;
 import com.example.stay.openMarket.common.dto.RsvStayDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -17,10 +18,7 @@ import java.net.URLEncoder;
 import java.text.SimpleDateFormat;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 @Service("elysian_gangchon.BookingService")
 public class BookingService {
@@ -196,6 +194,56 @@ public class BookingService {
 
                             // 예약 테이블 상태값 업데이트
                             String strRsvRmNum = dataArr[1];
+
+                            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
+                            String strCheckIn = simpleDateFormat.format(rsvStayDto.getDateCheckIn());
+                            String strCheckOut = simpleDateFormat.format(rsvStayDto.getDateCheckOut());
+
+                            // 위약금 데이터 생성
+                            
+                            // 숙박일 중 성수기 포함 여부 확인
+                            List<String> cancelFlagList = elysianMapper.getCancelFlag(strCheckIn, strCheckOut);
+                            int count = 0;
+                            for(String flag : cancelFlagList){
+                                if(!flag.contains("비수기")){
+                                    count ++;
+                                }
+                            }
+                            // 하루라도 성수기 포함시 성수기 취소규정 적용
+                            String strFlag = "";
+                            if(count > 0){
+                                strFlag = "OPS";
+                            }else{
+                                strFlag = "OOF";
+                            }
+
+                            // 해당 취소규정 조회
+                            List<CancelRulesDto> cancelRuleList = elysianMapper.getCancelRules(rsvStayDto.getIntAID(), strFlag);
+                            String strPenaltyDatas = "";
+                            String strRateFlag = "P";
+                            String strTime = "16:59:59";
+                            for(CancelRulesDto rule : cancelRuleList){
+                                CancelRulesDto cancelRulesDto = rule;
+                                int intRate = cancelRulesDto.getIntPercent();
+                                int intDay = cancelRulesDto.getIntDay();
+
+//                                Calendar cal = Calendar.getInstance();
+//                                cal.setTime(dateCheckIn);
+//                                cal.add(Calendar.DATE, -intDay);
+//                                endDate = cal.getTime();
+
+                                // 판매금액으로 계산해야됨.. -> 오픈마켓별로 판매금액 다를수도? STOCK_OMK에 오픈마켓별 판매가 있음]
+                                double sales = 0;
+                                double penalty = sales * (intRate / 100); // 위약금액
+                                double refund = sales - penalty; // 환불금액
+
+
+                                strPenaltyDatas += intRsvID + "|^|" + strRateFlag + "|^|" + intRate + "|^|" + intDay + "|^|" + strTime + "|^|" + refund + "|^|" + penalty + "{{|}}";
+                            }
+
+                            strPenaltyDatas = strPenaltyDatas.substring(0, strPenaltyDatas.length()-5);
+
+
                             String result = elysianMapper.updateRsvStay(intRsvID, "4", strRsvRmNum);
                             if(result.equals("저장완료")){
                                 message = "예약완료";
