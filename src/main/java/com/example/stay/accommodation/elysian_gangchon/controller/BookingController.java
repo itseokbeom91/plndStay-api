@@ -20,8 +20,8 @@ public class BookingController {
     // 재고 등록 및 수정
     @RequestMapping("updatePackagetock")
     @ResponseBody
-    public String updatePackagetock(String dataType, HttpServletRequest httpServletRequest, String sdate, String edate, int intRmIdx){
-        return bookingService.updatePackagetock(dataType, httpServletRequest, sdate, edate, intRmIdx);
+    public String updatePackagetock(String dataType, HttpServletRequest httpServletRequest, String startDate, String endDate, int intRmIdx){
+        return bookingService.updatePackagetock(dataType, httpServletRequest, startDate, endDate, intRmIdx);
     }
 
     // 예약

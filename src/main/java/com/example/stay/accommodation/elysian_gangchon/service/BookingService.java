@@ -29,7 +29,7 @@ public class BookingService {
     CommonFunction commonFunction = new CommonFunction();
 
     // 재고 등록 및 수정
-    public String updatePackagetock(String dataType, HttpServletRequest httpServletRequest, String sdate, String edate, int intRmIdx){
+    public String updatePackagetock(String dataType, HttpServletRequest httpServletRequest, String startDate, String endDate, int intRmIdx){
         LogWriter logWriter = new LogWriter(httpServletRequest.getMethod(), httpServletRequest.getServletPath(),
                 httpServletRequest.getQueryString(), System.currentTimeMillis());
         String statusCode = "200";
@@ -39,7 +39,7 @@ public class BookingService {
             String strPkgCode = elysianMapper.getStrPkgCode(intRmIdx);
 
 //            strPkgCode = "90004884";
-            String elysUrl = "type=SB&pcode=" + strPkgCode + "&sdate=" + sdate + "&edate=" + edate;
+            String elysUrl = "type=SB&pcode=" + strPkgCode + "&sdate=" + startDate + "&edate=" + endDate;
 
             String strResponse = callElysAPI(elysUrl);
 
@@ -155,7 +155,7 @@ public class BookingService {
 
             String mdn  = rsvStayDto.getStrOrdPhone();
             String name  = rsvStayDto.getStrOrdName();
-            String pcode  = rsvStayDto.getStrPkgCode();
+            String pcode = rsvStayDto.getStrMapCode();
 
             String strPkgSubCode  = rsvStayDto.getStrPkgSubCode();
             String pkgSubArr [] = strPkgSubCode.split("-");
