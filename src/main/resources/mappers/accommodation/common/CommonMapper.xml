@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.example.stay.common.mapper.CommonMapper">
+<!--    <mapper namespace="com.example.stay.common.mapper.common.CommonMapper">-->
+
+    <select id="getPeakCount" parameterType="String" resultType="int">
+        SELECT
+            COUNT(CASE WHEN strRateName NOT LIKE '%비수기%'THEN 1 END)
+        FROM PLNDSTAY.dbo.OMK_RATE WITH(NOLOCK)
+        WHERE dateRate BETWEEN CONVERT(DATE, #{strCheckIn}) AND DATEADD(DAY, -1, CONVERT(DATE, #{strCheckOut}))
+    </select>
+
+    <select id="getCancelRules" resultType="CancelRulesDto">
+        SELECT
+            intDay
+             , intPercent
+        FROM PLNDSTAY.dbo.ACCOMM_CANCEL_RULES
+        WHERE intAID = ${intAID}
+          AND strFlag = #{strFlag}
+        ORDER BY intIdx ASC
+
+    </select>
+
+    <select id="getOmkSales" parameterType="int" resultType="double">
+        SELECT SO.moneySales
+        FROM RSV_STAY RS WITH(NOLOCK)
+            INNER JOIN CONNECTION C WITH(NOLOCK) ON RS.intSeller = C.intConnID
+            -- STOCK_REAL로 변경 필요
+            INNER JOIN STOCK_TEMP ST WITH(NOLOCK) ON RS.intRmIdx = ST.intRmIdx AND RS.dateCheckIn = ST.dateSales
+            INNER JOIN STOCK_OMK SO WITH(NOLOCK) ON ST.intIdx = SO.intStockIdx AND SO.intOMKIdx = C.intOMKIdx
+        WHERE RS.intRsvID = ${intRsvID}
+    </select>
+
+</mapper>
