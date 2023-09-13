@@ -23,7 +23,9 @@ public interface ElysianMapper {
 
     int getTseq();
 
-    List<String> getCancelFlag(String strCheckIn, String strCheckOut);
-
-    List<CancelRulesDto> getCancelRules(int intAID, String strFlag);
+//    int getPeakCount(String strCheckIn, String strCheckOut);
+//
+//    List<CancelRulesDto> getCancelRules(int intAID, String strFlag);
+//
+//    double getOmkSales(int intRsvID);
 }
