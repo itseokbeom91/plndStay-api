@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.example.stay.openMarket.eland.mapper.ElandMapper">
+
+    <insert id="insertAccessToken">
+        INSERT INTO API_AUTHKEY
+            (api_flag, keyvalue, regdate)
+            VALUES('ELAND', #{token}, FORMAT(GETDATE(), 'yyyyMMddHHmmss'));
+    </insert>
+
+    <select id="getIdxForOrderID" resultType="String">
+        SELECT COUNT(idx) + 1 FROM tbl_Booking WITH(NOLOCK)
+    </select>
+
+    <select id="condoInfoForInsertOrder" resultType="CondoDto">
+        SELECT
+            C.con_name AS strAcmName
+             , C.con_flag AS strFlag
+             , C.strChainCode
+             , C.con_addr_new
+             , (SELECT stend_pri
+                FROM goods WITH(NOLOCK)
+        WHERE con_id = C.con_id
+          AND CONVERT(CHAR(10), good_date, 120) = #{strEnterIn}
+               <![CDATA[
+          AND REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(tocode, '<', ''), '>', ''), ']', ''), '[', ''), '&', ''), '★', ''), '/', ''), ' ', ''), '(', ''), ')', ''), '+', '')
+            = #{strRoomTypeName}
+                ]]>
+              ) AS moneyCost
+        FROM condo C WITH(NOLOCK)
+        WHERE C.con_id = ${con_id}
+    </select>
+
+    <select id="tocodeForRoomTypeNm" resultType="String">
+        SELECT tocode
+        FROM goods WITH(NOLOCK)
+        WHERE con_id = ${con_id}
+          AND CONVERT(CHAR(10), good_date, 120) = #{strEnterIn}
+          AND REPLACE(tocode,' ','+') = Replace(#{strRoomTypeName},' ','+')
+    </select>
+
+</mapper>

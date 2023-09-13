@@ -1,28 +1,25 @@
 package com.example.stay.openMarket.eland.service;
 
 import com.example.stay.common.util.Constants;
-import com.example.stay.openMarket.eland.mapper.AuthMapper;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.example.stay.openMarket.common.dto.CondoDto;
+import com.example.stay.openMarket.eland.mapper.ElandMapper;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.Scanner;
 
 @Service
-public class AuthService {
+public class ElandService {
 
     @Autowired
-    private AuthMapper authMapper;
+    private ElandMapper elandMapper;
 
 
     public String requestToken(HttpServletResponse httpResponse){
@@ -99,7 +96,7 @@ public class AuthService {
 
     // 발급받은 AccessToken DB에 INSERT
     public int insertAccessToken (String token){
-        int result = authMapper.insertAccessToken(token);
+        int result = elandMapper.insertAccessToken(token);
         return result;
     }
 
@@ -181,7 +178,21 @@ public class AuthService {
         return jsonArrayData;
     }
 
+    // 주문번호 만들 idx가져오기
+    public String getIdxForOrderID(){
+        String idx = elandMapper.getIdxForOrderID();
+        return idx;
+    }
 
+    // strVendGoodsNo, strRoomTypeName, 주문정보의 입실일자로 시설 정보 가져오기
+    public CondoDto condoInfoForInsertOrder(String con_id, String strEnterIn, String strRoomTypeName){
+        CondoDto condoDto = elandMapper.condoInfoForInsertOrder(con_id, strEnterIn, strRoomTypeName);
+        return condoDto;
+    }
 
-
+    // tocode 정보 다시 가져오기
+    public String tocodeForRoomTypeNm(String con_id, String strEnterIn, String strRoomTypeName){
+        String tocode = elandMapper.tocodeForRoomTypeNm(con_id, strEnterIn, strRoomTypeName);
+        return tocode;
+    }
 }
