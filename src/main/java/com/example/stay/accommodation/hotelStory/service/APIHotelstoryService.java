@@ -2,6 +2,7 @@ package com.example.stay.accommodation.hotelStory.service;
 
 import com.example.stay.accommodation.hotelStory.dto.BookingDto;
 import com.example.stay.accommodation.hotelStory.mapper.HotelStoryMapper;
+import com.example.stay.common.util.CommonFunction;
 import com.example.stay.common.util.Constants;
 import com.example.stay.common.util.UrlResourceDownloader;
 import com.example.stay.common.util.XmlUtility;
@@ -42,9 +43,12 @@ public class APIHotelstoryService {
     @Autowired
     private HotelStoryMapper hotelStoryMapper;
 
+    CommonFunction commonFunction = new CommonFunction();
 
     public String getAccomm(String strAccommID){
 
+        String statusCode = "200";
+        String message = "";
         String result = "";
 
         try {
@@ -176,18 +180,21 @@ public class APIHotelstoryService {
                 }
 
             }
-            System.out.println("시설 수 = " + propertyList.getLength());
-            System.out.println("roomType 수 = " + roomTypeCnt);
-            System.out.println("ratePlan 수 = " + ratePlanCnt);
+            message += "시설 수 = " + propertyList.getLength();
+            message += " / roomType 수 = " + roomTypeCnt;
+            message += " / ratePlan 수 = " + ratePlanCnt;
+            statusCode = "200";
 
             //System.out.println(result);
 
         }catch (Exception e){
+            message = "시설 등록 실패";
+            statusCode = "500";
             e.printStackTrace();
         }
 
 
-        return result;
+        return commonFunction.makeReturn("json", statusCode, message);
 
 
     }
@@ -527,11 +534,14 @@ public class APIHotelstoryService {
      * @param intBookingID
      * @return
      */
-    public String booking(int intBookingID){
+    public String booking(int intRsvID){
+
+        String statusCode = "200";
+        String message = "";
         String result = "";
 
         try {
-            BookingDto bookingDto = hotelStoryMapper.getbooking(intBookingID);
+            BookingDto bookingDto = hotelStoryMapper.getbooking(intRsvID);
             //System.out.println(bookingDto);
             String strOrderId = Integer.toString(bookingDto.getIntBookingID());
             String strPropertyId = bookingDto.getStrPropertyId();
@@ -655,7 +665,7 @@ public class APIHotelstoryService {
                         strBookingProcess = "14";
                     }
 
-                    hotelStoryMapper.updateBooking(intBookingID, strBookingProcess, strBookingId, Integer.parseInt(strRoom));
+                    hotelStoryMapper.updateBooking(intRsvID, strBookingProcess, strBookingId, Integer.parseInt(strRoom));
 
                 }
 
@@ -663,10 +673,12 @@ public class APIHotelstoryService {
 
 
         }catch (Exception e){
+            message = "예약 실패";
+            statusCode = "500";
             e.printStackTrace();
         }
 
-        return result;
+        return commonFunction.makeReturn("json", statusCode, message);
     }
 
 
