@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -47,6 +48,23 @@ public class ElandController {
         Cookie cookie = new Cookie("elandCookie", null);
         cookie.setMaxAge(0);
         response.addCookie(cookie);
+
+    }
+
+    @GetMapping("getCookie")
+    public void getCookie(HttpServletRequest response){
+
+        Cookie[] cookies = response.getCookies(); // 모든 쿠키 가져오기
+        System.out.println(cookies);
+        if(cookies!=null){
+            for (Cookie c : cookies) {
+                String name = c.getName(); // 쿠키 이름 가져오기
+                String value = c.getValue(); // 쿠키 값 가져오기
+                if (name.equals("elandCookie")) {
+                    System.out.println(value);
+                }
+            }
+        }
 
     }
 

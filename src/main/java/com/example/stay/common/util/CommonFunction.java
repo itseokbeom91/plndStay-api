@@ -1,6 +1,8 @@
 package com.example.stay.common.util;
 
-import com.example.stay.openMarket.gmarket.hmac.HmacGenerater;
+import com.example.stay.common.mapper.CommonAcmMapper;
+import com.example.stay.openMarket.common.dto.CancelRulesDto;
+import com.example.stay.openMarket.common.dto.RsvStayDto;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
@@ -8,10 +10,9 @@ import com.google.gson.GsonBuilder;
 import okhttp3.*;
 import org.apache.axis.client.Call;
 import org.apache.axis.client.Service;
-import org.apache.axis.message.SOAPBody;
-import org.apache.axis.message.SOAPHeader;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
 
@@ -24,10 +25,16 @@ import java.io.OutputStreamWriter;
 import java.io.StringReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
 public class CommonFunction<T> {
+
+    @Autowired
+    private CommonAcmMapper commonAcmMapper;
 
     public String makeReturn(String returnType, String statusCode, String message){
 
@@ -310,5 +317,85 @@ public class CommonFunction<T> {
         } catch (Exception e) {
             return makeReturn("json", "500", e.getMessage());
         }
+    }
+
+    // ACCOMM_CANCEL_RULES 데이터 만들기
+    public String makeCancelRules(RsvStayDto rsvStayDto){
+        String strPenaltyDatas = "";
+        try{
+            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
+            String strCheckIn = simpleDateFormat.format(rsvStayDto.getDateCheckIn());
+            String strCheckOut = simpleDateFormat.format(rsvStayDto.getDateCheckOut());
+
+            // 숙박일 중 성수기 포함 여부 확인
+            int peakCount = commonAcmMapper.getPeakCount(strCheckIn, strCheckOut);
+
+            // 하루라도 성수기 포함시 성수기 취소규정 적용
+            String strFlag = "";
+            if(peakCount > 0){
+                strFlag = "OPS";
+            }else{
+                strFlag = "OOF";
+            }
+
+            // 해당 취소규정 조회
+            int intAID = rsvStayDto.getIntAID();
+            intAID = 11149;
+            List<CancelRulesDto> cancelRuleList = commonAcmMapper.getCancelRules(intAID, strFlag);
+            String strRateFlag = "P";
+
+            // 오픈마켓별 판매금액 조회
+            int intRsvID = rsvStayDto.getIntRsvID();
+            double sales = commonAcmMapper.getOmkSales(intRsvID);
+
+            for(int i=0; i<cancelRuleList.size(); i++){
+                CancelRulesDto cancelRulesDto = cancelRuleList.get(i);
+                double doubleRate = cancelRulesDto.getIntPercent();
+                int intDay = cancelRulesDto.getIntDay();
+
+                // 체크인 날짜 - intDay가 며칠인지 구하기
+                Calendar cal = Calendar.getInstance();
+                cal.setTime(rsvStayDto.getDateCheckIn());
+                cal.add(Calendar.DATE, -intDay);
+                Date endDate = cal.getTime();
+
+                // 체크인 날짜 - intDay가 무슨 요일인지 구하기
+                Calendar cal2 = Calendar.getInstance();
+                cal2.setTime(endDate);
+                int businessWeek = cal2.get(Calendar.DAY_OF_WEEK); // 요일 1 : 일 ~ 7 : 토
+
+                // 평일은 5시까지, 토요일은 12시까지, 일요일은 불가 -> 다음날 위약금 적용
+                String strTime = "";
+                if(businessWeek > 1 && businessWeek < 7){ // 평일
+                    strTime = "16:59:59";
+                }else if(businessWeek == 7){ // 토요일
+                    strTime = "11:59:59";
+                }else{
+                    strTime = "23:59:59";
+                    if(i == 0){ // 일요일
+                        doubleRate = 100;
+                    }else{
+                        CancelRulesDto cancelRule = cancelRuleList.get(i-1);
+                        doubleRate = cancelRule.getIntPercent();
+                    }
+                }
+
+                double rate = (doubleRate / 100);
+                double penalty = sales * rate; // 위약금액
+                double refund = sales - penalty; // 환불금액
+
+                strPenaltyDatas += intRsvID + "|^|" + strRateFlag + "|^|" + doubleRate + "|^|" + intDay + "|^|" + strTime + "|^|" + refund + "|^|" + penalty + "{{|}}";
+            }
+
+            strPenaltyDatas = strPenaltyDatas.substring(0, strPenaltyDatas.length()-5);
+
+            System.out.println("strPenaltyDatas : " + strPenaltyDatas);
+
+        }catch (Exception e){
+            e.printStackTrace();
+            return "";
+        }
+
+        return strPenaltyDatas;
     }
 }
