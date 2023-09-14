@@ -22,10 +22,4 @@ public interface ElysianMapper {
     String getStrRsvRmNum(int intRsvID);
 
     int getTseq();
-
-//    int getPeakCount(String strCheckIn, String strCheckOut);
-//
-//    List<CancelRulesDto> getCancelRules(int intAID, String strFlag);
-//
-//    double getOmkSales(int intRsvID);
 }

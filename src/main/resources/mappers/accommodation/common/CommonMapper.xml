@@ -24,12 +24,12 @@
     </select>
 
     <select id="getOmkSales" parameterType="int" resultType="double">
-        SELECT SO.moneySales
-        FROM RSV_STAY RS WITH(NOLOCK)
-            INNER JOIN CONNECTION C WITH(NOLOCK) ON RS.intSeller = C.intConnID
+        SELECT ISNULL(SO.moneySales, 0)
+        FROM PLNDSTAY.dbo.RSV_STAY RS WITH(NOLOCK)
+            INNER JOIN PLNDSTAY.dbo.CONNECTION C WITH(NOLOCK) ON RS.intSeller = C.intConnID
             -- STOCK_REAL로 변경 필요
-            INNER JOIN STOCK_TEMP ST WITH(NOLOCK) ON RS.intRmIdx = ST.intRmIdx AND RS.dateCheckIn = ST.dateSales
-            INNER JOIN STOCK_OMK SO WITH(NOLOCK) ON ST.intIdx = SO.intStockIdx AND SO.intOMKIdx = C.intOMKIdx
+            INNER JOIN PLNDSTAY.dbo.STOCK_TEMP ST WITH(NOLOCK) ON RS.intRmIdx = ST.intRmIdx AND RS.dateCheckIn = ST.dateSales
+            INNER JOIN PLNDSTAY.dbo.STOCK_OMK SO WITH(NOLOCK) ON ST.intIdx = SO.intStockIdx AND SO.intOMKIdx = C.intOMKIdx
         WHERE RS.intRsvID = ${intRsvID}
     </select>
 
