@@ -193,84 +193,14 @@ public class BookingService{
                             // 예약 테이블 상태값 업데이트
                             String strRsvRmNum = dataArr[1];
 
-//                            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
-//                            String strCheckIn = simpleDateFormat.format(rsvStayDto.getDateCheckIn());
-//                            String strCheckOut = simpleDateFormat.format(rsvStayDto.getDateCheckOut());
-
-                            // 위약금 데이터 생성--------------------------------------------------------------------------
-                            
-                            // 숙박일 중 성수기 포함 여부 확인
-//                            int peakCount = elysianMapper.getPeakCount(strCheckIn, strCheckOut);
-//                            // 하루라도 성수기 포함시 성수기 취소규정 적용
-//                            String strFlag = "";
-//                            if(peakCount > 0){
-//                                strFlag = "OPS";
-//                            }else{
-//                                strFlag = "OOF";
-//                            }
-//
-//                            // 해당 취소규정 조회
-//                            int intAID = rsvStayDto.getIntAID();
-//                            intAID = 11149;
-//                            List<CancelRulesDto> cancelRuleList = elysianMapper.getCancelRules(intAID, strFlag);
-//                            String strPenaltyDatas = "";
-//                            String strRateFlag = "P";
-//
-//                            // 오픈마켓별 판매금액 조회
-//                            double sales = elysianMapper.getOmkSales(intRsvID);
-//
-//                            for(int i=0; i<cancelRuleList.size(); i++){
-//                                CancelRulesDto cancelRulesDto = cancelRuleList.get(i);
-//                                double doubleRate = cancelRulesDto.getIntPercent();
-//                                int intDay = cancelRulesDto.getIntDay();
-//
-//                                // 체크인 날짜 - intDay가 며칠인지 구하기
-//                                Calendar cal = Calendar.getInstance();
-//                                cal.setTime(dateCheckIn);
-//                                cal.add(Calendar.DATE, -intDay);
-//                                Date endDate = cal.getTime();
-//
-//                                // 체크인 날짜 - intDay가 무슨 요일인지 구하기
-//                                Calendar cal2 = Calendar.getInstance();
-//                                cal2.setTime(endDate);
-//                                int businessWeek = cal2.get(Calendar.DAY_OF_WEEK); // 요일 1 : 일 ~ 7 : 토
-//
-//                                // 평일은 5시까지, 토요일은 12시까지, 일요일은 불가 -> 다음날 위약금 적용
-//                                String strTime = "";
-//                                if(businessWeek > 1 && businessWeek < 7){ // 평일
-//                                    strTime = "16:59:59";
-//                                }else if(businessWeek == 7){ // 토요일
-//                                    strTime = "11:59:59";
-//                                }else{
-//                                    strTime = "23:59:59";
-//                                    if(i == 0){ // 일요일
-//                                        doubleRate = 100;
-//                                    }else{
-//                                        CancelRulesDto cancelRule = cancelRuleList.get(i-1);
-//                                        doubleRate = cancelRule.getIntPercent();
-//                                    }
-//                                }
-//
-//                                double rate = (doubleRate / 100);
-//                                double penalty = sales * rate; // 위약금액
-//                                double refund = sales - penalty; // 환불금액
-//
-//                                strPenaltyDatas += intRsvID + "|^|" + strRateFlag + "|^|" + doubleRate + "|^|" + intDay + "|^|" + strTime + "|^|" + refund + "|^|" + penalty + "{{|}}";
-//                            }
-//
-//                            strPenaltyDatas = strPenaltyDatas.substring(0, strPenaltyDatas.length()-5);
-
-
-
+                            // 위약금 규정 생성
                             String strPenaltyDatas = commonFunction.makeCancelRules(rsvStayDto);
-//                            String strPenaltyDatas = commonFunction.makeCancelRules(rsvStayDto);
                             if(!strPenaltyDatas.equals("")){
                                 message = "성공";
                                 System.out.println("Result : " + strPenaltyDatas);
                             }else{
                                 message = "위약금 규정 생성 실패";
                             }
-
 
                             // -----------------------------------------------------------------------------------------
 

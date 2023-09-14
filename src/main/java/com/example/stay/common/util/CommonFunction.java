@@ -342,6 +342,7 @@ public class CommonFunction<T> {
             int intAID = rsvStayDto.getIntAID();
             intAID = 11149;
             List<CancelRulesDto> cancelRuleList = commonAcmMapper.getCancelRules(intAID, strFlag);
+
             String strRateFlag = "P";
 
             // 오픈마켓별 판매금액 조회
@@ -384,12 +385,10 @@ public class CommonFunction<T> {
                 double penalty = sales * rate; // 위약금액
                 double refund = sales - penalty; // 환불금액
 
-                strPenaltyDatas += intRsvID + "|^|" + strRateFlag + "|^|" + doubleRate + "|^|" + intDay + "|^|" + strTime + "|^|" + refund + "|^|" + penalty + "{{|}}";
+                strPenaltyDatas += strRateFlag + "|^|" + doubleRate + "|^|" + intDay + "|^|" + strTime + "|^|" + refund + "|^|" + penalty + "{{|}}";
             }
 
             strPenaltyDatas = strPenaltyDatas.substring(0, strPenaltyDatas.length()-5);
-
-            System.out.println("strPenaltyDatas : " + strPenaltyDatas);
 
         }catch (Exception e){
             e.printStackTrace();
