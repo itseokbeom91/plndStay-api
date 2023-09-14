@@ -12,6 +12,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletResponse;
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -28,6 +29,27 @@ public class ElandController {
 
     @Autowired
     private ElandService elandService;
+
+
+    @GetMapping("makeCookie")
+    public void makeCookie(HttpServletResponse response){
+
+        Cookie cookie = new Cookie("elandCookie", "test");
+        cookie.setMaxAge(60*60*24);
+        cookie.setPath("/");
+        response.addCookie(cookie);
+
+    }
+
+    @GetMapping("deleteCookie")
+    public void deleteCookie(HttpServletResponse response){
+
+        Cookie cookie = new Cookie("elandCookie", null);
+        cookie.setMaxAge(0);
+        response.addCookie(cookie);
+
+    }
+
 
     /**
      * 인증키 요청

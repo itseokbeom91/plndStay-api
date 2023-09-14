@@ -262,12 +262,12 @@ public class BookingService {
 
 
 
-                            String strPenaltyDatas = commonFunction.makeCancelRules(rsvStayDto);
-                            if(strPenaltyDatas != null){
-
-                            }else{
-                                message = "위약금 규정 생성 실패";
-                            }
+//                            String strPenaltyDatas = commonFunction.makeCancelRules(rsvStayDto);
+//                            if(strPenaltyDatas != null){
+//
+//                            }else{
+//                                message = "위약금 규정 생성 실패";
+//                            }
 
 
                             // -----------------------------------------------------------------------------------------
