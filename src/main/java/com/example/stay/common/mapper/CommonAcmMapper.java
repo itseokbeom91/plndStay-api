@@ -6,7 +6,7 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public interface CommonMapper {
+public interface CommonAcmMapper {
     int getPeakCount(String strCheckIn, String strCheckOut);
 
     List<CancelRulesDto> getCancelRules(int intAID, String strFlag);

@@ -17,7 +17,7 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 
 @Service("elysian_gangchon.BookingService")
-public class BookingService {
+public class BookingService{
 
     @Autowired
     private ElysianMapper elysianMapper;
@@ -263,8 +263,10 @@ public class BookingService {
 
 
                             String strPenaltyDatas = commonFunction.makeCancelRules(rsvStayDto);
-                            if(strPenaltyDatas != null){
-
+//                            String strPenaltyDatas = commonFunction.makeCancelRules(rsvStayDto);
+                            if(!strPenaltyDatas.equals("")){
+                                message = "성공";
+                                System.out.println("Result : " + strPenaltyDatas);
                             }else{
                                 message = "위약금 규정 생성 실패";
                             }
