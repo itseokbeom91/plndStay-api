@@ -26,6 +26,7 @@ public class BookingService extends CommonFunction{
     CommonFunction commonFunction = new CommonFunction();
 
     // 재고 등록 및 수정
+    // 룸타입 - 패키지 매핑이 되어있어야 가져올 수 있음
     public String updatePackagetock(String dataType, HttpServletRequest httpServletRequest, String startDate, String endDate, int intRmIdx){
         LogWriter logWriter = new LogWriter(httpServletRequest.getMethod(), httpServletRequest.getServletPath(),
                 httpServletRequest.getQueryString(), System.currentTimeMillis());
@@ -33,9 +34,14 @@ public class BookingService extends CommonFunction{
         String message = "";
 
         try{
-            String strPkgCode = elysianMapper.getStrPkgCode(intRmIdx);
+            // 패키지코드 전체를 가져와서 패키지코드마다 API 호출해야할듯?
+            List<String> strPkgCodeList = elysianMapper.getStrPkgCodeList();
 
-//            strPkgCode = "90004884";
+            for(int i=0; i< strPkgCodeList.size(); i++){
+                
+            }
+
+            String strPkgCode = "90004884";
             String elysUrl = "type=SB&pcode=" + strPkgCode + "&sdate=" + startDate + "&edate=" + endDate;
 
             String strResponse = callElysAPI(elysUrl);
