@@ -5,7 +5,7 @@
 
 <mapper namespace="com.example.stay.accommodation.kumho.mapper.KumhoMapper">
     <select id="updateRsvStay" resultType="String">
-        EXEC PLNDSTAY.dbo.spGW_RSV_STAY_UPDATE_PROCESS ${intRsvID}, #{strStatusCode}, #{strRsvRmNum}, ''
+        EXEC PLNDSTAY.dbo.spGW_RSV_STAY_UPDATE_PROCESS ${intRsvID}, #{strStatusCode}, #{strRsvRmNum}, '', ''
     </select>
 
     <select id="updateStock" resultType="String">
