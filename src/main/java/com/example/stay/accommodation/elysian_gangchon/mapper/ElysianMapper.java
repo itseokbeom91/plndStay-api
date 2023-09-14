@@ -17,7 +17,7 @@ public interface ElysianMapper {
 
     RsvStayDto getReservation(int intRsvID);
 
-    String updateRsvStay(int intRsvID, String strStatusCode, String strRsvRmNum);
+    String updateRsvStay(int intRsvID, String strStatusCode, String strRsvRmNum, String strPenaltyDatas);
 
     String getStrRsvRmNum(int intRsvID);
 
