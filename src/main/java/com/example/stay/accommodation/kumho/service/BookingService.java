@@ -27,7 +27,7 @@ import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 @Service("kumho.BookingService")
-public class BookingService {
+public class BookingService extends CommonFunction{
 
     @Autowired
     private KumhoMapper kumhoMapper;
@@ -113,7 +113,10 @@ public class BookingService {
 
                 // 금호측에 예약이 완료됐으면 우리 DB 상태값 업데이트
                 if(resultCode.equals("S")){
-                    String result = kumhoMapper.updateRsvStay(intRsvID, "4", strRsvRmNum);
+                    // 위약금 규정 생성
+                    String strPenaltyDatas = makeCancelRules(rsvStayDto);
+
+                    String result = kumhoMapper.updateRsvStay(intRsvID, "4", strRsvRmNum, strPenaltyDatas);
                     if(result.equals("저장완료")){
                         message = "예약완료";
                     }else{
@@ -371,7 +374,7 @@ public class BookingService {
                 if(resultCode.equals("S")){
                     // DB 상태값 변경
                     String strRsvRmNum = rsvStayDto.getStrRsvRmNum();
-                    String result = kumhoMapper.updateRsvStay(intRsvID, "5", strRsvRmNum);
+                    String result = kumhoMapper.updateRsvStay(intRsvID, "5", strRsvRmNum, "");
                     if(result.equals("저장완료")){
                         message = "예약 취소 완료";
                     }else{

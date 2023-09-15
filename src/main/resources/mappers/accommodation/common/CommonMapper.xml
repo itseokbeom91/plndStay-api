@@ -12,6 +12,7 @@
         WHERE dateRate BETWEEN CONVERT(DATE, #{strCheckIn}) AND DATEADD(DAY, -1, CONVERT(DATE, #{strCheckOut}))
     </select>
 
+<!--    TODO : 기본 취소규정 생성되면 추가    -->
     <select id="getCancelRules" resultType="CancelRulesDto">
         SELECT
             intDay

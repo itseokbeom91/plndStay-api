@@ -39,6 +39,6 @@
     </select>
 
     <select id="updateRsvStay" resultType="String">
-        EXEC PLNDSTAY.dbo.spGW_RSV_STAY_UPDATE_PROCESS ${intRsvID}, #{strStatusCode}, #{strRsvRmNum}, '', ''
+        EXEC PLNDSTAY.dbo.spGW_RSV_STAY_UPDATE_PROCESS ${intRsvID}, #{strStatusCode}, #{strRsvRmNum}, #{strPenaltyDatas}, ''
     </select>
 </mapper>
