@@ -1,13 +1,9 @@
 package com.example.stay.openMarket.eland.controller;
 
+import com.example.stay.common.util.Constants;
 import com.example.stay.openMarket.common.dto.BookingDto;
 import com.example.stay.openMarket.common.dto.CondoDto;
-import com.example.stay.openMarket.common.dto.ToconDto;
-import com.example.stay.common.util.Constants;
-import com.example.stay.openMarket.eland.service.AuthService;
-import com.example.stay.openMarket.eland.service.OrderService;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
+import com.example.stay.openMarket.eland.service.ElandService;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -16,22 +12,136 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.awt.print.Book;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.Calendar;
+import java.util.Date;
 
 @Controller
-@RequestMapping("/eland/order/*")
-public class OrderController {
+@RequestMapping("/eland/*")
+public class ElandController {
 
     @Autowired
-    private AuthService authService;
+    private ElandService elandService;
 
-    @Autowired
-    private OrderService orderService;
+
+    @GetMapping("makeCookie")
+    public void makeCookie(HttpServletResponse response){
+
+        Cookie cookie = new Cookie("elandCookie", "test");
+        cookie.setMaxAge(60*60*24);
+        cookie.setPath("/");
+        response.addCookie(cookie);
+
+    }
+
+    @GetMapping("deleteCookie")
+    public void deleteCookie(HttpServletResponse response){
+
+        Cookie cookie = new Cookie("elandCookie", null);
+        cookie.setMaxAge(0);
+        response.addCookie(cookie);
+
+    }
+
+    @GetMapping("getCookie")
+    public void getCookie(HttpServletRequest response){
+
+        Cookie[] cookies = response.getCookies(); // 모든 쿠키 가져오기
+        System.out.println(cookies);
+        if(cookies!=null){
+            for (Cookie c : cookies) {
+                String name = c.getName(); // 쿠키 이름 가져오기
+                String value = c.getValue(); // 쿠키 값 가져오기
+                if (name.equals("elandCookie")) {
+                    System.out.println(value);
+                }
+            }
+        }
+
+    }
+
+
+    /**
+     * 인증키 요청
+     * 추후 발급받은 ACCESS TOKEN DB에 저장 X -> 쿠키로 사용할 것
+     * elandmall_openapi_guide
+     */
+    @GetMapping("/requestToken")
+    public void requestToken(HttpServletResponse httpResponse){
+        elandService.requestToken(httpResponse);
+    }
+
+
+    /**
+     * 인증키 유효성 확인
+     * 이랜드몰_OPEN API 연동표준안_공통 000_(인증키유효성확인)
+     */
+    @GetMapping("/TokenValidation")
+    public void accessTokenValidation(String accessToken){
+        BufferedReader br = null;
+        try {
+            // API 호출 정보
+            URL url = new URL(Constants.elandPath + "/token/checkAccessTokenValidation.action");
+
+            // API 호출
+            long APIStart = System.currentTimeMillis();
+
+            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+            conn.setRequestMethod("POST");
+            conn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
+            conn.setRequestProperty("grant_type", "client_credentials");
+            conn.setRequestProperty("Authorization", "Bearer "+accessToken);
+            conn.setRequestProperty("Accept", "*/*");
+            conn.setRequestProperty("Accept-Charset", "UTF-8");
+
+            if(conn.getResponseCode() == HttpURLConnection.HTTP_OK){
+                String strResponse = "";
+                br = new BufferedReader(new InputStreamReader(conn.getInputStream(), "UTF-8"));
+                StringBuffer sb = new StringBuffer();
+                while ((strResponse = br.readLine()) != null) {
+                    sb.append(strResponse);
+                }
+                strResponse = sb.toString();
+                JSONParser jsonParser = new JSONParser();
+                Object objData = jsonParser.parse(strResponse);
+                JSONObject resultJson = (JSONObject) objData;
+
+                if(resultJson.get("error").equals("98")){ // Access Token 유효함
+                    System.out.println("AccessToken이 유효하지 않습니다.");
+                }
+
+                System.out.println(resultJson);
+            }else{
+                System.out.println("AccessToken 유효성체크 api 통신 실패");
+                System.out.println("responseCode : " + conn.getResponseCode() + "\nresponseMessage : " + conn.getResponseMessage());
+            }
+
+            conn.disconnect();
+            System.out.println("이랜드 API 호출 실행 시간 : " + (System.currentTimeMillis()-APIStart)/1000.0);
+
+        }catch (Exception e){
+            e.printStackTrace();
+            System.out.println("AccessToken 유효성체크 실패");
+        }finally {
+            try {
+                if (br != null) {
+                    br.close();
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+    }
+
 
     /**
      * 주문정보 가져오기
@@ -52,7 +162,7 @@ public class OrderController {
             String strPostBody = "start_date=" + strStartDate + "&end_date=" + strEndDate;
 
             // 주문정보 가져오기
-            JSONArray jsonArrayData = authService.elandApi(httpResponse, "/order/searchDeliIndiList.action", strPostBody);
+            JSONArray jsonArrayData = elandService.elandApi(httpResponse, "/order/searchDeliIndiList.action", strPostBody);
 
             String strOrdName = "";
             for (int i=0; i<jsonArrayData.size(); i++) {
@@ -90,7 +200,7 @@ public class OrderController {
                 sb.insert(4,"-");
                 strDate = sb.toString();
 
-                String idx = orderService.getIdxForOrderID();
+                String idx = elandService.getIdxForOrderID();
                 int minNum = 1000;
                 int maxNum = 9999;
                 int randomNum = (int)((maxNum - minNum + 1) * Math.random() + minNum);
@@ -101,7 +211,7 @@ public class OrderController {
                 String strRoomTypeName = strItemNm.replace(arrItemName[0], ""); // 어떤건 + 같이 들어오고 어떤건X
                 // 맨 앞/자르고 공백 -> +
                 String strRoomTypeNm = (strRoomTypeName.substring(1)).replace(" ", "+");
-                String strTocode = orderService.tocodeForRoomTypeNm(strVendGoodsNo, strEnterIn, strRoomTypeNm);
+                String strTocode = elandService.tocodeForRoomTypeNm(strVendGoodsNo, strEnterIn, strRoomTypeNm);
 
                 strRoomTypeName = strRoomTypeName.replace("/", "");
                 strRoomTypeName = strRoomTypeName.replace("，", ",");
@@ -142,7 +252,7 @@ public class OrderController {
                 }
 
                 // 주문정보의 입실일자로 시설 정보 가져오기
-                CondoDto condoDto = orderService.condoInfoForInsertOrder(strVendGoodsNo, strEnterIn, strRoomTypeName);
+                CondoDto condoDto = elandService.condoInfoForInsertOrder(strVendGoodsNo, strEnterIn, strRoomTypeName);
 
                 String strAccommName = "";
                 String strAccommFlag = "";

@@ -3,10 +3,11 @@ package com.example.stay.openMarket.eland.mapper;
 import com.example.stay.openMarket.common.dto.CondoDto;
 import org.springframework.stereotype.Repository;
 
-import java.util.Date;
-
 @Repository
-public interface OrderMapper {
+public interface ElandMapper {
+
+    // 발급받은 AccessToken DB에 INSERT
+    int insertAccessToken (String token);
 
     // 주문번호 만들 idx가져오기
     String getIdxForOrderID();

@@ -66,24 +66,24 @@ public class APIHotelStoryController {
 
     }
 
-    @GetMapping("/booking")
-    public void getBooking(int intBookingID){
+    @GetMapping("/createBooking")
+    public void getBooking(int intRsvID){
 
-        apiHotelstoryService.booking(intBookingID);
-
-    }
-
-    @GetMapping("/bookingCheck")
-    public void checkBooking(int intBookingID){
-
-        apiHotelstoryService.bookingCheck(intBookingID);
+        apiHotelstoryService.booking(intRsvID);
 
     }
 
-    @GetMapping("/bookingCancel")
-    public void cancelBooking(int intBookingID){
+    @GetMapping("/getBookingInfo")
+    public void checkBooking(int intRsvID){
 
-        apiHotelstoryService.bookingCancel(intBookingID);
+        apiHotelstoryService.bookingCheck(intRsvID);
+
+    }
+
+    @GetMapping("/cancelBooking")
+    public void cancelBooking(int intRsvID){
+
+        apiHotelstoryService.bookingCancel(intRsvID);
 
     }
 

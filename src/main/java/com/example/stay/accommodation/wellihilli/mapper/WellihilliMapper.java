@@ -17,6 +17,6 @@ public interface WellihilliMapper {
 
     String getStrRsvCode(int intRsvID);
 
-    String updateRsvStay(int intRsvID, String strStatusCode, String strRsvRmNum);
+    String updateRsvStay(int intRsvID, String strStatusCode, String strRsvRmNum, String strPenaltyDatas);
 
 }

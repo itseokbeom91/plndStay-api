@@ -63,5 +63,5 @@ public class RsvStayDto {
     private String strPropertyID;
 
     private double moneyCost;
-
+    private double moneySales;
 }

@@ -19,7 +19,7 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 
 @Service("wellihilli.BookingService")
-public class BookingService {
+public class BookingService extends CommonFunction{
 
     @Autowired
     private WellihilliMapper wellihilliMapper;
@@ -308,7 +308,10 @@ public class BookingService {
 
                     // 예약 성공
                     if(returnCode.equals("1")){
-                        String result = wellihilliMapper.updateRsvStay(intRsvID, "4", strRsvRmNum);
+                        // 위약금 규정 생성
+                        String strPenaltyDatas = makeCancelRules(rsvStayDto);
+
+                        String result = wellihilliMapper.updateRsvStay(intRsvID, "4", strRsvRmNum, strPenaltyDatas);
                         if(result.equals("저장완료")){
                             message = "예약완료";
                         }else{
@@ -396,7 +399,7 @@ public class BookingService {
 
                 if(returnCode.equals("1")){
                     // 예약 테이블 상태값 업데이트
-                    String result = wellihilliMapper.updateRsvStay(intRsvID, "5", "");
+                    String result = wellihilliMapper.updateRsvStay(intRsvID, "5", strRsvRmNum, "");
                     if(result.equals("저장완료")){
                         message = "예약 취소 완료";
                     }else{
