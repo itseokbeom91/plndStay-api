@@ -56,6 +56,12 @@
           AND A.strDeleteYn = 'N'
     </select>
 
+    <update id="updateRsvStatus">
+        UPDATE PLNDSTAY.dbo.RSV_STAY
+        SET strStatusCode = #{strStatusCode}
+        WHERE intRsvID = ${intRsvID}
+    </update>
+
 <!--    <select id="getStrCodeByStrName" parameterType="String" resultType="String">-->
 <!--        SELECT strCode-->
 <!--        FROM PLNDSTAY.dbo.CODE_SYSTEM WITH(NOLOCK)-->
@@ -80,7 +86,24 @@
 <!--    </update>-->
 
     <select id="updateRsvStay" resultType="String">
-        EXEC PLNDSTAY.dbo.spGW_RSV_STAY_UPDATE_PROCESS ${intRsvID}, #{strStatusCode}, #{strRsvRmNum}, '', ''
+        EXEC PLNDSTAY.dbo.spGW_RSV_STAY_UPDATE_PROCESS ${intRsvID}, #{strStatusCode}, #{strRsvRmNum}, #{strPenaltyDatas}, ''
+    </select>
+
+    <select id="getMoneyRefund" parameterType="int" resultType="double">
+        IF EXISTS(
+            SELECT moneyRefund AS moneyRefund
+            FROM PLNDSTAY.dbo.RSV_STAY_PENALTY
+            WHERE intRsvID = ${intRsvID}
+	            AND intDay = ${intDay}
+        ) BEGIN
+            SELECT moneyRefund AS moneyRefund
+            FROM PLNDSTAY.dbo.RSV_STAY_PENALTY
+            WHERE intRsvID = ${intRsvID}
+              AND intDay = ${intDay}
+        END
+        ELSE BEGIN
+            SELECT 0
+        END
     </select>
 
 </mapper>

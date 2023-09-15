@@ -25,7 +25,7 @@
     </select>
 
     <select id="getOmkSales" parameterType="int" resultType="double">
-        SELECT ISNULL(SO.moneySales, 0)
+        SELECT SO.moneySales
         FROM PLNDSTAY.dbo.RSV_STAY RS WITH(NOLOCK)
             INNER JOIN PLNDSTAY.dbo.CONNECTION C WITH(NOLOCK) ON RS.intSeller = C.intConnID
             -- STOCK_REAL로 변경 필요
