@@ -14,6 +14,6 @@ public interface BookingMapper {
 
     String updatePackageStock(String strPackageStockDatas);
 
-    List<Map<String, Object>> getPackageCodeAndStoreCode(String type);
+    List<Map<String, Object>> getPackageCodeAndStoreCode(String type, String startDate);
 
 }
