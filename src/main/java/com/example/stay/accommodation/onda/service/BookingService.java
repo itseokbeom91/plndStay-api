@@ -427,6 +427,7 @@ public class BookingService {
         return commonFunction.makeReturn(dataType, statusCode, message, responseJson);
     }
 
+    // TODO : 수정해야함
     public String makeCancelRules(JSONArray refundPolicyArr, Date dateCheckIn){
         String strPenaltyDatas = "";
         try{

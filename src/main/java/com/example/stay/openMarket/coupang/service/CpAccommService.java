@@ -207,7 +207,6 @@ public class CpAccommService {
 
                             roomsList.add(rooms);
 
-
                             // =============================
                             // rate 정보
                             // =============================
@@ -296,71 +295,71 @@ public class CpAccommService {
                         JSONObject requestJson = new JSONObject();
                         requestJson.put("lodgingCreateDtos", lodgingCreateDtos);
 
-//                    // API 호출
-//                    JSONObject returnJson = coupangApi.coupangPostApi(gson.toJson(requestJson), "travel/lodgings");
-//                    // 응답값 처리
-//                    String returnCode = returnJson.get("code").toString();
-//                    if(returnCode.equals("200")){
-//                        JSONObject dataJson = (JSONObject) returnJson.get("data");
-//                        JSONArray successArr = (JSONArray) dataJson.get("success");
-//                        JSONArray failArr = (JSONArray) dataJson.get("fail");
-//
-//                        for(Object f : failArr) {
-//                            JSONObject jsonObject = (JSONObject) f;
-//                            if(jsonObject != null){
-//                                String failReason = jsonObject.get("reason").toString();
-//
-//                                message = "상품 생성 실패";
-//                                logWriter.add(failReason);
-//                            }
-//                            break;
-//                        }
-//
-//                        for(Object s : successArr){
-//                            JSONObject jsonObject = (JSONObject) s;
-//                            if(jsonObject != null){
-//                                String strPdtCode = jsonObject.get("travelProductId").toString();
-//                                String strPdtSubject = jsonObject.get("name").toString();
-//                                String strDetailInfo = commonService.getStrPdtDtlInfo(accommDto, intAID, intOmkIdx);
-//
-//                                String itemCodeDatas = "";
-//                                JSONArray roomArr = (JSONArray) jsonObject.get("rooms");
-//                                for(Object r : roomArr){
-//                                    JSONObject roomJson = (JSONObject) r;
-//                                    String strCpItemCode = roomJson.get("travelItemId").toString();
-//                                    int intRmIdx = Integer.parseInt(roomJson.get("sellerRoomId").toString());
-//
-//                                    itemCodeDatas += intRmIdx + "|^|" + strCpItemCode + "{{|}}";
-//                                }
-//                                itemCodeDatas = itemCodeDatas.substring(0, itemCodeDatas.length()-5);
-//
-//                                String rateCodeDatas = "";
-//                                JSONArray rateArr = (JSONArray) jsonObject.get("rates");
-//                                for(Object r : rateArr){
-//                                    JSONObject rateJson = (JSONObject) r;
-//                                    String strCpRateCode = rateJson.get("rateId").toString();
-//                                    int intRmIdx = Integer.parseInt(rateJson.get("sellerRateId").toString());
-//
-//                                    rateCodeDatas += intRmIdx + "|^|" + strCpRateCode + "{{|}}";
-//                                }
-//                                rateCodeDatas = rateCodeDatas.substring(0, rateCodeDatas.length()-5);
-//
-//                                String insertResult = coupangMapper.insertCpCodes(intAID, strPdtCode, strPdtSubject, strDetailInfo, itemCodeDatas, rateCodeDatas);
-//
-//                                if(insertResult.substring(insertResult.length()-4).equals("수정완료")){
-//                                    message = "상품 등록 완료";
-//                                }else{
-//                                    message = "상품 등록 완료 / 쿠팡 코드 DB 등록 실패";
-//                                }
-//                            }
-//                            break;
-//                        }
-//                    }else{
-//                        message = "쿠팡 api 호출 실패";
-//                        logWriter.add("code : " + returnCode);
-//                        String returnMsg = returnJson.get("message").toString();
-//                        logWriter.add(returnMsg);
-//                    }
+                    // API 호출
+                    JSONObject returnJson = coupangApi.coupangPostApi(gson.toJson(requestJson), "travel/lodgings");
+                    // 응답값 처리
+                    String returnCode = returnJson.get("code").toString();
+                    if(returnCode.equals("200")){
+                        JSONObject dataJson = (JSONObject) returnJson.get("data");
+                        JSONArray successArr = (JSONArray) dataJson.get("success");
+                        JSONArray failArr = (JSONArray) dataJson.get("fail");
+
+                        for(Object f : failArr) {
+                            JSONObject jsonObject = (JSONObject) f;
+                            if(jsonObject != null){
+                                String failReason = jsonObject.get("reason").toString();
+
+                                message = "상품 생성 실패";
+                                logWriter.add(failReason);
+                            }
+                            break;
+                        }
+
+                        for(Object s : successArr){
+                            JSONObject jsonObject = (JSONObject) s;
+                            if(jsonObject != null){
+                                String strPdtCode = jsonObject.get("travelProductId").toString();
+                                String strPdtSubject = jsonObject.get("name").toString();
+                                String strDetailInfo = commonService.getStrPdtDtlInfo(accommDto, intAID, intOmkIdx);
+
+                                String itemCodeDatas = "";
+                                JSONArray roomArr = (JSONArray) jsonObject.get("rooms");
+                                for(Object r : roomArr){
+                                    JSONObject roomJson = (JSONObject) r;
+                                    String strCpItemCode = roomJson.get("travelItemId").toString();
+                                    int intRmIdx = Integer.parseInt(roomJson.get("sellerRoomId").toString());
+
+                                    itemCodeDatas += intRmIdx + "|^|" + strCpItemCode + "{{|}}";
+                                }
+                                itemCodeDatas = itemCodeDatas.substring(0, itemCodeDatas.length()-5);
+
+                                String rateCodeDatas = "";
+                                JSONArray rateArr = (JSONArray) jsonObject.get("rates");
+                                for(Object r : rateArr){
+                                    JSONObject rateJson = (JSONObject) r;
+                                    String strCpRateCode = rateJson.get("rateId").toString();
+                                    int intRmIdx = Integer.parseInt(rateJson.get("sellerRateId").toString());
+
+                                    rateCodeDatas += intRmIdx + "|^|" + strCpRateCode + "{{|}}";
+                                }
+                                rateCodeDatas = rateCodeDatas.substring(0, rateCodeDatas.length()-5);
+
+                                String insertResult = coupangMapper.insertCpCodes(intAID, strPdtCode, strPdtSubject, strDetailInfo, itemCodeDatas, rateCodeDatas);
+
+                                if(insertResult.equals("")){
+                                    message = "상품 등록 완료";
+                                }else{
+                                    message = "상품 등록 완료 / 쿠팡 코드 DB 등록 실패";
+                                }
+                            }
+                            break;
+                        }
+                    }else{
+                        message = "쿠팡 api 호출 실패";
+                        logWriter.add("code : " + returnCode);
+                        String returnMsg = returnJson.get("message").toString();
+                        logWriter.add(returnMsg);
+                    }
                     }else{
                         message = "객실 정보가 존재하지 않습니다(쿠팡 연동여부 확인 필요)";
                     }

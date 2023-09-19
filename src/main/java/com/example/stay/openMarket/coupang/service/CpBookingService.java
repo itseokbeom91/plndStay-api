@@ -49,7 +49,6 @@ public class CpBookingService {
 
     Gson gson = new GsonBuilder().setPrettyPrinting().create();
 
-    // TODO : 기간제한 확인
     // 예약 목록 조회 -> 기간 제한 : 1달 , 제공 데이터 수 제한 : 최대 10,000개
     public String getBookingList(String dataType, String strStartDate, String strEndDate,
                                  HttpServletRequest httpServletRequest){
@@ -62,10 +61,10 @@ public class CpBookingService {
         JSONArray resultArr = new JSONArray();
         try{
             SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
-            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+//            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
-            String startDate = sdf.format(simpleDateFormat.parse(strStartDate));
-            String endDate = sdf.format(simpleDateFormat.parse(strEndDate));
+            String startDate = simpleDateFormat.parse(strStartDate).toString() + " 00:00:00";
+            String endDate = simpleDateFormat.parse(strEndDate).toString() + " 00:00:00";
 
             URIBuilder uriBuilder = new URIBuilder()
                     .setPath(Constants.cpUrl + "reservations")
@@ -98,7 +97,52 @@ public class CpBookingService {
                 JSONObject resultJson = (JSONObject) dataJson.get("results");
                 resultArr = (JSONArray) resultJson.get("content");
 
-                // TODO : 예약 테이블 insert
+                // 예약 테이블 INSERT
+                String bookingDatas = "";
+                for(Object result : resultArr){
+                    JSONObject jsonObject = (JSONObject) result;
+//                    String strOrderCode = jsonObject.get("").toString();
+                    String strPdtCode = jsonObject.get("travelProductId").toString();
+                    String strCpItemCode = jsonObject.get("travelItemId").toString();
+                    String strCpRateCode = jsonObject.get("travelRateId").toString();
+                    String strCheckIn = jsonObject.get("checkInDate").toString();
+                    String strCheckOut = jsonObject.get("checkOutDate").toString();
+//                    String strPenaltyPrice = jsonObject.get("penaltyPrice").toString();
+                    String strRoomRequest = jsonObject.get("roomRequest").toString();
+                    String strRmtypeName = jsonObject.get("vendorItemName").toString();
+                    String strOrdPhone = jsonObject.get("userPhoneNumber").toString();
+                    String strOrdName = jsonObject.get("userName").toString();
+                    String strOrdEmail = jsonObject.get("userEmail").toString();
+                    int intRmCnt = Integer.parseInt(jsonObject.get("totalQuantity").toString());
+
+                    String strStatusCode = jsonObject.get("ticketStatusType").toString();
+                    if(strStatusCode.equals("CONFIRM_PENDING")){ // 예약 대기
+                        strStatusCode = "0";
+                    }else if(strStatusCode.equals("CONFIRMED")){ // 예약 확정
+                        strStatusCode = "4";
+                    }else if(strStatusCode.equals("CANCEL_RECEIPT")){ // 취소 접수
+                        strStatusCode = "14";
+                    }else if(strStatusCode.equals("CANCEL_PROCEEDING")){ // 취소중
+                        strStatusCode = "14";
+                    }else if(strStatusCode.equals("CANCEL_COMPLETE")){ // 취소 완료
+                        strStatusCode = "5";
+                    }else if(strStatusCode.equals("USED")){ // 발행 완료
+                        strStatusCode = "4";
+                    }
+
+                    String ticketNumber = jsonObject.get("ticketNumber").toString();
+                    double salePrice = (double) Integer.parseInt(jsonObject.get("salePrice").toString());
+//                    String refundedAt = jsonObject.get("refundedAt").toString();
+                    String strCreated = jsonObject.get("purcahsedAt").toString();
+//                    String productId = jsonObject.get("productId").toString();
+                    String strOrderCode = jsonObject.get("orderId").toString();
+
+                    int intAID = coupangMapper.getIntAID(strPdtCode);
+                    int intRmIdx = coupangMapper.getIntRmIdx(strCpItemCode);
+
+//                    bookingDatas = strStatusCode + "|^|OMK|^|" + intAID  + "|^|" + intRmIdx + "|^|" + intRmCnt + "|^|" + strCheckIn + "|^|" + strCheckOut + "|^|44|^|" + intSupplier + "|^|" + strRmtypeName + "|^|" +  + "{{|}}";
+                }
+                bookingDatas = bookingDatas.substring(0, bookingDatas.length()-5);
 
                 message = "예약 목록 조회 완료";
             }else{
