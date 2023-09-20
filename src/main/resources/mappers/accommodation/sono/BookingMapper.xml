@@ -20,6 +20,8 @@
     <select id="getPackageCodeAndStoreCode" parameterType="String" resultType="hashmap">
         SELECT strPkgCode
              , strStoreCode
+            , dateStart
+            , dateEnd
         FROM PLNDSTAY.dbo.ACM_PACKAGE_INFO
         WHERE strFlag = '01' AND strUsageYn = 'Y'
     </select>

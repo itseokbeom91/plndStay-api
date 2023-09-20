@@ -31,7 +31,9 @@ public class BookingService {
 
     CommonFunction commonFunction = new CommonFunction();
 
-    public String getCityRate(String requestCode, String sDate, String eDate, String roomCnt, String adultCnt, String childCnt){
+    XmlUtility xmlUtility = new XmlUtility();
+
+    public String getCityRate(String dataType, String requestCode, String startDate, String endDate, String roomCnt, String adultCnt, String childCnt){
 
         List<Map<String, Object>> hotelRateList = new ArrayList<Map<String, Object>>();
         try {
@@ -53,12 +55,17 @@ public class BookingService {
 
                     "<HotelRequestInfo RequestKind=\"C\">" +
                     "<RequestCode>"+requestCode+"</RequestCode>" +
-                    "<InDate>" + sDate + "</InDate>" +
-                    "<OutDate>" + eDate + "</OutDate>" +
-                    "<Rooms>" +
-                    "<Room Seq='1'>" +
-                    "<Adult AdultCnt=\"" + adultCnt + "\">" + "</Adult>" +
-                    "<Adult ChildCnt=\"" + childCnt + "\" ChildAge=\"\">" + "</Adult>" +
+                    "<InDate>" + startDate + "</InDate>" +
+                    "<OutDate>" + endDate + "</OutDate>" +
+                    "<Rooms>";
+            for (int i = 1 ; i<=Integer.parseInt(roomCnt) ; i++) {
+                sendMessage +=
+                        "<Room Seq=\""+i+"\">" +
+                                "<Adult AdultCnt=\"" + adultCnt.split(",")[i-1] + "\">" + "</Adult>" +
+                                "<Child ChildCnt=\"" + childCnt.split(",")[i-1] + "\" ChildAge=\"\">" + "</Child>" +
+                                "</Room>";
+            }
+            sendMessage +=
                     "</Room>" +
                     "</Rooms>" +
                     "<IncludeHotel LangKind = \"kor\"/>" +
@@ -114,7 +121,7 @@ public class BookingService {
                 if("No Data Found".equals(dc.getElementsByTagName("ErrorDesc").item(0).getChildNodes().item(0).getTextContent())){
                     //조회된 DATA 없음
                     System.out.println("예약 가능한 객실이 없습니다.");
-                    return commonFunction.makeReturn("jsonp", "200", "OK", "예약 가능한 객실이 없습니다.");
+                    return commonFunction.makeReturn(dataType, "200", "OK", "예약 가능한 객실이 없습니다.");
                 }
                 
             }else {
@@ -123,8 +130,8 @@ public class BookingService {
             for (int i = 0; i < rateList.getLength(); i++) {
                 Map<String, Object> cityRateMap = new HashMap<String, Object>();
                 rateList.item(0).getChildNodes().item(1).getChildNodes().item(1).getTextContent();
-                cityRateMap.put("hotelCd", dc.getElementsByTagName("HotelRate").item(i).getChildNodes().item(0).getTextContent());
-                cityRateMap.put("hotelNm", dc.getElementsByTagName("HotelRate").item(i).getChildNodes().item(1).getTextContent());
+                cityRateMap.put("hotelCd", dc.getElementsByTagName("HotelCode").item(i).getTextContent());
+                cityRateMap.put("hotelNm", dc.getElementsByTagName("HotelName").item(i).getTextContent());
                 cityRateMap.put("rmTypeCd", rateList.item(i).getChildNodes().item(1).getAttributes().item(0).getTextContent());
                 cityRateMap.put("rmName", rateList.item(i).getChildNodes().item(1).getChildNodes().item(1).getTextContent());
                 cityRateMap.put("amount", rateList.item(i).getChildNodes().item(1).getChildNodes().item(3).getChildNodes().item(9).getAttributes().item(2).getTextContent());
@@ -141,11 +148,11 @@ public class BookingService {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return commonFunction.makeReturn("jsonp", "200", "OK", hotelRateList);
+        return commonFunction.makeReturn(dataType, "200", "OK", hotelRateList);
 
     }
 
-    public String getMultiRate(String requestCode, String sDate, String eDate, String roomCnt, String adultCnt, String childCnt){
+    public String getMultiRate(String dataType, String requestCode, String startDate, String endDate, String roomCnt, String adultCnt, String childCnt){
 
         List<Map<String, Object>> hotelRateList = new ArrayList<Map<String, Object>>();
         try {
@@ -166,13 +173,17 @@ public class BookingService {
 
                     "<HotelRequestInfo RequestKind=\"M\">" +
                     "<RequestCode>"+requestCode+"</RequestCode>" +
-                    "<InDate>" + sDate + "</InDate>" +
-                    "<OutDate>" + eDate + "</OutDate>" +
-                    "<Rooms>" +
-                    "<Room Seq='1'>" +
-                    "<Adult AdultCnt=\"" + adultCnt + "\">" + "</Adult>" +
-                    "<Adult ChildCnt=\"" + childCnt + "\" ChildAge=\"\">" + "</Adult>" +
-                    "</Room>" +
+                    "<InDate>" + startDate + "</InDate>" +
+                    "<OutDate>" + endDate + "</OutDate>" +
+                    "<Rooms>" ;
+            for (int i = 1 ; i<=Integer.parseInt(roomCnt) ; i++) {
+                sendMessage +=
+                        "<Room Seq=\""+i+"\">" +
+                        "<Adult AdultCnt=\"" + adultCnt.split(",")[i-1] + "\">" + "</Adult>" +
+                        "<Child ChildCnt=\"" + childCnt.split(",")[i-1] + "\" ChildAge=\"\">" + "</Child>" +
+                        "</Room>";
+            }
+                    sendMessage +=
                     "</Rooms>" +
                     "<IncludeHotel LangKind = \"kor\"/>" +
                     "</HotelRequestInfo>" +
@@ -227,6 +238,7 @@ public class BookingService {
                 if("No Data Found".equals(dc.getElementsByTagName("ErrorDesc").item(0).getChildNodes().item(0).getTextContent())){
                     //조회된 DATA 없음
                     System.out.println("예약 가능한 객실이 없습니다.");
+                    return commonFunction.makeReturn(dataType, "200", "OK", "예약 가능한 객실이 없습니다.");
                 }
                 
             }else {
@@ -252,12 +264,22 @@ public class BookingService {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return commonFunction.makeReturn("jsonp", "200", "OK", hotelRateList);
+        return commonFunction.makeReturn(dataType, "200", "OK", hotelRateList);
 
     }
 
-
-    public String getServiceRate(String requestCode, String sDate, String eDate, String roomCnt, String adultCnt, String childCnt){
+    /**
+     * Retrieves the service rate for a given set of parameters.
+     *
+     * @param  dataType    반환받고자 하는 데이터타입
+     * @param  requestCode 서비스코드 (넘겨줄때 encode url 필수!!!)
+     * @param  startDate   입실일자
+     * @param  endDate     퇴실일자
+     * @param  roomCnt     방 수
+     * @param  adultCnt    성인 수 (객실당 ','로 구분)
+     * @param  childCnt    아동 수 (객실당 ','로 구분)
+     */
+    public String getServiceRate(String dataType, String requestCode, String startDate, String endDate, String roomCnt, String adultCnt, String childCnt){
 
         List<Map<String, Object>> hotelRateList = new ArrayList<Map<String, Object>>();
         try {
@@ -279,12 +301,17 @@ public class BookingService {
 
                     "<HotelRequestInfo RequestKind=\"S\">" +
                     "<RequestCode>" + requestCode + "</RequestCode>" +
-                    "<InDate>" + sDate + "</InDate>" +
-                    "<OutDate>" + eDate + "</OutDate>" +
-                    "<Rooms>" +
-                    "<Room Seq='1'>" +
-                    "<Adult AdultCnt=\"" + adultCnt + "\">" + "</Adult>" +
-                    "<Adult ChildCnt=\"" + childCnt + "\" ChildAge=\"\">" + "</Adult>" +
+                    "<InDate>" + startDate + "</InDate>" +
+                    "<OutDate>" + endDate + "</OutDate>" +
+                    "<Rooms>";
+            for (int i = 1 ; i<=Integer.parseInt(roomCnt) ; i++) {
+                sendMessage +=
+                        "<Room Seq=\""+i+"\">" +
+                                "<Adult AdultCnt=\"" + adultCnt.split(",")[i-1] + "\">" + "</Adult>" +
+                                "<Child ChildCnt=\"" + childCnt.split(",")[i-1] + "\" ChildAge=\"\">" + "</Child>" +
+                                "</Room>";
+            }
+            sendMessage +=
                     "</Room>" +
                     "</Rooms>" +
                     "<IncludeHotel LangKind = \"kor\"/>" +
@@ -339,7 +366,7 @@ public class BookingService {
             if ("ERROR".equals(dc.getChildNodes().item(0).getNodeName())){
                 //조회 ERROR 시 여기
                 
-                return commonFunction.makeReturn("jsonp", "200", "OK", dc.getChildNodes().item(0).getTextContent());
+                return commonFunction.makeReturn(dataType, "200", "OK", dc.getChildNodes().item(0).getTextContent());
             }else {
                 NodeList rateList = dc.getElementsByTagName("RateInformation");
                 System.out.println(rateList.getLength());
@@ -365,12 +392,12 @@ public class BookingService {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return commonFunction.makeReturn("jsonp", "200", "OK", hotelRateList);
+        return commonFunction.makeReturn(dataType, "200", "OK", hotelRateList);
 
     }
 
 
-    public String getCancelPolicy(String requestCode, String sDate, String eDate, String roomCnt, String adultCnt, String childCnt){
+    public String getCancelPolicy(String dataType, String requestCode, String startDate, String endDate, String roomCnt, String adultCnt, String childCnt){
 
         List<Map<String, Object>> hotelRateList = new ArrayList<Map<String, Object>>();
         try {
@@ -392,12 +419,17 @@ public class BookingService {
 
                     "<RequestInfo>" +
                     "<RequestCode>" + requestCode + "</RequestCode>" +
-                    "<InDate>" + sDate + "</InDate>" +
-                    "<OutDate>" + eDate + "</OutDate>" +
-                    "<Rooms>" +
-                    "<Room Seq='1'>" +
-                    "<Adult AdultCnt=\"" + adultCnt + "\">" + "</Adult>" +
-                    "<Adult ChildCnt=\"" + childCnt + "\" ChildAge=\"\">" + "</Adult>" +
+                    "<InDate>" + startDate + "</InDate>" +
+                    "<OutDate>" + endDate + "</OutDate>" +
+                    "<Rooms>";
+            for (int i = 1 ; i<=Integer.parseInt(roomCnt) ; i++) {
+                sendMessage +=
+                        "<Room Seq=\""+i+"\">" +
+                                "<Adult AdultCnt=\"" + adultCnt.split(",")[i-1] + "\">" + "</Adult>" +
+                                "<Child ChildCnt=\"" + childCnt.split(",")[i-1] + "\" ChildAge=\"\">" + "</Child>" +
+                                "</Room>";
+            }
+            sendMessage +=
                     "</Room>" +
                     "</Rooms>" +
                     "</RequestInfo>" +
@@ -453,7 +485,7 @@ public class BookingService {
                 
                 in.close();
                 wr.close();
-                return commonFunction.makeReturn("jsonp", "200", "OK", dc.getChildNodes().item(0).getTextContent());
+                return commonFunction.makeReturn(dataType, "200", "OK", dc.getChildNodes().item(0).getTextContent());
             }else {
                 NodeList cancelPolicy = dc.getElementsByTagName("CancelPolicy");
                 System.out.println(cancelPolicy.getLength());
@@ -462,19 +494,19 @@ public class BookingService {
                 cancelMap.put("CancelPolicy", cancelPolicy.item(0).getTextContent());
                 in.close();
                 wr.close();
-                return commonFunction.makeReturn("jsonp", "200", "OK", cancelMap);
+                return commonFunction.makeReturn(dataType, "200", "OK", cancelMap);
 
             }
 
 
         } catch (Exception e) {
             e.printStackTrace();
-            return commonFunction.makeReturn("jsonp", "500", e.getMessage());
+            return commonFunction.makeReturn(dataType, "500", e.getMessage());
         }
 
     }
 
-    public String getBookingList(String agentID, String sDate, String eDate){
+    public String getBookingList(String dataType, String agentID, String startDate, String endDate){
 
         List<Map<String, Object>> hotelRateList = new ArrayList<Map<String, Object>>();
         try {
@@ -496,8 +528,8 @@ public class BookingService {
 
                     "<RequestInformation>" +
                     "<AgentUserID>" + agentID + "</AgentUserID>" +
-                    "<StartDate>" + sDate + "</StartDate>" +
-                    "<EndDate>" + eDate + "</EndDate>" +
+                    "<StartDate>" + startDate + "</StartDate>" +
+                    "<EndDate>" + endDate + "</EndDate>" +
                     "</RequestInformation>" +
                     "</BookingListRequest>";
 //                    "</astrRequestXML>";
@@ -551,7 +583,7 @@ public class BookingService {
                 
                 in.close();
                 wr.close();
-                return commonFunction.makeReturn("jsonp", "200", "OK", dc.getChildNodes().item(0).getTextContent());
+                return commonFunction.makeReturn(dataType, "200", "OK", dc.getChildNodes().item(0).getTextContent());
             }else {
                 NodeList cancelPolicy = dc.getElementsByTagName("CancelPolicy");
                 System.out.println(cancelPolicy.getLength());
@@ -560,19 +592,19 @@ public class BookingService {
                 cancelMap.put("CancelPolicy", cancelPolicy.item(0).getTextContent());
                 in.close();
                 wr.close();
-                return commonFunction.makeReturn("jsonp", "200", "OK", cancelMap);
+                return commonFunction.makeReturn(dataType, "200", "OK", cancelMap);
 
             }
 
 
         } catch (Exception e) {
             e.printStackTrace();
-            return commonFunction.makeReturn("jsonp", "500", e.getMessage());
+            return commonFunction.makeReturn(dataType, "500", e.getMessage());
         }
 
     }
 
-    public String createBooking(String requestCode, String sDate, String eDate, String roomCnt, String adultCnt, String childCnt){
+    public String createBooking(String dataType, String requestCode, String startDate, String endDate, String roomCnt, String adultCnt, String childCnt){
 
         List<Map<String, Object>> hotelRateList = new ArrayList<Map<String, Object>>();
         try {
@@ -588,22 +620,30 @@ public class BookingService {
                     "<RequestInformation Agent_RefNo=\"TEST-BOOKING\" >" +
                     "<BaseInfo ReserveTel=\"\" ReserveMobile=\"\" ReserveEmail=\"\">" +
                     "<ServiceCode>" + requestCode + "</ServiceCode>" +
-                    "<InDate>" + sDate + "</InDate>" +
-                    "<OutDate>" + eDate + "</OutDate>" +
+                    "<InDate>" + startDate + "</InDate>" +
+                    "<OutDate>" + endDate + "</OutDate>" +
 //                    "<RoomCnt DBLCnt=\"1\"/>" +
 //                    "<PassenCnt AdultCnt=\"2\"/>" +
-                    "<Rooms>" +
-                    "<Room Seq=\"1\">" +
-                    "<Adult AdultCnt=\"" + adultCnt + "\"/>" +
-                    "<Child ChildCnt=\"" + childCnt + "\" ChildAge=\"\"/>" +
+                    "<Rooms>";
+            for (int i = 1 ; i<=Integer.parseInt(roomCnt) ; i++) {
+                sendMessage +=
+                        "<Room Seq=\""+i+"\">" +
+                                "<Adult AdultCnt=\"" + adultCnt.split(",")[i-1] + "\">" + "</Adult>" +
+                                "<Child ChildCnt=\"" + childCnt.split(",")[i-1] + "\" ChildAge=\"\">" + "</Child>" +
+                                "</Room>";
+            }
+            sendMessage +=
                     "</Room>" +
                     "</Rooms>" +
                     "</BaseInfo>" +
-                    "<RoomGroupInformation>" +
-                    "<Room Seq=\"1\">" +
-                    "<PassengerName Title=\"MR\" Kind=\"ADULT\" FirstName=\"test\" LastName=\"Hong\" /> " +
-                    "<PassengerName Title=\"MR\" Kind=\"ADULT\" FirstName=\"test\" LastName=\"Hong\" /> " +
-                    "</Room>" +
+                    "<RoomGroupInformation>";
+            for (int i = 1 ; i<=Integer.parseInt(roomCnt) ; i++) {
+                sendMessage +=
+                        "<Room Seq=\""+i+"\">" +
+                                "<PassengerName Title=\"MR\" Kind=\"ADULT\" FirstName=\"test\" LastName=\"Hong\" /> " +
+                                "</Room>";
+            }
+            sendMessage +=
                     "</RoomGroupInformation>" +
                     "<Remark/>" +
                     "<PaymentInformation PaymentYN=\"N\">" +
@@ -658,7 +698,7 @@ public class BookingService {
                 
                 in.close();
                 wr.close();
-                return commonFunction.makeReturn("jsonp", "200", "OK", dc.getChildNodes().item(0).getTextContent());
+                return commonFunction.makeReturn(dataType, "200", "OK", dc.getChildNodes().item(0).getTextContent());
             }else {
                 NodeList cancelPolicy = dc.getElementsByTagName("CancelPolicy");
                 System.out.println(cancelPolicy.getLength());
@@ -667,18 +707,18 @@ public class BookingService {
                 cancelMap.put("CancelPolicy", cancelPolicy.item(0).getTextContent());
                 in.close();
                 wr.close();
-                return commonFunction.makeReturn("jsonp", "200", "OK", cancelMap);
+                return commonFunction.makeReturn(dataType, "200", "OK", cancelMap);
 
             }
 
 
         } catch (Exception e) {
             e.printStackTrace();
-            return commonFunction.makeReturn("jsonp", "500", e.getMessage());
+            return commonFunction.makeReturn(dataType, "500", e.getMessage());
         }
 
     }
-    public String getBookingDetail(String bookingNo){
+    public String getBookingDetail(String dataType, String bookingNo){
 
         List<Map<String, Object>> hotelRateList = new ArrayList<Map<String, Object>>();
         try {
@@ -753,7 +793,7 @@ public class BookingService {
                 
                 in.close();
                 wr.close();
-                return commonFunction.makeReturn("jsonp", "200", "OK", dc.getChildNodes().item(0).getTextContent());
+                return commonFunction.makeReturn(dataType, "200", "OK", dc.getChildNodes().item(0).getTextContent());
             }else {
                 NodeList bookingDetail = dc.getElementsByTagName("Booking");
                 System.out.println(bookingDetail.getLength());
@@ -781,18 +821,18 @@ public class BookingService {
                 bookingMap.put("VoucherURL", bookingDetail.item(0).getChildNodes().item(37).getTextContent());
                 in.close();
                 wr.close();
-                return commonFunction.makeReturn("jsonp", "200", "OK", bookingMap);
+                return commonFunction.makeReturn(dataType, "200", "OK", bookingMap);
 
             }
 
 
         } catch (Exception e) {
             e.printStackTrace();
-            return commonFunction.makeReturn("jsonp", "500", e.getMessage());
+            return commonFunction.makeReturn(dataType, "500", e.getMessage());
         }
 
     }
-    public String cancelBooking(String bookingNo){
+    public String cancelBooking(String dataType, String bookingNo){
 
         List<Map<String, Object>> hotelRateList = new ArrayList<Map<String, Object>>();
         try {
@@ -864,7 +904,7 @@ public class BookingService {
                 //조회 ERROR 시 여기
                 in.close();
                 wr.close();
-                return commonFunction.makeReturn("jsonp", "200", "OK", dc.getChildNodes().item(0).getTextContent());
+                return commonFunction.makeReturn(dataType, "200", "OK", dc.getChildNodes().item(0).getTextContent());
             }else {
                 NodeList bookingDetail = dc.getElementsByTagName("BookingCancel");
                 if("04".equals(bookingDetail.item(0).getChildNodes().item(1).getTextContent())){
@@ -878,14 +918,14 @@ public class BookingService {
                 bookingMap.put("BookingStatus", bookingDetail.item(0).getChildNodes().item(1).getTextContent());
                 in.close();
                 wr.close();
-                return commonFunction.makeReturn("jsonp", "200", "OK", bookingMap);
+                return commonFunction.makeReturn(dataType, "200", "OK", bookingMap);
 
             }
 
 
         } catch (Exception e) {
             e.printStackTrace();
-            return commonFunction.makeReturn("jsonp", "500", e.getMessage());
+            return commonFunction.makeReturn(dataType, "500", e.getMessage());
         }
 
     }

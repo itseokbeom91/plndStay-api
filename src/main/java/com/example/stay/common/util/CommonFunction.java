@@ -353,9 +353,16 @@ public class CommonFunction<T> {
 
             String strRateFlag = "P";
 
-            // 오픈마켓별 판매금액 조회
             int intRsvID = rsvStayDto.getIntRsvID();
-            double sales = commonAcmMapper.getOmkSales(intRsvID);
+
+            // 판매금액 조회
+            double sales = 0;
+            if(rsvStayDto.getStrRsvSite().equals("OMK")){
+                // 오픈마켓별 판매금액 조회
+                sales = commonAcmMapper.getOmkSales(intRsvID);
+            }else{
+                sales = rsvStayDto.getMoneySales();
+            }
 
             for(int i=0; i<cancelRuleList.size(); i++){
                 CancelRulesDto cancelRulesDto = cancelRuleList.get(i);

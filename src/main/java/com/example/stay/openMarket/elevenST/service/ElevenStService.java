@@ -98,6 +98,7 @@ public class ElevenStService {
 
 //            Map<String, Object> map3 = new HashMap<>();
             List<Map<String, Object>> listMap = new ArrayList<>(); //TEST용임 실 옵션생성시 어떻게 들어올지 의사협의 필요
+//            listMap = elevenStMapper.getAccomm();
             for (int j = 0; j<3; j++) {
                 int date = 20230901;
                 int price = 1000000;
@@ -632,6 +633,40 @@ public class ElevenStService {
         }
     }
 
+    public String getOrderInfo(String ordNo) {
+        //YYYYMMDDHHmm 형식으로 전달되어야함
+        try {
+            URL url = new URL(Constants.elevenUrl + "/rest/claimservice/orderlistalladdr/" + ordNo);
+            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+            conn.setDoOutput(true);
+            conn.setInstanceFollowRedirects(false);
+            conn.setRequestMethod("GET");
+            conn.setRequestProperty("openapikey", Constants.elevenApiKey);
+            LogWriter lw = new LogWriter("GET", url.toString(), System.currentTimeMillis());
+
+            BufferedReader in = new BufferedReader(new InputStreamReader(conn.getInputStream(), "EUC-KR"));
+            String inputLine = null;
+            String returnStr = "";
+            while ((inputLine = in.readLine()) != null) {
+                returnStr += inputLine;
+            }
+            System.out.println(returnStr);
+
+            DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+            DocumentBuilder db = dbf.newDocumentBuilder();
+            StringReader sr = new StringReader(returnStr);
+            InputSource is = new InputSource(sr);
+            Document dc = db.parse(is);
+            NodeList nl = dc.getElementsByTagName("ns2:order");
+            List<Map<String, Object>>listMap = new ArrayList<>(); //
+
+            return commonFunction.makeReturn("jsonp", "200", "OK", "OK");
+        } catch (Exception e) {
+            return commonFunction.makeReturn("jsonp", "500", e.getMessage());
+        }
+
+    }
+
     public String updatePrdAmt(String prdNo) {
         try {
             URL url = new URL(Constants.elevenUrl + "/rest/prodservice/product/priceCoupon/" + prdNo);
@@ -678,6 +713,30 @@ public class ElevenStService {
             sb.append("</ProductOption>");
             sb.append("</ProductOptionExt>");
             sb.append("</Product>");
+            conn.setDoOutput(true);
+            conn.setInstanceFollowRedirects(false);
+            conn.setRequestMethod("PUT");
+            conn.setRequestProperty("openapikey", Constants.elevenApiKey);
+            conn.setRequestProperty("Content-Type", "text/xml; charset=euc-kr");
+            conn.getResponseCode();
+            LogWriter lw = new LogWriter("POST", url.toString(), System.currentTimeMillis());
+            return commonFunction.makeReturn("jsonp", "200", "OK", "OK");
+        } catch (Exception e) {
+            return commonFunction.makeReturn("jsonp", "500", e.getMessage());
+        }
+    }
+
+    public String updateStock(String prdNo, String Stock) {
+        try {
+            URL url = new URL(Constants.elevenUrl + "/rest/prodservice/stockqty/" + prdNo);
+            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+            StringBuffer sb = new StringBuffer();
+            sb.append("<?xml version=\"1.0\" encoding=\"euc-kr\" standalone=\"yes\"?>");
+            sb.append("<ProductStock>");
+            sb.append("<prdNo>" + prdNo + "</prdNo>");
+            sb.append("<prdStockNo></prdStockNo>");
+            sb.append("<stckQty>" + Stock + "</stckQty>");
+            sb.append("</ProductStock>");
             conn.setDoOutput(true);
             conn.setInstanceFollowRedirects(false);
             conn.setRequestMethod("PUT");

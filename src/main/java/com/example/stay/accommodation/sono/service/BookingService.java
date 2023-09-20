@@ -405,7 +405,7 @@ public class BookingService {
         requestJson.put("comRsvNo", "2023-09-1226813"); //우리만의 예약번호가 필요함
         requestJson.put("userName", bookingMap.get("strRcvName"));
         requestJson.put("userTel", bookingMap.get("strRcvPhone"));
-        requestJson.put("payAmt", "100000"); //TO-DO-- 가격 가져오기
+        requestJson.put("payAmt", bookingMap.get("moneyCost"));
         requestJson.put("adultCnt", bookingMap.get("intQuantityA"));
         requestJson.put("childCnt", bookingMap.get("intQuantityC"));
         requestJson.put("businessId", Constants.sonoPackId);
@@ -831,7 +831,7 @@ public class BookingService {
         List<Map<String, Object>> stockList = new ArrayList<>();
         JSONObject stockResultJson = new JSONObject();
 
-        List<Map<String, Object>> pkgcdAndStorecd = bookingMapper.getPackageCodeAndStoreCode("01");
+        List<Map<String, Object>> pkgcdAndStorecd = bookingMapper.getPackageCodeAndStoreCode("01", sDate.toString());
 
         //ResponseResult roomStatus = getRoomStatus(httpServletRequest, storeCd, sDate);
         //ResponseResult roomAmount = getRoomAmount(httpServletRequest, storeCd, sDate);
@@ -890,7 +890,7 @@ public class BookingService {
 //            System.out.println(packageStockDatas);
 //            System.out.println(packStatusList);
             System.out.println(packageStockDatas);
-//            String insertResult = bookingMapper.insertRoom("", "", packageStockDatas, "", strType);
+            String insertResult = bookingMapper.insertRoom("", "", packageStockDatas, "", strType);
 //            stockResultJson.put("insertResult", insertResult);
             return commonFunction.makeReturn(dataType, "200", "OK", stockResultJson);
 
@@ -956,7 +956,6 @@ public class BookingService {
             return commonFunction.makeReturn(dataType, "500", e.getMessage());
         }
     }
-
 
     //insert
     //패키지, 룸, 시설정보

@@ -13,11 +13,12 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.net.URLEncoder;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
 @Service("elysian_gangchon.BookingService")
-public class BookingService{
+public class BookingService extends CommonFunction{
 
     @Autowired
     private ElysianMapper elysianMapper;
@@ -25,6 +26,7 @@ public class BookingService{
     CommonFunction commonFunction = new CommonFunction();
 
     // 재고 등록 및 수정
+    // 룸타입 - 패키지 매핑이 되어있어야 가져올 수 있음
     public String updatePackagetock(String dataType, HttpServletRequest httpServletRequest, String startDate, String endDate, int intRmIdx){
         LogWriter logWriter = new LogWriter(httpServletRequest.getMethod(), httpServletRequest.getServletPath(),
                 httpServletRequest.getQueryString(), System.currentTimeMillis());
@@ -32,9 +34,14 @@ public class BookingService{
         String message = "";
 
         try{
-            String strPkgCode = elysianMapper.getStrPkgCode(intRmIdx);
+            // 패키지코드 전체를 가져와서 패키지코드마다 API 호출해야할듯?
+            List<String> strPkgCodeList = elysianMapper.getStrPkgCodeList();
 
-//            strPkgCode = "90004884";
+            for(int i=0; i< strPkgCodeList.size(); i++){
+                
+            }
+
+            String strPkgCode = "90004884";
             String elysUrl = "type=SB&pcode=" + strPkgCode + "&sdate=" + startDate + "&edate=" + endDate;
 
             String strResponse = callElysAPI(elysUrl);
@@ -154,14 +161,14 @@ public class BookingService{
             String pcode = rsvStayDto.getStrMapCode();
 
             String strPkgSubCode  = rsvStayDto.getStrPkgSubCode();
-//            String pkgSubArr [] = strPkgSubCode.split("-");
+            String pkgSubArr [] = strPkgSubCode.split("-");
             
             Date dateCheckIn = rsvStayDto.getDateCheckIn();
             Calendar calendar = Calendar.getInstance();
             calendar.setTime(dateCheckIn);
             int intWeek = calendar.get(Calendar.DAY_OF_WEEK); // 요일 1 : 일 ~ 7 : 토
 
-//            String pcode_seq = pkgSubArr[intWeek];
+            String pcode_seq = pkgSubArr[intWeek-1];
 
             SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd");
             String bdate = sdf.format(rsvStayDto.getDateCheckIn()); // 도착일자
@@ -174,13 +181,13 @@ public class BookingService{
             String AMT_YN = "N";
 
             // 예약가능 여부 확인
-//            boolean avail = checkAvailBooking(pcode, pcode_seq, bdate, cnt);
-//            if(avail){
-//                String elysUrl = "type=RO&mdn=" + mdn + "&name=" + URLEncoder.encode(name, "EUC-KR") + "&pcode=" + pcode + "&pcode_seq=" + pcode_seq +
-//                        "&bdate="+ bdate + "&cnt="+ cnt + "&tseq="+ tseq + "&DH_CODE1=" + DH_CODE1 + "&PASS=" + PASS + "&DH_CODE2=" + DH_CODE2 + "&AMT_YN=" + AMT_YN;
-//                String strResponse = callElysAPI(elysUrl);
+            boolean avail = checkAvailBooking(pcode, pcode_seq, bdate, cnt);
+            if(avail){
+                String elysUrl = "type=RO&mdn=" + mdn + "&name=" + URLEncoder.encode(name, "EUC-KR") + "&pcode=" + pcode + "&pcode_seq=" + pcode_seq +
+                        "&bdate="+ bdate + "&cnt="+ cnt + "&tseq="+ tseq + "&DH_CODE1=" + DH_CODE1 + "&PASS=" + PASS + "&DH_CODE2=" + DH_CODE2 + "&AMT_YN=" + AMT_YN;
+                String strResponse = callElysAPI(elysUrl);
 
-                String strResponse = "OK;751FK0PD;980;정상처리";
+//                String strResponse = "OK;751FK0PD;980;정상처리";
 
                 if(strResponse != null && !strResponse.equals("")){
                     if(strResponse.substring(0,5).equals("ERROR")){
@@ -194,30 +201,22 @@ public class BookingService{
                             String strRsvRmNum = dataArr[1];
 
                             // 위약금 규정 생성
-                            String strPenaltyDatas = commonFunction.makeCancelRules(rsvStayDto);
-                            if(!strPenaltyDatas.equals("")){
-                                message = "성공";
-                                System.out.println("Result : " + strPenaltyDatas);
+                            String strPenaltyDatas = makeCancelRules(rsvStayDto);
+
+                            String result = elysianMapper.updateRsvStay(intRsvID, "4", strRsvRmNum, strPenaltyDatas);
+                            if(result.equals("저장완료")){
+                                message = "예약완료";
                             }else{
-                                message = "위약금 규정 생성 실패";
+                                message = "예약실패";
                             }
-
-                            // -----------------------------------------------------------------------------------------
-
-//                            String result = elysianMapper.updateRsvStay(intRsvID, "4", strRsvRmNum);
-//                            if(result.equals("저장완료")){
-//                                message = "예약완료";
-//                            }else{
-//                                message = "예약실패";
-//                            }
                         }
                     }
                 }else{
                     message = "엘리시안 API 호출 실패";
                 }
-//            }else{
-//                message = "예약 불가";
-//            }
+            }else{
+                message = "예약 불가";
+            }
 
             logWriter.add(message);
             logWriter.log(0);
@@ -307,7 +306,7 @@ public class BookingService{
                     message = strResponse;
                 }else{
                     // 예약 테이블 상태값 업데이트
-                    String result = elysianMapper.updateRsvStay(intRsvID, "5", strRsvRmNum);
+                    String result = elysianMapper.updateRsvStay(intRsvID, "5", strRsvRmNum, "");
                     if(result.equals("저장완료")){
                         message = "예약 취소 완료";
                     }else{

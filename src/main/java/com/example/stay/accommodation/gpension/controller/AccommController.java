@@ -8,12 +8,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 
+import java.lang.reflect.Method;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -27,6 +25,28 @@ public class AccommController {
 
     @Autowired
     AccommService accommService = new AccommService();
+
+    @GetMapping(value = "/V{path}", params = "dataType=view")
+    public String viewReturn(Model model, @RequestParam(required = false, defaultValue="jsonp") String dataType, @PathVariable("path") String path ) throws ParseException {
+        System.out.println(path);
+        Class<?> cls = null;
+        String result ="";
+        try {
+            cls = Class.forName(accommService.getClass().getName());
+            Method m = cls.getDeclaredMethod(path, String.class, String.class);
+            result = (String) m.invoke(accommService, "json", "wowc");
+            System.out.println("result: " + result);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        JSONParser jsonParser = new JSONParser();
+        JSONObject responseJson = null;
+        responseJson = (JSONObject) jsonParser.parse(result);
+        Map<String, Object> resultMap = (Map<String, Object>) responseJson.get("result");
+        Map<String, Object> responseList = (Map<String, Object>) resultMap.get("pension_info");
+        model.addAttribute("test", responseList);
+        return "/testMV";
+    }
 
     @GetMapping(value = "/getPensionList", params = "dataType=view")
     public String getPensionListFrame(Model model, @RequestParam(required = false, defaultValue="jsonp") String dataType) throws ParseException {

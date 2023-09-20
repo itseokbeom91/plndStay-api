@@ -4,6 +4,7 @@ import com.example.stay.accommodation.onda.mapper.OndaMapper;
 import com.example.stay.common.util.CommonFunction;
 import com.example.stay.common.util.Constants;
 import com.example.stay.common.util.LogWriter;
+import com.example.stay.openMarket.common.dto.CancelRulesDto;
 import com.example.stay.openMarket.common.dto.RsvStayDto;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -15,7 +16,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.servlet.http.HttpServletRequest;
+import java.sql.Time;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.Period;
 import java.util.*;
 
 @Service
@@ -195,33 +199,10 @@ public class BookingService {
 //                        String strOndaRefundType = rateplanJson.get("refund_type").toString();
                         JSONArray refundPolicyArr = (JSONArray) rateplanJson.get("refund_policy");
 
-                        String strRefundPolicies = "";
-                        for(int j=0; j<refundPolicyArr.size(); j++){
-                            JSONObject refundPolicyJson = (JSONObject) refundPolicyArr.get(j);
-
-                            // 한국날짜시간으로 변경
-                            SimpleDateFormat sdf = new SimpleDateFormat ("yyyy-MM-dd'T'HH:mm:ssXXX"); // 2023-05-25T15:00:23+09:00
-                            SimpleDateFormat sdf2 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-
-                            Date originDate = sdf.parse(refundPolicyJson.get("until").toString());
-
-                            Calendar cal = Calendar.getInstance();
-                            cal.setTime(originDate);
-                            cal.add(Calendar.HOUR, 9);
-                            String strUntilDate = sdf2.format(cal.getTime());
-
-                            int intPercent = Integer.parseInt(refundPolicyJson.get("percent").toString());
-                            int intRefundPrice = Integer.parseInt(refundPolicyJson.get("refund_amount").toString());
-                            int intRefundFee = Integer.parseInt(refundPolicyJson.get("charge_amount").toString());
-
-                            // refund_policy 테이블에 insert
-//                            strRefundPolicies += strUntilDate + "|^|" + intPercent + "|^|" + intRefundPrice + "|^|" + intRefundFee  + "|^|" + strRefundYN  + "|^|" + strOndaRefundType + "|^|" + "{{|}}";
-                        }
-
-//                        strRefundPolicies = strRefundPolicies.substring(0, strRefundPolicies.length()-5);
+                        String strPenaltyDatas = makeCancelRules(refundPolicyArr, dateCheckIn);
 
                         // 예약 테이블 업데이트 & 취소규정 INSERT
-                        String updateResult = ondaMapper.updateRsvStay(intRsvID, "4", strRsvRmNum);
+                        String updateResult = ondaMapper.updateRsvStay(intRsvID, "4", strRsvRmNum, strPenaltyDatas);
                         if(updateResult.equals("저장완료")){
                             message = "예약완료";
                         }else{
@@ -234,22 +215,29 @@ public class BookingService {
                 }
             }else if(strStatusCode.equals("2")) { // 번호대기였을 경우
                 // 예약 상태 조회
-                String strStatus = checkBooking(strPropertyID, intRsvID);
+                String url = "properties/" + strPropertyID + "/bookings/" + intRsvID;
+                JSONObject responseJson = callOndaGetAPI(url);
 
-                // 상태값이 확정으로 바꼈으면 업데이트
-                // 재고, 환불규정은 예약 생성할 때 업데이트 했으니까 상태값만 업데이트하면됨
-                if (strStatus.equals("4")) { // 예약 완료처리
-                    String updateResult = ondaMapper.updateRsvStay(intRsvID, "4", strRsvRmNum);
-                    if(updateResult.equals("저장완료")){
-                        message = "예약완료";
-                    }else{
-                        message = "예약실패";
+                if(responseJson != null) {
+                    String status = responseJson.get("status").toString();
+                    if (status.equals("pending")) { // 예약 확정 대기 상태
+                        message = "예약이 아직 확정되지 않았습니다";
+                    } else if (status.equals("confirmed")) { // 예약 확정 상태
+                        // 재고, 환불규정은 예약 생성할 때 업데이트 했으니까 상태값만 업데이트하면됨
+//                        String updateResult = ondaMapper.updateRsvStay(intRsvID, "4", strRsvRmNum);
+                        int updateResult = ondaMapper.updateRsvStatus(intRsvID, "4");
+                        if(updateResult > 0){
+                            message = "예약완료";
+                        }else {
+                            message = "예약실패";
+                        }
+                    } else if (status.equals("canceled")) { // 취소된 상태
+                        message = "예약이 취소된 상태입니다";
                     }
-                } else if(strStatus.equals("5")){
-                    message = "예약이 취소된 상태입니다";
-                } else {
-                    message = "아직 예약이 확정되지 않았습니다";
+
                 }
+
+
             }
 
             logWriter.add(message);
@@ -267,31 +255,31 @@ public class BookingService {
         return commonFunction.makeReturn(dataType, statusCode, message);
     }
 
-    // 예약 상태 조회
-    public String checkBooking(String strPropertyID, int intRsvID){
-        String strStatus = "";
-
-        try{
-            String url = "properties/" + strPropertyID + "/bookings/" + intRsvID;
-
-            JSONObject responseJson = callOndaGetAPI(url);
-
-            if(responseJson != null){
-                String status = responseJson.get("status").toString();
-                if (status.equals("pending")) {
-                    strStatus = "2"; // 예약 확정 대기 상태
-                } else if (status.equals("confirmed")) {
-                    strStatus = "4"; // 예약 확정 상태
-                } else if (status.equals("canceled")) {
-                    strStatus = "5"; // 취소된 상태
-                }
-            }
-        }catch (Exception e){
-            e.printStackTrace();
-        }
-
-        return strStatus;
-    }
+//    // 예약 상태 조회
+//    public String checkBooking(String strPropertyID, int intRsvID){
+//        String strStatus = "";
+//
+//        try{
+//            String url = "properties/" + strPropertyID + "/bookings/" + intRsvID;
+//
+//            JSONObject responseJson = callOndaGetAPI(url);
+//
+//            if(responseJson != null){
+//                String status = responseJson.get("status").toString();
+//                if (status.equals("pending")) {
+//                    strStatus = "2"; // 예약 확정 대기 상태
+//                } else if (status.equals("confirmed")) {
+//                    strStatus = "4"; // 예약 확정 상태
+//                } else if (status.equals("canceled")) {
+//                    strStatus = "5"; // 취소된 상태
+//                }
+//            }
+//        }catch (Exception e){
+//            e.printStackTrace();
+//        }
+//
+//        return strStatus;
+//    }
 
     // 예약 취소
     public String cancelBooking(String dataType, int intRsvID, HttpServletRequest httpServletRequest){
@@ -302,7 +290,6 @@ public class BookingService {
         String message = "";
 
         try{
-            // intOrderID로 필요한 정보 조회
             RsvStayDto rsvStayDto = ondaMapper.getReservation(intRsvID);
 
             String strPropertyID = rsvStayDto.getStrPropertyID();
@@ -321,9 +308,14 @@ public class BookingService {
             JSONObject requestJson = new JSONObject();
             requestJson.put("currency", "KRW");
             requestJson.put("total_amount", intTotalCost); // 총 결제금액
-//            requestJson.put("refund_amount", ); // 환불금액
 
-//            boolean result = cancelBooking(intRsvID, strPropertyID, strRsvRmNum, requestJson);
+            // 취소하는게 체크인 전 며칠인지 계산해서 penalty 테이블에 있는 데이터면 가져와서 넣기
+            int diffDay = (int) ((dateCheckIn.getTime() - new Date().getTime()) / 1000) / (24*60*60);
+
+            double refund = ondaMapper.getMoneyRefund(intRsvID, diffDay);
+            if(refund != 0){
+                requestJson.put("refund_amount", refund * rsvStayDto.getIntRmCnt()); // 환불금액
+            }
 
             // api 호출
             String url = "properties/" + strPropertyID + "/bookings/" + strRsvRmNum + "/cancel";
@@ -332,7 +324,7 @@ public class BookingService {
 
             if(responseJson != null){
                 // 예약 테이블 상태값 업데이트
-                String updateResult = ondaMapper.updateRsvStay(intRsvID, "5", strRsvRmNum);
+                String updateResult = ondaMapper.updateRsvStay(intRsvID, "5", strRsvRmNum, "");
                 if(updateResult.equals("저장완료")){
                     message = "예약 취소 완료";
                 }else{
@@ -433,6 +425,54 @@ public class BookingService {
             logWriter.log(0);
         }
         return commonFunction.makeReturn(dataType, statusCode, message, responseJson);
+    }
+
+    // TODO : 수정해야함
+    public String makeCancelRules(JSONArray refundPolicyArr, Date dateCheckIn){
+        String strPenaltyDatas = "";
+        try{
+            String strRateFlag = "P";
+            for(int j=0; j<refundPolicyArr.size(); j++){
+                JSONObject refundPolicyJson = (JSONObject) refundPolicyArr.get(j);
+
+                SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
+                SimpleDateFormat sdf = new SimpleDateFormat ("yyyy-MM-dd'T'HH:mm:ssXXX"); // 2023-05-25T15:00:23+09:00
+                SimpleDateFormat sdf2 = new SimpleDateFormat("HH:mm:ss");
+
+                Date originDate = sdf.parse(refundPolicyJson.get("until").toString());
+
+                System.out.println("originDate : " + originDate);
+
+                // 한국날짜시간으로 변경
+                Calendar cal = Calendar.getInstance();
+                cal.setTime(originDate);
+                cal.add(Calendar.HOUR, 9);
+
+                Date untilDate = sdf.parse(cal.getTime().toString());
+
+                System.out.println("untilDate : " + untilDate);
+
+                int diffDay = (int) ((dateCheckIn.getTime() - untilDate.getTime()) / 1000) / (24*60*60);
+
+                System.out.println("diffDay : " + diffDay);
+
+                Date time = sdf2.parse(cal.getTime().toString());
+
+                System.out.println("time : " + time);
+
+                int intPercent = Integer.parseInt(refundPolicyJson.get("percent").toString());
+                int intRefundPrice = Integer.parseInt(refundPolicyJson.get("refund_amount").toString());
+                int intRefundFee = Integer.parseInt(refundPolicyJson.get("charge_amount").toString());
+
+                strPenaltyDatas += strRateFlag + "|^|" + intPercent + "|^|" + diffDay + "|^|" + time + "|^|" + intRefundPrice + "|^|" + intRefundFee + "{{|}}";
+            }
+            strPenaltyDatas = strPenaltyDatas.substring(0, strPenaltyDatas.length()-5);
+        }catch (Exception e){
+            e.printStackTrace();
+            return "";
+        }
+
+        return strPenaltyDatas;
     }
 
     public JSONObject callOndaGetAPI(String url){

@@ -45,7 +45,7 @@
 
     <update id="updateBooking">
         UPDATE PLNDSTAY.dbo.RSV_STAY SET
-                                         strRsvCode = #{orderID}
+            strRmNum = #{orderID}
         WHERE intRsvID = #{intRsvID}
     </update>
 </mapper>

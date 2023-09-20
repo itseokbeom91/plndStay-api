@@ -17,7 +17,7 @@ public class CpBookingController {
     private CpBookingService cpBookingService;
 
     /**
-     * 예약 목록 조회
+     * 예약 목록 조회 - 예약테이블 INSERT용
      */
     @GetMapping("/getBookingList")
     @ResponseBody

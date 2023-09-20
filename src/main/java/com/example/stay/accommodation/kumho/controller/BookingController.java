@@ -61,10 +61,4 @@ public class BookingController {
         return bookingService.updateRoomStock(dataType, strFromDate, strToDate, intRmIdx, httpServletRequest);
     }
 
-//    @GetMapping("getRemainCount")
-//    @ResponseBody
-//    public int getRemainCount(String fr_date, String to_date, String area, String room_type){
-//        int cnt = bookingService.getRemainCount(fr_date, to_date, area, room_type);
-//        return cnt;
-//    }
 }

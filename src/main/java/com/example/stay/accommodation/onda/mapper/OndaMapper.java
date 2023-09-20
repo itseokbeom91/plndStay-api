@@ -35,7 +35,9 @@ public interface OndaMapper {
 //    String updateBooking(int intBookingID, int intCondoID, int intRoomID, int intRateID, String strSpBookingId,
 //                         String strRefundPolicies, long stayDays);
 
-//    int updateStrStatusCode(String strStatusCode, int intRsvID);
+    int updateRsvStatus(int intRsvID, String strStatusCode);
 
-    String updateRsvStay(int intRsvID, String strStatusCode, String strRsvRmNum);
+    String updateRsvStay(int intRsvID, String strStatusCode, String strRsvRmNum, String strPenaltyDatas);
+
+    double getMoneyRefund(int intRsvID, int intDay);
 }

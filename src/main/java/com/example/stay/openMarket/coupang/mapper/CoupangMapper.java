@@ -14,4 +14,8 @@ public interface CoupangMapper {
 
     Map<String, Object> getIntAIDnPdtCode(int intRmIdx);
 
+    int getIntAID(String strPdtCode);
+
+    int getIntRmIdx(String strCpItemCode);
+
 }

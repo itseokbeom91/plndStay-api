@@ -25,6 +25,18 @@ public class ElevenStController {
         return elevenStService.stopDisplay(prdNo);
     }
 
+    @GetMapping("/getOrderList")
+    @ResponseBody
+    public String getOrderList(){
+        return elevenStService.getOrderList();
+    }
+
+    @GetMapping("/getOrderInfo")
+    @ResponseBody
+    public String getOrderInfo(String ordNo){
+        return elevenStService.getOrderInfo(ordNo);
+    }
+
     @GetMapping("/regAccomm")
     @ResponseBody
     public String regTest(String accommID, String bgnDay, String endDay){
@@ -41,6 +53,12 @@ public class ElevenStController {
     @ResponseBody
     public String answerTest(String qnaNo, String prdNo, String answer) {
         return elevenStService.answerQna(qnaNo, prdNo, answer);
+    }
+
+    @GetMapping("/updateQuantity")
+    @ResponseBody
+    public String updateQuantity(String prdNo, String quantity){
+        return elevenStService.updateStock(prdNo, quantity);
     }
 
 

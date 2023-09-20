@@ -27,7 +27,7 @@ public class BookingController {
 
     // 예약 가능 여부 조회
 //    @GetMapping("checkAvailBooking")
-//    public void checkAvailBooking(String pyung, String sDate, String sleep, String roomCount, String roomType){
+//    public void checkAvailBooking(String pyung, String sDate, long sleep, int roomCount, String roomType){
 //        bookingService.checkAvailBooking(pyung, sDate, sleep, roomCount, roomType);
 //    }
 

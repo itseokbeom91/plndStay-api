@@ -32,4 +32,17 @@
           AND AO.intOMKIdx = 12
     </select>
 
+    <select id="getIntAID" parameterType="String" resultType="int">
+        SELECT intAID
+        FROM PLNDSTAY.dbo.ACCOMM_OMK WITH(NOLOCK)
+        WHERE strPdtCode = #{strPdtCode}
+            AND intOMKIdx = 12
+    </select>
+
+    <select id="getIntRmIdx" parameterType="String" resultType="int">
+        SELECT intIdx
+        FROM PLNDSTAY.dbo.RMTYPE WITH(NOLOCK)
+        WHERE strCpItemCode = #{strCpItemCode}
+    </select>
+
 </mapper>

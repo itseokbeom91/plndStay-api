@@ -14,19 +14,13 @@
         WHERE intIdx = ${intRmIdx}
     </select>
 
-    <select id="getStrPkgCode" parameterType="int" resultType="String">
-        SELECT
-            AP.strPkgCode
-        FROM PLNDSTAY.dbo.ACM_PACKAGE_INFO AP WITH(NOLOCK)
-			INNER JOIN PLNDSTAY.dbo.ACM_PACKAGE_RM_DATA APR WITH(NOLOCK) ON AP.intIdx = APR.intAPIIdx
-            INNER JOIN PLNDSTAY.dbo.RMTYPE R WITH(NOLOCK) ON R.strRmtypeID = APR.strRmCode
-        WHERE APR.strRmCode = R.strRmtypeID
-          AND R.intIdx = ${intRmIdx}
-
---         SELECT TOP 1 strMapCode
---         FROM RM_PACKAGE_MAPPING WITH(NOLOCK)
---         WHERE intRmIdx = ${intRmIdx}
---           AND dateMapping BETWEEN #{startDate} AND #{endDate}
+    <select id="getStrPkgCodeList" parameterType="int" resultType="String">
+        SELECT strPkgCode
+        FROM PLNDSTAY.dbo.ACM_PACKAGE_INFO WITH(NOLOCK)
+        WHERE strFlag = '49'
+            AND strDeleteYn = 'N'
+            AND strUsageYn = 'Y'
+            AND dateEnd >= GETDATE()
     </select>
 
     <select id="getReservation" resultType="RsvStayDto">
@@ -34,7 +28,7 @@
     </select>
 
     <select id="updateRsvStay" resultType="String">
-        EXEC PLNDSTAY.dbo.spGW_RSV_STAY_UPDATE_PROCESS ${intRsvID}, #{strStatusCode}, #{strRsvRmNum}, '', ''
+        EXEC PLNDSTAY.dbo.spGW_RSV_STAY_UPDATE_PROCESS ${intRsvID}, #{strStatusCode}, #{strRsvRmNum}, #{strPenaltyDatas}, ''
     </select>
 
     <select id="getStrRsvRmNum" parameterType="int" resultType="String">

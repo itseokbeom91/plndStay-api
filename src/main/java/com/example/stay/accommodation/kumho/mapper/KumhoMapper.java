@@ -11,7 +11,7 @@ public interface KumhoMapper {
 
     RsvStayDto getReservation(int intRsvID);
 
-    String updateRsvStay(int intRsvID, String strStatusCode, String strRsvRmNum);
+    String updateRsvStay(int intRsvID, String strStatusCode, String strRsvRmNum, String strPenaltyDatas);
 
     String updateStock(int intAID, int intRmIdx, String strStockDatas);
 
