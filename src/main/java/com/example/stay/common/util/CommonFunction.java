@@ -19,10 +19,7 @@ import org.xml.sax.InputSource;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.transform.dom.DOMSource;
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
-import java.io.StringReader;
+import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.text.SimpleDateFormat;
@@ -108,6 +105,7 @@ public class CommonFunction<T> {
             }
         }
 
+        BufferedReader br = null;
         LogWriter logWriter = new LogWriter(method, strUrl, System.currentTimeMillis());
         try{
             URL url = new URL(strUrl);
@@ -126,6 +124,8 @@ public class CommonFunction<T> {
                 conn.setRequestProperty("Authorization", Constants.SsgAuthorization);
             }else if(strAccomm.equals("gmk")){
                 conn.setRequestProperty("Authorization", strType);
+            }else if(strAccomm.equals("eland")){
+                conn.setRequestProperty("Authorization", "Bearer "+ strType);
             }
 
             if(!requestJson.isEmpty()){
@@ -140,7 +140,7 @@ public class CommonFunction<T> {
 
             String strResult = "";
             if(conn.getResponseCode() == HttpURLConnection.HTTP_OK){
-                BufferedReader br = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+                br = new BufferedReader(new InputStreamReader(conn.getInputStream()));
                 StringBuilder sb = new StringBuilder();
                 String line = "";
                 while ((line = br.readLine()) != null) {
@@ -164,6 +164,14 @@ public class CommonFunction<T> {
             e.printStackTrace();
             logWriter.add("error : " + e.getMessage());
             logWriter.log(0);
+        }finally {
+            try {
+                if (br != null) {
+                    br.close();
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
 
         return jsonNode;

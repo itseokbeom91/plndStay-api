@@ -25,6 +25,7 @@ public class AccommDto {
     private String strCheckIn;
     private String strCheckOut;
     private String strAcmNotice;        // 시설 공지사항
+    private String strCateCode;         // 시설코드
 
 
 

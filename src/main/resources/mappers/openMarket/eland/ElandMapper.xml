@@ -42,4 +42,16 @@
           AND REPLACE(tocode,' ','+') = Replace(#{strRoomTypeName},' ','+')
     </select>
 
+
+
+
+
+    <select id="getAccommInfo" resultType="accommDto">
+        EXEC spOMK_ACCOMM_INFO ${intAID}, ${intOMKIdx}
+    </select>
+    
+    <select id="getCateCode" resultType="String">
+        SELECT strCode FROM CODE_OMK WITH(NOLOCK) WHERE intDepth = 2 AND strParentCode = #{strAcmType} AND strName = #{strRegion}
+    </select>
+
 </mapper>
