@@ -822,12 +822,34 @@ public class ElevenStService {
             sb.append("</ProductDetailCont>");
             conn.setDoOutput(true);
             conn.setInstanceFollowRedirects(false);
-            conn.setRequestMethod("PUT");
+            conn.setRequestMethod("POST");
             conn.setRequestProperty("openapikey", Constants.elevenApiKey);
             conn.setRequestProperty("Content-Type", "text/xml; charset=euc-kr");
-            conn.getResponseCode();
+
+            OutputStreamWriter wr = new OutputStreamWriter(conn.getOutputStream());
+            wr.write(sb.toString());
+            wr.flush();
+
             LogWriter lw = new LogWriter("POST", url.toString(), System.currentTimeMillis());
-            return commonFunction.makeReturn("jsonp", "200", "OK", "OK");
+
+            BufferedReader in = new BufferedReader(new InputStreamReader(conn.getInputStream(), "EUC-KR"));
+            String inputLine = null;
+            String returnStr = "";
+            while ((inputLine = in.readLine()) != null) {
+                returnStr += inputLine;
+            }
+            System.out.println(returnStr);
+
+            DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+            DocumentBuilder db = dbf.newDocumentBuilder();
+            StringReader sr = new StringReader(returnStr);
+            InputSource is = new InputSource(sr);
+            Document dc = db.parse(is);
+            NodeList nl = dc.getElementsByTagName("ProductDetailCont");
+            String result = nl.item(0).getChildNodes().item(1).getTextContent();
+
+
+            return commonFunction.makeReturn("jsonp", "200", "OK", result);
         } catch (Exception e) {
             return commonFunction.makeReturn("jsonp", "500", e.getMessage());
         }
