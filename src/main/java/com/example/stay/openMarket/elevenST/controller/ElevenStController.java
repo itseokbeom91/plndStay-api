@@ -70,8 +70,8 @@ public class ElevenStController {
 
     @GetMapping("/updatePrdDesc")
     @ResponseBody
-    public String updatePrdDesc(@RequestParam(value = "dataType", required = false, defaultValue = "jsonp") String prdNo, String description){
-        return elevenStService.updatePrdDesc(prdNo, description);
+    public String updatePrdDesc(@RequestParam(value = "dataType", required = false, defaultValue = "jsonp") String dataType, String prdNo, String description){
+        return elevenStService.updatePrdDesc(dataType, prdNo, description);
     }
 
 
