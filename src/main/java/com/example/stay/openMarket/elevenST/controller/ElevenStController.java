@@ -25,6 +25,12 @@ public class ElevenStController {
         return elevenStService.stopDisplay(prdNo);
     }
 
+    @GetMapping("/getStockList")
+    @ResponseBody
+    public String getStockList(String prdNo){
+        return elevenStService.getStockList(prdNo);
+    }
+
     @GetMapping("/getOrderList")
     @ResponseBody
     public String getOrderList(){

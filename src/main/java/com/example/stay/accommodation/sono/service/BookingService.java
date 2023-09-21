@@ -461,8 +461,8 @@ public class BookingService {
         String result = "";
 
         JSONObject requestJson = new JSONObject();
-        requestJson.put("roomRsvNo", "4652");
-        requestJson.put("roomRsvSeq", "1023914485");
+        requestJson.put("roomRsvNo", "4652"); //bookingMap.get("strRsvCode");
+        requestJson.put("roomRsvSeq", "1023914485"); // bookingMap.get("strRcvRmNum");
         requestJson.put("comRsvNo", "2023-09-1226813"); //우리만의 예약번호가 필요함
         requestJson.put("businessId", Constants.sonoPackId);
         requestJson.put("language", Constants.sonoLanguage);
@@ -528,7 +528,7 @@ public class BookingService {
         requestJson.put("nights", diffDays);
         requestJson.put("rmCnt", bookingMap.get("intRmCnt"));
         requestJson.put("comRsvNo", "2023-09-1226813"); //우리만의 예약번호가 필요함
-        requestJson.put("userName", "ㅋㅋㅋ변경도 되지롱");//bookingMap.get("strRcvName"));
+        requestJson.put("userName", bookingMap.get("strRcvName"));//bookingMap.get("strRcvName"));
         requestJson.put("userTel", bookingMap.get("strRcvPhone"));
         requestJson.put("payAmt", "100000"); //TO-DO-- 가격 가져오기
         requestJson.put("adultCnt", bookingMap.get("intQuantityA"));

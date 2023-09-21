@@ -5,6 +5,7 @@ import com.example.stay.common.util.Constants;
 import com.example.stay.common.util.LogWriter;
 import com.example.stay.common.util.XmlUtility;
 import com.example.stay.openMarket.elevenST.mapper.ElevenStMapper;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.w3c.dom.Document;
@@ -394,9 +395,9 @@ public class ElevenStService {
             return commonFunction.makeReturn("jsonp", "500", e.getMessage());
         }
     }
-/*
-판매중지처리 (PUT)
- */
+    /*
+    판매중지처리 (PUT)
+     */
     public String stopDisplay (String prdNo) {
         try {
             URL url = new URL(Constants.elevenUrl + "/rest/prodstatservice/stat/stopdisplay/" + prdNo);
@@ -435,6 +436,60 @@ public class ElevenStService {
             return commonFunction.makeReturn("jsonp", "500", e.getMessage());
         }
     }
+    /*
+    재고 수량 가져오기
+     */
+    public String getStockList (String prdNo) {
+        try {
+            URL url = new URL(Constants.elevenUrl + "/rest/prodmarketservice/prodmarket/stck/" + prdNo);
+            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+            conn.setDoOutput(true);
+            conn.setInstanceFollowRedirects(false);
+            conn.setRequestMethod("GET");
+            conn.setRequestProperty("openapikey", Constants.elevenApiKey);
+
+            conn.getResponseCode();
+            LogWriter lw = new LogWriter("PUT", url.toString(), System.currentTimeMillis());
+
+            BufferedReader in = new BufferedReader(new InputStreamReader(conn.getInputStream(), "EUC-KR"));
+            String inputLine = null;
+            String returnStr = "";
+            while ((inputLine = in.readLine()) != null) {
+//                System.out.println(inputLine);
+                String decoder = URLDecoder.decode(inputLine, "euc-kr");
+                decoder = URLDecoder.decode(decoder, "euc-kr");
+                returnStr += decoder;
+            }
+            System.out.println(returnStr);
+
+            DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+            DocumentBuilder db = dbf.newDocumentBuilder();
+            StringReader sr = new StringReader(returnStr);
+            InputSource is = new InputSource(sr);
+            Document dc = db.parse(is);
+            NodeList nl = dc.getChildNodes().item(0).getChildNodes();
+            List<Map<String, Object>> resultList = new ArrayList<>();
+            String prdNm = xmlUtility.getTagValue("ns2:prdNm", (Element) nl);
+            for (int i = 0 ; i<nl.getLength() ; i++) {
+                Map<String, Object> prdMap =new HashMap<>();
+                nl.item(i);
+                if(xmlUtility.getTagValue("mixDtlOptNm", (Element) nl.item(i))==null) continue;
+                prdMap.put("prdStockNo", xmlUtility.getTagValue("prdStckNo", (Element) nl.item(i)));
+                prdMap.put("stockQty", xmlUtility.getTagValue("stckQty", (Element) nl.item(i)));
+                prdMap.put("투숙일자", xmlUtility.getTagValue("mixDtlOptNm", (Element) nl.item(i)).toString().split(",")[0]);
+                prdMap.put("객실타입", xmlUtility.getTagValue("mixDtlOptNm", (Element) nl.item(i)).toString().split(",")[1]);
+
+                prdMap.put("mixDetailOptNm", xmlUtility.getTagValue("mixDtlOptNm", (Element) nl.item(i)));
+                prdMap.put("mixOptNm", xmlUtility.getTagValue("mixOptNm", (Element) nl.item(i)));
+                resultList.add(prdMap);
+
+            }
+            //TO-DO 각 옵션별 옵션번호 상품DB에 인입
+            return commonFunction.makeReturn("jsonp", "200", "OK", resultList.toString());
+        } catch (Exception e) {
+            return commonFunction.makeReturn("jsonp", "500", e.getMessage());
+        }
+    }
     /**
      *  11번가에 등록된 상품의 문의내역을 받아옵니다.
      *
@@ -446,12 +501,12 @@ public class ElevenStService {
         try{
             String startday = "";
             String endday = "";
-            SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmm");
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd");
             Date current = new Date();
             Calendar c = Calendar.getInstance();
             c.setTime(current);
             endday = sdf.format(c.getTime());
-            c.add(Calendar.MINUTE, -15);
+            c.add(Calendar.DATE, -1);
             startday = sdf.format(c.getTime());
             URL url = new URL(Constants.elevenUrl + "/rest/prodqnaservices/prodqnalist/" + startday + "/" + endday + "/00" ); //00:전체조회, 01:답변완료조회, 02:미답변조회
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
@@ -659,6 +714,7 @@ public class ElevenStService {
             Document dc = db.parse(is);
             NodeList nl = dc.getElementsByTagName("ns2:order");
             List<Map<String, Object>>listMap = new ArrayList<>(); //
+
 
             return commonFunction.makeReturn("jsonp", "200", "OK", "OK");
         } catch (Exception e) {
