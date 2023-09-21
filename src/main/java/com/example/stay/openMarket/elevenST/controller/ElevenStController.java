@@ -67,5 +67,11 @@ public class ElevenStController {
         return elevenStService.updateStock(prdNo, quantity);
     }
 
+    @GetMapping("/updatePrdDesc")
+    @ResponseBody
+    public String updatePrdDesc(String prdNo, String description){
+        return elevenStService.updatePrdDesc(prdNo, description);
+    }
+
 
 }
