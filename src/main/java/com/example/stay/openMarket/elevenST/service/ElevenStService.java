@@ -811,7 +811,7 @@ public class ElevenStService {
         }
     }
 
-    public String updatePrdDesc(String prdNo, String description) {
+    public String updatePrdDesc(String dataType, String prdNo, String description) {
         try {
             URL url = new URL(Constants.elevenUrl + "/rest/prodservices/updateProductDetailCont/" + prdNo);
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
@@ -849,9 +849,9 @@ public class ElevenStService {
             String result = nl.item(0).getChildNodes().item(1).getTextContent();
 
 
-            return commonFunction.makeReturn("jsonp", "200", "OK", result);
+            return commonFunction.makeReturn(dataType, "200", "OK", result);
         } catch (Exception e) {
-            return commonFunction.makeReturn("jsonp", "500", e.getMessage());
+            return commonFunction.makeReturn(dataType, "500", e.getMessage());
         }
     }
 

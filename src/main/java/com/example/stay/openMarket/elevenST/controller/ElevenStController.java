@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 @Controller("elevenST.ElevenStController")
@@ -69,7 +70,7 @@ public class ElevenStController {
 
     @GetMapping("/updatePrdDesc")
     @ResponseBody
-    public String updatePrdDesc(String prdNo, String description){
+    public String updatePrdDesc(@RequestParam(value = "dataType", required = false, defaultValue = "jsonp") String prdNo, String description){
         return elevenStService.updatePrdDesc(prdNo, description);
     }
 
