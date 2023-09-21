@@ -50,7 +50,8 @@ public class ElevenStService {
             map.put("aplBgnDy", bgnDay);
             map.put("aplEndDy", endDay);
             map.put("selPrc", "100000000"); // 대표가이니 가장 낮은가격이 되련지 아님 상품매칭시 대표가격이 등록되는건지 확인 필요
-            map.put("prdImage01", "https://cdn.imweb.me/thumbnail/20221018/2fa9b7c3276c7.png");
+            map.put("prdImage01", "https://cdn.pixabay.com/photo/2023/03/12/21/05/egg-7847875_1280.png"); //
+//            map.put("prdImage01", "https://cdn.imweb.me/thumbnail/20221018/2fa9b7c3276c7.png");
             StringBuffer sb = new StringBuffer();
             sb.append("<Product>");
             sb.append("<selMnbdNckNm>condo24</selMnbdNckNm>"); //닉네임 필수항목은 아님
@@ -203,12 +204,13 @@ public class ElevenStService {
                 returnStr += decoder;
             }
             System.out.println(returnStr);
+
             DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
             DocumentBuilder db = dbf.newDocumentBuilder();
             Document doc = db.parse(new InputSource(new StringReader(returnStr)));
             NodeList nl = doc.getElementsByTagName("ClientMessage");
             if (!xmlUtility.getTagValue( "resultCode", (Element) nl.item(0)).equals("200")) {
-                return commonFunction.makeReturn("jsonp", "500", xmlUtility.getTagValue( "message", (Element) nl.item(0)));
+                return commonFunction.makeReturn("jsonp", "500", "ERROR", xmlUtility.getTagValue( "message", (Element) nl.item(0)));
             }
             String prdNo = nl.item(1).getTextContent();
 
@@ -436,8 +438,11 @@ public class ElevenStService {
             return commonFunction.makeReturn("jsonp", "500", e.getMessage());
         }
     }
-    /*
-    재고 수량 가져오기
+
+    /**
+     * 11번가에 등록된 상품의 옵션을 조회하는 API
+     * @param prdNo 11번가 등록된 상품번호
+     * @return
      */
     public String getStockList (String prdNo) {
         try {
@@ -793,6 +798,28 @@ public class ElevenStService {
             sb.append("<prdStockNo></prdStockNo>");
             sb.append("<stckQty>" + Stock + "</stckQty>");
             sb.append("</ProductStock>");
+            conn.setDoOutput(true);
+            conn.setInstanceFollowRedirects(false);
+            conn.setRequestMethod("PUT");
+            conn.setRequestProperty("openapikey", Constants.elevenApiKey);
+            conn.setRequestProperty("Content-Type", "text/xml; charset=euc-kr");
+            conn.getResponseCode();
+            LogWriter lw = new LogWriter("POST", url.toString(), System.currentTimeMillis());
+            return commonFunction.makeReturn("jsonp", "200", "OK", "OK");
+        } catch (Exception e) {
+            return commonFunction.makeReturn("jsonp", "500", e.getMessage());
+        }
+    }
+
+    public String updatePrdDesc(String prdNo, String description) {
+        try {
+            URL url = new URL(Constants.elevenUrl + "/rest/prodservices/updateProductDetailCont/" + prdNo);
+            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+            StringBuffer sb = new StringBuffer();
+            sb.append("<?xml version=\"1.0\" encoding=\"euc-kr\" standalone=\"yes\"?>");
+            sb.append("<ProductDetailCont>");
+            sb.append("<prdDescContClob><![CDATA[" + description + "]]></prdDescContClob>");
+            sb.append("</ProductDetailCont>");
             conn.setDoOutput(true);
             conn.setInstanceFollowRedirects(false);
             conn.setRequestMethod("PUT");
