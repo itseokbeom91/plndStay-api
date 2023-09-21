@@ -51,7 +51,7 @@
     </select>
     
     <select id="getCateCode" resultType="String">
-        SELECT strCode FROM CODE_OMK WITH(NOLOCK) WHERE intDepth = 2 AND strParentCode = #{strAcmType} AND strName = #{strRegion}
+        SELECT strCode FROM CODE_OMK WITH(NOLOCK) WHERE intDepth = 2 AND strParentCode = #{strAcmType} AND strName like #{strRegion}
     </select>
 
 </mapper>

@@ -114,9 +114,12 @@ public class ElandService {
 
         try {
 
-            AccommDto accommDto = elandMapper.getAccommInfo(intAID, 7);
+            AccommDto accommDto = elandMapper.getAccommInfo(intAID, 9);
 
+            // 검색어
             String strKeywords = (accommDto.getStrKeywords() != null)? accommDto.getStrKeywords() : accommDto.getStrSubject();
+
+            // 카테고리 구하기
             String strType = accommDto.getStrType();
             String strAcmType = "ELAND_L";
             if(strType.equals("C")){
@@ -134,7 +137,26 @@ public class ElandService {
             }else{
                 strRegion = "";
             }
+            strRegion = "%"+strRegion+"%";
             String strElandCate = elandMapper.getCateCode(strAcmType, strRegion);
+            strElandCate = (strElandCate  != null)? strElandCate : "";
+
+            // 브랜드 구하기
+            String strCateCode = (accommDto.getStrCateCode() != null)? accommDto.getStrCateCode() : "";
+            String strBrandId = "";
+            if(strCateCode.equals("01")){       // 소노
+                strBrandId = "2300038117";
+            }else if(strCateCode.equals("02")){ // 한화
+                strBrandId = "2300038118";
+            }else if(strCateCode.equals("04")){ // 금호
+                strBrandId = "2100035451";
+            }else if(strCateCode.equals("33")){ // 클럽이에스
+                strBrandId = "2300038120";
+            }else if(strCateCode.equals("43")){ // 하이원
+                strBrandId = "2300038119";
+            }else{                              // 기타
+                strBrandId = "2000017560";
+            }
 
             String GC_DTTM = "";
 
