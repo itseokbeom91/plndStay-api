@@ -170,8 +170,8 @@ public class AccommService {
                     if(addressDetail.length==0){
 
                     } else {
-                        strDistrictCode1 = "TEST1";//commonFunction.addressToDistrictCode(addressDetail[0]);
-                        strDistrictCode2 = "TEST2";//accommMapper.getDistrictCode(addressDetail[1], strDistrictCode1);
+                        strDistrictCode1 = commonFunction.addressToDistrictCode(addressDetail[0]);
+                        strDistrictCode2 = accommMapper.getDistrictCode(addressDetail[1], strDistrictCode1);
                     }
                 }
                 hotelData += hotelCode + "|^|" + hotelName + "|^|" + strDistrictCode1 + "|^|" + strDistrictCode2 + "|^|"
