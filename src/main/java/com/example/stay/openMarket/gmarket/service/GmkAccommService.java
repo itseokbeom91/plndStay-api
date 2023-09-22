@@ -533,8 +533,11 @@ public class GmkAccommService {
     public void getRecommendOpts(){
         try{
             String siteCatCode = "";
-            String authorization = HmacGenerater.generate("");
-            JsonNode jsonNode = commonFunction.callJsonApi("gmk", authorization, new JSONObject(), Constants.gmkUrl + "item/v1/options/recommended-opts?catCode=" + siteCatCode, "put");
+            String authorization = HmacGenerater.generate("categories");
+
+            System.out.println("authorization : " + authorization);
+
+            JsonNode jsonNode = commonFunction.callJsonApi("gmk", authorization, new JSONObject(), Constants.gmkUrl + "item/v1/options/recommended-opts?catCode=" + siteCatCode, "GET");
 
             String code = jsonNode.get("resultCode").toString();
             String resultMsg = jsonNode.get("message").toString();

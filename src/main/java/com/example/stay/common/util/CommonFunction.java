@@ -16,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
 
+import javax.xml.namespace.QName;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.transform.dom.DOMSource;
@@ -180,25 +181,34 @@ public class CommonFunction<T> {
     SOAP Client API
      */
     public String sendMessage(String url, String method, String message){
+//        LogWriter logWriter = new LogWriter(method, url, System.currentTimeMillis());
         try {
-
-            DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-            factory.setNamespaceAware(true);
-            DocumentBuilder parser = factory.newDocumentBuilder();
-
-            StringReader reader = new StringReader(message);
-            InputSource is = new InputSource(reader);
-            Document document = parser.parse(is);
-            DOMSource source = new DOMSource(document);
-
-
+//            logWriter.addRequest(message);
+//            DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+//            factory.setNamespaceAware(true);
+//            DocumentBuilder parser = factory.newDocumentBuilder();
+//
+//            StringReader reader = new StringReader(message);
+//            InputSource is = new InputSource(reader);
+//            Document document = parser.parse(is);
+//            DOMSource source = new DOMSource(document);
             Service service = new Service();
             Call call = (Call) service.createCall();
 
-            call.setTargetEndpointAddress(new java.net.URL(url));
-            call.setOperationName(method);
+            call.setTargetEndpointAddress(new java.net.URL("http://tpl.gmarket.co.kr/v1/ItemService.asmx?WSDL"));
+
+//            call.setOperationName(method);
+            call.setOperationName(new QName("http://tpl.gmarket.co.kr/", "AddItem"));
+
+            call.setUseSOAPAction(true);
+            call.setSOAPActionURI("http://tpl.gmarket.co.kr/AddItem");
 
             String response = (String) call.invoke(new Object[]{message});
+
+
+//            logWriter.add(response);
+//            logWriter.log(0);
+
             return response;
         } catch (Exception e) {
             e.printStackTrace();
