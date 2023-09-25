@@ -7,6 +7,7 @@ import com.example.stay.common.util.XmlUtility;
 import com.example.stay.openMarket.common.dto.AccommDto;
 import com.example.stay.openMarket.common.mapper.CommonMapper;
 import com.example.stay.openMarket.common.service.CommonService;
+import com.example.stay.openMarket.gmarket.mapper.GmkMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.w3c.dom.Document;
@@ -19,12 +20,17 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.List;
+import java.util.Map;
 
 @Service
 public class GmkAccommService_old {
 
     @Autowired
     private CommonMapper commonMapper;
+
+    @Autowired
+    private GmkMapper gmkMapper;
 
     @Autowired
     private CommonService commonService;
@@ -50,6 +56,7 @@ public class GmkAccommService_old {
                 String strCateCode = "100000013"; // 소분류 코드
                 String strPdtCode = ""; // 지마켓 상품코드(수정시 필요)
                 String strSubject = accommDto.getStrSubject(); // 상품명
+                String strDescription = accommDto.getStrDescription(); // 상품 상세정보
 //                String strPdtDtlInfo = commonService.getStrPdtDtlInfo(accommDto, intAID, intOmkIdx)
 //                        .replace("&#8203;", "").replace("&#39;", "'").replace("&quot;", "'") // &quot; = \" 큰따옴표인디 왜...
 //                        .replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
@@ -79,7 +86,18 @@ public class GmkAccommService_old {
                     }
 
                     String strMakeNo = "제조사번호"; // 제조사번호
-                    String strBrandNo = "브랜드번호"; // 브랜드번호
+
+                    List<Map<String, String>> brandCodeList = gmkMapper.getBrandCodeList();
+                    String strBrandNo = ""; // 브랜드번호
+                    for(Map brandCodeMap : brandCodeList){
+                        Map<String, String> codeMap = brandCodeMap;
+                        String strCode = codeMap.get("strCode");
+                        String strName = codeMap.get("strName");
+                        if(strSubject.contains(strName)){
+                            strBrandNo = strCode;
+                        }
+                    }
+
                     String strModelName = ""; // 모델명
                     String strOrgCode = "Etc"; // 원산지 구분
                     String strDlbType = "New"; // 배송비 구분
@@ -101,7 +119,7 @@ public class GmkAccommService_old {
 
                     String addItemAttr = makeAttr("OutItemNo", strAID) +  makeAttr("CategoryCode", strCateCode) + 
                             makeAttr("GmktItemNo", "") +  makeAttr("ItemName", strSubject) + makeAttr("ItemEngName", "") + 
-                            makeAttr("ItemDescription", "") +  makeAttr("GdHtml", strPdtDtlInfo) +  makeAttr("GdAddHtml", "") + 
+                            makeAttr("ItemDescription", strDescription) +  makeAttr("GdHtml", strPdtDtlInfo) +  makeAttr("GdAddHtml", "") +
                             makeAttr("GdPrmtHtml", "") +  makeAttr("MakerNo", strMakeNo) +  makeAttr("BrandNo", strBrandNo) + 
                             makeAttr("ModelName", strModelName) +  makeAttr("IsAdult", strIsAdult) +  makeAttr("Tax", strTax) + 
                             makeAttr("MadeDate", "") +  makeAttr("AppearedDate", "") +  makeAttr("ExpirationDate", "") +
@@ -116,7 +134,7 @@ public class GmkAccommService_old {
                             makeAttr("IsJaehuDiscount", strAffiliateDiscount) +  makeAttr("IsPack", strBasket);
 
                     String itemImageAttr = makeAttr("DefaultImage", strAccommImg1) +  makeAttr("LargeImage", "") + 
-                            makeAttr("SmallImage", "str") +  makeAttr("AddImage1", strAccommImg2) +  makeAttr("AddImage2", strAccommImg3);
+                            makeAttr("SmallImage", "") +  makeAttr("AddImage1", strAccommImg2) +  makeAttr("AddImage2", strAccommImg3);
 
                     String sellerInfoAttr = makeAttr("Telephone", strTel) +  makeAttr("Address", strAddress);
 
@@ -174,7 +192,7 @@ public class GmkAccommService_old {
                     conn.setRequestMethod("POST");
                     conn.setConnectTimeout(50000);
                     conn.setReadTimeout(50000);
-                    conn.setRequestProperty("Host", Constants.gmkHost);
+                    conn.setRequestProperty("Host", "tpl.gmarket.co.kr");
                     conn.setRequestProperty("Content-Type", "text/xml; charset=utf-8");
                     conn.setRequestProperty("Content-Length", Integer.toString(strXml.length()));
                     conn.setRequestProperty("Action", "http://tpl.gmarket.co.kr/AddItem");
@@ -248,7 +266,6 @@ public class GmkAccommService_old {
             }else{
                 roopCnt = 8;
             }
-
             
             // xml 생성
             String strXml = "<?xml version='1.0' encoding='utf-8'?>"

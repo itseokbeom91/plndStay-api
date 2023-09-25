@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.example.stay.openMarket.gmarket.mapper.GmkMapper">
+    <select id="getBrandCodeList" resultType="map">
+        SELECT strCode, strName
+        FROM CODE_OMK WITH(NOLOCK)
+        WHERE strCateCode = 'GMK_BRAND'
+            AND intIdx != 349
+    </select>
+
+</mapper>
