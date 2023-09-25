@@ -60,7 +60,7 @@
                 if (result.code != '200'){
                     $('#result').append('상품번호 : '+prdNo + ' 판매상태 변경 실패 : \n' + result.result+'\n\n');
                 } else {
-                    $('#result').append('상품번호 : '+prdNo + stateKo + '로 변경\n\n\n');
+                    $('#result').append('상품번호 : '+prdNo +' '+ stateKo + '로 변경\n\n\n');
                 }
 
             }
