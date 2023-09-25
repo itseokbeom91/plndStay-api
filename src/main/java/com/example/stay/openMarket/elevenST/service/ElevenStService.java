@@ -400,9 +400,9 @@ public class ElevenStService {
     /*
     판매중지처리 (PUT)
      */
-    public String stopDisplay (String prdNo) {
+    public String stopDisplay (String prdNo, String state) {
         try {
-            URL url = new URL(Constants.elevenUrl + "/rest/prodstatservice/stat/stopdisplay/" + prdNo);
+            URL url = new URL(Constants.elevenUrl + "/rest/prodstatservice/stat/" + state + "/" + prdNo);
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             conn.setDoOutput(true);
             conn.setInstanceFollowRedirects(false);

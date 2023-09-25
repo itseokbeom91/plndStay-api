@@ -20,10 +20,10 @@ public class ElevenStController {
         return elevenStService.getProductList();
     }
 
-    @GetMapping("/stopDisplay")
+    @GetMapping("/updateDisplay")
     @ResponseBody
-    public String test(String prdNo){
-        return elevenStService.stopDisplay(prdNo);
+    public String updateDisplay(String prdNo, @RequestParam(value = "state", required = false) String state){
+        return elevenStService.stopDisplay(prdNo, state);
     }
 
     @GetMapping("/getStockList")
