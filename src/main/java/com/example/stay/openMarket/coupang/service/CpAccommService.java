@@ -840,7 +840,7 @@ public class CpAccommService {
 
         try{
             String strPdtCode = commonMapper.getStrPdtCode(intAID, intOmkIdx);
-//            strPdtCode = "10000002706646";
+//            strPdtCode = "30000002673126";
 
             JSONObject returnJson = coupangApi.coupangGetApi("travel/lodgings/" + strPdtCode);
 
