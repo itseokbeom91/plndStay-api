@@ -46,11 +46,7 @@ public class GmkAccommService {
     @Autowired
     private XmlUtility xmlUtility;
 
-    private static int intOmkIdx = 5;
-
     CommonFunction commonFunction = new CommonFunction();
-
-    // ESM+ 에서는 공지된 내용과 같이 1.0 상품 등록 제한 (23년 9월) → 1.0 상품 수정 제한 (23년 12월) 으로 계획되어 있으니 참고 부탁 드립니다.
 
     // 숙박상품 생성
     public String createAccomm(String dataType, int intAID, HttpServletRequest httpServletRequest){
@@ -64,7 +60,7 @@ public class GmkAccommService {
             // =============================
             // 시설 정보
             // =============================
-            AccommDto accommDto = commonMapper.getAcmInfo(intAID, intOmkIdx);
+            AccommDto accommDto = commonMapper.getAcmInfo(intAID, Constants.intGmkOmkIdx);
             if(accommDto != null){
                 JSONObject accommJson = new JSONObject();
 
@@ -74,7 +70,7 @@ public class GmkAccommService {
                 String strSubject = accommDto.getStrSubject();
 
                 if(strSubject.length() <= 50){
-                    goodsName.put("kor", strSubject);
+                    goodsName.put("kor", strSubject); // 기본 상품명
                     itemBasicInfo.put("goodsName", goodsName);
 
                     JSONObject category = new JSONObject();
@@ -90,13 +86,14 @@ public class GmkAccommService {
                     category.put("site", site);
 
                     // ESM 카테고리 코드 -> 뭐임?
+                    // 여행/티켓/e쿠폰 > 여행/호텔/항공권 > 국내숙박 인듯
                     JSONObject esm = new JSONObject();
 //                esm.put("catCode", );
                     category.put("esm", esm);
 
                     itemBasicInfo.put("category", category);
 
-                    // 브랜드코드
+                    // 브랜드코드 -> 필수값 아님. 있으면 넣기?
 //                JSONObject catalog = new JSONObject();
 ////                catalog.put("brandNo", ) // 브랜드코드 -> api로 조회 가능
 //                itemBasicInfo.put("catalog", catalog);
@@ -106,8 +103,9 @@ public class GmkAccommService {
                     // 판매가격
                     // TODO : 지마켓, 옥션 둘 다 필수값으로 되어있는데 지마켓에 상품 등록할 때는 지마켓 데이터만 입력하면 되는건지 확인 필요
                     JSONObject priceJson = new JSONObject();
-                    double price = commonMapper.getOmkSales(intAID, intOmkIdx);
-                    priceJson.put("price", price);
+                    double price = commonMapper.getOmkSales(intAID, Constants.intGmkOmkIdx);
+                    priceJson.put("Gmkt", price);
+//                    priceJson.put("Iac", price);
                     itemAdditionalInfo.put("price", priceJson);
 
                     // 재고수량 -> 100일치..?
@@ -115,16 +113,18 @@ public class GmkAccommService {
                     Date date = new Date();
                     String strDate = dateFormat.format(date);
 
-                    List<StockDto> stockDto = commonMapper.getStockList(intAID, intOmkIdx, strDate);
+                    List<StockDto> stockDto = commonMapper.getStockList(intAID, Constants.intGmkOmkIdx, strDate);
                     JSONObject stock = new JSONObject();
 //                stock.put("Gmkt", ); // 옵션 등록시 옵션재고관리(true) 선택할 경우 본 수량 무시되고 옵션 재고합으로 산정
                     itemAdditionalInfo.put("stock", stock);
-
+                    
                     // 판매기간
                     // 입력 가능 기간 : 15, 30, 60, 90
                     // 수정 시 0 입력하면 기존 기간 유지
+                    // TODO : 등록시 고정 판매기간 정해야함
                     JSONObject sellingPeriod = new JSONObject();
 //                sellingPeriod.put("Gmkt", );
+//                sellingPeriod.put("Iac", );
                     itemAdditionalInfo.put("sellingPeriod", sellingPeriod);
 
                     // 판매자 상품코드(관리코드 or 자사몰 상품번호)
@@ -325,7 +325,7 @@ public class GmkAccommService {
         String message = "";
 
         try{
-            AccommDto accommDto = commonMapper.getAcmInfo(intAID, intOmkIdx);
+            AccommDto accommDto = commonMapper.getAcmInfo(intAID, Constants.intGmkOmkIdx);
             String goodsNo = accommDto.getStrPdtCode();
 
             if(accommDto != null){
@@ -374,7 +374,7 @@ public class GmkAccommService {
         String message = "";
 
         try{
-            String goodsNo = commonMapper.getStrPdtCode(intAID, intOmkIdx);
+            String goodsNo = commonMapper.getStrPdtCode(intAID, Constants.intGmkOmkIdx);
 
             JSONObject imageModel = new JSONObject();
             List<String> photoList = commonMapper.getPhotoList(intAID, 14);
@@ -423,7 +423,7 @@ public class GmkAccommService {
         String message = "";
 
         try{
-            AccommDto accommDto = commonMapper.getAcmInfo(intAID, intOmkIdx);
+            AccommDto accommDto = commonMapper.getAcmInfo(intAID, Constants.intGmkOmkIdx);
 
             String goodsNo = accommDto.getStrPdtCode();
 
@@ -470,7 +470,7 @@ public class GmkAccommService {
         String message = "";
 
         try{
-            String goodsNo = commonMapper.getStrPdtCode(intAID, intOmkIdx);
+            String goodsNo = commonMapper.getStrPdtCode(intAID, Constants.intGmkOmkIdx);
 
             JSONObject requestJson = new JSONObject();
 
@@ -484,7 +484,7 @@ public class GmkAccommService {
 
             // 판매가격
             JSONObject priceJson = new JSONObject();
-            double price = commonMapper.getOmkSales(intAID, intOmkIdx);
+            double price = commonMapper.getOmkSales(intAID, Constants.intGmkOmkIdx);
             priceJson.put("gmkt", price);
             itemBasicInfo.put("price", priceJson);
 

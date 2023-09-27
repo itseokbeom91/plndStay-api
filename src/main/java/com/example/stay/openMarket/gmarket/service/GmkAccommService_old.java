@@ -5,6 +5,7 @@ import com.example.stay.common.util.Constants;
 import com.example.stay.common.util.LogWriter;
 import com.example.stay.common.util.XmlUtility;
 import com.example.stay.openMarket.common.dto.AccommDto;
+import com.example.stay.openMarket.common.dto.StockDto;
 import com.example.stay.openMarket.common.mapper.CommonMapper;
 import com.example.stay.openMarket.common.service.CommonService;
 import com.example.stay.openMarket.gmarket.mapper.GmkMapper;
@@ -20,6 +21,8 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -157,32 +160,32 @@ public class GmkAccommService_old {
                     
                     // xml 생성
                     String strXml = "<?xml version='1.0' encoding='utf-8'?>"
-                            + "<soap:Envelope xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xmlns:xsd='http://www.w3.org/2001/XMLSchema' xmlns:soap='http://schemas.xmlsoap.org/soap/envelope/'>"
-                            + "  <soap:Header>"
-                            + "    <EncTicket xmlns='http://tpl.gmarket.co.kr/'>"
-                            + "      <encTicket>" + Constants.gmk_normal_ticket + "</encTicket>"
-                            + "    </EncTicket>"
-                            + "  </soap:Header>"
-                            + "  <soap:Body>"
-                            + "    <AddItem xmlns='http://tpl.gmarket.co.kr/'>"
-                            + "      <AddItem " + addItemAttr + ">"
-                            + "        <NewItemDescription " + newItemDescAttr + " xmlns='http://tpl.gmarket.co.kr/tpl.xsd' />"
-                            + "        <ReferencePrice " + refPriceAttr + " xmlns='http://tpl.gmarket.co.kr/tpl.xsd' />"
-                            + "        <Refusal " + refusalAttr + " xmlns='http://tpl.gmarket.co.kr/tpl.xsd' />"
-                            + "        <ItemImage " + itemImageAttr + " xmlns='http://tpl.gmarket.co.kr/tpl.xsd' />"
-                            + "        <As " + sellerInfoAttr + " xmlns='http://tpl.gmarket.co.kr/tpl.xsd' />"
-                            + "        <Shipping " + shippingAttr + " xmlns='http://tpl.gmarket.co.kr/tpl.xsd'>"
-                            + "          <NewItemShipping " + newshippingAttr + " />"
-                            + "        </Shipping>"
-                            + "        <BundleOrder " + bundleOrderAttr + " xmlns='http://tpl.gmarket.co.kr/tpl.xsd' />"
-                            + "        <OrderLimit " + orderLimitAttr + " xmlns='http://tpl.gmarket.co.kr/tpl.xsd' />"
-                            + "        <AttributeCode " + attributeCodeAttr + " xmlns='http://tpl.gmarket.co.kr/tpl.xsd' />"
-                            + "        <Origin " + originAttr + " xmlns='http://tpl.gmarket.co.kr/tpl.xsd' />"
-                            + "        <Book " + bookAttr + " xmlns='http://tpl.gmarket.co.kr/tpl.xsd' />"
-                            + "      </AddItem>"
-                            + "    </AddItem>"
-                            + "  </soap:Body>"
-                            + "</soap:Envelope>";
+                        + "<soap:Envelope xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xmlns:xsd='http://www.w3.org/2001/XMLSchema' xmlns:soap='http://schemas.xmlsoap.org/soap/envelope/'>"
+                        + "  <soap:Header>"
+                        + "    <EncTicket xmlns='http://tpl.gmarket.co.kr/'>"
+                        + "      <encTicket>" + Constants.gmk_normal_ticket + "</encTicket>"
+                        + "    </EncTicket>"
+                        + "  </soap:Header>"
+                        + "  <soap:Body>"
+                        + "    <AddItem xmlns='http://tpl.gmarket.co.kr/'>"
+                        + "      <AddItem " + addItemAttr + ">"
+                        + "        <NewItemDescription " + newItemDescAttr + " xmlns='http://tpl.gmarket.co.kr/tpl.xsd' />"
+                        + "        <ReferencePrice " + refPriceAttr + " xmlns='http://tpl.gmarket.co.kr/tpl.xsd' />"
+                        + "        <Refusal " + refusalAttr + " xmlns='http://tpl.gmarket.co.kr/tpl.xsd' />"
+                        + "        <ItemImage " + itemImageAttr + " xmlns='http://tpl.gmarket.co.kr/tpl.xsd' />"
+                        + "        <As " + sellerInfoAttr + " xmlns='http://tpl.gmarket.co.kr/tpl.xsd' />"
+                        + "        <Shipping " + shippingAttr + " xmlns='http://tpl.gmarket.co.kr/tpl.xsd'>"
+                        + "          <NewItemShipping " + newshippingAttr + " />"
+                        + "        </Shipping>"
+                        + "        <BundleOrder " + bundleOrderAttr + " xmlns='http://tpl.gmarket.co.kr/tpl.xsd' />"
+                        + "        <OrderLimit " + orderLimitAttr + " xmlns='http://tpl.gmarket.co.kr/tpl.xsd' />"
+                        + "        <AttributeCode " + attributeCodeAttr + " xmlns='http://tpl.gmarket.co.kr/tpl.xsd' />"
+                        + "        <Origin " + originAttr + " xmlns='http://tpl.gmarket.co.kr/tpl.xsd' />"
+                        + "        <Book " + bookAttr + " xmlns='http://tpl.gmarket.co.kr/tpl.xsd' />"
+                        + "      </AddItem>"
+                        + "    </AddItem>"
+                        + "  </soap:Body>"
+                        + "</soap:Envelope>";
 
 //                    System.out.println(strXml);
 
@@ -249,6 +252,7 @@ public class GmkAccommService_old {
         return strAttr;
     }
 
+    // 고시정보 등록
     public String createAccommNotice(int intAID){
         LogWriter logWriter = new LogWriter(System.currentTimeMillis());
         String result = "";
@@ -269,24 +273,24 @@ public class GmkAccommService_old {
             
             // xml 생성
             String strXml = "<?xml version='1.0' encoding='utf-8'?>"
-                    + "<soap:Envelope xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xmlns:xsd='http://www.w3.org/2001/XMLSchema' xmlns:soap='http://schemas.xmlsoap.org/soap/envelope/'>"
-                    + "  <soap:Header>"
-                    + "    <EncTicket xmlns='http://tpl.gmarket.co.kr/'>"
-                    + "      <encTicket>" + Constants.gmk_normal_ticket + "</encTicket>"
-                    + "    </EncTicket>"
-                    + "  </soap:Header>"
-                    + "  <soap:Body>"
-                    + "    <AddOfficialInfo xmlns='http://tpl.gmarket.co.kr/'>"
-                    + "      <AddOfficialInfo GmktItemNo=" + strPdtCode + "GroupCode=" + gcode + ">";
+                + "<soap:Envelope xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xmlns:xsd='http://www.w3.org/2001/XMLSchema' xmlns:soap='http://schemas.xmlsoap.org/soap/envelope/'>"
+                + "  <soap:Header>"
+                + "    <EncTicket xmlns='http://tpl.gmarket.co.kr/'>"
+                + "      <encTicket>" + Constants.gmk_normal_ticket + "</encTicket>"
+                + "    </EncTicket>"
+                + "  </soap:Header>"
+                + "  <soap:Body>"
+                + "    <AddOfficialInfo xmlns='http://tpl.gmarket.co.kr/'>"
+                + "      <AddOfficialInfo GmktItemNo=" + strPdtCode + "GroupCode=" + gcode + ">";
 
-                    for(int i=0; i<roopCnt; i++){
-                        strXml += "        <SubInfoList Code=" + gcode + "-" + i+1 + "AddYn=" + silAddYn + "AddValue=" + silAddVal + "xmlns='http://tpl.gmarket.co.kr/tpl.xsd' />";
-                    }
+                for(int i=0; i<roopCnt; i++){
+                    strXml += "        <SubInfoList Code=" + gcode + "-" + i+1 + "AddYn=" + silAddYn + "AddValue=" + silAddVal + "xmlns='http://tpl.gmarket.co.kr/tpl.xsd' />";
+                }
 
-            strXml += "      </AddOfficialInfo>"
-                    + "    </AddOfficialInfo>"
-                    + "  </soap:Body>"
-                    + "</soap:Envelope>";
+        strXml += "      </AddOfficialInfo>"
+                + "    </AddOfficialInfo>"
+                + "  </soap:Body>"
+                + "</soap:Envelope>";
 
 
         }catch (Exception e){
@@ -296,6 +300,90 @@ public class GmkAccommService_old {
         }
 
         return result;
+    }
+
+    // 대표가 설정
+    public String createPrice(String dataType, int intAID, HttpServletRequest httpServletRequest){
+        LogWriter logWriter = new LogWriter(httpServletRequest.getMethod(), httpServletRequest.getServletPath(),
+                httpServletRequest.getQueryString(), System.currentTimeMillis());
+        String statusCode = "200";
+        String message = "";
+        try{
+//            cGINO	=	aDic("GINO") ' G마켓 상품번호
+//            cDPDT	= 	aDic("DPDT")' 상품코드 -> 날짜
+//            cSPRICE =	aDic("SPRICE") '항목코드 -> 가격
+//            cSTQ		=	aDic("STQ")  '  재고수량(필수) to int
+//            cIVTNO	=	aDic("IVTNO")   ' 항목코드 > 추가입력번호
+
+            AccommDto accommDto = commonMapper.getAcmInfo(intAID, intOmkIdx);
+            Date nowDate = new Date();
+            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+            String strDate = dateFormat.format(nowDate);
+            List<StockDto> stockDto = commonMapper.getStockList(intAID, intOmkIdx, strDate);
+
+            String strPdtCode = accommDto.getStrPdtCode(); // 지마켓 상품번호
+//            Date dateSales = // 상품코드 -> 날짜
+            double doubleSales = 0; // 항목코드 -> 가격
+            int intStock = 0; // 재고수량(필수)
+//            String str = ""; // 항목코드 > 추가 입력 번호 
+
+
+            // xml 생성
+            String strXml = "<?xml version='1.0' encoding='utf-8'?>"
+                + "<soap:Envelope xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xmlns:xsd='http://www.w3.org/2001/XMLSchema' xmlns:soap='http://schemas.xmlsoap.org/soap/envelope/'>"
+                + "  <soap:Header>"
+                + "    <EncTicket xmlns='http://tpl.gmarket.co.kr/'>"
+                + "      <encTicket>" + Constants.gmk_normal_ticket + "</encTicket>"
+                + "    </EncTicket>"
+                + "  </soap:Header>"
+                + "  <soap:Body>"
+                + "    <AddPrice xmlns='http://tpl.gmarket.co.kr/'>"
+    //            + "      <AddPrice GmktItemNo='"&cGINO&"' DisplayDate='"&cDPDT&"' SellPrice='"&cSPRICE&"' StockQty='"&cSTQ&"' InventoryNo='"&cIVTNO&"' />"
+                + "    </AddPrice>"
+                + "  </soap:Body>"
+                + "</soap:Envelope>";
+
+
+        }catch (Exception e){
+            e.printStackTrace();
+            message = "상품 가격 실패";
+            statusCode = "500";
+            logWriter.add("error : " + e.getMessage());
+            logWriter.log(0);
+        }
+        return commonFunction.makeReturn(dataType, statusCode, message);
+    }
+
+    // 옵션 등록 / 수정
+    public void createOption(int intAID){
+        try{
+            AccommDto accommDto = commonMapper.getAcmInfo(intAID, intOmkIdx);
+
+            String strPdtCode = accommDto.getStrPdtCode(); // 지마켓 상품번호
+
+//            String optionXml = "<ItemSelection Name=\"사용일자^|^타입\" Code=\"selcode1\" Value=\"" +  + "\" Price=\"" +  + "\" Remain=\"" +  + "\" OptionImageUrl=\"0\"/>";
+
+            String strXml = "<?xml version='1.0' encoding='utf-8'?>"
+                    + "<soap:Envelope xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xmlns:xsd='http://www.w3.org/2001/XMLSchema' xmlns:soap='http://schemas.xmlsoap.org/soap/envelope/'>"
+                    + "  <soap:Header>"
+                    + "    <EncTicket xmlns='http://tpl.gmarket.co.kr/'>"
+                    + "      <encTicket>" + Constants.gmk_normal_ticket + "</encTicket>"
+                    + "    </EncTicket>"
+                    + "  </soap:Header>"
+                    + "  <soap:Body>"
+                    + "    <AddItemOption xmlns='http://tpl.gmarket.co.kr/'>"
+                    + "      <AddItemOption GmktItemNo=" + strPdtCode + ">"
+                    + "       <ItemSelectionList IsInventory='true' OptionSortType='Name' IsCombination='true' OptionImageLevel ='0'  xmlns='http://tpl.gmarket.co.kr/tpl.xsd'>"
+//                    + optionXml
+                    + "		</ItemSelectionList>"
+                    + "      </AddItemOption>"
+                    + "    </AddItemOption>"
+                    + "  </soap:Body>"
+                    + "</soap:Envelope>";
+
+        }catch (Exception e){
+            e.printStackTrace();
+        }
     }
 
 
