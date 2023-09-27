@@ -26,6 +26,13 @@ public interface ElandMapper {
     // 시설 정보 가져오기
     AccommDto getAccommInfo(int intAID, int intOMKIdx);
 
-    // 카테고리코드 가져오기
+    // 표준상품코드 가져오기
     String getCateCode(String strAcmType, String strRegion);
+
+    // 카테고리코드 가져오기
+    String getCategoryCode(String strRegion);
+
+    // 이랜드 상품 채번 최대값 가져오기
+    int getMaxElandSeq(int intAID);
+
 }

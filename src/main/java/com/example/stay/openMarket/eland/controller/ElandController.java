@@ -32,82 +32,36 @@ public class ElandController {
     private ElandService elandService;
 
 
-    @GetMapping("makeCookie")
-    public void makeCookie(HttpServletResponse response){
 
-        Cookie cookie = new Cookie("elandCookie", "test");
-        cookie.setMaxAge(60*60*24);
-        cookie.setPath("/");
-        response.addCookie(cookie);
-
+    @GetMapping("checkCookie")
+    public void checkCookie(HttpServletRequest request, HttpServletResponse response){
+        String cookie = elandService.getCookie(request, response);
+        System.out.println(cookie);
     }
 
-    @GetMapping("deleteCookie")
-    public void deleteCookie(HttpServletResponse response){
-
-        Cookie cookie = new Cookie("elandCookie", null);
-        cookie.setMaxAge(0);
-        response.addCookie(cookie);
-
-    }
-
-    @GetMapping("getCookie")
-    public void getCookie(HttpServletRequest response){
-
-        Cookie[] cookies = response.getCookies(); // 모든 쿠키 가져오기
-        System.out.println(cookies);
-        if(cookies!=null){
-            for (Cookie c : cookies) {
-                String name = c.getName(); // 쿠키 이름 가져오기
-                String value = c.getValue(); // 쿠키 값 가져오기
-                if (name.equals("elandCookie")) {
-                    System.out.println(value);
-                }
-            }
-        }
-
-    }
 
     @GetMapping("createAccomm")
-    public String insertAccomm(int intAID){
-        String result = elandService.insertAccomm(intAID);
+    public String insertAccomm(HttpServletRequest request, HttpServletResponse response, int intAID){
+        String result = elandService.insertAccomm(request, response, intAID);
         return result;
     }
 
-    public String getReserveList(String startdate, String endDate){
+    public String getReserveList(HttpServletRequest request, HttpServletResponse response, String startdate, String endDate){
 
-        String result = elandService.getReserveList(startdate, endDate);
+        String result = elandService.getReserveList(request, response, startdate, endDate);
 
-        return result;
-
-    }
-
-
-    /**
-     * 인증키 요청
-     * 추후 발급받은 ACCESS TOKEN DB에 저장 X -> 쿠키로 사용할 것
-     * elandmall_openapi_guide
-     */
-    @GetMapping("/requestToken")
-    public void requestToken(HttpServletResponse httpResponse){
-        elandService.requestToken(httpResponse);
-    }
-
-
-    /**
-     * 인증키 유효성 확인
-     * 이랜드몰_OPEN API 연동표준안_공통 000_(인증키유효성확인)
-     */
-    @GetMapping("/checkToken")
-    public String accessTokenValidation(String accessToken){
-
-        String result = elandService.checkToken(accessToken);
-        System.out.println(result);
-        System.out.println(Constants.base64EncodedAuth);
         return result;
 
     }
 
+    @GetMapping("updateAccomm")
+    public String updateAccomm(HttpServletRequest request, HttpServletResponse response, int intAID, String strType){
+
+        String result = elandService.updateAccomm(request, response, intAID, strType);
+
+        return result;
+
+    }
 
 
 
@@ -130,7 +84,8 @@ public class ElandController {
             String strPostBody = "start_date=" + strStartDate + "&end_date=" + strEndDate;
 
             // 주문정보 가져오기
-            JSONArray jsonArrayData = elandService.elandApi(httpResponse, "/order/searchDeliIndiList.action", strPostBody);
+            //JSONArray jsonArrayData = elandService.elandApi(httpResponse, "/order/searchDeliIndiList.action", strPostBody);
+            JSONArray jsonArrayData = new JSONArray();
 
             String strOrdName = "";
             for (int i=0; i<jsonArrayData.size(); i++) {

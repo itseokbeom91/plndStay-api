@@ -16,6 +16,7 @@ public class StockDto {
     private int intStock;
     private int intSsgSeq;
     private int intGsshopSeq;
+    private int intElandSeq;
     private int intNextStock;
 
     

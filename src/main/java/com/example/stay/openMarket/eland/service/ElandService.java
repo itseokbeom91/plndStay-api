@@ -4,6 +4,9 @@ import com.example.stay.common.util.CommonFunction;
 import com.example.stay.common.util.Constants;
 import com.example.stay.openMarket.common.dto.AccommDto;
 import com.example.stay.openMarket.common.dto.CondoDto;
+import com.example.stay.openMarket.common.dto.StockDto;
+import com.example.stay.openMarket.common.mapper.CommonMapper;
+import com.example.stay.openMarket.common.service.CommonService;
 import com.example.stay.openMarket.eland.mapper.ElandMapper;
 import com.fasterxml.jackson.databind.JsonNode;
 import org.json.simple.JSONArray;
@@ -18,7 +21,10 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 @Service
@@ -27,27 +33,76 @@ public class ElandService {
     @Autowired
     private ElandMapper elandMapper;
 
+    @Autowired
+    private CommonMapper commonMapper;
+
+    @Autowired
+    private CommonService commonService;
+
     CommonFunction commonFunction = new CommonFunction();
 
 
     // cookie 체크
-    public String checkCookie(HttpServletRequest req){
+    public String getCookie(HttpServletRequest request, HttpServletResponse response){
 
-        String result = "empty";
+        boolean result = false;
 
-        Cookie[] cookies = req.getCookies(); // 모든 쿠키 가져오기
-        if(cookies!=null){
-            for (Cookie c : cookies) {
-                String name = c.getName(); // 쿠키 이름 가져오기
-                String value = c.getValue(); // 쿠키 값 가져오기
-                if (name.equals("elandToken")) {
-                    result = value;
-                    System.out.println(value);
+        String ElandCookie = "empty";
+
+        try {
+
+            Cookie[] cookies = request.getCookies(); // 모든 쿠키 가져오기
+            if(cookies!=null){
+                for (Cookie c : cookies) {
+                    String key = c.getName(); // 쿠키 이름 가져오기
+                    String value = c.getValue(); // 쿠키 값 가져오기
+
+                    if (key.equals("elandToken")) {
+                        result = true;
+                        ElandCookie = value;
+                    }
                 }
             }
+
+            if(result == true){
+                // 유효성 검사 & success
+                String isToken = checkToken(ElandCookie);
+
+                if(isToken.equals("00")){
+                    // success
+                }else{
+                    //발급
+                    String strNewToken = createToken(response);
+                    if(strNewToken.equals("fail")){
+                        // fail
+                        ElandCookie = "empty";
+                    }else{
+                        ElandCookie = strNewToken;
+                    }
+                }
+
+            }else{
+                // 토큰 생성
+                String strNewToken = createToken(response);
+                if(strNewToken.equals("fail")){
+                    // fail
+                    ElandCookie = "empty";
+                }else{
+                    ElandCookie = strNewToken;
+                }
+            }
+
+            if(ElandCookie.equals("empty")){
+                // error 반환
+
+            }
+
+        }catch (Exception e){
+            e.printStackTrace();
         }
 
-        return result;
+
+        return ElandCookie;
 
     }
 
@@ -58,9 +113,10 @@ public class ElandService {
 
         try {
 
-            JsonNode jsonNode = commonFunction.callJsonApi("eland", accessToken, new JSONObject(), Constants.elandPath + "/token/checkAccessTokenValidation.action", "POST");
+            JsonNode jsonNode = commonFunction.callJsonApi("eland", "Bearer "+ accessToken, new JSONObject(), Constants.elandPath + "/token/checkAccessTokenValidation.action", "POST");
 
             JSONObject jsonObject = (JSONObject) new JSONParser().parse(jsonNode.toString());
+            System.out.println(jsonObject);
             result = jsonObject.get("error").toString();
 
 
@@ -72,14 +128,28 @@ public class ElandService {
         return result;
     }
 
-    // accessToken 가져오기
-    public String GetToken(HttpServletRequest req, HttpServletResponse res){
+
+    // 토큰 생성
+    public String createToken(HttpServletResponse response){
         String result = "";
 
         try {
-            String cookie = checkCookie(req);
-            if(cookie.equals("empty")){
-                String token = requestToken(res);
+
+            JsonNode jsonNode = commonFunction.callJsonApi("eland", Constants.base64EncodedAuth, new JSONObject(), Constants.elandPath + "/auth/requestToken.action", "POST");
+
+            JSONObject jsonObject = (JSONObject) new JSONParser().parse(jsonNode.toString());
+            String error = jsonObject.get("error").toString();
+            if (error.equals("99")){
+                result = "fail";
+            }else{
+
+                result = jsonObject.get("access_token").toString();
+
+                // 쿠키 생성
+                Cookie cookie = new Cookie("elandToken", result);
+                cookie.setMaxAge(60*60*24);
+                cookie.setPath("/");
+                response.addCookie(cookie);
             }
 
         }catch (Exception e){
@@ -87,17 +157,17 @@ public class ElandService {
         }
 
         return result;
-
     }
 
     // 출고지시조회
-    public String getReserveList(String startdate, String endDate){
+    public String getReserveList(HttpServletRequest request, HttpServletResponse response, String startdate, String endDate){
 
         String result = "";
 
         try {
+            String accessToken = getCookie(request, response);
 
-            JsonNode jsonNode = commonFunction.callJsonApi("eland", "", new JSONObject(), Constants.elandPath + "/token/checkAccessTokenValidation.action", "POST");
+            JsonNode jsonNode = commonFunction.callJsonApi("eland", "Bearer " + accessToken, new JSONObject(), Constants.elandPath + "/token/checkAccessTokenValidation.action", "POST");
 
         }catch (Exception e){
             e.printStackTrace();
@@ -108,18 +178,18 @@ public class ElandService {
     }
 
     // 상품 등록
-    public String insertAccomm(int intAID){
+    public String insertAccomm(HttpServletRequest request, HttpServletResponse response, int intAID){
 
         String result = "";
 
         try {
 
-            AccommDto accommDto = elandMapper.getAccommInfo(intAID, 9);
+            AccommDto accommDto = commonMapper.getAcmInfo(intAID, 9);
 
             // 검색어
             String strKeywords = (accommDto.getStrKeywords() != null)? accommDto.getStrKeywords() : accommDto.getStrSubject();
 
-            // 카테고리 구하기
+            // 상품군 코드 구하기
             String strType = accommDto.getStrType();
             String strAcmType = "ELAND_L";
             if(strType.equals("C")){
@@ -141,6 +211,10 @@ public class ElandService {
             String strElandCate = elandMapper.getCateCode(strAcmType, strRegion);
             strElandCate = (strElandCate  != null)? strElandCate : "";
 
+            // 카테고리 코드 구하기
+            String strCategoryCode = elandMapper.getCategoryCode(strRegion);
+            strCategoryCode = (strCategoryCode  != null)? strCategoryCode : "";
+
             // 브랜드 구하기
             String strCateCode = (accommDto.getStrCateCode() != null)? accommDto.getStrCateCode() : "";
             String strBrandId = "";
@@ -158,48 +232,73 @@ public class ElandService {
                 strBrandId = "2000017560";
             }
 
-            String GC_DTTM = "";
+            // 현재 시간 구하기
+            DateFormat dateElandFormat = new SimpleDateFormat("yyyyMMddHHmmss");
+            String strElandDate = dateElandFormat.format(new Date());
+            DateFormat dateDBFormat = new SimpleDateFormat("yyyyMMdd");
+            String strDBDate = dateDBFormat.format(new Date());
+
+            // 상세설명
+            String strDesc = commonService.getStrPdtDtlInfo(accommDto, intAID, 9).replace("<", "&lt;").replace(">", "&gt;");
+
+            // 최저가
+            int intMinPrice = commonMapper.getMinPrice(intAID, strDBDate);
+
+            // 공급가(수수료 계산)
+            int intRate = 7;
+            int intSupplyPrice = intMinPrice * ((100 - intRate) / 100);
 
             String url = "";
 
+            url += "goods_nm=" + accommDto.getStrSubject();
             url += "&goods_type_cd=10";
             url += "&goods_type_dtl_cd=10";
-            url += "&multi_item_yn=Y";
-            url += "&ord_poss_max_qty_st_cd=10";
-            url += "&search_poss_yn=Y";
-            url += "&vend_goods_no=" + intAID;
-            url += "&stock_mgmt_yn=Y";
-            url += "&imme_coupon_apply_yn=Y"; //2023-04-05 즉시쿠폰적용여부 Y로 해달라고 요청 들어옴
-            url += "&promo_apply_yn=Y"; //2023-04-05 프로모션여부 Y로 해달라고 요청 들어옴
             url += "&prgs_stat_cd=10";	  // 판매진행상태 20:판매중지
-            url += "&std_gsgr_no=" + strElandCate; // 표준상품군조회 (지역 조회 후 디폴트 국내여행)
-            url +=  "&tax_divi_cd=10";	 // 과세
-            url +=  "&origin_cd=08"; //08 대한민국
-            url +=  "&origin_nm=한국"; //위없음
-            url +=  "&maker_cd=000"; //직접입력
-            url +=  "&maker=콘도24";
-            url +=  "&deli_goods_divi_cd=10"; //일반배송
-            url +=  "&goods_disp_divi_cd=00"; //상품전시구분
-            url +=  "&welfare_goods_type_cd=10";
-            url +=  "&deli_form_cd=40";
-            url +=  "&deli_cost_form_cd=10";
-            url +=  "&deli_cost_poli_no=0000383991"; //배송비 책정 번호
-            url +=  "&ret_dlvp_no=0000024871";
-            url +=  "&ret_poss_yn=Y"; // 반품여부
-            url +=  "&read_time=3"; // 배송기일
-            url +=  "&cm_cd=958522";
-            url +=  "&deli_poss_area_grp_no=10000001";
-            url +=  "&ep_disp_yn=Y";
-            url +=  "&list_disp_yn=Y";
-            url +=  "&imme_ord_cancel_poss_yn=Y";
-            url +=  "&ord_poss_min_qty=1";
-            url +=  "&ord_poss_max_qty=10";
-            url +=  "&search_kwd=" + strKeywords;
-            url +=  "&disp_ctg_no=2104515028";
-// 여기 브랜드 아이디 조회 들어가야함
-            url +=  "&disp_start_dt=" + GC_DTTM;
-            url +=  "&disp_end_dt=29991231000000";
-
+            url += "&disp_start_dt=" + strElandDate;
+            url += "&disp_end_dt=29991231000000";
+            url += "&tax_divi_cd=10";	 // 과세
+            url += "&std_gsgr_no=" + strElandCate; // 표준상품군조회
+            url += "&brand_no=" + strBrandId;
+            url += "&origin_cd=08"; //08 대한민국
+            url += "&origin_nm=한국"; //위없음
+            url += "&maker_cd=000"; //직접입력
+            url += "&maker=콘도24";
+            url += "&deli_goods_divi_cd=10"; //일반배송
+            url += "&multi_item_yn=Y";
+            url += "&goods_disp_divi_cd=00"; //상품전시구분
+            url += "&welfare_goods_type_cd=10";
+            url += "&low_vend_no=LV20021149";
+            url += "&deli_form_cd=40";
+            url += "&deli_cost_form_cd=10";
+            url += "&deli_cost_poli_no=0000383991"; //배송비 책정 번호
+            url += "&ret_dlvp_no=0000024871";
+            url += "&read_time=3"; // 배송기일
+            url += "&ord_poss_min_qty=1";
+            url += "&cm_cd=958522";
+            url += "&normal_price=" + intMinPrice;
+            url += "&supply_price=" + intSupplyPrice;
+            url += "&sale_price=" + intMinPrice;
+            url += "&stock_mgmt_yn=Y";
+            url += "&goods_clss_guide_no=801021";
+            url += "&guide_dtl_no=001";
+            url += "&guide_dtl_no=002";
+            url += "&guide_dtl_no=003";
+            url += "&guide_dtl_no=004";
+            url += "&guide_dtl_no=005";
+            url += "&guide_dtl_no=006";
+            url += "&guide_dtl_no=007";
+            url += "&guide_dtl_no=008";
+            url += "&guide_dtl_no=009";
+            url += "&clss_guide_cont=상세내용참조";
+            url += "&clss_guide_cont=상세내용참조";
+            url += "&clss_guide_cont=상세내용참조";
+            url += "&clss_guide_cont=상세내용참조";
+            url += "&clss_guide_cont=상세내용참조";
+            url += "&clss_guide_cont=상세내용참조";
+            url += "&clss_guide_cont=상세내용참조";
+            url += "&clss_guide_cont=상세내용참조";
+            url += "&clss_guide_cont=상세내용참조";
+            url += "&goods_desc10=" + strDesc;
             // 사진 다섯장
             String[] photos = accommDto.getStrACMPhotos().split("\\|");
             for(int i=0; i<5; i++){
@@ -211,9 +310,52 @@ public class ElandService {
                 }
 
             }
+            url += "&disp_ctg_no=" + strCategoryCode;
+            url += "&disp_ctg_no=2104515028"; // KIDIKIDI 전시 설정
+
+
+            url += "&opt_nm1=날짜캘린더";
+            url += "&opt_nm2=객실타입";
+
+            // 재고 가져오기
+            List<StockDto> stockList = commonMapper.getStockList(intAID, 9, strDBDate);
+
+            System.out.println(stockList);
+            for (StockDto dto : stockList) {
+
+                String strStockSubject = dto.getStrRmtypeName();
+                int intStockCnt = dto.getIntStock();
+                String strStockdate = dto.getDateSales();
+                int intStockSalePrice = dto.getMoneySales(); // 판매가
+                int intStockCost = dto.getMoneyCost(); // 공급가
+
+                url += "&item=" + strStockSubject + "/" + strStockdate + "," + intStockCnt + ",Y," + strStockdate + "," + strStockSubject + ",^,^,^," + strElandDate + "," + intStockSalePrice + "," + intStockCost + ",^";
+
+            }
+
+
+
+            url += "&ord_poss_max_qty_st_cd=10";
+            url += "&search_poss_yn=Y";
+            url += "&vend_goods_no=" + intAID;
+            url += "&imme_coupon_apply_yn=Y"; //2023-04-05 즉시쿠폰적용여부 Y로 해달라고 요청 들어옴
+            url += "&promo_apply_yn=Y"; //2023-04-05 프로모션여부 Y로 해달라고 요청 들어옴
+            url += "&ret_poss_yn=Y"; // 반품여부
+            url += "&ep_disp_yn=Y";
+            url += "&list_disp_yn=Y";
+            url += "&imme_ord_cancel_poss_yn=Y";
+            url += "&ord_poss_max_qty=10";
+            url += "&search_kwd=" + strKeywords;
+
 
             System.out.println(url);
 
+            String accessToken = getCookie(request, response);
+
+            JsonNode jsonNode = commonFunction.callJsonApi("eland", "Bearer " + accessToken, new JSONObject(), Constants.elandPath + "/goods/temporarygoods/insertNewGoods.action?" + url, "POST");
+
+
+
         }catch (Exception e){
             e.printStackTrace();
         }
@@ -222,162 +364,71 @@ public class ElandService {
     }
 
 
+    // 상품 update
+    public String updateAccomm(HttpServletRequest request, HttpServletResponse response, int intAID, String strType){
 
-    public String requestToken(HttpServletResponse httpResponse){
-        String accessToken = "";
-        BufferedReader br = null;
+        String result = "";
+
         try {
-            // API 호출
-            long APIStart = System.currentTimeMillis();
+            String url = "";
+            String accessToken = getCookie(request, response);
 
-            URL url = new URL(Constants.elandPath + "/auth/requestToken.action");
-            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-            conn.setRequestMethod("POST");
-            conn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
-            conn.setRequestProperty("Authorization", Constants.base64EncodedAuth);
-            conn.setRequestProperty("grant_type", "client_credentials");
-            conn.setRequestProperty("Accept", "*/*");
-            conn.setRequestProperty("Accept-Charset", "UTF-8");
+            AccommDto accommDto = commonMapper.getAcmInfo(intAID, 9);
+            String goodsNo = accommDto.getStrPdtCode();
+            url += "goods_no=" + goodsNo;
 
-            String strResponse = "";
+            if(strType.equals("start")){
+                url += "&prgs_stat_cd=10";
+            }else if(strType.equals("stop")){
+                url += "&prgs_stat_cd=20";
+            }else if(strType.equals("desc")){
+                String strImgDesc = commonService.getStrPdtDtlInfo(accommDto, intAID, 9).replace("<", "&lt;").replace(">", "&gt;");
+                url += "&goods_desc10=" + strImgDesc;
+            }else if(strType.equals("stock")){
 
-            if(conn.getResponseCode() == HttpURLConnection.HTTP_OK){
-                br = new BufferedReader(new InputStreamReader(conn.getInputStream(), "UTF-8"));
-                StringBuffer sb = new StringBuffer();
-                while ((strResponse = br.readLine()) != null) {
-                    sb.append(strResponse);
+                JsonNode infoJsonNode = commonFunction.callJsonApi("eland", "Bearer " + accessToken, new JSONObject(), Constants.elandPath + "/goods/searchGoodsView.action?goods_no=" + goodsNo, "POST");
+                JSONArray stockArray = (JSONArray) new JSONParser().parse(infoJsonNode.get("itemList").toString());
+                System.out.println(stockArray);
+
+                DateFormat dateDBFormat = new SimpleDateFormat("yyyyMMdd");
+                DateFormat dateElandFormat = new SimpleDateFormat("yyyyMMddHHmmss");
+                String strElandDate = dateElandFormat.format(new Date());
+                String strDBDate = dateDBFormat.format(new Date());
+
+                // 재고 가져오기
+                List<StockDto> stockList = commonMapper.getStockList(intAID, 9, strDBDate);
+
+                int intMaxElandSeq = elandMapper.getMaxElandSeq(intAID);
+
+                System.out.println(stockList);
+                for (StockDto dto : stockList) {
+
+                    String strStockSubject = dto.getStrRmtypeName();
+                    int intStockCnt = dto.getIntStock();
+                    String strStockdate = dto.getDateSales();
+                    int intStockSalePrice = dto.getMoneySales(); // 판매가
+                    int intStockCost = dto.getMoneyCost(); // 공급가
+
+                    url += "&item=" + strStockSubject + "/" + strStockdate + "," + intStockCnt + ",Y," + strStockdate + "," + strStockSubject + ",^,^,^," + strElandDate + "," + intStockSalePrice + "," + intStockCost + ",^";
+
                 }
-                strResponse = sb.toString();
 
-                JSONParser jsonParser = new JSONParser();
-                Object objData = jsonParser.parse(strResponse);
-                JSONObject resultJson = (JSONObject) objData;
-
-                System.out.println(resultJson);
-                accessToken = resultJson.get("access_token").toString();
-
-                // 발급받은 AccessToken DB에 INSERT----------------------------------------------------------------------
-//                int result = insertAccessToken(accessToken);
-//                if(result > 0){
-//                    System.out.println("AccessToken DB에 INSERT 성공");
-//                }else{
-//                    System.out.println("AccessToken DB에 INSERT 실패");
-//                }
-                System.out.println("---------------------------------------------------------------------------------\n");
-                // -----------------------------------------------------------------------------------------------------
-
-                // 쿠키로 사용시
-//                Cookie cookie = new Cookie("AssessToken", accessToken);
-//                cookie.setMaxAge(60*60*24);
-//                cookie.setPath("/");
-//                httpResponse.addCookie(cookie);
-            }else{
-                strResponse = conn.getResponseMessage();
-                System.out.println(strResponse);
-
-                System.out.println("AccessToken이 만료 혹은 미발급 상태입니다.");
             }
-            conn.disconnect();
-            System.out.println("이랜드 API 호출 실행 시간 : " + (System.currentTimeMillis()-APIStart)/1000.0);
+
+            //JsonNode jsonNode = commonFunction.callJsonApi("eland", "Bearer " + accessToken, new JSONObject(), Constants.elandPath + "/goods/temporarygoods/updateGoods.action?" + url, "POST");
+
         }catch (Exception e){
             e.printStackTrace();
-            System.out.println("AccessToken 발급 실패");
-        }finally {
-            try {
-                if (br != null) {
-                    br.close();
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
         }
 
-        return "Bearer " + accessToken;
-    }
-
-    // 발급받은 AccessToken DB에 INSERT
-    public int insertAccessToken (String token){
-        int result = elandMapper.insertAccessToken(token);
         return result;
+
+
     }
 
-    //eland api 호출
-    public JSONArray elandApi(HttpServletResponse httpResponse, String path, String strPostBody){
-        path = Constants.elandPath + path;
-//        JSONObject jsonResult = new JSONObject();
-        JSONArray jsonArrayData = new JSONArray();
-        BufferedReader br = null;
-        try{
-            // AccessToken 발급
-            String accessToken = requestToken(httpResponse);
 
-            long APIStart = System.currentTimeMillis();
 
-            URL url = new URL(path);
-            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-            conn.setRequestMethod("POST");
-            conn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
-            conn.setRequestProperty("Authorization", accessToken);
-            conn.setRequestProperty("grant_type", "client_credentials");
-            conn.setRequestProperty("Accept", "*/*");
-            conn.setRequestProperty("Accept-Charset", "UTF-8");
-//            conn.setDoInput(true);
 
-            if(strPostBody != null && !strPostBody.equals("")){
-                conn.setDoOutput(true);
-
-                BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(conn.getOutputStream(), "UTF-8"));
-                bw.write(strPostBody);
-                bw.flush();
-                bw.close();
-
-                System.out.println("OutputStream : " + conn.getOutputStream());
-
-            }else{
-                System.out.println("요청 파라미터값이 없습니다.");
-            }
-
-            if(conn.getResponseCode() == HttpURLConnection.HTTP_OK){
-                String strResponse = "";
-                br = new BufferedReader(new InputStreamReader(conn.getInputStream(), "UTF-8"));
-                StringBuffer sb = new StringBuffer();
-                while ((strResponse = br.readLine()) != null) {
-                    sb.append(strResponse);
-                }
-                strResponse = sb.toString();
-
-                // 응답값을 json으로 파싱
-                JSONParser jsonParser = new JSONParser();
-                Object objData = jsonParser.parse(strResponse);
-                JSONObject jsonData = (JSONObject) objData;
-
-                jsonArrayData = (JSONArray) jsonData.get("data");
-
-                System.out.println(jsonArrayData);
-
-            }else{
-                System.out.println("이랜드 api 통신 실패");
-                System.out.println("responseCode : " + conn.getResponseCode() + "\nresponseMessage : " + conn.getResponseMessage());
-            }
-
-            conn.disconnect();
-            System.out.println("이랜드 API 호출 실행 시간 : " + (System.currentTimeMillis()-APIStart)/1000.0);
-
-        }catch (Exception e){
-            e.printStackTrace();
-            System.out.println("이랜드 api 호출 실패");
-        }finally {
-            try {
-                if (br != null) {
-                    br.close();
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-
-        return jsonArrayData;
-    }
 
     // 주문번호 만들 idx가져오기
     public String getIdxForOrderID(){
