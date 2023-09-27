@@ -2,6 +2,7 @@ package com.example.stay.openMarket.gmarket.controller;
 
 import com.example.stay.openMarket.gmarket.hmac.HmacGenerater;
 import com.example.stay.openMarket.gmarket.service.GmkAccommService;
+import com.example.stay.openMarket.gmarket.service.GmkAccommService_old;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -18,6 +19,9 @@ public class GmkAccommController {
 
     @Autowired
     private GmkAccommService gmkAccommService;
+
+//    @Autowired
+//    private GmkAccommService_old gmkAccommService;
 
     /**
      * 숙박상품 생성
@@ -36,5 +40,12 @@ public class GmkAccommController {
     public String getPriceNStock(HttpServletRequest httpServletRequest){
         return gmkAccommService.getPriceNStock(httpServletRequest);
     }
+
+        @GetMapping("/getRecommendOpts")
+    public void getRecommendOpts(){
+        gmkAccommService.getRecommendOpts();
+    }
+
+
 
 }

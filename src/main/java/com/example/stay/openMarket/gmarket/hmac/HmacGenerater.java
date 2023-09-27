@@ -24,11 +24,12 @@ public class HmacGenerater {
 
             JSONObject payload = new JSONObject();
             payload.put("iss", "www.condo24.com");
-//            payload.put("sub", strDomain);
-            payload.put("sub", "sell");
+            payload.put("sub", strDomain);
+//            payload.put("sub", "sell");
             payload.put("aud", "sa.esmplus.com");
-            payload.put("iat", System.currentTimeMillis()/1000);
-            payload.put("ssi", "A:condo24auc, G:condo24gmk");
+//            payload.put("iat", System.currentTimeMillis()/1000);
+//            payload.put("ssi", "A:condo24auc, G:condo24gmk");
+            payload.put("ssi", "G:condo24gmk");
 
             String strHeader = Base64Encoder.encode(header.toString().getBytes(StandardCharsets.UTF_8));
             String strPayload = Base64Encoder.encode(payload.toString().getBytes(StandardCharsets.UTF_8));

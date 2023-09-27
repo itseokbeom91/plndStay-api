@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 @Controller("elevenST.ElevenStController")
@@ -19,10 +20,10 @@ public class ElevenStController {
         return elevenStService.getProductList();
     }
 
-    @GetMapping("/stopDisplay")
+    @GetMapping("/updateDisplay")
     @ResponseBody
-    public String test(String prdNo){
-        return elevenStService.stopDisplay(prdNo);
+    public String updateDisplay(String prdNo, @RequestParam(value = "state", required = false) String state){
+        return elevenStService.stopDisplay(prdNo, state);
     }
 
     @GetMapping("/getStockList")
@@ -65,6 +66,12 @@ public class ElevenStController {
     @ResponseBody
     public String updateQuantity(String prdNo, String quantity){
         return elevenStService.updateStock(prdNo, quantity);
+    }
+
+    @GetMapping("/updatePrdDesc")
+    @ResponseBody
+    public String updatePrdDesc(@RequestParam(value = "dataType", required = false, defaultValue = "jsonp") String dataType, String prdNo, String description){
+        return elevenStService.updatePrdDesc(dataType, prdNo, description);
     }
 
 

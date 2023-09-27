@@ -14,13 +14,12 @@
         WHERE intIdx = ${intRmIdx}
     </select>
 
-    <select id="getStrPkgCodeList" parameterType="int" resultType="String">
-        SELECT strPkgCode
-        FROM PLNDSTAY.dbo.ACM_PACKAGE_INFO WITH(NOLOCK)
-        WHERE strFlag = '49'
-            AND strDeleteYn = 'N'
-            AND strUsageYn = 'Y'
-            AND dateEnd >= GETDATE()
+    <select id="getStrPkgCodeList" resultType="String">
+        SELECT strMapCode, dateMapping
+        FROM PLNDSTAY.dbo.RM_PACKAGE_MAPPING WITH(NOLOCK)
+        WHERE intRmIdx = ${intRmIdx}
+          AND strDeleteYn = 'N'
+          AND dateMapping BETWEEN #{startDate} AND #{endDate}
     </select>
 
     <select id="getReservation" resultType="RsvStayDto">
