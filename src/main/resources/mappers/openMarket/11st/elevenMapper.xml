@@ -12,6 +12,12 @@
         WHERE A.intAID = #{accommID}
     </select>
 
+    <update id="updateUsg">
+        UPDATE ACCOMM_OMK SET
+            strUsageYn = #{usageYn}
+        WHERE intAID = #{intAID} AND intOMKIdx='1'
+    </update>
+
     <insert id="insertAccomm">
         INSERT INTO  ACCOMM_OMK (
         intAID, intOMKIdx, strUsageYn, strPdtSubject, strPdtCode, strDetailInfo

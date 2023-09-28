@@ -22,14 +22,14 @@ public class ElevenStController {
 
     @GetMapping("/updateDisplay")
     @ResponseBody
-    public String updateDisplay(String prdNo, @RequestParam(value = "state", required = false) String state){
-        return elevenStService.stopDisplay(prdNo, state);
+    public String updateDisplay(int intAID, @RequestParam(value = "state", required = false) String state){
+        return elevenStService.updateDisplay(intAID, state);
     }
 
     @GetMapping("/getStockList")
     @ResponseBody
-    public String getStockList(String prdNo){
-        return elevenStService.getStockList(prdNo);
+    public String getStockList(int intAID){
+        return elevenStService.getStockList(intAID);
     }
 
     @GetMapping("/getOrderList")
@@ -50,6 +50,12 @@ public class ElevenStController {
         return elevenStService.regProduct(accommID,  bgnDay, endDay);
     }
 
+    @GetMapping("/modProduct")
+    @ResponseBody
+    public String modProduct(String prdNo){
+        return elevenStService.modProduct(prdNo);
+    }
+
     @GetMapping("/getQnaList")
     @ResponseBody
     public String qnaTest(){
@@ -64,14 +70,14 @@ public class ElevenStController {
 
     @GetMapping("/updateQuantity")
     @ResponseBody
-    public String updateQuantity(String prdNo, String quantity){
-        return elevenStService.updateStock(prdNo, quantity);
+    public String updateQuantity(int intAID, String quantity){
+        return elevenStService.updateStock(intAID, quantity);
     }
 
     @GetMapping("/updatePrdDesc")
     @ResponseBody
-    public String updatePrdDesc(@RequestParam(value = "dataType", required = false, defaultValue = "jsonp") String dataType, String prdNo, String description){
-        return elevenStService.updatePrdDesc(dataType, prdNo, description);
+    public String updatePrdDesc(@RequestParam(value = "dataType", required = false, defaultValue = "jsonp") String dataType, int intAID){
+        return elevenStService.updatePrdDesc(dataType, intAID);
     }
 
 
