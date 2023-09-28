@@ -17,44 +17,35 @@ import java.io.InputStreamReader;
 @RequestMapping("/gmk/accomm/*")
 public class GmkAccommController {
 
-//    @Autowired
-//    private GmkAccommService gmkAccommService;
-
     @Autowired
-    private GmkAccommService_old gmkAccommService;
+    private GmkAccommService gmkAccommService;
+
+//    @Autowired
+//    private GmkAccommService_old gmkAccommService;
 
     /**
      * 숙박상품 생성
      */
-//    @GetMapping("/createAccomm")
-//    public String createAccomm(String dataType, int intAID, HttpServletRequest httpServletRequest){
-//        return gmkAccommService.createAccomm(dataType, intAID, httpServletRequest);
-//    }
-
-//    @GetMapping("/testHmac")
-//    public void testHmac(){
-//        HmacGenerater.generate("");
-//    }
-
-//    @GetMapping("/getPriceNStock")
-//    public String getPriceNStock(HttpServletRequest httpServletRequest){
-//        return gmkAccommService.getPriceNStock(httpServletRequest);
-//    }
-
-    //    @GetMapping("/getRecommendOpts")
-//    public void getRecommendOpts(){
-//        gmkAccommService.getRecommendOpts();
-//    }
-
     @GetMapping("/createAccomm")
     public String createAccomm(String dataType, int intAID, HttpServletRequest httpServletRequest){
         return gmkAccommService.createAccomm(dataType, intAID, httpServletRequest);
     }
 
-    @GetMapping("/createAccommNotice")
-    public String createAccommNotice(int intAID){
-        return gmkAccommService.createAccommNotice(intAID);
+    @GetMapping("/testHmac")
+    public void testHmac(){
+        HmacGenerater.generate("");
     }
+
+    @GetMapping("/getPriceNStock")
+    public String getPriceNStock(HttpServletRequest httpServletRequest){
+        return gmkAccommService.getPriceNStock(httpServletRequest);
+    }
+
+        @GetMapping("/getRecommendOpts")
+    public void getRecommendOpts(){
+        gmkAccommService.getRecommendOpts();
+    }
+
 
 
 }

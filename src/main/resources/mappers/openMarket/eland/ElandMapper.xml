@@ -53,5 +53,17 @@
     <select id="getCateCode" resultType="String">
         SELECT strCode FROM CODE_OMK WITH(NOLOCK) WHERE intDepth = 2 AND strParentCode = #{strAcmType} AND strName like #{strRegion}
     </select>
+    
+    <select id="getCategoryCode" resultType="String">
+        SELECT strCode FROM CODE_OMK WITH(NOLOCK) WHERE intDepth = 1 AND strCateCode = 'ELAND_DISPLAY' AND strName like #{strRegion}
+    </select>
+
+    <select id="getMaxElandSeq" resultType="int">
+        SELECT MAX(SR.intElandSeq) FROM STOCK_REAL SR WITH(NOLOCK)
+        INNER JOIN STOCK_OMK SO ON SR.intIdx = SO.intStockIdx
+        WHERE SR.intAID = ${intAID}
+          AND SO.intOMKIdx = 9
+    </select>
+
 
 </mapper>

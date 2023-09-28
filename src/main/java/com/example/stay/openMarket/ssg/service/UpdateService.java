@@ -206,7 +206,9 @@ public class UpdateService {
                         if (uitemIdList.contains(strUitemId)) {
                             itemObject.put("uitemId", strUitemId);
                         } else {
-                            itemObject.put("tempUitemId", strUitemId);
+                            intMaxNum += 1;
+                            String strTmepUitemId = String.format("%05d", intMaxNum);
+                            itemObject.put("tempUitemId", strTmepUitemId);
                         }
 //                    itemObject.put("uitemId", uitemId);
 

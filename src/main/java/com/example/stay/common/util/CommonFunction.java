@@ -126,7 +126,7 @@ public class CommonFunction<T> {
             }else if(strAccomm.equals("gmk")){
                 conn.setRequestProperty("Authorization", strType);
             }else if(strAccomm.equals("eland")){
-                conn.setRequestProperty("Authorization", "Bearer "+ strType);
+                conn.setRequestProperty("Authorization", strType);
             }
 
             if(!requestJson.isEmpty()){

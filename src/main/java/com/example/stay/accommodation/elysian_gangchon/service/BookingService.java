@@ -6,6 +6,7 @@ import com.example.stay.common.util.Constants;
 import com.example.stay.common.util.LogWriter;
 import com.example.stay.openMarket.common.dto.RsvStayDto;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jmx.export.metadata.ManagedOperation;
 import org.springframework.stereotype.Service;
 
 import javax.servlet.http.HttpServletRequest;
@@ -34,11 +35,12 @@ public class BookingService extends CommonFunction{
         String message = "";
 
         try{
-            // 패키지코드 전체를 가져와서 패키지코드마다 API 호출해야할듯?
-            List<String> strPkgCodeList = elysianMapper.getStrPkgCodeList();
+            List<Map<String, String>> strMapCodeList = elysianMapper.getStrPkgCodeList();
+            for(Map map : strMapCodeList){
+                Map<String, String> MapCodeMap = map;
+                String strMapCode = map.get("strMapCode").toString();
+                String dateMapping = map.get("dateMapping").toString();
 
-            for(int i=0; i< strPkgCodeList.size(); i++){
-                
             }
 
             String strPkgCode = "90004884";
