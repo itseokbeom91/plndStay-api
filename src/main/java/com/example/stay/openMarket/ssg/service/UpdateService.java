@@ -158,6 +158,7 @@ public class UpdateService {
                 // DB에서 desc 이미지 가져오기(없으면 데이타 종합해서 html 코드)
                 String strImgDesc = commonService.getStrPdtDtlInfo(accommDto, intAID, 7).replace("<", "&lt;").replace(">", "&gt;");
                 updateObject.put("itemDesc", strImgDesc);
+                message = "상세이미지 수정 완료";
 
             /**
              * 재고 수정
