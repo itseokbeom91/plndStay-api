@@ -21,6 +21,10 @@
         EXEC PLNDSTAY.dbo.spOMK_STOCK_LIST ${intAID}, ${intOmkIdx}, #{strDate}
     </select>
 
+    <select id="getStockInfo" resultType="stockDto">
+        EXEC PLNDSTAY.dbo.spOMK_STOCK_INFO ${intStockIdx}, ${intOmkIdx}
+    </select>
+
     <select id="getMinPrice" resultType="int">
         EXEC PLNDSTAY.dbo.spOMK_STOCK_MIN_PRICE ${intAID}, #{strDate}
     </select>

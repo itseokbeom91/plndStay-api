@@ -13,6 +13,7 @@ import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.relational.core.sql.In;
 import org.springframework.stereotype.Service;
 
 import javax.servlet.http.Cookie;
@@ -23,9 +24,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 @Service
 public class ElandService {
@@ -354,7 +353,9 @@ public class ElandService {
 
             JsonNode jsonNode = commonFunction.callJsonApi("eland", "Bearer " + accessToken, new JSONObject(), Constants.elandPath + "/goods/temporarygoods/insertNewGoods.action?" + url, "POST");
 
-
+            JSONObject jsonObject = (JSONObject) new JSONParser().parse(jsonNode.toString());
+            System.out.println(jsonObject);
+            result = jsonObject.get("error").toString();
 
         }catch (Exception e){
             e.printStackTrace();
@@ -365,7 +366,7 @@ public class ElandService {
 
 
     // 상품 update
-    public String updateAccomm(HttpServletRequest request, HttpServletResponse response, int intAID, String strType){
+    public String updateAccomm(HttpServletRequest request, HttpServletResponse response, int intAID, String strType, String strStockIdx){
 
         String result = "";
 
@@ -388,7 +389,13 @@ public class ElandService {
 
                 JsonNode infoJsonNode = commonFunction.callJsonApi("eland", "Bearer " + accessToken, new JSONObject(), Constants.elandPath + "/goods/searchGoodsView.action?goods_no=" + goodsNo, "POST");
                 JSONArray stockArray = (JSONArray) new JSONParser().parse(infoJsonNode.get("itemList").toString());
-                System.out.println(stockArray);
+
+                List<Integer> intItemNoList = new ArrayList<Integer>();
+                for(Object object : stockArray){
+                    JSONObject jsonObject = new JSONObject((Map) object);
+                    intItemNoList.add(Integer.parseInt(jsonObject.get("ITEM_NO").toString()));
+                }
+                int intMaxItemNo = Collections.max(intItemNoList);
 
                 DateFormat dateDBFormat = new SimpleDateFormat("yyyyMMdd");
                 DateFormat dateElandFormat = new SimpleDateFormat("yyyyMMddHHmmss");
@@ -400,22 +407,71 @@ public class ElandService {
 
                 int intMaxElandSeq = elandMapper.getMaxElandSeq(intAID);
 
-                System.out.println(stockList);
-                for (StockDto dto : stockList) {
+                if(intMaxItemNo  == intMaxElandSeq){ // api 상의 itemNo 최대값과 DB상의 tiemNo 값이 같을때
 
-                    String strStockSubject = dto.getStrRmtypeName();
-                    int intStockCnt = dto.getIntStock();
-                    String strStockdate = dto.getDateSales();
-                    int intStockSalePrice = dto.getMoneySales(); // 판매가
-                    int intStockCost = dto.getMoneyCost(); // 공급가
+                    for (StockDto dto : stockList) {
 
-                    url += "&item=" + strStockSubject + "/" + strStockdate + "," + intStockCnt + ",Y," + strStockdate + "," + strStockSubject + ",^,^,^," + strElandDate + "," + intStockSalePrice + "," + intStockCost + ",^";
+                        String strStockSubject = dto.getStrRmtypeName();
+                        int intStockCnt = dto.getIntStock();
+                        String strStockdate = dto.getDateSales();
+                        int intStockSalePrice = dto.getMoneySales(); // 판매가
+                        int intStockCost = dto.getMoneyCost(); // 공급가
 
+                        int intItmeNo = dto.getIntElandSeq();
+
+                        if(intItemNoList.contains(intItmeNo)){
+                            url += "&item=" + intItmeNo + "," + strStockSubject + "/" + strStockdate + "," + intStockCnt + ",Y," + strStockdate + "," + strStockSubject + ",^,^,^," + strElandDate + "," + intStockSalePrice + "," + intStockCost + ",^";
+                        }else{
+                            intMaxElandSeq += 1;
+                            url += "&item=" + intMaxElandSeq + "," + strStockSubject + "/" + strStockdate + "," + intStockCnt + ",Y," + strStockdate + "," + strStockSubject + ",^,^,^," + strElandDate + "," + intStockSalePrice + "," + intStockCost + ",^";
+                        }
+
+                        //url += "&item=" + intItmeNo + "," + strStockSubject + "/" + strStockdate + "," + intStockCnt + ",Y," + strStockdate + "," + strStockSubject + ",^,^,^," + strElandDate + "," + intStockSalePrice + "," + intStockCost + ",^";
+
+                    }
+
+                }else{
+                    // 동기화? 잘못됐음
+                    System.out.println("아직 채번 기다려야함");
+                    /**
+                     * todo 20231003
+                     * 개별 재고 수정 추가
+                     */
+                }
+
+            }else if(strType.equals("stockEach")){
+
+                if(strStockIdx != null){
+                    if(strStockIdx.length() > 0) {
+                        int intStockIdx = Integer.parseInt(strStockIdx);
+
+                        DateFormat dateElandFormat = new SimpleDateFormat("yyyyMMddHHmmss");
+                        String strElandDate = dateElandFormat.format(new Date());
+
+                        StockDto stockDto = commonMapper.getStockInfo(intStockIdx, 9);
+                        String strStockSubject = stockDto.getStrRmtypeName();
+                        int intStockCnt = stockDto.getIntStock();
+                        String strStockdate = stockDto.getDateSales();
+                        int intStockSalePrice = stockDto.getMoneySales(); // 판매가
+                        int intStockCost = stockDto.getMoneyCost(); // 공급가
+                        int intItmeNo = stockDto.getIntElandSeq();
+                        url += "&item=" + intItmeNo + "," + strStockSubject + "/" + strStockdate + "," + intStockCnt + ",Y," + strStockdate + "," + strStockSubject + ",^,^,^," + strElandDate + "," + intStockSalePrice + "," + intStockCost + ",^";
+                    }else{
+                        System.out.println("intStockIdx 없음");
+                    }
+                }else{
+                    System.out.println("intStockIdx 없음");
                 }
 
             }
 
-            //JsonNode jsonNode = commonFunction.callJsonApi("eland", "Bearer " + accessToken, new JSONObject(), Constants.elandPath + "/goods/temporarygoods/updateGoods.action?" + url, "POST");
+            System.out.println(url);
+
+            JsonNode jsonNode = commonFunction.callJsonApi("eland", "Bearer " + accessToken, new JSONObject(), Constants.elandPath + "/goods/temporarygoods/updateGoods.action?" + url, "POST");
+
+            JSONObject jsonObject = (JSONObject) new JSONParser().parse(jsonNode.toString());
+            System.out.println(jsonObject);
+            result = jsonObject.get("error").toString();
 
         }catch (Exception e){
             e.printStackTrace();
