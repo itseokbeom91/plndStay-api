@@ -7,6 +7,7 @@ import com.example.stay.openMarket.common.dto.RsvStayDto;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
@@ -142,7 +143,7 @@ public class BookingService extends CommonFunction{
     }
 
     // 재고 등록 및 수정
-    public String updateRoomStock(String dataType, String strFromDate, String strToDate, int intRmIdx, HttpServletRequest httpServletRequest){
+    public String updateRoomStock(String dataType, String startDate, String endDate, int intRmIdx, HttpServletRequest httpServletRequest){
         LogWriter logWriter = new LogWriter(httpServletRequest.getMethod(), httpServletRequest.getServletPath(),
                 httpServletRequest.getQueryString(), System.currentTimeMillis());
         String statusCode = "200";
@@ -151,8 +152,8 @@ public class BookingService extends CommonFunction{
             String kumhoUrl = "";
 
             SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd");
-            Date fromDate = sdf.parse(strFromDate);
-            Date toDate = sdf.parse(strToDate);
+            Date fromDate = sdf.parse(startDate);
+            Date toDate = sdf.parse(endDate);
 
             // 조회한 날짜의 기간 확인 (90일이 넘는지)
             long sec = (toDate.getTime() - fromDate.getTime()) / 1000;
@@ -171,63 +172,63 @@ public class BookingService extends CommonFunction{
                 double roopCount = days / 90;
                 roopCount = Math.ceil(((roopCount) * 10)/10.0);
 
-                Date startDate = null;
-                Date endDate = null;
+                Date dateStart = null;
+                Date dateEnd = null;
                 Loop1 :
                 for(int i=0; i<roopCount; i++){
                     Calendar cal = Calendar.getInstance();
                     if(i == 0){
                         cal.setTime(fromDate);
                         cal.add(Calendar.DATE, 90); // fromDate + 90일로 세팅
-                        endDate = cal.getTime();
+                        dateEnd = cal.getTime();
 
-                        strFromDate = sdf.format(fromDate);
-                        strToDate = sdf.format(endDate);
-                        kumhoUrl = "inter05.asp?groupid=" + Constants.groupId + "&fr_date=" + strFromDate + "&to_date=" + strToDate +
+                        startDate = sdf.format(fromDate);
+                        endDate = sdf.format(dateEnd);
+                        kumhoUrl = "inter05.asp?groupid=" + Constants.groupId + "&fr_date=" + startDate + "&to_date=" + endDate +
                                 "&area=" + strLocalCode + "&site=" + site + "&room_type=" + strRmtypeID;
 
                         // 새로운 날짜 세팅
                         cal.setTime(fromDate);
                         cal.add(Calendar.DATE, 90); // fromDate + 90일로 새로운 시작날짜 세팅
-                        startDate = cal.getTime();
+                        dateStart = cal.getTime();
 
-                        long diff = toDate.getTime() - startDate.getTime();
+                        long diff = toDate.getTime() - dateStart.getTime();
                         TimeUnit time = TimeUnit.DAYS;
                         long diffDays = time.convert(diff, TimeUnit.MILLISECONDS);
 
                         if(diffDays > 90){
-                            cal.setTime(startDate);
-                            cal.add(Calendar.DATE, 90); // endDate = startDate + 90일로 세팅
-                            endDate = cal.getTime();
+                            cal.setTime(dateStart);
+                            cal.add(Calendar.DATE, 90); // dateEnd = dateStart + 90일로 세팅
+                            dateEnd = cal.getTime();
                         }else{
-                            cal.setTime(startDate);
-                            cal.add(Calendar.DATE, (int) diffDays); // endDate = startDate + toDate까지 남은일자로 세팅
-                            endDate = cal.getTime();
+                            cal.setTime(dateStart);
+                            cal.add(Calendar.DATE, (int) diffDays); // dateEnd = dateStart + toDate까지 남은일자로 세팅
+                            dateEnd = cal.getTime();
                         }
                     }else{
-                        strFromDate = sdf.format(startDate);
-                        strToDate = sdf.format(endDate);
-                        kumhoUrl = "inter05.asp?groupid=" + Constants.groupId + "&fr_date=" + strFromDate + "&to_date=" + strToDate +
+                        startDate = sdf.format(dateStart);
+                        endDate = sdf.format(dateEnd);
+                        kumhoUrl = "inter05.asp?groupid=" + Constants.groupId + "&fr_date=" + startDate + "&to_date=" + endDate +
                                 "&area=" + strLocalCode + "&site=" + site + "&room_type=" + strRmtypeID;
 
                         // 새로운 날짜 세팅
-                        cal.setTime(startDate);
-                        cal.add(Calendar.DATE, 90); // startDate + 90일로 새로운 시작날짜 세팅
-                        startDate = cal.getTime();
+                        cal.setTime(dateStart);
+                        cal.add(Calendar.DATE, 90); // dateStart + 90일로 새로운 시작날짜 세팅
+                        dateStart = cal.getTime();
 
-                        long diff = toDate.getTime() - startDate.getTime();
+                        long diff = toDate.getTime() - dateStart.getTime();
                         TimeUnit time = TimeUnit.DAYS;
                         long diffDays = time.convert(diff, TimeUnit.MILLISECONDS);
 
                         if(diffDays > 90){
-                            cal.setTime(startDate);
-                            cal.add(Calendar.DATE, 90); // endDate = 새로운 startDate + 90일로 세팅
-                            endDate = cal.getTime();
+                            cal.setTime(dateStart);
+                            cal.add(Calendar.DATE, 90); // dateEnd = 새로운 dateStart + 90일로 세팅
+                            dateEnd = cal.getTime();
 
                         }else{
-                            cal.setTime(startDate);
-                            cal.add(Calendar.DATE, (int) diffDays); // endDate = 새로운 startDate + endDate까지 남은일자로 세팅
-                            endDate = cal.getTime();
+                            cal.setTime(dateStart);
+                            cal.add(Calendar.DATE, (int) diffDays); // dateEnd = 새로운 dateStart + dateEnd까지 남은일자로 세팅
+                            dateEnd = cal.getTime();
                         }
                     }
 
@@ -283,7 +284,7 @@ public class BookingService extends CommonFunction{
                     }
                 }
             }else{ // 90일 이상이 아닐 경우
-                kumhoUrl = "inter05.asp?groupid=" + Constants.groupId + "&fr_date=" + strFromDate + "&to_date=" + strToDate +
+                kumhoUrl = "inter05.asp?groupid=" + Constants.groupId + "&fr_date=" + startDate + "&to_date=" + endDate +
                             "&area=" + strLocalCode + "&site=" + site + "&room_type=" + strRmtypeID;
                 // API 호출
                 Document document = callKumhoAPI(kumhoUrl);
@@ -343,6 +344,18 @@ public class BookingService extends CommonFunction{
         }
         return commonFunction.makeReturn(dataType, statusCode, message);
     }
+
+//    @Async
+//    public int updateRoomStock(){
+//        int intFailCount = 0;
+//
+//        try{
+//
+//        }catch (Exception e){
+//
+//        }
+//        return intFailCount;
+//    }
 
     // 예약 취소
     public String cancelBooking(String dataType, int intRsvID, HttpServletRequest httpServletRequest){
@@ -480,7 +493,7 @@ public class BookingService extends CommonFunction{
     }
 
     // 예약 대사자료 조회
-    public String getBookingList(String dataType, String strFromDate, String strToDate ,HttpServletRequest httpServletRequest){
+    public String getBookingList(String dataType, String startDate, String endDate ,HttpServletRequest httpServletRequest){
         LogWriter logWriter = new LogWriter(httpServletRequest.getMethod(), httpServletRequest.getServletPath(),
                 httpServletRequest.getQueryString(), System.currentTimeMillis());
         String statusCode = "200";
@@ -493,7 +506,7 @@ public class BookingService extends CommonFunction{
 
                 JSONArray reservations = new JSONArray();
 
-                String kumhoUrl = "inter07.asp?groupid=" + groupId + "&fr_date=" + strFromDate + "&to_date=" + strToDate;
+                String kumhoUrl = "inter07.asp?groupid=" + groupId + "&fr_date=" + startDate + "&to_date=" + endDate;
 
                 Document document = callKumhoAPI(kumhoUrl);
                 if(document != null){

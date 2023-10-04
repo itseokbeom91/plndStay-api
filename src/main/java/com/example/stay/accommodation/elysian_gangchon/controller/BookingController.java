@@ -1,6 +1,10 @@
 package com.example.stay.accommodation.elysian_gangchon.controller;
 
+import com.example.stay.accommodation.elysian_gangchon.mapper.ElysianMapper;
 import com.example.stay.accommodation.elysian_gangchon.service.BookingService;
+import com.example.stay.common.mapper.CommonAcmMapper;
+import com.example.stay.common.util.CommonFunction;
+import com.example.stay.common.util.LogWriter;
 import org.json.simple.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -8,6 +12,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @Controller("elysian_gangchon.BookingController")
 @RequestMapping("/elysian_gangchon/booking/*")
@@ -16,12 +23,60 @@ public class BookingController {
     @Autowired
     private BookingService bookingService;
 
+    @Autowired
+    private ElysianMapper elysianMapper;
 
-    // 재고 등록 및 수정
-    @RequestMapping("updatePackagetock")
+    @Autowired
+    private CommonAcmMapper commonAcmMapper;
+
+
+//    // 예약 가능 수량 조회(재고 등록 및 수정)
+//    @RequestMapping("updatePackageStock")
+//    @ResponseBody
+//    public String updatePackagetock(String dataType, HttpServletRequest httpServletRequest, String startDate, String endDate, int intRmIdx){
+//        return bookingService.updatePackageStock(dataType, httpServletRequest, startDate, endDate, intRmIdx);
+//    }
+
+    // 예약 가능 수량 조회(재고 등록 및 수정) - 비동기
+    @RequestMapping("updatePackageStock")
     @ResponseBody
     public String updatePackagetock(String dataType, HttpServletRequest httpServletRequest, String startDate, String endDate, int intRmIdx){
-        return bookingService.updatePackagetock(dataType, httpServletRequest, startDate, endDate, intRmIdx);
+        LogWriter logWriter = new LogWriter(httpServletRequest.getMethod(), httpServletRequest.getServletPath(),
+                httpServletRequest.getQueryString(), System.currentTimeMillis());
+        String statusCode = "200";
+        String message = "";
+
+        try{
+            int intAID = elysianMapper.getIntAID(intRmIdx);
+            List<Map<String, String>> strMapCodeList = commonAcmMapper.getStrPkgCodeList(intRmIdx, startDate, endDate);
+
+            int intFailCount = 0;
+            for(Map map : strMapCodeList) {
+                Map<String, String> MapCodeMap = map;
+                String strMapCode = MapCodeMap.get("strMapCode");
+                String strDateMapping = MapCodeMap.get("dateMapping");
+
+                intFailCount += bookingService.getAvailCount(intAID, intRmIdx, strMapCode, strDateMapping);
+            }
+
+            if(intFailCount == 0){
+                message = "재고 등록 및 수정 완료";
+            }else{
+                message = "재고 등록 및 수정 " + intFailCount + "건 실패";
+            }
+        }catch (Exception e){
+            message = "재고 등록 및 수정 실패";
+            statusCode = "500";
+            logWriter.add("error : " + e.getMessage());
+            logWriter.log(0);
+            e.printStackTrace();
+        }
+
+        logWriter.add(message);
+        logWriter.log(0);
+
+        CommonFunction commonFunction = new CommonFunction();
+        return commonFunction.makeReturn(dataType, statusCode, message);
     }
 
     // 예약

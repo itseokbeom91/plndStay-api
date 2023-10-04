@@ -34,4 +34,12 @@
         WHERE RS.intRsvID = ${intRsvID}
     </select>
 
+    <select id="getStrPkgCodeList" resultType="String">
+        SELECT strMapCode, dateMapping
+        FROM PLNDSTAY.dbo.RM_PACKAGE_MAPPING WITH(NOLOCK)
+        WHERE intRmIdx = ${intRmIdx}
+          AND strDeleteYn = 'N'
+          AND dateMapping BETWEEN #{startDate} AND #{endDate}
+    </select>
+
 </mapper>

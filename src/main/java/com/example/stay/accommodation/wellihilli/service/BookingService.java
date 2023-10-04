@@ -11,6 +11,7 @@ import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
 import org.json.simple.parser.JSONParser;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import javax.servlet.http.HttpServletRequest;
@@ -114,6 +115,76 @@ public class BookingService extends CommonFunction{
             logWriter.log(0);
         }
         return commonFunction.makeReturn(dataType, statusCode, message);
+    }
+
+    @Async
+    public int getPackageStock(String rmtypeID, String strMapCode, String strDateMapping){
+        int intFailCount = 0;
+
+        try{
+            String strUrl = Constants.whpUrl + ":8070/api/vapi/reservation/calendar?s_venor_code=" + strMapCode +
+                    "&sresrm=C&s_arrday=" + strDateMapping + "&s_today=" + strDateMapping;
+            String method = "GET";
+
+            JsonNode jsonNode = commonFunction.callJsonApi("", "", new JSONObject(), strUrl, method);
+            String code = jsonNode.get("status").toString();
+
+            if(code.equals("200")){
+                String strStockDatas = "";
+                SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd");
+
+                JSONArray jsonArray = (JSONArray) new JSONParser().parse(jsonNode.get("data").toString());
+                for(Object object : jsonArray){
+                    JSONObject jsonObject = (JSONObject) JSONValue.parse(object.toString());
+
+                    String strPyung = jsonObject.get("pyung").toString();
+                    String roomTypeID = jsonObject.get("roomType").toString();
+
+                    String strRmtypeID = strPyung + roomTypeID;
+
+                    // 웰리힐리는 날짜 보내면 전체 객실타입의 재고를 주기 때문에 가져오고자하는 객실의 재고 데이터만 뽑아서 저장
+                    // 요금은 버리기로했지..?
+                    if(strRmtypeID.equals(rmtypeID)){
+                        int intStock = Integer.parseInt(jsonObject.get("vcCount").toString());
+                        if(intStock < 0){
+                            intStock = 0;
+                        }
+                        int intOmkStock = intStock;
+
+//                        int intCost = 0;
+//                        int intSales = 0;
+//                        if(jsonObject.get("roompay") != null){
+//                            intCost = Integer.parseInt(jsonObject.get("roompay").toString());
+//                            intSales = intCost;
+//                        }
+
+                        String yearday = jsonObject.get("yearday").toString();
+                        Date yearDate = sdf.parse(yearday);
+                        SimpleDateFormat sdf2 = new SimpleDateFormat("yyyy-MM-dd");
+                        String strDateSales = sdf2.format(yearDate);
+
+//                        int intExtraA = 0;
+//                        int intExtraC= 0;
+//                        int intExtraB = 0;
+
+                        strStockDatas +=strRmtypeID + "|^|" + strDateSales + "|^|" + intStock + "|^|0|^|0|^|0|^|0|^|0|^|" + intOmkStock;
+                    }
+                }
+
+                String result = wellihilliMapper.updateGoods(strStockDatas);
+                String strResult = result.substring(result.length()-4);
+                if(!strResult.equals("저장완료")){
+                    intFailCount +=1;
+                }
+            }else{
+                intFailCount +=1;
+            }
+        }catch (Exception e){
+            e.printStackTrace();
+            intFailCount +=1;
+        }
+
+        return intFailCount;
     }
 
     // 예약 가능 여부 조회

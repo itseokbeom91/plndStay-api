@@ -432,12 +432,11 @@ public class BookingService {
         String strPenaltyDatas = "";
         try{
             String strRateFlag = "P";
+            SimpleDateFormat sdf = new SimpleDateFormat ("yyyy-MM-dd'T'HH:mm:ssXXX"); // 2023-05-25T15:00:23+09:00
+            SimpleDateFormat sdf2 = new SimpleDateFormat("HH:mm:ss");
             for(int j=0; j<refundPolicyArr.size(); j++){
                 JSONObject refundPolicyJson = (JSONObject) refundPolicyArr.get(j);
-
-                SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
-                SimpleDateFormat sdf = new SimpleDateFormat ("yyyy-MM-dd'T'HH:mm:ssXXX"); // 2023-05-25T15:00:23+09:00
-                SimpleDateFormat sdf2 = new SimpleDateFormat("HH:mm:ss");
+//                SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
 
                 Date originDate = sdf.parse(refundPolicyJson.get("until").toString());
 

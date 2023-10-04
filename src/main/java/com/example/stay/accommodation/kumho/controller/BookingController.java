@@ -1,6 +1,9 @@
 package com.example.stay.accommodation.kumho.controller;
 
+import com.example.stay.accommodation.kumho.mapper.KumhoMapper;
 import com.example.stay.accommodation.kumho.service.BookingService;
+import com.example.stay.common.util.CommonFunction;
+import com.example.stay.common.util.LogWriter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -8,6 +11,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.List;
+import java.util.Map;
 
 @Controller("kumho.BookingController")
 @RequestMapping("/kumho/booking/*")
@@ -15,6 +20,9 @@ public class BookingController {
 
     @Autowired
     private BookingService bookingService;
+
+    @Autowired
+    private KumhoMapper kumhoMapper;
 
     /**
      * 예약 생성
@@ -48,8 +56,8 @@ public class BookingController {
      */
     @GetMapping("getBookingList")
     @ResponseBody
-    public String getBookingList(String dataType, String strFromDate, String strToDate, HttpServletRequest httpServletRequest){
-        return bookingService.getBookingList(dataType, strFromDate, strToDate, httpServletRequest);
+    public String getBookingList(String dataType, String startDate, String endDate, HttpServletRequest httpServletRequest){
+        return bookingService.getBookingList(dataType, startDate, endDate, httpServletRequest);
     }
 
     /**
@@ -57,8 +65,8 @@ public class BookingController {
      */
     @GetMapping("updateRoomStock")
     @ResponseBody
-    public String updateRoomStock(String dataType, String strFromDate, String strToDate, int intRmIdx, HttpServletRequest httpServletRequest){
-        return bookingService.updateRoomStock(dataType, strFromDate, strToDate, intRmIdx, httpServletRequest);
+    public String updateRoomStock(String dataType, String startDate, String endDate, int intRmIdx, HttpServletRequest httpServletRequest){
+        return bookingService.updateRoomStock(dataType, startDate, endDate, intRmIdx, httpServletRequest);
     }
 
 }
