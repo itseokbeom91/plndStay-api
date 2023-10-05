@@ -177,7 +177,9 @@ public class UpdateService {
                 System.out.println(intMaxNum + " / " + intCntTempStock);
 
                 if(intMaxNum + intCntTempStock > 99999){
-                    System.out.println("방지 테스트");
+                    System.out.println("방지");
+                    statusCode = "200";
+                    message = "99999 넘어서 새로 만들어야함";
                 }else{
 
                     // 현재 ssg api에 등록되어있는 재고 uitemId 가져와서 uitemIdList에 담기
@@ -289,6 +291,8 @@ public class UpdateService {
 
                     updateObject.put("uitemAttr", attrObject);
 
+                    message = "재고 변경 완료";
+
                 }
 
 
@@ -346,6 +350,7 @@ public class UpdateService {
 
                 String strSubject = accommDto.getStrSubject();
                 updateObject.put("itemNm", strSubject);
+                message = "상품명 변경 완료";
 
             }else{
                 statusCode = "500";

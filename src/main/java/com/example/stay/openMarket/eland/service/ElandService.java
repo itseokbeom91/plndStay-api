@@ -4,6 +4,7 @@ import com.example.stay.common.util.CommonFunction;
 import com.example.stay.common.util.Constants;
 import com.example.stay.openMarket.common.dto.AccommDto;
 import com.example.stay.openMarket.common.dto.CondoDto;
+import com.example.stay.openMarket.common.dto.RoomTypeDto;
 import com.example.stay.openMarket.common.dto.StockDto;
 import com.example.stay.openMarket.common.mapper.CommonMapper;
 import com.example.stay.openMarket.common.service.CommonService;
@@ -22,6 +23,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.net.URLEncoder;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -177,8 +179,10 @@ public class ElandService {
     }
 
     // 상품 등록
-    public String insertAccomm(HttpServletRequest request, HttpServletResponse response, int intAID){
+    public String insertAccomm(HttpServletRequest request, HttpServletResponse response, String dataType, int intAID){
 
+        String statusCode = "200";
+        String message = "";
         String result = "";
 
         try {
@@ -358,16 +362,20 @@ public class ElandService {
             result = jsonObject.get("error").toString();
 
         }catch (Exception e){
+            message = "재고 등록 실패";
+            statusCode = "500";
             e.printStackTrace();
         }
 
-        return result;
+        return commonFunction.makeReturn(dataType, statusCode, message);
     }
 
 
     // 상품 update
-    public String updateAccomm(HttpServletRequest request, HttpServletResponse response, int intAID, String strType, String strStockIdx){
+    public String updateAccomm(HttpServletRequest request, HttpServletResponse response, String dataType, int intAID, String strType, String strStockIdx){
 
+        String statusCode = "200";
+        String message = "";
         String result = "";
 
         try {
@@ -383,7 +391,11 @@ public class ElandService {
             }else if(strType.equals("stop")){
                 url += "&prgs_stat_cd=20";
             }else if(strType.equals("desc")){
-                String strImgDesc = commonService.getStrPdtDtlInfo(accommDto, intAID, 9).replace("<", "&lt;").replace(">", "&gt;");
+                // 4000자 제한때문에 빼버려야함
+                String strImgDesc = commonService.getStrPdtDtlInfo(accommDto, intAID, 9);//replace("<", "&lt;").replace(">", "&gt;").replace("/","&#47;");
+;
+                System.out.println(strImgDesc);
+                //strImgDesc = URLEncoder.encode(strImgDesc, "UTF-8").replace("+", "%20");
                 url += "&goods_desc10=" + strImgDesc;
             }else if(strType.equals("stock")){
 
@@ -474,15 +486,15 @@ public class ElandService {
             result = jsonObject.get("error").toString();
 
         }catch (Exception e){
+            message = "재고 등록 실패";
+            statusCode = "500";
             e.printStackTrace();
         }
 
-        return result;
+        return commonFunction.makeReturn(dataType, statusCode, message);
 
 
     }
-
-
 
 
 

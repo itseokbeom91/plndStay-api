@@ -71,9 +71,9 @@ public class SsgController {
     // 상품 정보 조회
     @GetMapping("info")
     @ResponseBody
-    public void infoSSG(int intAID){
+    public String infoSSG(int intAID){
 
-        ssgService.getAccommInfo(intAID);
+        return ssgService.getAccommInfo(intAID);
 
     }
 
@@ -82,9 +82,7 @@ public class SsgController {
     @ResponseBody
     public String modifySSG(String dataType, int intAID, String strType, @Nullable String strCode){
 
-        String result = updateService.updateInfo(dataType, intAID, strType, strCode);
-
-        return result;
+        return updateService.updateInfo(dataType, intAID, strType, strCode);
 
     }
 
@@ -92,9 +90,9 @@ public class SsgController {
     // 상품 정보 등록
     @GetMapping("insert")
     @ResponseBody
-    public void insertSSG(int intAID){
+    public String insertSSG(int intAID){
 
-        insertService.insert(intAID);
+        return insertService.insert(intAID);
 
     }
 
