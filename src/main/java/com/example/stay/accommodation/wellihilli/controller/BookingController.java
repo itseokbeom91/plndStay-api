@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -58,16 +59,19 @@ public class BookingController {
         String message = "";
 
         try{
-            String rmtypeID = wellihilliMapper.getStrRmtypeID(intRmIdx);
-            List<Map<String, String>> strMapCodeList = commonAcmMapper.getStrPkgCodeList(intRmIdx, startDate, endDate);
+            Map<String, Object> idMap = wellihilliMapper.getStrRmtypeNAID(intRmIdx);
+            String rmtypeID = idMap.get("strRmtypeID").toString();
+            int intAID = Integer.parseInt(idMap.get("intAID").toString());
+
+            List<Map<String, Object>> strMapCodeList = commonAcmMapper.getStrPkgCodeList(intRmIdx, startDate, endDate);
 
             int intFailCount = 0;
             for(Map map : strMapCodeList) {
-                Map<String, String> MapCodeMap = map;
-                String strMapCode = MapCodeMap.get("strMapCode");
-                String strDateMapping = MapCodeMap.get("dateMapping");
+                Map<String, Object> MapCodeMap = map;
+                String strMapCode = MapCodeMap.get("strMapCode").toString();
+                String strDateMapping = MapCodeMap.get("dateMapping").toString().replace("-","");
 
-                intFailCount += bookingService.getPackageStock(rmtypeID, strMapCode, strDateMapping);
+                intFailCount += bookingService.getPackageStock(intAID, intRmIdx, rmtypeID, strMapCode, strDateMapping);
             }
 
             if(intFailCount == 0){

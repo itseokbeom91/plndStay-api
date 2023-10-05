@@ -1,6 +1,7 @@
 package com.example.stay.accommodation.wellihilli.service;
 
 import com.example.stay.accommodation.wellihilli.mapper.WellihilliMapper;
+import com.example.stay.common.mapper.CommonAcmMapper;
 import com.example.stay.common.util.CommonFunction;
 import com.example.stay.common.util.Constants;
 import com.example.stay.common.util.LogWriter;
@@ -25,100 +26,103 @@ public class BookingService extends CommonFunction{
     @Autowired
     private WellihilliMapper wellihilliMapper;
 
+    @Autowired
+    private CommonAcmMapper commonAcmMapper;
+
     CommonFunction commonFunction = new CommonFunction();
 
     // 재고 등록 및 수정
-    public String getPackageStock(String dataType, HttpServletRequest httpServletRequest, int intRmIdx, String startDate, String endDate){
-        String statusCode  = "200";
-        String message = "";
-        LogWriter logWriter = new LogWriter(httpServletRequest.getMethod(), httpServletRequest.getServletPath(),
-                httpServletRequest.getQueryString(), System.currentTimeMillis());
-
-        try{
-            String strPkgcode = wellihilliMapper.getStrPkgCode(intRmIdx);
-
-            String strUrl = Constants.whpUrl + ":8070/api/vapi/reservation/calendar?s_vendor_code=" + strPkgcode +
-                    "&sresrm=C&s_arrday=" + startDate + "&s_today=" + endDate;
-            String method = "GET";
-
-            JsonNode jsonNode = commonFunction.callJsonApi("", "", new JSONObject(), strUrl, method);
-            String code = jsonNode.get("status").toString();
-
-            if(code.equals("200")){
-                String rmtypeID = wellihilliMapper.getStrRmtypeID(intRmIdx);
-
-                String strStockDatas = "";
-                SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd");
-                JSONArray jsonArray = (JSONArray) new JSONParser().parse(jsonNode.get("data").toString());
-                for(Object object : jsonArray){
-                    JSONObject jsonObject = (JSONObject) JSONValue.parse(object.toString());
-
-                    String strPyung = jsonObject.get("pyung").toString();
-                    String roomTypeID = jsonObject.get("roomType").toString();
-
-                    String strRmtypeID = strPyung + roomTypeID;
-
-                    // 웰리힐리는 날짜 보내면 전체 객실타입의 재고를 주기 때문에 가져오고자하는 객실의 재고 데이터만 뽑아서 저장
-                    if(strRmtypeID.equals(rmtypeID)){
-                        int intStock = Integer.parseInt(jsonObject.get("vcCount").toString());
-                        if(intStock < 0){
-                            intStock = 0;
-                        }
-                        int intOmkStock = intStock;
-
-                        int intCost = 0;
-                        int intSales = 0;
-                        if(jsonObject.get("roompay") != null){
-                            intCost = Integer.parseInt(jsonObject.get("roompay").toString());
-                            intSales = intCost;
-                        }
-
-                        String yearday = jsonObject.get("yearday").toString();
-                        Date yearDate = sdf.parse(yearday);
-                        SimpleDateFormat sdf2 = new SimpleDateFormat("yyyy-MM-dd");
-                        String strDateSales = sdf2.format(yearDate);
-
-                        int intExtraA = 0;
-                        int intExtraC= 0;
-                        int intExtraB = 0;
-
-                        strStockDatas +=strRmtypeID + "|^|" + strDateSales + "|^|" + intStock + "|^|" + intCost + "|^|" + intSales + "|^|"
-                                + intExtraA + "|^|" + intExtraC + "|^|" + intExtraB + "|^|" + intOmkStock + "{{|}}";
-                    }
-                }
-
-                if(strStockDatas.length() > 0){
-                    strStockDatas = strStockDatas.substring(0, strStockDatas.length()-5);
-
-                    String result = wellihilliMapper.updateGoods(strStockDatas);
-                    String strResult = result.substring(result.length()-4);
-                    if(strResult.equals("저장완료")){
-                        message = "재고 등록/수정 완료";
-                    }else{
-                        logWriter.add(result);
-                        message = "재고 등록/수정 실패";
-                    }
-                }else{
-                    message = "재고 등록/수정 실패";
-                }
-
-            }else{
-                message = "웰리힐리 api 호출 실패";
-            }
-            logWriter.add(message);
-            logWriter.log(0);
-        }catch (Exception e){
-            e.printStackTrace();
-            statusCode = "500";
-            message = "재고 수정 및 등록 실패";
-            logWriter.add("error : " + e.getMessage());
-            logWriter.log(0);
-        }
-        return commonFunction.makeReturn(dataType, statusCode, message);
-    }
+//    public String getPackageStock(String dataType, HttpServletRequest httpServletRequest, int intRmIdx, String startDate, String endDate){
+//        String statusCode  = "200";
+//        String message = "";
+//        LogWriter logWriter = new LogWriter(httpServletRequest.getMethod(), httpServletRequest.getServletPath(),
+//                httpServletRequest.getQueryString(), System.currentTimeMillis());
+//
+//        try{
+//            String strPkgcode = wellihilliMapper.getStrPkgCode(intRmIdx);
+//
+//            String strUrl = Constants.whpUrl + ":8070/api/vapi/reservation/calendar?s_vendor_code=" + strPkgcode +
+//                    "&sresrm=C&s_arrday=" + startDate + "&s_today=" + endDate;
+//            String method = "GET";
+//
+//            JsonNode jsonNode = commonFunction.callJsonApi("", "", new JSONObject(), strUrl, method);
+//            String code = jsonNode.get("status").toString();
+//
+//            if(code.equals("200")){
+//                String rmtypeID = wellihilliMapper.getStrRmtypeID(intRmIdx);
+//
+//                String strStockDatas = "";
+//                SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd");
+//                JSONArray jsonArray = (JSONArray) new JSONParser().parse(jsonNode.get("data").toString());
+//                for(Object object : jsonArray){
+//                    JSONObject jsonObject = (JSONObject) JSONValue.parse(object.toString());
+//
+//                    String strPyung = jsonObject.get("pyung").toString();
+//                    String roomTypeID = jsonObject.get("roomType").toString();
+//
+//                    String strRmtypeID = strPyung + roomTypeID;
+//
+//                    // 웰리힐리는 날짜 보내면 전체 객실타입의 재고를 주기 때문에 가져오고자하는 객실의 재고 데이터만 뽑아서 저장
+//                    if(strRmtypeID.equals(rmtypeID)){
+//                        int intStock = Integer.parseInt(jsonObject.get("vcCount").toString());
+//                        if(intStock < 0){
+//                            intStock = 0;
+//                        }
+//                        int intOmkStock = intStock;
+//
+//                        int intCost = 0;
+//                        int intSales = 0;
+//                        if(jsonObject.get("roompay") != null){
+//                            intCost = Integer.parseInt(jsonObject.get("roompay").toString());
+//                            intSales = intCost;
+//                        }
+//
+//                        String yearday = jsonObject.get("yearday").toString();
+//                        Date yearDate = sdf.parse(yearday);
+//                        SimpleDateFormat sdf2 = new SimpleDateFormat("yyyy-MM-dd");
+//                        String strDateSales = sdf2.format(yearDate);
+//
+//                        int intExtraA = 0;
+//                        int intExtraC= 0;
+//                        int intExtraB = 0;
+//
+//                        strStockDatas +=strRmtypeID + "|^|" + strDateSales + "|^|" + intStock + "|^|" + intCost + "|^|" + intSales + "|^|"
+//                                + intExtraA + "|^|" + intExtraC + "|^|" + intExtraB + "|^|" + intOmkStock + "{{|}}";
+//                    }
+//                }
+//
+//                if(strStockDatas.length() > 0){
+//                    strStockDatas = strStockDatas.substring(0, strStockDatas.length()-5);
+//
+//                    String result = wellihilliMapper.updateGoods(strStockDatas);
+//                    String strResult = result.substring(result.length()-4);
+//                    if(strResult.equals("저장완료")){
+//                        message = "재고 등록/수정 완료";
+//                    }else{
+//                        logWriter.add(result);
+//                        message = "재고 등록/수정 실패";
+//                    }
+//                }else{
+//                    message = "재고 등록/수정 실패";
+//                }
+//
+//            }else{
+//                message = "웰리힐리 api 호출 실패";
+//            }
+//            logWriter.add(message);
+//            logWriter.log(0);
+//        }catch (Exception e){
+//            e.printStackTrace();
+//            statusCode = "500";
+//            message = "재고 수정 및 등록 실패";
+//            logWriter.add("error : " + e.getMessage());
+//            logWriter.log(0);
+//        }
+//        return commonFunction.makeReturn(dataType, statusCode, message);
+//    }
 
     @Async
-    public int getPackageStock(String rmtypeID, String strMapCode, String strDateMapping){
+    public int getPackageStock(int intAID, int intRmIdx, String rmtypeID, String strMapCode, String strDateMapping){
         int intFailCount = 0;
 
         try{
@@ -143,7 +147,7 @@ public class BookingService extends CommonFunction{
                     String strRmtypeID = strPyung + roomTypeID;
 
                     // 웰리힐리는 날짜 보내면 전체 객실타입의 재고를 주기 때문에 가져오고자하는 객실의 재고 데이터만 뽑아서 저장
-                    // 요금은 버리기로했지..?
+                    // 웰리힐리 요금은 버리기로했지..?
                     if(strRmtypeID.equals(rmtypeID)){
                         int intStock = Integer.parseInt(jsonObject.get("vcCount").toString());
                         if(intStock < 0){
@@ -167,17 +171,19 @@ public class BookingService extends CommonFunction{
 //                        int intExtraC= 0;
 //                        int intExtraB = 0;
 
-                        strStockDatas +=strRmtypeID + "|^|" + strDateSales + "|^|" + intStock + "|^|0|^|0|^|0|^|0|^|0|^|" + intOmkStock;
+                        strStockDatas +=strDateSales + "|^|" + intStock + "|^|0|^|0|^|0|^|0|^|0|^|" + intOmkStock + "|^|0";
                     }
                 }
 
-                String result = wellihilliMapper.updateGoods(strStockDatas);
+                String result = commonAcmMapper.updateGoods(intAID, intRmIdx, strStockDatas);
+
                 String strResult = result.substring(result.length()-4);
                 if(!strResult.equals("저장완료")){
                     intFailCount +=1;
                 }
             }else{
                 intFailCount +=1;
+                System.out.println("웰리힐리 API 호출 실패");
             }
         }catch (Exception e){
             e.printStackTrace();
