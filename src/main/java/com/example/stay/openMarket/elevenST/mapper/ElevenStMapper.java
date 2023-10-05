@@ -9,5 +9,7 @@ public interface ElevenStMapper {
     Map<String, Object> getAccomm(String accommID);
     String insertAccomm(String intAID, String strPdtSubject, String strPdtCode, String strDetailInfo);
 
+    String getIntAID(String prdNo);
+
     void updateUsg(int intAID, String usageYn);
 }

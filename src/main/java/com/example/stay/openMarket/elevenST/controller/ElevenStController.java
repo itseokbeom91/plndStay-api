@@ -47,13 +47,18 @@ public class ElevenStController {
     @GetMapping("/regAccomm")
     @ResponseBody
     public String regTest(String accommID, String bgnDay, String endDay){
-        return elevenStService.regProduct(accommID,  bgnDay, endDay);
+        return elevenStService.regProduct(accommID,  bgnDay, endDay, false, "", 0);
     }
 
     @GetMapping("/modProduct")
     @ResponseBody
-    public String modProduct(String prdNo){
-        return elevenStService.modProduct(prdNo);
+    public String modProduct(String intAID, @RequestParam(value = "prdNm", required = false, defaultValue = "" ) String prdNm, @RequestParam(value = "category", required = false, defaultValue = "0") int category){
+        if (prdNm.equals("") && category == 0){
+            return "수정할 내용이 없습니다.";
+        }else {
+            return elevenStService.modProduct(intAID, category, prdNm);
+        }
+
     }
 
     @GetMapping("/getQnaList")
@@ -76,8 +81,8 @@ public class ElevenStController {
 
     @GetMapping("/updatePrdDesc")
     @ResponseBody
-    public String updatePrdDesc(@RequestParam(value = "dataType", required = false, defaultValue = "jsonp") String dataType, int intAID){
-        return elevenStService.updatePrdDesc(dataType, intAID);
+    public String updatePrdDesc(@RequestParam(value = "dataType", required = false, defaultValue = "jsonp") String dataType, String prdNo){
+        return elevenStService.updatePrdDesc(dataType, prdNo);
     }
 
 
