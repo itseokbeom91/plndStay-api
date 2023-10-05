@@ -8,10 +8,6 @@
         EXEC PLNDSTAY.dbo.spGW_RSV_STAY_UPDATE_PROCESS ${intRsvID}, #{strStatusCode}, #{strRsvRmNum}, #{strPenaltyDatas}, ''
     </select>
 
-    <select id="updateStock" resultType="String">
-        EXEC PLNDSTAY.dbo.spGW_STOCK_TEMP_REGIST #{intAID}, #{intRmIdx}, '', #{strStockDatas}, ''
-    </select>
-
     <select id="getRmtypeInfo" parameterType="int" resultType="Map">
         SELECT
             R.strRmtypeID

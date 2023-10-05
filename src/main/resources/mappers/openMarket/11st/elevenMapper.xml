@@ -7,18 +7,30 @@
 
     <select id="getAccomm" resultType="HashMap">
         SELECT A.intAID, A.strSubject, I.strDescription, I.strAddr1, I.strAddr2, I.strZipCode, I.strPhone, I.intRoomCnt, I.strCheckIn, I.strCheckOut, A.strType, I.intGrade, I.decLat, I.decLon
-        FROM ACCOMM A with(nolock)
+        FROM PLNDSTAY.dbo.ACCOMM A with(nolock)
         INNER JOIN ACCOMM_INFO I with(nolock) ON A.intAID = I.intAID
         WHERE A.intAID = #{accommID}
     </select>
 
+    <update id="updateUsg">
+        UPDATE PLNDSTAY.dbo.ACCOMM_OMK SET
+            strUsageYn = #{usageYn}
+        WHERE intAID = #{intAID} AND intOMKIdx='1'
+    </update>
+
     <insert id="insertAccomm">
-        INSERT INTO  ACCOMM_OMK (
+        INSERT INTO  PLNDSTAY.dbo.ACCOMM_OMK (
         intAID, intOMKIdx, strUsageYn, strPdtSubject, strPdtCode, strDetailInfo
         )
         VALUES (
         #{intAID}, 1, 'Y',#{strPdtSubject}, #{strPdtCode}, #{strDetailInfo}
                 )
     </insert>
+
+    <select id="getIntAID" parameterType="string" resultType="string">
+        SELECT intAID
+        FROM PLNDSTAY.dbo.ACCOMM_OMK
+        WHERE strPdtCode = #{prdNo}
+    </select>
 
 </mapper>

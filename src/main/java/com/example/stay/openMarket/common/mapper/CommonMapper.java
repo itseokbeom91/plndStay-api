@@ -1,9 +1,6 @@
 package com.example.stay.openMarket.common.mapper;
 
-import com.example.stay.openMarket.common.dto.AccommDto;
-import com.example.stay.openMarket.common.dto.CancelRulesDto;
-import com.example.stay.openMarket.common.dto.RoomTypeDto;
-import com.example.stay.openMarket.common.dto.StockDto;
+import com.example.stay.openMarket.common.dto.*;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -33,4 +30,6 @@ public interface CommonMapper {
     String getStrPdtCode(int intAID, int intOmkIdx);
 
     double getOmkSales(int intAID, int intOmkIdx);
+
+    RsvStayDto getBookingInfo(int intRsvID);
 }

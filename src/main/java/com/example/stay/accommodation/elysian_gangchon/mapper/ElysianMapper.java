@@ -9,11 +9,7 @@ import java.util.Map;
 
 @Repository
 public interface ElysianMapper {
-    String updateGoods(int intAID, int intRmIdx, String strStockDatas);
-
     int getIntAID(int intRmIdx);
-
-    List<Map<String, String>> getStrPkgCodeList();
 
     RsvStayDto getReservation(int intRsvID);
 

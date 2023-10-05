@@ -1,6 +1,8 @@
 package com.example.stay.accommodation.wellihilli.controller;
 
+import com.example.stay.accommodation.wellihilli.mapper.WellihilliMapper;
 import com.example.stay.accommodation.wellihilli.service.BookingService;
+import com.example.stay.common.mapper.CommonAcmMapper;
 import com.example.stay.common.util.CommonFunction;
 import com.example.stay.common.util.Constants;
 import com.example.stay.common.util.LogWriter;
@@ -16,12 +18,21 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @Controller("wellihilli.BookingController")
 @RequestMapping("/wellihilli/booking/*")
 public class BookingController {
     @Autowired
     private BookingService bookingService;
+
+    @Autowired
+    private CommonAcmMapper commonAcmMapper;
+
+    @Autowired
+    private WellihilliMapper wellihilliMapper;
 
     CommonFunction commonFunction = new CommonFunction();
 
@@ -31,11 +42,56 @@ public class BookingController {
 //        bookingService.checkAvailBooking(pyung, sDate, sleep, roomCount, roomType);
 //    }
 
+//    // 재고 등록 및 수정
+//    @GetMapping("getPackageStock")
+//    @ResponseBody
+//    public String getPackageStock(String dataType, HttpServletRequest httpServletRequest, int intRmIdx, String startDate, String endDate){
+//        return bookingService.getPackageStock(dataType, httpServletRequest, intRmIdx, startDate, endDate);
+//    }
+
     // 재고 등록 및 수정
     @GetMapping("getPackageStock")
     @ResponseBody
     public String getPackageStock(String dataType, HttpServletRequest httpServletRequest, int intRmIdx, String startDate, String endDate){
-        return bookingService.getPackageStock(dataType, httpServletRequest, intRmIdx, startDate, endDate);
+        LogWriter logWriter = new LogWriter(httpServletRequest.getMethod(), httpServletRequest.getServletPath(),
+                httpServletRequest.getQueryString(), System.currentTimeMillis());
+        String statusCode = "200";
+        String message = "";
+
+        try{
+            Map<String, Object> idMap = wellihilliMapper.getStrRmtypeNAID(intRmIdx);
+            String rmtypeID = idMap.get("strRmtypeID").toString();
+            int intAID = Integer.parseInt(idMap.get("intAID").toString());
+
+            List<Map<String, Object>> strMapCodeList = commonAcmMapper.getStrPkgCodeList(intRmIdx, startDate, endDate);
+
+            int intFailCount = 0;
+            for(Map map : strMapCodeList) {
+                Map<String, Object> MapCodeMap = map;
+                String strMapCode = MapCodeMap.get("strMapCode").toString();
+                String strDateMapping = MapCodeMap.get("dateMapping").toString().replace("-","");
+
+                intFailCount += bookingService.getPackageStock(intAID, intRmIdx, rmtypeID, strMapCode, strDateMapping);
+            }
+
+            if(intFailCount == 0){
+                message = "재고 등록 및 수정 완료";
+            }else{
+                message = "재고 등록 및 수정 " + intFailCount + "건 실패";
+            }
+        }catch (Exception e){
+            message = "재고 등록 및 수정 실패";
+            statusCode = "500";
+            logWriter.add("error : " + e.getMessage());
+            logWriter.log(0);
+            e.printStackTrace();
+        }
+
+        logWriter.add(message);
+        logWriter.log(0);
+
+        CommonFunction commonFunction = new CommonFunction();
+        return commonFunction.makeReturn(dataType, statusCode, message);
     }
 
     // 체크인 날짜에 해당되는 객실 수량 및 계산된 총 요금 조회

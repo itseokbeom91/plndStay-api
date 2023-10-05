@@ -34,4 +34,16 @@
         WHERE RS.intRsvID = ${intRsvID}
     </select>
 
+    <select id="getStrPkgCodeList" resultType="map">
+        SELECT strMapCode, dateMapping
+        FROM PLNDSTAY.dbo.RM_PACKAGE_MAPPING WITH(NOLOCK)
+        WHERE intRmIdx = ${intRmIdx}
+          AND strDeleteYn = 'N'
+          AND dateMapping BETWEEN #{startDate} AND #{endDate}
+    </select>
+
+    <select id="updateGoods" resultType="String">
+        EXEC PLNDSTAY.dbo.spGW_STOCK_REAL_REGIST ${intAID}, ${intRmIdx}, #{strStockDatas}, ''
+    </select>
+
 </mapper>
