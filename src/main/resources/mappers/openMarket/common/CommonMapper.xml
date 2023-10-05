@@ -60,4 +60,10 @@
           AND intOMKIdx = ${intOmkIdx}
     </select>
 
+    <select id="getBookingInfo" parameterType="int" resultType="RsvStayDto">
+        SELECT *
+        FROM PLNDSTAY.dbo.RSV_STAY
+        WHERE intRsvID=#{intRsvID}
+    </select>
+
 </mapper>
