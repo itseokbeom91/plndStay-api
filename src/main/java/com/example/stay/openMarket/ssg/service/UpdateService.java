@@ -40,9 +40,10 @@ public class UpdateService {
 
     CommonFunction commonFunction = new CommonFunction();
 
-    public String updateInfo(int intAID, String strType){
+    public String updateInfo(String dataType, int intAID, String strType, String strCode){
 
-        // 반환해줄 String
+        String statusCode = "200";
+        String message = "";
         String result = "";
 
         try {
@@ -157,6 +158,7 @@ public class UpdateService {
                 // DB에서 desc 이미지 가져오기(없으면 데이타 종합해서 html 코드)
                 String strImgDesc = commonService.getStrPdtDtlInfo(accommDto, intAID, 7).replace("<", "&lt;").replace(">", "&gt;");
                 updateObject.put("itemDesc", strImgDesc);
+                message = "상세이미지 수정 완료";
 
             /**
              * 재고 수정
@@ -294,7 +296,7 @@ public class UpdateService {
              * 개별 재고 수정
              * 추후 utimeId 등 수정 필요
              */
-            }else if(strType.equals("oneByOne")){ // 개별로 재고 조정 - 코드 어떻게 짤지 아직 미정
+            }else if(strType.equals("stockEach")){ // 개별로 재고 조정 - 코드 어떻게 짤지 아직 미정
 
                 List<Object> uitemList = new ArrayList<>();
 
@@ -320,15 +322,35 @@ public class UpdateService {
             }else if(strType.equals("stop")) {
 
                 updateObject.put("sellStatCd", "80");
+                message = "판매 중지 완료";
 
             /**
              * 판매 시작
              */
-            }else if(strType.equals("start")){
+            }else if(strType.equals("start")) {
                 updateObject.put("sellStatCd", "20");
+                message = "판매 시작 완료";
+
+            }else if(strType.equals("brand")) {
+
+                if(strCode != null){
+                    updateObject.put("brandId", strCode);
+                    message = "브랜드 수정 완료";
+                }else{
+                    statusCode = "500";
+                    message = "브랜드 코드를 넣어주세요";
+                    return commonFunction.makeReturn(dataType, statusCode, message);
+                }
+
+            }else if(strType.equals("name")){
+
+                String strSubject = accommDto.getStrSubject();
+                updateObject.put("itemNm", strSubject);
+
             }else{
-                System.out.println("type을 확인하세요");
-                return "error";
+                statusCode = "500";
+                message = "수정사항 구분을 넣어주세요.";
+                return commonFunction.makeReturn(dataType, statusCode, message);
             }
 
             JSONObject resultObject = new JSONObject();
@@ -343,11 +365,13 @@ public class UpdateService {
 
 
         }catch (Exception e){
+            message = "재고 등록 실패";
+            statusCode = "500";
             e.printStackTrace();
         }
 
 
 
-        return result;
+        return commonFunction.makeReturn(dataType, statusCode, message);
     }
 }

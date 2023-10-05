@@ -7,6 +7,7 @@ import com.example.stay.common.util.LogWriter;
 import com.example.stay.openMarket.common.dto.RsvStayDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jmx.export.metadata.ManagedOperation;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import javax.servlet.http.HttpServletRequest;
@@ -26,76 +27,117 @@ public class BookingService extends CommonFunction{
 
     CommonFunction commonFunction = new CommonFunction();
 
-    // 재고 등록 및 수정
-    // 룸타입 - 패키지 매핑이 되어있어야 가져올 수 있음
-    public String updatePackagetock(String dataType, HttpServletRequest httpServletRequest, String startDate, String endDate, int intRmIdx){
-        LogWriter logWriter = new LogWriter(httpServletRequest.getMethod(), httpServletRequest.getServletPath(),
-                httpServletRequest.getQueryString(), System.currentTimeMillis());
-        String statusCode = "200";
-        String message = "";
+//    // 예약 가능 수량 조회(재고 등록 및 수정)
+//    public String updatePackageStock(String dataType, HttpServletRequest httpServletRequest, String startDate, String endDate, int intRmIdx){
+//        LogWriter logWriter = new LogWriter(httpServletRequest.getMethod(), httpServletRequest.getServletPath(),
+//                httpServletRequest.getQueryString(), System.currentTimeMillis());
+//        String statusCode = "200";
+//        String message = "";
+//
+//        try{
+//            List<Map<String, String>> strMapCodeList = elysianMapper.getStrPkgCodeList(intRmIdx, startDate, endDate);
+//            for(Map map : strMapCodeList){
+//                Map<String, String> MapCodeMap = map;
+//                String strMapCode = MapCodeMap.get("strMapCode");
+//                String dateMapping = MapCodeMap.get("dateMapping");
+//
+////                strMapCode = "90004884";
+//
+//                String elysUrl = "type=SB&pcode=" + strMapCode + "&sdate=" + dateMapping + "&edate=" + dateMapping;
+////
+//                String strResponse = callElysAPI(elysUrl);
+//
+//                if(strResponse != null && !strResponse.equals("")){
+//                    int intAID = elysianMapper.getIntAID(intRmIdx);
+//
+//                    String strStockDatas = "";
+////                    String[] responseArr = strResponse.split("#");
+////                    for(String arr : responseArr){
+//                    String[] dataArr = strResponse.replace("#", "").split(";");
+//
+//                        String dateSales = dataArr[2];
+//                        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyyMMdd");
+//                        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+//                        dateSales = sdf.format(simpleDateFormat.parse(dateSales));
+//
+//                        int intStock = Integer.parseInt(dataArr[4]);
+//                        int intOmkStock = intStock;
+//
+////                        int intCost = 0, intSales = 0, intExtraA = 0, intExtraB = 0, intExtraC = 0, intOmkSales = 0;
+//
+//                        strStockDatas += dateSales + "|^|" + intStock + "|^|0|^|0|^|0|^|0|^|0|^|" + intOmkStock + "|^|0";
+//
+////                    }
+////                    strStockDatas = strStockDatas.substring(0, strStockDatas.length()-5);
+//
+//                    String result = elysianMapper.updateGoods(intAID, intRmIdx, strStockDatas);
+//                    String strResult = result.substring(result.length()-4);
+//
+//                    if(strResult.equals("저장완료")){
+//                        message = "재고 등록 및 수정 완료";
+//                    }else{
+//                        message = " 재고 등록 및 수정 실패";
+//                    }
+//
+//                }else{
+//                    message = "엘리시안 API 호출 실패";
+//                }
+//            }
+//
+//            logWriter.add(message);
+//            logWriter.log(0);
+//        }catch (Exception e){
+//            message = "재고 등록 및 수정 실패";
+//            statusCode = "500";
+//            logWriter.add("error : " + e.getMessage());
+//            logWriter.log(0);
+//            e.printStackTrace();
+//        }
+//
+//        return commonFunction.makeReturn(dataType, statusCode, message);
+//    }
+
+    // 예약 가능 수량 조회(재고 조회)
+    @Async
+    public int getAvailCount(int intAID, int intRmIdx, String strMapCode, String strDateMapping){
+        int intFailCount = 0;
 
         try{
-            List<Map<String, String>> strMapCodeList = elysianMapper.getStrPkgCodeList();
-            for(Map map : strMapCodeList){
-                Map<String, String> MapCodeMap = map;
-                String strMapCode = map.get("strMapCode").toString();
-                String dateMapping = map.get("dateMapping").toString();
-
-            }
-
-            String strPkgCode = "90004884";
-            String elysUrl = "type=SB&pcode=" + strPkgCode + "&sdate=" + startDate + "&edate=" + endDate;
+            strDateMapping = strDateMapping.replace("-", "");
+            String elysUrl = "type=SB&pcode=" + strMapCode + "&sdate=" + strDateMapping + "&edate=" + strDateMapping;
 
             String strResponse = callElysAPI(elysUrl);
 
             if(strResponse != null && !strResponse.equals("")){
-                int intAID = elysianMapper.getIntAID(intRmIdx);
-
                 String strStockDatas = "";
-                String[] responseArr = strResponse.split("#");
-                for(String arr : responseArr){
-                    String[] dataArr = arr.split(";");
+                String[] dataArr = strResponse.replace("#", "").split(";");
 
-                    String dateSales = dataArr[2];
-                    SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyyMMdd");
-                    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-                    dateSales = sdf.format(simpleDateFormat.parse(dateSales));
+                String dateSales = dataArr[2];
+                SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyyMMdd");
+                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+                dateSales = sdf.format(simpleDateFormat.parse(dateSales));
 
-                    int intStock = Integer.parseInt(dataArr[4]);
-                    int intOmkStock = intStock;
+                int intStock = Integer.parseInt(dataArr[4]);
+                int intOmkStock = intStock;
 
-                    int intCost = 0, intSales = 0, intExtraA = 0, intExtraB = 0, intExtraC = 0, intOmkSales = 0;
-
-                    strStockDatas += dateSales + "|^|" + intStock + "|^|" + intCost + "|^|" + intSales + "|^|"
-                            + intExtraA + "|^|" + intExtraC + "|^|" + intExtraB + "|^|" + intOmkStock + "|^|"  + intOmkSales+ "{{|}}";
-
-                }
-                strStockDatas = strStockDatas.substring(0, strStockDatas.length()-5);
+                strStockDatas += dateSales + "|^|" + intStock + "|^|0|^|0|^|0|^|0|^|0|^|" + intOmkStock + "|^|0";
 
                 String result = elysianMapper.updateGoods(intAID, intRmIdx, strStockDatas);
+
                 String strResult = result.substring(result.length()-4);
 
-                if(strResult.equals("저장완료")){
-                    message = "재고 등록 및 수정 완료";
-                }else{
-                    message = " 재고 등록 및 수정 실패";
+                if(!strResult.equals("저장완료")){
+                    intFailCount +=1;
                 }
-
             }else{
-                message = "엘리시안 API 호출 실패";
+                intFailCount +=1;
+                System.out.println("엘리시안 API 호출 실패");
             }
-
-            logWriter.add(message);
-            logWriter.log(0);
         }catch (Exception e){
-            message = "재고 등록 및 수정 실패";
-            statusCode = "500";
-            logWriter.add("error : " + e.getMessage());
-            logWriter.log(0);
             e.printStackTrace();
+            intFailCount +=1;
         }
-
-        return commonFunction.makeReturn(dataType, statusCode, message);
+        return intFailCount;
     }
 
     // 예약 가능여부 조회

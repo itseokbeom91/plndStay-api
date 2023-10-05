@@ -4,9 +4,11 @@ import com.example.stay.openMarket.ssg.service.InsertService;
 import com.example.stay.openMarket.ssg.service.SsgService;
 import com.example.stay.openMarket.ssg.service.UpdateService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 @Controller
 @RequestMapping("/SSG/*")
@@ -68,6 +70,7 @@ public class SsgController {
 
     // 상품 정보 조회
     @GetMapping("info")
+    @ResponseBody
     public void infoSSG(int intAID){
 
         ssgService.getAccommInfo(intAID);
@@ -75,16 +78,20 @@ public class SsgController {
     }
 
     // 상품 정보 수정
-    @GetMapping("modify")
-    public void modifySSG(int intAID, String strType){
+    @GetMapping("updateInfo")
+    @ResponseBody
+    public String modifySSG(String dataType, int intAID, String strType, @Nullable String strCode){
 
-        updateService.updateInfo(intAID, strType);
+        String result = updateService.updateInfo(dataType, intAID, strType, strCode);
+
+        return result;
 
     }
 
 
     // 상품 정보 등록
     @GetMapping("insert")
+    @ResponseBody
     public void insertSSG(int intAID){
 
         insertService.insert(intAID);

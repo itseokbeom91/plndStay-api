@@ -13,8 +13,6 @@ public interface ElysianMapper {
 
     int getIntAID(int intRmIdx);
 
-    List<Map<String, String>> getStrPkgCodeList();
-
     RsvStayDto getReservation(int intRsvID);
 
     String updateRsvStay(int intRsvID, String strStatusCode, String strRsvRmNum, String strPenaltyDatas);

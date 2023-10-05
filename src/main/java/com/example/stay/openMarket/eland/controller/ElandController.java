@@ -8,9 +8,11 @@ import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
@@ -41,6 +43,7 @@ public class ElandController {
 
 
     @GetMapping("createAccomm")
+    @ResponseBody
     public String insertAccomm(HttpServletRequest request, HttpServletResponse response, int intAID){
         String result = elandService.insertAccomm(request, response, intAID);
         return result;
@@ -55,9 +58,10 @@ public class ElandController {
     }
 
     @GetMapping("updateAccomm")
-    public String updateAccomm(HttpServletRequest request, HttpServletResponse response, int intAID, String strType){
+    @ResponseBody
+    public String updateAccomm(HttpServletRequest request, HttpServletResponse response, int intAID, String strType, @Nullable String strStockIdx){
 
-        String result = elandService.updateAccomm(request, response, intAID, strType);
+        String result = elandService.updateAccomm(request, response, intAID, strType, strStockIdx);
 
         return result;
 

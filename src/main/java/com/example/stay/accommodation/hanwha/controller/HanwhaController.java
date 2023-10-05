@@ -17,9 +17,9 @@ public class HanwhaController {
 
     @GetMapping("/getRoomStock")
     @ResponseBody
-    public String getCapa(int intAID, int intRmIdx, String intPkgIdx, String strLocalCode, String startDate, String endDate, String dataType){
+    public String getCapa(int intAID, int intRmIdx, String strPkgIdx, String strLocalCode, String startDate, String endDate, String dataType){
 
-        String result = hanwhaService.getCapa(intAID, intRmIdx, intPkgIdx, strLocalCode, startDate, endDate, dataType);
+        String result = hanwhaService.getCapa(intAID, intRmIdx, strPkgIdx, strLocalCode, startDate, endDate, dataType);
         System.out.println(result);
 
         return result;
@@ -36,6 +36,7 @@ public class HanwhaController {
     }
 
     @GetMapping("/getPackageInfo")
+    @ResponseBody
     public String getPackageDetail(String packageCode){
 
         String result = hanwhaService.getPackageDetail(packageCode);
@@ -45,6 +46,7 @@ public class HanwhaController {
     }
 
     @GetMapping("/createBooking")
+    @ResponseBody
     public String booking(int intRsvID){
 
         String result = hanwhaService.booking(intRsvID);
@@ -54,6 +56,7 @@ public class HanwhaController {
     }
 
     @GetMapping("/cancelBooking")
+    @ResponseBody
     public String bookingCancel(int intRsvID){
 
         String result = hanwhaService.bookingCancel(intRsvID);
@@ -63,6 +66,7 @@ public class HanwhaController {
     }
 
     @GetMapping("/updateBooking")
+    @ResponseBody
     public String bookingModify(int intRsvID){
 
         String result = hanwhaService.bookingModify(intRsvID);
@@ -72,6 +76,7 @@ public class HanwhaController {
     }
 
     @GetMapping("/getBookingInfo")
+    @ResponseBody
     public String bookingInfo(){
 
         String result = hanwhaService.bookingInfo();
