@@ -46,8 +46,8 @@ public class ElevenStController {
 
     @GetMapping("/regAccomm")
     @ResponseBody
-    public String regTest(String accommID, String bgnDay, String endDay){
-        return elevenStService.regProduct(accommID,  bgnDay, endDay, false, "", 0);
+    public String regTest(String intAID, String bgnDay, String endDay){
+        return elevenStService.regProduct(intAID,  bgnDay, endDay, false, "", 0);
     }
 
     @GetMapping("/modProduct")
