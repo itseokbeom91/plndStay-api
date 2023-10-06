@@ -1,9 +1,13 @@
 package com.example.stay.openMarket.eland.controller;
 
+import com.example.stay.common.util.CommonFunction;
 import com.example.stay.common.util.Constants;
+import com.example.stay.openMarket.common.dto.AccommDto;
 import com.example.stay.openMarket.common.dto.BookingDto;
 import com.example.stay.openMarket.common.dto.CondoDto;
+import com.example.stay.openMarket.common.mapper.CommonMapper;
 import com.example.stay.openMarket.eland.service.ElandService;
+import com.fasterxml.jackson.databind.JsonNode;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -23,8 +27,7 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.Date;
+import java.util.*;
 
 @Controller
 @RequestMapping("/eland/*")
@@ -44,8 +47,8 @@ public class ElandController {
 
     @GetMapping("createAccomm")
     @ResponseBody
-    public String insertAccomm(HttpServletRequest request, HttpServletResponse response, int intAID){
-        String result = elandService.insertAccomm(request, response, intAID);
+    public String insertAccomm(HttpServletRequest request, HttpServletResponse response, String dataType, int intAID){
+        String result = elandService.insertAccomm(request, response, dataType, intAID);
         return result;
     }
 
@@ -59,9 +62,49 @@ public class ElandController {
 
     @GetMapping("updateAccomm")
     @ResponseBody
-    public String updateAccomm(HttpServletRequest request, HttpServletResponse response, int intAID, String strType, @Nullable String strStockIdx){
+    public String updateAccomm(HttpServletRequest request, HttpServletResponse response, String dataType, int intAID, String strType, @Nullable String strStockIdx){
 
-        String result = elandService.updateAccomm(request, response, intAID, strType, strStockIdx);
+        String result = elandService.updateAccomm(request, response, dataType, intAID, strType, strStockIdx);
+
+        return result;
+
+    }
+
+
+    // 스케줄러 채번 테스트
+    @Autowired
+    private CommonMapper commonMapper;
+    CommonFunction commonFunction = new CommonFunction();
+
+    @GetMapping("test")
+    public String test(HttpServletRequest request, HttpServletResponse response){
+        String result = "";
+
+        try {
+
+            String accessToken = elandService.getCookie(request, response);
+
+            int intAID = 11471; // 프로시저로 뽑아내야함 list 반복문사용
+            AccommDto accommDto = commonMapper.getAcmInfo(intAID, 9);
+
+            String goodsNo = accommDto.getStrPdtCode();
+
+            JsonNode infoJsonNode = commonFunction.callJsonApi("eland", "Bearer " + accessToken, new JSONObject(), Constants.elandPath + "/goods/searchGoodsView.action?goods_no=" + goodsNo, "POST");
+            JSONArray stockArray = (JSONArray) new JSONParser().parse(infoJsonNode.get("itemList").toString());
+
+            String stockDatas = "";
+            for(Object object : stockArray){
+                JSONObject jsonObject = new JSONObject((Map) object);
+                stockDatas += jsonObject.get("ITEM_NO") + "|^|" + jsonObject.get("OPT_VAL_NM1") + "|^|" + jsonObject.get("OPT_VAL_NM2") + "{{|}}";
+            }
+            if(stockDatas.length() > 1){
+                stockDatas = stockDatas.substring(0, stockDatas.length()-5);
+            }
+            System.out.println(stockDatas);
+
+        }catch (Exception e){
+            e.printStackTrace();
+        }
 
         return result;
 

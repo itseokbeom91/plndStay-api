@@ -8,14 +8,12 @@
         EXEC PLNDSTAY.dbo.spWHP_RMTYPE_UPDATE #{strRoomDatas}, ''
     </select>
 
-    <select id="getStrRmtypeID" parameterType="int" resultType="String">
-        SELECT strRmtypeID
+    <select id="getStrRmtypeNAID" parameterType="int" resultType="map">
+        SELECT
+            intAID
+            , strRmtypeID
         FROM PLNDSTAY.dbo.RMTYPE
         WHERE intIdx = ${intRmIdx}
-    </select>
-
-    <select id="updateGoods" resultType="String">
-        EXEC PLNDSTAY.dbo.spONDAnWHP_STOCK_TEMP_REGIST 'WHP', #{strStockDatas}, ''
     </select>
 
     <select id="getStrPkgCode" parameterType="int" resultType="String">

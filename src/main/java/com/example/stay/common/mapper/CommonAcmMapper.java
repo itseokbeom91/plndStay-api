@@ -14,5 +14,7 @@ public interface CommonAcmMapper {
 
     double getOmkSales(int intRsvID);
 
-    List<Map<String, String>> getStrPkgCodeList(int intRmIdx, String startDate, String endDate);
+    List<Map<String, Object>> getStrPkgCodeList(int intRmIdx, String startDate, String endDate);
+
+    String updateGoods(int intAID, int intRmIdx, String strStockDatas);
 }

@@ -48,13 +48,13 @@ public class BookingController {
 
         try{
             int intAID = elysianMapper.getIntAID(intRmIdx);
-            List<Map<String, String>> strMapCodeList = commonAcmMapper.getStrPkgCodeList(intRmIdx, startDate, endDate);
+            List<Map<String, Object>> strMapCodeList = commonAcmMapper.getStrPkgCodeList(intRmIdx, startDate, endDate);
 
             int intFailCount = 0;
             for(Map map : strMapCodeList) {
-                Map<String, String> MapCodeMap = map;
-                String strMapCode = MapCodeMap.get("strMapCode");
-                String strDateMapping = MapCodeMap.get("dateMapping");
+                Map<String, Object> MapCodeMap = map;
+                String strMapCode = MapCodeMap.get("strMapCode").toString();
+                String strDateMapping = MapCodeMap.get("dateMapping").toString();
 
                 intFailCount += bookingService.getAvailCount(intAID, intRmIdx, strMapCode, strDateMapping);
             }

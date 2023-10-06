@@ -1,6 +1,7 @@
 package com.example.stay.accommodation.elysian_gangchon.service;
 
 import com.example.stay.accommodation.elysian_gangchon.mapper.ElysianMapper;
+import com.example.stay.common.mapper.CommonAcmMapper;
 import com.example.stay.common.util.CommonFunction;
 import com.example.stay.common.util.Constants;
 import com.example.stay.common.util.LogWriter;
@@ -24,6 +25,9 @@ public class BookingService extends CommonFunction{
 
     @Autowired
     private ElysianMapper elysianMapper;
+
+    @Autowired
+    private CommonAcmMapper commonAcmMapper;
 
     CommonFunction commonFunction = new CommonFunction();
 
@@ -120,12 +124,11 @@ public class BookingService extends CommonFunction{
                 int intStock = Integer.parseInt(dataArr[4]);
                 int intOmkStock = intStock;
 
-                strStockDatas += dateSales + "|^|" + intStock + "|^|0|^|0|^|0|^|0|^|0|^|" + intOmkStock + "|^|0";
+                strStockDatas += strDateMapping + "|^|" + intStock + "|^|0|^|0|^|0|^|0|^|0|^|" + intOmkStock + "|^|0";
 
-                String result = elysianMapper.updateGoods(intAID, intRmIdx, strStockDatas);
+                String result = commonAcmMapper.updateGoods(intAID, intRmIdx, strStockDatas);
 
                 String strResult = result.substring(result.length()-4);
-
                 if(!strResult.equals("저장완료")){
                     intFailCount +=1;
                 }
