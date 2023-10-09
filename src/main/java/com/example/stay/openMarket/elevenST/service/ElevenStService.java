@@ -5,10 +5,12 @@ import com.example.stay.common.util.Constants;
 import com.example.stay.common.util.LogWriter;
 import com.example.stay.common.util.XmlUtility;
 import com.example.stay.openMarket.common.dto.AccommDto;
+import com.example.stay.openMarket.common.dto.StockDto;
 import com.example.stay.openMarket.common.mapper.CommonMapper;
 import com.example.stay.openMarket.common.service.CommonService;
 import com.example.stay.openMarket.elevenST.mapper.ElevenStMapper;
 import org.jetbrains.annotations.NotNull;
+import org.json.simple.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.w3c.dom.Document;
@@ -54,7 +56,12 @@ public class ElevenStService {
      */
     public String regProduct(String intAID, String bgnDay, String endDay, boolean isUpdate, String prdNm, int category){
         try {
-            URL url = new URL(Constants.elevenUrl + "/rest/prodservices/product");
+            URL url;
+            if (isUpdate){
+                url = new URL(Constants.elevenUrl + "/rest/prodservices/product/"+commonMapper.getStrPdtCode(Integer.parseInt(intAID), 1));
+            } else {
+                url = new URL(Constants.elevenUrl + "/rest/prodservices/product");
+            }
             Map<String, Object>map = elevenStMapper.getAccomm(intAID);
 //            String pricet = String.valueOf(commonMapper.getOmkSales(Integer.parseInt(accommID), 1));
             map.put("aplBgnDy", bgnDay);
@@ -68,13 +75,13 @@ public class ElevenStService {
             sb.append("<selMnbdNckNm>condo24</selMnbdNckNm>"); //닉네임 필수항목은 아님
             sb.append("<selMthdCd>01</selMthdCd>"); //판매방식 01:고정가판매, 04:예약판매, 05:중고판매 이 외의 코드는 사용 X
 
-            if (isUpdate){
+            if (isUpdate && category!=0){
                 sb.append("<dispCtgrNo>" + category + "</dispCtgrNo>");
             } else {
                 sb.append("<dispCtgrNo>1018106</dispCtgrNo>"); //카테고리 넘버는 소카테고리 넘버 (2878 => 1017895(국내숙박) => 1017904(리조트) => 지역 (ex: 경인 1018106)  //호텔, 리조트, 모텔, 펜션, 게스트하우스등 있음
             }
 //            sb.append("<prdNm>" + map.get("prdNm") + "</prdNm>");
-            if (isUpdate){
+            if (isUpdate && !prdNm.equals("")){
                 sb.append("<prdNm><![CDATA[" + prdNm + "]]></prdNm>");
             }else {
                 sb.append("<prdNm><![CDATA[" + map.get("strSubject") + "[TEST상품/주문불가]]]></prdNm>"); //상품명 추후 배포시 TEST관련 문구 제거
@@ -86,6 +93,7 @@ public class ElevenStService {
 //            sb.append("<prdImage03>" + map.get("prdImage03") + "</prdImage03>");
             sb.append("<htmlDetail><![CDATA[" + /*map.get("strDescription")*/ "TEST" + "]]></htmlDetail>");
             sb.append("<selTermUseYn>Y</selTermUseYn>"); //판매기간 (N: 즉시 영구판매)
+//            sb.append("<selPrdClfFpCd>107</selPrdClfFpCd>"); //판매기간 (N: 즉시 영구판매)
             sb.append("<brand>febHotel</brand>"); //브랜드명
             sb.append("<ProductNotification>"); //상품정보고시 호텔/펜션예약(891037) 고정값
             sb.append("<type>891037</type>");
@@ -122,21 +130,21 @@ public class ElevenStService {
 //            Map<String, Object> map3 = new HashMap<>();
             List<Map<String, Object>> listMap = new ArrayList<>(); //TEST용임 실 옵션생성시 어떻게 들어올지 의사협의 필요
 //            listMap = elevenStMapper.getAccomm();
-            for (int j = 0; j<3; j++) {
-                int date = 20230901;
-                int price = 1000000;
-                for (int i = 0; i < 10; i++) {
-                    Map<String, Object> map3 = new HashMap<>();
-                    Random random = new Random();
-                    map3.put("optPrice", price + random.nextInt(100)*100);
-                    map3.put("optCount", "1");
-                    map3.put("optType1", date+j);
-                    map3.put("optType2", "옵션" + i);
-//                map2.put("listMap", map3);
-//                Map<String, Object> map2 = map3;
-                    listMap.add(map3);
-                }
-            }
+//            for (int j = 0; j<3; j++) {
+//                int date = 20230901;
+//                int price = 1000000;
+//                for (int i = 0; i < 10; i++) {
+//                    Map<String, Object> map3 = new HashMap<>();
+//                    Random random = new Random();
+//                    map3.put("optPrice", price + random.nextInt(100)*100);
+//                    map3.put("optCount", "1");
+//                    map3.put("optType1", date+j);
+//                    map3.put("optType2", "옵션" + i);
+////                map2.put("listMap", map3);
+////                Map<String, Object> map2 = map3;
+//                    listMap.add(map3);
+//                }
+//            }
 
 
             //옵션 설정
@@ -148,24 +156,30 @@ public class ElevenStService {
             sb.append("<optMixYn>N</optMixYn>");
             //AS-IS 기준
             sb.append("<ProductOptionExt>");
-            sb.append("<ProductOption>");
-            sb.append("<colOptPrice>0</colOptPrice>");
-            sb.append("<colOptCount>1</colOptCount>");
-            sb.append("<colCount/>");
-            sb.append("<optWght/>");
-            sb.append("<useYn>Y</useYn>");
-            sb.append("<colSellerStockCd></colSellerStockCd>");//셀러가 사용할 재고번호
-            sb.append("<optionMappingKey><![CDATA[투숙일자:20230901†" + "객실타입:xxx ]]></optionMappingKey>");
-            sb.append("</ProductOption>");
-            for(int i = 0; i < listMap.size(); i++){//관리자페이지에서 선택된값 리스트로 받아서 넣어야 함
+
+            // 재고 가져오기
+            List<StockDto> stockList = commonMapper.getStockList(Integer.parseInt(intAID), 1, bgnDay);
+
+            System.out.println(stockList);
+            for (StockDto dto : stockList) {
+
+                String strStockSubject = dto.getStrRmtypeName();
+                int intStockCnt = dto.getIntStock();
+                String strStockdate = dto.getDateSales();
+                int intStockSalePrice = dto.getMoneySales(); // 판매가
+                int intStockCost = dto.getMoneyCost(); // 공급가
+                int intIdx = dto.getIntIdx();
+                if(intStockCnt == 0){
+                    intStockCnt=1;
+                }
                 sb.append("<ProductOption>");
-                sb.append("<colOptPrice>" + listMap.get(i).get("optPrice") + "</colOptPrice>");
-                sb.append("<colOptCount>" + listMap.get(i).get("optCount") + "</colOptCount>");
+                sb.append("<colOptPrice>" + intStockSalePrice + "</colOptPrice>");
+                sb.append("<colOptCount>" + intStockCnt + "</colOptCount>");
                 sb.append("<colCount/>");
                 sb.append("<optWght/>");
                 sb.append("<useYn>Y</useYn>");
-                sb.append("<colSellerStockCd></colSellerStockCd>");//셀러가 사용할 재고번호
-                sb.append("<optionMappingKey><![CDATA[투숙일자:" + listMap.get(i).get("optType1") + "†" + "객실타입:" + listMap.get(i).get("optType2") + " ]]></optionMappingKey>");
+                sb.append("<colSellerStockCd>"+intIdx+"</colSellerStockCd>");//셀러가 사용할 재고번호
+                sb.append("<optionMappingKey><![CDATA[투숙일자:" + strStockdate + "†" + "객실타입:" + strStockSubject + " ]]></optionMappingKey>");
                 sb.append("</ProductOption>");
             }
             sb.append("</ProductOptionExt>");
@@ -179,12 +193,14 @@ public class ElevenStService {
             sb.append("<prdSelQty>1</prdSelQty>");// 재고수량 필수항목
             sb.append("<rtngExchDetail>불가</rtngExchDetail>"); //반품/교환 안내 필수항목으로 .이라도 입력하라 함
             sb.append("<dlvCstInstBasiCd>01</dlvCstInstBasiCd>"); //H.S코드
-            sb.append("<aplBgnDy>" + map.get("aplBgnDy") + "</aplBgnDy>"); //판매 시작일
-            sb.append("<aplEndDy>" + map.get("aplEndDy") + "</aplEndDy>"); //판매 종료일
+            if(bgnDay !=""){
+                sb.append("<aplBgnDy>" + map.get("aplBgnDy") + "</aplBgnDy>"); //판매 시작일
+                sb.append("<aplEndDy>" + map.get("aplEndDy") + "</aplEndDy>"); //판매 종료일
+            }
             sb.append("<selPrc>" + map.get("selPrc") + "</selPrc>"); //판매가 (원가)
             sb.append("<prcCmpExpYn>Y</prcCmpExpYn>"); // 가격비교
             sb.append("<dtldDescTyp>H</dtldDescTyp>"); // 모바일 노출타입
-            sb.append("<prdTypCd>02</prdTypCd>"); // 30:숙박내재화
+            sb.append("<prdTypCd>30</prdTypCd>"); // 29:openAPI사용시 여행상품은 29
             sb.append("<drcStlYn>Y</drcStlYn>"); // 즉시결제여부
             sb.append("<htmlDetailIframeYn>N</htmlDetailIframeYn>"); // 숙박은 N : iframe으로 노출여부
             sb.append("<penaltyAppyYn>Y</penaltyAppyYn>"); // 취소수수료 사용여부
@@ -237,11 +253,14 @@ public class ElevenStService {
             if (!xmlUtility.getTagValue( "resultCode", (Element) nl.item(0)).equals("200")) {
                 return commonFunction.makeReturn("jsonp", "500", "ERROR", xmlUtility.getTagValue( "message", (Element) nl.item(0)));
             }
-            String prdNo = nl.item(1).getTextContent();
+            String prdNo = xmlUtility.getTagValue( "productNo", (Element) nl.item(0));
 
             //오픈마켓 테이블에 박아야겠지?
 
-            elevenStMapper.insertAccomm(map.get("intAID").toString(), map.get("prdNm").toString(), prdNo, map.get("detailInfo").toString());
+            elevenStMapper.insertAccomm(map.get("intAID").toString(),"1","Y", map.get("strSubject").toString(), prdNo, map.get("strDescription").toString());
+            if(isUpdate){
+                return xmlUtility.getTagValue( "message", (Element) nl.item(0)).toString();
+            }
             return commonFunction.makeReturn("jsonp", "200", "SUCCESS", "");
         } catch (Exception e) {
             return commonFunction.makeReturn("jsonp", "500", e.getMessage());
@@ -323,188 +342,13 @@ public class ElevenStService {
      */
     public String modProduct(String intAID, int category, String prdNm) {
         try {
-            String prdCode = commonMapper.getStrPdtCode(Integer.parseInt(intAID), 1);
-            URL url = new URL(Constants.elevenUrl + "/rest/prodservices/product/6304609395");
-            Map<String, Object>map = elevenStMapper.getAccomm("11471");
-//            String pricet = String.valueOf(commonMapper.getOmkSales(Integer.parseInt(accommID), 1));
-            map.put("selPrc", "100000000"); // 대표가이니 가장 낮은가격이 되련지 아님 상품매칭시 대표가격이 등록되는건지 확인 필요
-            map.put("prdImage01", "https://cdn.pixabay.com/photo/2023/03/12/21/05/egg-7847875_1280.png"); //
-//            map.put("prdImage01", "https://cdn.imweb.me/thumbnail/20221018/2fa9b7c3276c7.png");
-            StringBuffer sb = new StringBuffer();
-            sb.append("<?xml version=\"1.0\" encoding=\"utf-8\" standalone=\"yes\"?>");
-            sb.append("<Product>");
-            sb.append("<selMnbdNckNm>condo24</selMnbdNckNm>"); //닉네임 필수항목은 아님
-            sb.append("<selMthdCd>01</selMthdCd>"); //판매방식 01:고정가판매, 04:예약판매, 05:중고판매 이 외의 코드는 사용 X
+            String result = regProduct(intAID, "", "", true, prdNm, category);
 
-            if (category != 0) {
-                sb.append("<dispCtgrNo>" + category + "</dispCtgrNo>");
-            }
-//            sb.append("<prdNm>" + map.get("prdNm") + "</prdNm>");
-            if(!prdNm.equals("")){
-                sb.append("<prdNm><![CDATA[" + prdNm + "]]></prdNm>");
+            if(result.equals("기존에 요청한 XML과 동일한 XML을 요청하셨습니다. 확인 부탁드립니다.")){
+                return commonFunction.makeReturn("jsonp", "202", result);
             }
 
-//            sb.append("<intAID>" + map.get("intAID") + "</intAID>");
-            sb.append("<sellerPrdCd>" + map.get("intAID") + "33</sellerPrdCd>");
-            sb.append("<prdImage01>" + map.get("prdImage01") + "</prdImage01>");
-//            sb.append("<prdImage02>" + map.get("prdImage02") + "</prdImage02>");
-//            sb.append("<prdImage03>" + map.get("prdImage03") + "</prdImage03>");
-            sb.append("<htmlDetail><![CDATA[" + /*map.get("strDescription")*/ "TEST" + "]]></htmlDetail>");
-            sb.append("<selTermUseYn>Y</selTermUseYn>"); //판매기간 (N: 즉시 영구판매)
-            sb.append("<brand>febHotel</brand>"); //브랜드명
-            sb.append("<ProductNotification>"); //상품정보고시 호텔/펜션예약(891037) 고정값
-            sb.append("<type>891037</type>");
-            sb.append("<item>");
-            sb.append("<code>23754785</code>");//객실타입/등급
-            sb.append("<name>상품상세설명 참조</name>");
-            sb.append("</item>");
-            sb.append("<item>");
-            sb.append("<code>23756934</code>");//숙소형태
-            sb.append("<name>상품상세설명 참조</name>");
-            sb.append("</item>");
-            sb.append("<item>");
-            sb.append("<code>23756141</code>");//사용가능인원
-            sb.append("<name>상품상세설명 참조</name>");
-            sb.append("</item>");
-            sb.append("<item>");
-            sb.append("<code>23756127</code>");//부대시설, 제공서비스
-            sb.append("<name>TEST</name>");
-            sb.append("</item>");
-            sb.append("<item>");
-            sb.append("<code>23759722</code>");//국가 또는 지역명
-            sb.append("<name>상품상세설명 참조</name>");
-            sb.append("</item>");
-            sb.append("<item>");
-            sb.append("<code>23757169</code>");//예약담당 연락처
-            sb.append("<name>상품상세설명 참조</name>");
-            sb.append("</item>");
-            sb.append("<item>");
-            sb.append("<code>23760070</code>");//취소 규정
-            sb.append("<name>상품상세설명 참조</name>");
-            sb.append("</item>");
-            sb.append("</ProductNotification>");
-
-//            Map<String, Object> map3 = new HashMap<>();
-            List<Map<String, Object>> listMap = new ArrayList<>(); //TEST용임 실 옵션생성시 어떻게 들어올지 의사협의 필요
-//            listMap = elevenStMapper.getAccomm();
-            for (int j = 0; j<3; j++) {
-                int date = 20230901;
-                int price = 1000000;
-                for (int i = 0; i < 10; i++) {
-                    Map<String, Object> map3 = new HashMap<>();
-                    Random random = new Random();
-                    map3.put("optPrice", price + random.nextInt(100)*100);
-                    map3.put("optCount", "1");
-                    map3.put("optType1", date+j);
-                    map3.put("optType2", "옵션" + i);
-//                map2.put("listMap", map3);
-//                Map<String, Object> map2 = map3;
-                    listMap.add(map3);
-                }
-            }
-
-
-            //옵션 설정
-            sb.append("<optSelectYn>Y</optSelectYn>");
-            sb.append("<txtColCnt>1</txtColCnt>");
-            sb.append("<optionAllQty>9999</optionAllQty>"); // 각 옵션별 재고 수량 전체 더해서 입력
-            sb.append("<optionAllAddPrc>0</optionAllAddPrc>");
-            sb.append("<prdExposeClfCd>01</prdExposeClfCd>");
-            sb.append("<optMixYn>N</optMixYn>");
-            //AS-IS 기준
-            sb.append("<ProductOptionExt>");
-            sb.append("<ProductOption>");
-            sb.append("<colOptPrice>0</colOptPrice>");
-            sb.append("<colOptCount>1</colOptCount>");
-            sb.append("<colCount/>");
-            sb.append("<optWght/>");
-            sb.append("<useYn>Y</useYn>");
-            sb.append("<colSellerStockCd></colSellerStockCd>");
-            sb.append("<optionMappingKey><![CDATA[투숙일자:20230901†" + "객실타입:xxx ]]></optionMappingKey>");
-//            sb.append("</ProductOption>");
-//            for(int i = 0; i < listMap.size(); i++){//관리자페이지에서 선택된값 리스트로 받아서 넣어야 함
-//                sb.append("<ProductOption>");
-//                sb.append("<colOptPrice>" + listMap.get(i).get("optPrice") + "</colOptPrice>");
-//                sb.append("<colOptCount>" + listMap.get(i).get("optCount") + "</colOptCount>");
-//                sb.append("<colCount/>");
-//                sb.append("<optWght/>");
-//                sb.append("<useYn>Y</useYn>");
-//                sb.append("<colSellerStockCd></colSellerStockCd>");
-//                sb.append("<optionMappingKey><![CDATA[투숙일자:" + listMap.get(i).get("optType1") + "†" + "객실타입:" + listMap.get(i).get("optType2") + " ]]></optionMappingKey>");
-//                sb.append("</ProductOption>");
-//            }
-            sb.append("</ProductOptionExt>");
-
-
-            sb.append("<selPrdClfCd>0:100</selPrdClfCd>");//판매기간코드
-            sb.append("<orgnTypCd>03</orgnTypCd>"); //원산지코드 03:기타, 01:국내, 02:해외 국내나 해외선택시 원산지지역코드 입력해야함
-            sb.append("<prdStatCd>01</prdStatCd>");
-            sb.append("<orgnNmVal>TEST</orgnNmVal>"); //원산지 명
-            sb.append("<asDetail>.</asDetail>"); //A/S 안내 필수항목으로 .이라도 입력하라 함
-            sb.append("<prdSelQty>1</prdSelQty>");// 재고수량 필수항목
-            sb.append("<rtngExchDetail>불가</rtngExchDetail>"); //반품/교환 안내 필수항목으로 .이라도 입력하라 함
-            sb.append("<dlvCstInstBasiCd>01</dlvCstInstBasiCd>"); //H.S코드
-            sb.append("<aplBgnDy>" + map.get("aplBgnDy") + "</aplBgnDy>"); //판매 시작일
-            sb.append("<aplEndDy>" + map.get("aplEndDy") + "</aplEndDy>"); //판매 종료일
-            sb.append("<selPrc>" + map.get("selPrc") + "</selPrc>"); //판매가 (원가)
-            sb.append("<prcCmpExpYn>Y</prcCmpExpYn>"); // 가격비교
-            sb.append("<dtldDescTyp>H</dtldDescTyp>"); // 모바일 노출타입
-            sb.append("<prdTypCd>02</prdTypCd>"); // 30:숙박내재화
-            sb.append("<drcStlYn>Y</drcStlYn>"); // 즉시결제여부
-            sb.append("<htmlDetailIframeYn>N</htmlDetailIframeYn>"); // 숙박은 N : iframe으로 노출여부
-            sb.append("<penaltyAppyYn>Y</penaltyAppyYn>"); // 취소수수료 사용여부
-            sb.append("<directStlYn>Y</directStlYn>"); // 바로결제 여부
-            sb.append("<hotelBaseAddr><![CDATA[" + map.get("strAddr1") + "]]></hotelBaseAddr>");
-            sb.append("<hotelDtlsAddr><![CDATA[" + map.get("strAddr2") + "]]></hotelDtlsAddr>");
-            sb.append("<addrTypCd>02</addrTypCd>"); //주소 타입 01:지번, 02:도로명
-            sb.append("<mailNo>" + map.get("strZipCode") + "</mailNo>");
-            sb.append("<hotelPhoneNumber>" + map.get("strPhone") + "</hotelPhoneNumber>");
-            sb.append("<roomSeatCount>" + map.get("intRoomCnt") + "</roomSeatCount>");
-            sb.append("<checkInTime>" + map.get("strCheckIn") + "</checkInTime>");
-            sb.append("<checkOutTime>" + map.get("strCheckOut") + "</checkOutTime>");
-            sb.append("<hotelType><![CDATA[" + map.get("strType") + "]]></hotelType>");
-            sb.append("<hotelGrade>" + map.get("intGrade") + "</hotelGrade>");
-            sb.append("<geoPointX>" + map.get("decLat") + "</geoPointX>");
-            sb.append("<geoPointY>" + map.get("decLon") + "</geoPointY>");
-            sb.append("<tourNationType>국내</tourNationType>");
-            sb.append("</Product>");
-
-            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-            conn.setDoOutput(true);
-            conn.setInstanceFollowRedirects(false);
-            conn.setRequestMethod("PUT");
-            conn.addRequestProperty("Content-Type", "text/xml; charset=euc-kr");
-            conn.setRequestProperty("openapikey", Constants.elevenApiKey);
-
-            OutputStreamWriter wr = new OutputStreamWriter(conn.getOutputStream());
-            wr.write(sb.toString());
-            wr.flush();
-            LogWriter lw = new LogWriter("PUT", url.toString(), sb.toString(), System.currentTimeMillis());
-
-            String inputLine = null;
-            String returnStr = "";
-            BufferedReader in = new BufferedReader(new InputStreamReader(conn.getInputStream(), "utf-8"));
-            while ((inputLine = in.readLine()) != null) {
-//                System.out.println(inputLine);
-                String decoder = URLDecoder.decode(inputLine, "euc-kr");
-                decoder = URLDecoder.decode(decoder, "euc-kr");
-                returnStr += decoder;
-            }
-            System.out.println(returnStr);
-
-            DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-            DocumentBuilder db = dbf.newDocumentBuilder();
-            Document doc = db.parse(new InputSource(new StringReader(returnStr)));
-            NodeList nl = doc.getElementsByTagName("ClientMessage");
-            if (!xmlUtility.getTagValue( "resultCode", (Element) nl.item(0)).equals("200")) {
-                return commonFunction.makeReturn("jsonp", "500", "ERROR", xmlUtility.getTagValue( "message", (Element) nl.item(0)));
-            }
-//            String prdNo = nl.item(1).getTextContent();
-
-            //오픈마켓 테이블에 박아야겠지?
-
-//            elevenStMapper.insertAccomm(map.get("intAID").toString(), map.get("prdNm").toString(), prdNo, map.get("detailInfo").toString());
-            return commonFunction.makeReturn("jsonp", "200", "SUCCESS", "");
+            return commonFunction.makeReturn("jsonp", "200", result);
         } catch (Exception e) {
             return commonFunction.makeReturn("jsonp", "500", e.getMessage());
         }
@@ -647,15 +491,23 @@ public class ElevenStService {
                 if(xmlUtility.getTagValue("mixDtlOptNm", (Element) nl.item(i))==null) continue;
                 prdMap.put("prdStockNo", xmlUtility.getTagValue("prdStckNo", (Element) nl.item(i)));
                 prdMap.put("stockQty", xmlUtility.getTagValue("stckQty", (Element) nl.item(i)));
-                prdMap.put("투숙일자", xmlUtility.getTagValue("mixDtlOptNm", (Element) nl.item(i)).toString().split(",")[0]);
-                prdMap.put("객실타입", xmlUtility.getTagValue("mixDtlOptNm", (Element) nl.item(i)).toString().split(",")[1]);
+                prdMap.put("strDate", xmlUtility.getTagValue("mixDtlOptNm", (Element) nl.item(i)).toString().split(",")[0]);
+                prdMap.put("strRmtypeNm", xmlUtility.getTagValue("mixDtlOptNm", (Element) nl.item(i)).toString().split(",")[1]);
 
                 prdMap.put("mixDetailOptNm", xmlUtility.getTagValue("mixDtlOptNm", (Element) nl.item(i)));
                 prdMap.put("mixOptNm", xmlUtility.getTagValue("mixOptNm", (Element) nl.item(i)));
                 resultList.add(prdMap);
 
             }
+
             //TO-DO 각 옵션별 옵션번호 상품DB에 인입
+            for(Map<String, Object> resMap : resultList){
+                String strRmtypeNm = resMap.get("strRmtypeNm").toString();
+                String strDate = resMap.get("strDate").toString();
+                String prdStockNo = resMap.get("prdStockNo").toString();
+                elevenStMapper.insertSeq(String.valueOf(intAID), strRmtypeNm, strDate, prdStockNo);
+            }
+
             return commonFunction.makeReturn("jsonp", "200", "OK", resultList.toString());
         } catch (Exception e) {
             return commonFunction.makeReturn("jsonp", "500", e.getMessage());
@@ -1029,7 +881,7 @@ public class ElevenStService {
             String result = nl.item(0).getChildNodes().item(1).getTextContent();
 
 
-            return commonFunction.makeReturn(dataType, "200", "OK", result);
+            return commonFunction.makeReturn(dataType, "200", result );
         } catch (Exception e) {
             return commonFunction.makeReturn(dataType, "500", e.getMessage());
         }

@@ -18,19 +18,30 @@
         WHERE intAID = #{intAID} AND intOMKIdx='1'
     </update>
 
-    <insert id="insertAccomm">
-        INSERT INTO  PLNDSTAY.dbo.ACCOMM_OMK (
-        intAID, intOMKIdx, strUsageYn, strPdtSubject, strPdtCode, strDetailInfo
-        )
-        VALUES (
-        #{intAID}, 1, 'Y',#{strPdtSubject}, #{strPdtCode}, #{strDetailInfo}
-                )
-    </insert>
+    <select id="insertAccomm" resultType="string">
+        EXEC PLNDSTAY.dbo.spCM_ACCOMM_OMK_UPDATE ${intAID}, ${intOmkIdx}, #{intUsageYn}, #{strPdtSubject}, #{strPdtCode}, #{strDetailInfo}, ''
+    </select>
 
     <select id="getIntAID" parameterType="string" resultType="string">
         SELECT intAID
         FROM PLNDSTAY.dbo.ACCOMM_OMK
         WHERE strPdtCode = #{prdNo}
     </select>
+
+    <update id="updateSeq" >
+        UPDATE
+        SELECT SR.intIdx
+             , SR.intAID
+             , SR.intRMIdx
+             , SR.dateSales
+             , SR.moneyCost
+             , SR.moneySales
+             , R.strRmtypeName
+        FROM [PLNDSTAY].[dbo].[STOCK_REAL] SR
+            LEFT OUTER JOIN RMTYPE R with(nolock) on R.intIdx = intRmIdx
+        SET
+            SR.int11stSeq = #{prdStockNo}
+        WHERE R.strRmtypeName = #{strRmtypeNm} AND SR.intAID = #{intAID} AND SR.dateSales = #{strDate}
+    </update>
 
 </mapper>
