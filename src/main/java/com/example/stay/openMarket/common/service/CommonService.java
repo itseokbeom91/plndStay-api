@@ -64,7 +64,7 @@ public class CommonService {
     // 상세페이지 반환하기
     public String getStrPdtDtlInfo(AccommDto accommDto, int intAID, int intOmkIdx){
         String result = "";
-        if(accommDto.getStrOMKDetailInfo() != null && !accommDto.getStrOMKDetailInfo().equals("")){ // 정보가 있을때
+        if(accommDto.getStrOMKDetailInfo() != null && !accommDto.getStrOMKDetailInfo().equals("") && 1==2){ // 정보가 있을때
 
             result = accommDto.getStrOMKDetailInfo().replace("&#39;","\"").replace("&quot;","\"");
             System.out.println("strPdtDtlInfo 정보 보여주기 : " + System.currentTimeMillis());

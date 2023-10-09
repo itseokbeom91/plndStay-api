@@ -6,6 +6,8 @@ import com.example.stay.openMarket.common.dto.AccommDto;
 import com.example.stay.openMarket.common.dto.BookingDto;
 import com.example.stay.openMarket.common.dto.CondoDto;
 import com.example.stay.openMarket.common.mapper.CommonMapper;
+import com.example.stay.openMarket.common.service.CommonService;
+import com.example.stay.openMarket.eland.mapper.ElandMapper;
 import com.example.stay.openMarket.eland.service.ElandService;
 import com.fasterxml.jackson.databind.JsonNode;
 import org.json.simple.JSONArray;
@@ -74,6 +76,8 @@ public class ElandController {
     // 스케줄러 채번 테스트
     @Autowired
     private CommonMapper commonMapper;
+    @Autowired
+    private ElandMapper elandMapper;
     CommonFunction commonFunction = new CommonFunction();
 
     @GetMapping("test")
@@ -100,6 +104,8 @@ public class ElandController {
             if(stockDatas.length() > 1){
                 stockDatas = stockDatas.substring(0, stockDatas.length()-5);
             }
+
+            elandMapper.setNumbering(intAID, stockDatas);
             System.out.println(stockDatas);
 
         }catch (Exception e){
@@ -109,6 +115,24 @@ public class ElandController {
         return result;
 
     }
+
+    @Autowired
+    private CommonService commonService;
+    @GetMapping("/pic")
+    public void picture(){
+
+        try {
+
+            AccommDto accommDto = commonMapper.getAcmInfo(11471, 9);
+
+            String strImgDesc = commonService.getStrPdtDtlInfo(accommDto, 11471, 9);
+            System.out.println(strImgDesc);
+
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+    }
+
 
 
 

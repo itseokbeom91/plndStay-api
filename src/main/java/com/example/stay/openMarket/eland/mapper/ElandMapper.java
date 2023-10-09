@@ -35,4 +35,7 @@ public interface ElandMapper {
     // 이랜드 상품 채번 최대값 가져오기
     int getMaxElandSeq(int intAID);
 
+    // 채번
+    String setNumbering(int intAID, String stockDatas);
+
 }
