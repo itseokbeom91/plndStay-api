@@ -15,7 +15,8 @@ import java.util.Date;
 import java.util.TimeZone;
 
 public class HmacGenerater {
-    public static String generate(String strDomain){
+    public static String generate(String strDomain, String strOmk){
+        String token = "";
         try {
             JSONObject header = new JSONObject();
             header.put("alg", "HS256");
@@ -25,34 +26,33 @@ public class HmacGenerater {
             JSONObject payload = new JSONObject();
             payload.put("iss", "www.condo24.com");
             payload.put("sub", strDomain);
-//            payload.put("sub", "sell");
             payload.put("aud", "sa.esmplus.com");
-//            payload.put("iat", System.currentTimeMillis()/1000);
-//            payload.put("ssi", "A:condo24auc, G:condo24gmk");
-            payload.put("ssi", "G:condo24gmk");
 
-            String strHeader = Base64Encoder.encode(header.toString().getBytes(StandardCharsets.UTF_8));
-            String strPayload = Base64Encoder.encode(payload.toString().getBytes(StandardCharsets.UTF_8));
+            if(strOmk.equals("G")){
+                payload.put("ssi", "G:" + Constants.gmkEsmMasterID);
+            }else if(strOmk.equals("A")){
+                payload.put("ssi", "A:" + Constants.gmkEsmMasterID);
+            }
 
-            System.out.println("strHeader : " + strHeader);
-            System.out.println("strPayload : " + strPayload);
+            String strHeader = Base64.getEncoder().withoutPadding().encodeToString(header.toJSONString().getBytes());
+            String strPayload = Base64.getEncoder().withoutPadding().encodeToString(payload.toJSONString().getBytes());
+
             String message = strHeader + "." + strPayload;
 
-            SecretKeySpec signingKey = new SecretKeySpec(Constants.gmk_secret_key.getBytes(Charset.forName("UTF-8")), Constants.HMAC_SHA_256);
+            SecretKeySpec signingKey = new SecretKeySpec(Constants.gmk_secret_key.getBytes(), Constants.HMAC_SHA_256);
             Mac mac = Mac.getInstance(Constants.HMAC_SHA_256);
             mac.init(signingKey);
-            byte[] rawHmac = mac.doFinal(message.getBytes(Charset.forName("UTF-8")));
-            String signature = Hex.encodeHexString(rawHmac);
+            byte[] rawHmac = mac.doFinal(message.getBytes());
+            String hash = Base64.getEncoder().encodeToString(rawHmac);
+            String signature = hash.substring(0, hash.length()-1);
 
-            System.out.println("signature : " + signature);
+            token = "Bearer " + strHeader + "." + strPayload + "." + signature;
 
+            System.out.println("token : " + token);
 
         }catch (Exception e){
             e.printStackTrace();
         }
-
-        String result = "";
-        System.out.println("result : " + result);
-        return result;
+        return token;
     }
 }

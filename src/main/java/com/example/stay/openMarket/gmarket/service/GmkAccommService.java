@@ -31,6 +31,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class GmkAccommService {
@@ -47,6 +48,23 @@ public class GmkAccommService {
     private XmlUtility xmlUtility;
 
     CommonFunction commonFunction = new CommonFunction();
+
+    public String getCategory(){
+        String result = "";
+        try{
+            String authorization = HmacGenerater.generate("sell", "G");
+            JsonNode jsonNode = commonFunction.callJsonApi("gmk", authorization, new JSONObject(), Constants.gmkUrl + "item/v1/categories/sd-cats/00250002000000000000", "GET");
+//            JsonNode jsonNode = commonFunction.callJsonApi("gmk", authorization, new JSONObject(), Constants.gmkUrl + "item/v1/categories/site-cats", "GET");
+
+//            String catCode = jsonNode.get("catCode").toString();
+//            String catName = jsonNode.get("catName").toString();
+
+            result = jsonNode.toPrettyString();
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+        return result;
+    }
 
     // 숙박상품 생성
     public String createAccomm(String dataType, int intAID, HttpServletRequest httpServletRequest){
@@ -79,43 +97,45 @@ public class GmkAccommService {
                     List<JSONObject> site = new ArrayList<>();
                     JSONObject siteJson = new JSONObject();
                     siteJson.put("siteTpye", 2); // 2 : 지마켓
-                    // TODO: 나중에 전체 카테고리코드 조회해보고 뭔지 봐야할듯
-//                siteJson.put("catCode",); // 최하위(Leaf) 카테고리 코드
-                    // 여행/항공권 > 국내호텔/레지던스 > 강원
+
+                    Map<String, String> categoryMap = gmkMapper.getCategories(intAID);
+
+                    siteJson.put("catCode", categoryMap.get("strGmkCate3")); // 최하위(Leaf) 카테고리 코드
 
                     category.put("site", site);
 
-                    // ESM 카테고리 코드 -> 뭐임?
-                    // 여행/티켓/e쿠폰 > 여행/호텔/항공권 > 국내숙박 인듯
+                    // ESM 카테고리 코드
                     JSONObject esm = new JSONObject();
-//                esm.put("catCode", );
+                    esm.put("catCode", categoryMap.get("strESMCate3"));
                     category.put("esm", esm);
 
                     itemBasicInfo.put("category", category);
 
                     // 브랜드코드 -> 필수값 아님. 있으면 넣기?
-//                JSONObject catalog = new JSONObject();
-////                catalog.put("brandNo", ) // 브랜드코드 -> api로 조회 가능
-//                itemBasicInfo.put("catalog", catalog);
+//                    JSONObject catalog = new JSONObject();
+//                    catalog.put("brandNo", ) // 브랜드코드 -> api로 조회 가능
+//                    itemBasicInfo.put("catalog", catalog);
 
                     JSONObject itemAdditionalInfo = new JSONObject();
+
+                    JSONObject buyableQuantity = new JSONObject();
+                    buyableQuantity.put("goodsType", 1); // 1 : 일반배송상품, 2: e쿠폰 상품
 
                     // 판매가격
                     // TODO : 지마켓, 옥션 둘 다 필수값으로 되어있는데 지마켓에 상품 등록할 때는 지마켓 데이터만 입력하면 되는건지 확인 필요
                     JSONObject priceJson = new JSONObject();
                     double price = commonMapper.getOmkSales(intAID, Constants.intGmkOmkIdx);
                     priceJson.put("Gmkt", price);
-//                    priceJson.put("Iac", price);
                     itemAdditionalInfo.put("price", priceJson);
 
-                    // 재고수량 -> 100일치..?
+                    // 재고수량
                     SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
                     Date date = new Date();
                     String strDate = dateFormat.format(date);
 
                     List<StockDto> stockDto = commonMapper.getStockList(intAID, Constants.intGmkOmkIdx, strDate);
                     JSONObject stock = new JSONObject();
-//                stock.put("Gmkt", ); // 옵션 등록시 옵션재고관리(true) 선택할 경우 본 수량 무시되고 옵션 재고합으로 산정
+//                    stock.put("Gmkt", ); // 옵션 등록시 옵션재고관리(true) 선택할 경우 본 수량 무시되고 옵션 재고합으로 산정 -> 근데 꼭 넣어야하나...
                     itemAdditionalInfo.put("stock", stock);
                     
                     // 판매기간
@@ -123,47 +143,91 @@ public class GmkAccommService {
                     // 수정 시 0 입력하면 기존 기간 유지
                     // TODO : 등록시 고정 판매기간 정해야함
                     JSONObject sellingPeriod = new JSONObject();
-//                sellingPeriod.put("Gmkt", );
-//                sellingPeriod.put("Iac", );
+                    sellingPeriod.put("Gmkt", 90);
                     itemAdditionalInfo.put("sellingPeriod", sellingPeriod);
 
-                    // 판매자 상품코드(관리코드 or 자사몰 상품번호)
-//                itemAdditionalInfo.put("managedCode", intAID);
+                    // 판매자 상품코드(관리코드 or 자사몰 상품번호) -> intRmIdx?
+//                    itemAdditionalInfo.put("managedCode", );
 
                     // 추천옵션 -> ? 주문 옵션이 있는데 왜 추천옵션이 필수값인지....
                     // 2.0 에서는 추천옵션을 기본으로 등록/수정 할 수 있기 때문에 recommendedOpts 을 사용 해주시면 됩니다. orderOpts 경우 구옵션 등록/수정 에서만 사용가능 합니다.
                     JSONObject recommendedOpts = new JSONObject();
-                    recommendedOpts.put("type", 0); // 추천옵션 타임 0 : 옵션 미사용
+                    recommendedOpts.put("type", 2);
+                    recommendedOpts.put("isStockManage", true);
+
+                    // 추천옵션코드 0 : 직접입력
+                    JSONObject combination = new JSONObject();
+                    combination.put("recommendedOptNo1", 0);
+                    combination.put("recommendedOptNo2", 0);
+
+                    // 추천옵션명
+                    JSONObject recommendedOptName1 = new JSONObject();
+                    recommendedOptName1.put("koreanText", "사용일자");
+                    combination.put("recommendedOptName1", recommendedOptName1);
+
+                    JSONObject recommendedOptName2 = new JSONObject();
+                    recommendedOptName1.put("koreanText", "타입");
+                    combination.put("recommendedOptName2", recommendedOptName2);
+
+                    JSONArray details = new JSONArray();
+//                    for(){
+//                        JSONObject detailJson = new JSONObject();
+//                        detailJson.put("recommendedOptValueNo1", 0); // 추천옵션 항목코드 0 : 직접입력?
+//                        detailJson.put("recommendedOptValueNo2", 0); // 추천옵션 항목코드 0 : 직접입력?
+//
+//                        JSONObject recommendedOptValue1 = new JSONObject();
+//                        recommendedOptValue1.put("koreanText", ); // 사용일자
+//                        detailJson.put("recommendedOptValue1", recommendedOptValue1);
+//
+//                        JSONObject recommendedOptValue2 = new JSONObject();
+//                        recommendedOptValue2.put("koreanText", ); // 객실타입명
+//                        detailJson.put("recommendedOptValue2", recommendedOptValue2);
+//
+//                        detailJson.put("isSoldOut", true); // 옵션의 품절여부 제어(옵션 재고 수량으로 제어하지 않음)
+////                    detailJson.put("isSoldOut", true); // 옵션의 노출여부 제어
+//                        detailJson.put("isDisplay", false); // 옵션의 노출여부 제어
+//
+//                        // 옵션 재고 수량
+//                        JSONObject qty = new JSONObject();
+//                        qty.put("gmkt", );
+//                        detailJson.put("qty", qty);
+//
+//                        detailJson.put("addAmnt", ); // 주문옵션 추가금
+//                    }
+
+
+                    recommendedOpts.put("details", details);
+
                     itemAdditionalInfo.put("recommendedOpts", recommendedOpts);
 
-                    // 주문옵션 -> 여기에 우리 옵션이 들어가야하는건가..
-                    // 주문옵션의 옵션명은 한글기준 25자까지
-                    JSONObject orderOpts = new JSONObject();
-                    orderOpts.put("type", 2);
-                    orderOpts.put("isStockManage", true);
-
-                    // ex) 사용일자 : 08월07일(월), 타입 : 디럭스패밀리트윈
-                    JSONObject combination = new JSONObject();
-                    JSONObject name1 = new JSONObject();
-                    name1.put("kor", "사용일자");
-
-                    JSONObject name2 = new JSONObject();
-                    name2.put("kor", "타입");
-
-                    combination.put("name1", name1);
-                    combination.put("name2", name2);
-
-                    JSONArray orderOptsDetails = new JSONArray();
-                    // 사용일자
-                    JSONObject value1 = new JSONObject();
-//                value1.put("kor", "");
-
-                    // 재고
-                    JSONObject aty = new JSONObject();
-                    aty.put("gmkt", 0);
-                    orderOptsDetails.add(aty);
-
-                    itemAdditionalInfo.put("orderOpts", orderOpts);
+//                    // 주문옵션 -> 여기에 우리 옵션이 들어가야하는건가..
+//                    // 주문옵션의 옵션명은 한글기준 25자까지
+//                    JSONObject orderOpts = new JSONObject();
+//                    orderOpts.put("type", 2);
+//                    orderOpts.put("isStockManage", true);
+//
+//                    // ex) 사용일자 : 08월07일(월), 타입 : 디럭스패밀리트윈
+//                    JSONObject combination = new JSONObject();
+//                    JSONObject name1 = new JSONObject();
+//                    name1.put("kor", "사용일자");
+//
+//                    JSONObject name2 = new JSONObject();
+//                    name2.put("kor", "타입");
+//
+//                    combination.put("name1", name1);
+//                    combination.put("name2", name2);
+//
+//                    JSONArray orderOptsDetails = new JSONArray();
+//                    // 사용일자
+//                    JSONObject value1 = new JSONObject();
+////                value1.put("kor", "");
+//
+//                    // 재고
+//                    JSONObject aty = new JSONObject();
+//                    aty.put("gmkt", 0);
+//                    orderOptsDetails.add(aty);
+//
+//                    itemAdditionalInfo.put("orderOpts", orderOpts);
 
                     // 판매자 브랜드명
                     JSONObject sellerShop = new JSONObject();
@@ -191,11 +255,11 @@ public class GmkAccommService {
 //                officialNotice.put("officialNoticeNo", );
 
                     // 상품정보고시 항목코드 -> api로 조회 가능
-                    JSONArray details = new JSONArray();
-                    JSONObject detailJson = new JSONObject();
+//                    JSONArray details = new JSONArray();
+//                    JSONObject detailJson = new JSONObject();
 //                detailJson.put("officialNoticeItemelementCode", ); // 상품정보고시 항목코드
 //                detailJson.put("value", ); // 상품정보고시 값
-                    details.add(detailJson);
+//                    details.add(detailJson);
 
                     // 상품정보고시 추가입력여부
 //                officialNotice.put("isExtraMark", );
@@ -285,7 +349,7 @@ public class GmkAccommService {
                     addtionalInfo.put("overseaSales", overseaSales);
 
                     // api 호출
-                    String authorization = HmacGenerater.generate("goods");
+                    String authorization = HmacGenerater.generate("goods", "G");
                     JsonNode jsonNode = commonFunction.callJsonApi("gmk", authorization, new JSONObject(), Constants.gmkUrl + "item/v1/goods", "post");
                     String code = jsonNode.get("resultCode").toString();
                     String resultMsg = jsonNode.get("message").toString();
@@ -337,7 +401,7 @@ public class GmkAccommService {
                 requestJson.put("promotion", promotion);
 
                 // api 호출
-                String authorization = HmacGenerater.generate("");
+                String authorization = HmacGenerater.generate("", "G");
                 JsonNode jsonNode = commonFunction.callJsonApi("gmk", authorization, requestJson, Constants.gmkUrl + "item/v1/goods/" + goodsNo + "/goods-name", "put");
                 String code = jsonNode.get("resultCode").toString();
                 String resultMsg = jsonNode.get("message").toString();
@@ -390,7 +454,7 @@ public class GmkAccommService {
             requestJson.put("imageModel", imageModel);
 
             // api 호출
-            String authorization = HmacGenerater.generate("");
+            String authorization = HmacGenerater.generate("", "G");
             JsonNode jsonNode = commonFunction.callJsonApi("gmk", authorization, requestJson, Constants.gmkUrl + "item/v1/goods/" + goodsNo + "/images" + goodsNo + "/goods-name", "post");
             String code = jsonNode.get("resultCode").toString();
             String resultMsg = jsonNode.get("message").toString();
@@ -436,7 +500,7 @@ public class GmkAccommService {
             requestJson.put("descNew", strHtmlDesc); // 상세설명(html)
 
             // api 호출
-            String authorization = HmacGenerater.generate("");
+            String authorization = HmacGenerater.generate("", "G");
             JsonNode jsonNode = commonFunction.callJsonApi("gmk", authorization, requestJson, Constants.gmkUrl + "item/v1/goods/" + goodsNo + "/descriptions" + goodsNo + "/images" + goodsNo + "/goods-name", "post");
             String code = jsonNode.get("resultCode").toString();
             String resultMsg = jsonNode.get("message").toString();
@@ -501,7 +565,7 @@ public class GmkAccommService {
             requestJson.put("itemBasicInfo", itemBasicInfo);
 
             // api 호출
-            String authorization = HmacGenerater.generate("");
+            String authorization = HmacGenerater.generate("", "G");
             JsonNode jsonNode = commonFunction.callJsonApi("gmk", authorization, requestJson, Constants.gmkUrl + "item/v1/goods/" + goodsNo + "/sell-status", "put");
 //            String code = jsonNode.get("resultCode").toString();
 //            String resultMsg = jsonNode.get("message").toString();
@@ -533,7 +597,7 @@ public class GmkAccommService {
     public void getRecommendOpts(){
         try{
             String siteCatCode = "";
-            String authorization = HmacGenerater.generate("categories");
+            String authorization = HmacGenerater.generate("categories", "G");
 
             System.out.println("authorization : " + authorization);
 
@@ -559,7 +623,7 @@ public class GmkAccommService {
 
         try{
             String siteCatCode = "";
-            String authorization = HmacGenerater.generate("");
+            String authorization = HmacGenerater.generate("", "G");
             JsonNode jsonNode = commonFunction.callJsonApi("gmk", authorization, new JSONObject(), Constants.gmkUrl + "item/v1/goods/goods-name-policies?siteId=2&siteCatCode=" + siteCatCode, "get");
 
             String code = jsonNode.get("resultCode").toString();
@@ -576,6 +640,8 @@ public class GmkAccommService {
         }
         return result;
     }
+
+
 
     // 실시간 가격, 재고 체크(지마켓에서 호출)
     public String getPriceNStock(HttpServletRequest httpServletRequest){
@@ -641,6 +707,5 @@ public class GmkAccommService {
         }
         return strXml;
     }
-
 
 }

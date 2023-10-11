@@ -21,7 +21,7 @@
     </select>
 
     <select id="webhookUpdateGoods" parameterType="StockDto" resultType="String">
-        EXEC PLNDSTAY.dbo.spONDAnWHP_STOCK_TEMP_REGIST 'OND', #{strStockDatas}, ''
+        EXEC PLNDSTAY.dbo.spONDA_STOCK_REAL_REGIST #{strStockDatas}, ''
     </select>
 
     <select id="getPropertyIDNRmtypeID" parameterType="String" resultType="Map">

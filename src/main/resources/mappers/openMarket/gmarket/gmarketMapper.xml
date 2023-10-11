@@ -4,11 +4,18 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="com.example.stay.openMarket.gmarket.mapper.GmkMapper">
-    <select id="getBrandCodeList" resultType="map">
-        SELECT strCode, strName
-        FROM CODE_OMK WITH(NOLOCK)
-        WHERE strCateCode = 'GMK_BRAND'
-            AND intIdx != 349
+<!--    <select id="getBrandCodeList" resultType="map">-->
+<!--        SELECT strCode, strName-->
+<!--        FROM CODE_OMK WITH(NOLOCK)-->
+<!--        WHERE strCateCode = 'GMK_BRAND'-->
+<!--            AND intIdx != 349-->
+<!--    </select>-->
+
+    <select id="getCategories" parameterType="int" resultType="map">
+        SELECT strGmkCate3
+            , strESMCate3
+        FROM PLNDSTAY.dbo.ACCOMM_OMK_INFO WITH(NOLOCK)
+        WHERE intAID = ${intAID}
     </select>
 
 </mapper>
