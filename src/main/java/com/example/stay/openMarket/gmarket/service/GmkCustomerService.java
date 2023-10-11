@@ -36,7 +36,7 @@ public class GmkCustomerService {
             requestJson.put("endDate", strDateTo); // 당일 조회시 시작일 +1일로 조회
 
             // api 호출
-            String authorization = HmacGenerater.generate("customer");
+            String authorization = HmacGenerater.generate("customer", "G");
             JsonNode jsonNode = commonFunction.callJsonApi("gmk", authorization, requestJson, Constants.gmkUrl + "item/v1/communications/customer/bulletin-board", "post");
             
             // TODO : resultCode 주는지 확인 필요
@@ -89,7 +89,7 @@ public class GmkCustomerService {
 //            requestJson.put("title", ); // 답변 내용
 
             // api 호출
-            String authorization = HmacGenerater.generate("customer");
+            String authorization = HmacGenerater.generate("customer", "G");
             JsonNode jsonNode = commonFunction.callJsonApi("gmk", authorization, requestJson, Constants.gmkUrl + "item/v1/communications/customer/bulletin-board/qna", "post");
             // TODO : resultCode 주는지 확인 필요
             String code = jsonNode.get("resultCode").toString();
@@ -131,7 +131,7 @@ public class GmkCustomerService {
             requestJson.put("endDate", strDateTo);
 
             // api 호출
-            String authorization = HmacGenerater.generate(""); // ???
+            String authorization = HmacGenerater.generate("", "G"); // ???
             JsonNode jsonNode = commonFunction.callJsonApi("gmk", authorization, requestJson, Constants.gmkUrl + "assist/v1/Selling/GetEmergencyInformList", "post");
 
             String code = jsonNode.get("ResultCode").toString();
@@ -179,7 +179,7 @@ public class GmkCustomerService {
             requestJson.put("Comments", ""); // 답변내용
 
             // api 호출
-            String authorization = HmacGenerater.generate(""); // ???
+            String authorization = HmacGenerater.generate("", "G"); // ???
             JsonNode jsonNode = commonFunction.callJsonApi("gmk", authorization, requestJson, Constants.gmkUrl + "assist/v1/Selling/AddEmergencyInformReply", "post");
 
             String code = jsonNode.get("ResultCode").toString();
@@ -220,7 +220,7 @@ public class GmkCustomerService {
             requestJson.put("EndDate", strDateTo);
 
             // api 호출
-            String authorization = HmacGenerater.generate("notices");
+            String authorization = HmacGenerater.generate("notices", "G");
             JsonNode jsonNode = commonFunction.callJsonApi("gmk", authorization, requestJson, Constants.gmkUrl + "item/v1/communications/notices", "post");
 
             // TODO : 성공시 resultCode가 오는지 확인 필요
