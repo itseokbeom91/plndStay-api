@@ -392,9 +392,10 @@ public class ElandService {
                 url += "&prgs_stat_cd=20";
             }else if(strType.equals("desc")){
                 // 4000자 제한때문에 빼버려야함
-                String strImgDesc = commonService.getStrPdtDtlInfo(accommDto, intAID, 9);//replace("<", "&lt;").replace(">", "&gt;").replace("/","&#47;");
+                String strImgDesc = commonService.getNewDetailInfo(accommDto, intAID, 9).replace("&quot;", "\"");//replace("<", "&lt;").replace(">", "&gt;").replace("/","&#47;");
 ;
                 System.out.println(strImgDesc);
+                //strImgDesc = URLEncoder.encode(strImgDesc, "UTF-8");
                 //strImgDesc = URLEncoder.encode(strImgDesc, "UTF-8").replace("+", "%20");
                 url += "&goods_desc10=" + strImgDesc;
             }else if(strType.equals("stock")){
@@ -484,6 +485,7 @@ public class ElandService {
             JSONObject jsonObject = (JSONObject) new JSONParser().parse(jsonNode.toString());
             System.out.println(jsonObject);
             result = jsonObject.get("error").toString();
+            System.out.println(result);
 
         }catch (Exception e){
             message = "재고 등록 실패";

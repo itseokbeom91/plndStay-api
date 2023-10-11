@@ -85,7 +85,7 @@ public class CommonService {
                             "\t \n" +
                             "\t\t\t<div style=\"width:100%;height:auto;-border:1px #dddddd solid;text-align:center;margin-top:5px;padding-bottom:10px;\"> \n" +
                             "\t\t\t\t<p style=\"font-size:200%;font-weight:bold;font-family:나눔고딕,NanumGothic,ng;\">" + accommDto.getStrSubject() + "</p> \n" +
-                            "\t\t\t\t<p style=\"font-size:13px;font-weight:bold;color:#959595;font-family:나눔고딕,NanumGothic,ng;padding-left:30px;padding-right:30px;\"> \n" + strDescription.replace("\r\n","<br>") + " \t\t\t\t</p> \n" +
+                            "\t\t\t\t<p style=\"font-size:13px;font-weight:bold;color:#959595;font-family:나눔고딕,NanumGothic,ng;padding-left:30px;padding-right:30px;\"> \n" + strDescription.replace("\r\n","</br>") + " \t\t\t\t</p> \n" +
                             "\t\t\t</div> \n" +
                             "\t \n" +
                             "\t \n" +
@@ -146,7 +146,7 @@ public class CommonService {
                             "\t\t\t</div> \n" +
                             "\t\t\t<div style=\"width:100%;text-align:left;border:1px #dddddd solid;height:auto;padding-bottom:10px;min-height:50px;font-family:나눔고딕,NanumGothic,ng;padding-top:10px;padding-right:10px;\">\t \n" +
                             "\t \n<div style=\"width:100%;display:inline-block;padding:5px 5px 5px 10px;font-family:나눔고딕,NanumGothic,ng;\">" +
-                            "\t\t\t\t\t" + strRsvGuide.replace("\r\n","<br>") + "\n" +
+                            "\t\t\t\t\t" + strRsvGuide.replace("\r\n","</br>") + "\n" +
                             "\t \n</div>" +
                             "\t \n" +
                             "\t\t\t</div> \n" +
@@ -174,6 +174,107 @@ public class CommonService {
                             "\n";
             System.out.println("roomType 쿼리 조회해서 html 코드 작성 : " + System.currentTimeMillis());
         }
+        return result;
+    }
+
+    // 상세페이지 new html
+    public String getNewDetailInfo(AccommDto accommDto, int intAID, int intOmkIdx){
+
+        String result = "";
+
+        String[] imgList = accommDto.getStrACMPhotos().split("\\|");
+        String strDescription = (accommDto.getStrDescription() != null)? accommDto.getStrDescription() : "";
+        String strRsvGuide = "";
+        if(accommDto.getStrRsvGuide() != null){
+            strRsvGuide = accommDto.getStrRsvGuide();
+        }else{
+            strRsvGuide =
+                    "           <!-- //이용안내가 없는 경우 -->\n" +
+                    "           <p style=\"font-size: 30px; paddign: 0; margin:0;\">[예약시 주의사항]</p>\n" +
+                    "           - 객실배정은 당일날 프런트에서 입실순서대로 배정합니다(사전배정불가).<br/>\n" +
+                    "           - 입실시간이 밤10시가 넘을 경우 프런트로 사전에 도착시간을 통보하시기 바랍니다.<br/>\n" +
+                    "           - 예약번호가 한 개 이상이어도 연박으로 입실 가능합니다(단, 동일객실타입).<br/>\n" +
+                    "           - 알릭톡으로 발송된 예약번호로 프런트에서 입실합니다.<br/>\n" +
+                    "           - 미성년자의 입실은 보호자의 동의가 있으셔야 사용이 가능합니다.<br/>\n" +
+                    "           - 미성년자의 혼숙으로 발생하는 입실거부에 대한 취소 혹은 환불은 절대 불가능합니다.<br/>\n" +
+                    "           - 노쇼(NO-SHOW 사전통보 없이 숙소를 이용하지 않음)의 경우 100% 청구됩니다.<br/>\n" +
+                    "           - 취소 및 변경은 근무시간 안에 요청하셔야 합니다(휴일불가).<br/>\n" +
+                    "           - 객실별 기준인원을 확인하시기 바랍니다(정원초과 시 인원 추가비 필수).\n" +
+                    "           <!-- 이용안내가 없는 경우// -->\n";
+        }
+        String strFac = (accommDto.getStrFac() != null)? accommDto.getStrFac() : "";
+
+        result += "<div style=\"width: 860px; font-family: 'Noto Sans KR', 'Nanum Gothic', 'NanumGothic', 'gulim', 'dotum', sans-serif; padding: 0; margin: 0 auto;\">\n" +
+                "   <div style=\"padding: 0; margin: 0;\">\n" +
+                "       <img src=\"https://www.condo24.com/data/images/omk/txt_brand_story.png\" alt=\"BRAND STORY\" style=\"display: block; padding: 0; margin: 0;\"/>\n" +
+                "      <div style=\"padding: 0; margin: 0;\">\n" +
+                "         <img src=\"https://www.condo24.com" + imgList[0] + "\" alt=\"앱지콘도 이미지 상단\" style=\"display: block; width: 100%; max-width: 100%; padding: 0; margin: 0;\"/>\n" +
+                "      </div>\n" +
+                "   </div>\n" +
+                "   <div style=\"text-align: center; padding: 0; margin: 30px 0 0;\">\n" +
+                "      <p style=\"color: #222; font-size: 35px; font-weight: bold; padding: 0; margin: 0;\">" + accommDto.getStrSubject() + "</p>\n" +
+                "      <div style=\"line-height: 1.5; color: #505050; font-size: 20px; padding: 0; margin: 0;\">\n" +
+                strDescription.replace("\r\n","</br>") +
+                "      </div>\n" +
+                "   </div>\n" +
+                "\n" +
+                "   <div style=\"padding: 0; margin: 55px 0 0;\">\n" +
+                "      <img src=\"https://www.condo24.com/data/images/omk/txt_photo_gallery.png\" alt=\"Photo Gallery\" style=\"display: block; padding: 0; margin: 0;\"/>\n" +
+                "      <div style=\"display: flex; align-items: stretch; flex-wrap: wrap; padding: 5px; margin: 0;\">\n";
+                for(int i=2;i<imgList.length;i++){
+                    result +=
+                            "<div style=\"width: calc(33.33% - 14px); width: -moz-calc(33.33% - 14px); margin: 0 7px 15px;\"><img style=\"display: block; max-width: 100%; padding: 0; margin: 0;\" alt=\"이미지 " + (i-1) + "\" src=\"https://www.condo24.com" + imgList[i] + "\"/></div>\n";
+                }
+                result +=
+                "      </div>\n" +
+                "   </div>\n" +
+                "\n" +
+                "   <!-- //객실옵션 -->\n" +
+                "   <div style=\"padding: 0; margin: 55px 0 0;\">\n" +
+                "      <img src=\"https://www.condo24.com/data/images/omk/txt_rm_info.png\" alt=\"객실 안내\" style=\"display: block; padding: 0; margin: 0;\"/>\n" +
+                "      <div style=\"max-width: 800px; padding: 0; margin: 0 auto;\">\n" +
+                "         <div style=\"padding: 0; margin: 55px 0 0; border-top: 1px solid #999;\">\n";
+
+        // roomType 정보 가져오기
+        //List<ToconDto> toconDto = getroomType(intAID, strOmk);
+        List<RoomTypeDto> roomTypeDtoList = getroomTypeList(intAID, intOmkIdx);
+        for(RoomTypeDto dto : roomTypeDtoList){
+            String strShortDesc = (dto.getStrShortDesc() != null)? dto.getStrShortDesc() : "";
+            result +=
+                    "            <div style=\"display: flex; align-items: stretch; line-height: 1.5; color: #505050; font-size: 20px; padding: 0; margin: 0; overflow: hidden;\">\n" +
+                    "               <div style=\"width: calc(33.75% - 30px); width: -moz-calc(33.75% - 30px); font-weight: bold; padding: 13px 10px 13px 20px; border-bottom: 1px solid #ddd; background: #f7f7f7;\">" + dto.getStrRmtypeName() + "</div>\n" +
+                    "               <div style=\"width: calc(66.25% - 30px); width: -moz-calc(66.25% - 30px); word-break: break-all; padding: 13px 10px 13px 20px; border-bottom: 1px solid #ddd; background: #fff;\">" + strShortDesc + "</div>\n" +
+                    "            </div>\n";
+        }
+
+                result +=
+                "         </div>\n" +
+                "      </div>\n" +
+                "   </div>\n" +
+                "   <!-- 객실옵션// -->\n" +
+                "\n" +
+                "   <!-- //예약시주의사항 -->\n" +
+                "   <div style=\"padding: 0; margin: 55px 0 0;\">\n" +
+                "      <img src=\"https://www.condo24.com/data/images/omk/txt_use_info.png\" alt=\"이용 안내\" style=\"display: block; padding: 0; margin: 0;\"/>\n" +
+                "      \n" +
+                "      <div style=\"line-height: 2.25; color: #505050; fot-size: 20px; letter-spacing: -0.05em;\">\n" +
+                strRsvGuide +
+                "      </div>\n" +
+                "   </div>\n" +
+                "   <!-- 예약시주의사항// -->\n" +
+                "\n" +
+                "   <div style=\"padding: 0; margin: 55px 0 0;\">\n" +
+                "      <img src=\"https://www.condo24.com/data/images/omk/txt_add_fac.png\" alt=\"부대시설 이용 안내\" style=\"display: block; padding: 0; margin: 0;\"/>\n" +
+                "      <div style=\"line-height: 2.25; color: #505050; fot-size: 20px; letter-spacing: -0.05em;\">\n" +
+                        strFac +
+                "      </div>\n" +
+                "   </div>\n" +
+                "\n" +
+                "   <div style=\"padding: 0; margin: 30px 0 0;\">\n" +
+                "      <img src=\"https://www.condo24.com" + imgList[1] + "\" alt=\"앱지콘도 이미지 하단\" style=\"display: block; width: 80%; max-width: 80%; padding: 0; margin: 15px auto 0;\"/>\n" +
+                "   </div>\n" +
+                "</div>";
+
         return result;
     }
 }
