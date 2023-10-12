@@ -85,5 +85,11 @@ public class ElevenStController {
         return elevenStService.updatePrdDesc(dataType, prdNo);
     }
 
+    @GetMapping("/getSettlement")
+    @ResponseBody
+    public String getSettlement(String startDay, String endDay){
+        return elevenStService.getSettlement(startDay, endDay);
+    }
+
 
 }

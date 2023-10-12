@@ -62,11 +62,12 @@ public class ElevenStService {
             } else {
                 url = new URL(Constants.elevenUrl + "/rest/prodservices/product");
             }
+            int selprc = elevenStMapper.getMinPrice(intAID, bgnDay);
             Map<String, Object>map = elevenStMapper.getAccomm(intAID);
 //            String pricet = String.valueOf(commonMapper.getOmkSales(Integer.parseInt(accommID), 1));
             map.put("aplBgnDy", bgnDay);
             map.put("aplEndDy", endDay);
-            map.put("selPrc", "100000000"); // 대표가이니 가장 낮은가격이 되련지 아님 상품매칭시 대표가격이 등록되는건지 확인 필요
+            map.put("selPrc", selprc); // 대표가이니 가장 낮은가격이 되련지 아님 상품매칭시 대표가격이 등록되는건지 확인 필요
             map.put("prdImage01", "https://cdn.pixabay.com/photo/2023/03/12/21/05/egg-7847875_1280.png"); //
 //            map.put("prdImage01", "https://cdn.imweb.me/thumbnail/20221018/2fa9b7c3276c7.png");
             StringBuffer sb = new StringBuffer();
@@ -127,25 +128,6 @@ public class ElevenStService {
             sb.append("</item>");
             sb.append("</ProductNotification>");
 
-//            Map<String, Object> map3 = new HashMap<>();
-            List<Map<String, Object>> listMap = new ArrayList<>(); //TEST용임 실 옵션생성시 어떻게 들어올지 의사협의 필요
-//            listMap = elevenStMapper.getAccomm();
-//            for (int j = 0; j<3; j++) {
-//                int date = 20230901;
-//                int price = 1000000;
-//                for (int i = 0; i < 10; i++) {
-//                    Map<String, Object> map3 = new HashMap<>();
-//                    Random random = new Random();
-//                    map3.put("optPrice", price + random.nextInt(100)*100);
-//                    map3.put("optCount", "1");
-//                    map3.put("optType1", date+j);
-//                    map3.put("optType2", "옵션" + i);
-////                map2.put("listMap", map3);
-////                Map<String, Object> map2 = map3;
-//                    listMap.add(map3);
-//                }
-//            }
-
 
             //옵션 설정
             sb.append("<optSelectYn>Y</optSelectYn>");
@@ -167,6 +149,7 @@ public class ElevenStService {
                 int intStockCnt = dto.getIntStock();
                 String strStockdate = dto.getDateSales();
                 int intStockSalePrice = dto.getMoneySales(); // 판매가
+                intStockSalePrice = intStockSalePrice-selprc; //판매가 - 최저가 = 추가금액
                 int intStockCost = dto.getMoneyCost(); // 공급가
                 int intIdx = dto.getIntIdx();
                 if(intStockCnt == 0){
@@ -885,6 +868,40 @@ public class ElevenStService {
         } catch (Exception e) {
             return commonFunction.makeReturn(dataType, "500", e.getMessage());
         }
+    }
+
+    public String getSettlement(String startDay, String endDay) {
+        try{
+            URL url = new URL(Constants.elevenUrl + "/rest/settlement/settlementList/" + startDay + "/" + endDay); //00:전체조회, 01:답변완료조회, 02:미답변조회
+            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+            conn.setDoOutput(true);
+            conn.setInstanceFollowRedirects(false);
+            conn.setRequestMethod("GET");
+            conn.setRequestProperty("openapikey", Constants.elevenApiKey);
+
+            LogWriter lw = new LogWriter("GET", url.toString(), System.currentTimeMillis());
+
+            BufferedReader in = new BufferedReader(new InputStreamReader(conn.getInputStream(), "EUC-KR"));
+            String inputLine = null;
+            String returnStr = "";
+            while ((inputLine = in.readLine()) != null) {
+                returnStr += inputLine;
+            }
+            System.out.println(returnStr);
+
+            DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+            DocumentBuilder db = dbf.newDocumentBuilder();
+            StringReader sr = new StringReader(returnStr);
+            InputSource is = new InputSource(sr);
+            Document dc = db.parse(is);
+            NodeList nl = dc.getElementsByTagName("ns2:seStlDtlLists");
+            return commonFunction.makeReturn("jsonp", "200", "OK");
+
+
+        } catch (Exception e) {
+            return commonFunction.makeReturn("jsonp", "500", e.getMessage());
+        }
+
     }
 
 }

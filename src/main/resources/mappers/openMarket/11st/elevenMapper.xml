@@ -44,4 +44,8 @@
         WHERE R.strRmtypeName = #{strRmtypeNm} AND SR.intAID = #{intAID} AND SR.dateSales = #{strDate}
     </update>
 
+    <select id="getMinPrice" resultType="int">
+        EXEC spOMK_STOCK_MIN_PRICE #{intAID}, #{strDate}
+    </select>
+
 </mapper>
