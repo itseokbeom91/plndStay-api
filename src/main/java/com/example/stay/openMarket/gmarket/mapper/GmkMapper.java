@@ -7,5 +7,6 @@ import java.util.Map;
 
 @Repository
 public interface GmkMapper {
-    List<Map<String, String>> getBrandCodeList();
+//    List<Map<String, String>> getBrandCodeList();
+    Map<String, String> getCategories(int intAID);
 }

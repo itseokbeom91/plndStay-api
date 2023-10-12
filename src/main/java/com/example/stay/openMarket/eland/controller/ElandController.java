@@ -6,8 +6,11 @@ import com.example.stay.openMarket.common.dto.AccommDto;
 import com.example.stay.openMarket.common.dto.BookingDto;
 import com.example.stay.openMarket.common.dto.CondoDto;
 import com.example.stay.openMarket.common.mapper.CommonMapper;
+import com.example.stay.openMarket.common.service.CommonService;
+import com.example.stay.openMarket.eland.mapper.ElandMapper;
 import com.example.stay.openMarket.eland.service.ElandService;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.pdfcrowd.Pdfcrowd;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -18,16 +21,16 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import javax.servlet.http.Cookie;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.BufferedReader;
+
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.URL;
+
 import java.text.SimpleDateFormat;
 import java.util.*;
+
+
 
 @Controller
 @RequestMapping("/eland/*")
@@ -74,6 +77,8 @@ public class ElandController {
     // 스케줄러 채번 테스트
     @Autowired
     private CommonMapper commonMapper;
+    @Autowired
+    private ElandMapper elandMapper;
     CommonFunction commonFunction = new CommonFunction();
 
     @GetMapping("test")
@@ -100,6 +105,8 @@ public class ElandController {
             if(stockDatas.length() > 1){
                 stockDatas = stockDatas.substring(0, stockDatas.length()-5);
             }
+
+            elandMapper.setNumbering(intAID, stockDatas);
             System.out.println(stockDatas);
 
         }catch (Exception e){
@@ -109,6 +116,73 @@ public class ElandController {
         return result;
 
     }
+
+    @Autowired
+    private CommonService commonService;
+    @GetMapping("/pic")
+    public void picture(){
+
+        try {
+
+            AccommDto accommDto = commonMapper.getAcmInfo(11471, 9);
+
+//            String strImgDesc = commonService.getStrPdtDtlInfo(accommDto, 11471, 9).replace("&quot;","\"");
+            String strImgDesc = commonService.getNewDetailInfo(accommDto, 11471, 9).replace("&quot;","\"");
+            System.out.println(strImgDesc);
+
+
+//            String imgHtml = "D:\\dev\\4.photo\\test_html\\test.html";
+//            String imageFilePath = "D:\\dev\\4.photo\\condo_images\\htmlToImg\\test.png";
+//
+//            commonFunction.convertHtmlToImage(imgHtml, imageFilePath);
+
+             /*
+
+            try {
+                BufferedImage image = renderHtmlToImage(strImgDesc);
+                saveImage(image, "D:\\dev\\4.photo\\condo_images\\htmlToImg\\test.png");
+                System.out.println("Image saved as output.png");
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+          */
+
+
+
+            /*
+            try {
+                // create the API client instance
+                Pdfcrowd.HtmlToImageClient client = new Pdfcrowd.HtmlToImageClient("dongmooHDS", "4bc54d26d636c3728934198927f3a928");
+
+                // configure the conversion
+                client.setOutputFormat("png");
+
+                // run the conversion and write the result to a file
+                client.convertStringToFile(strImgDesc, "D:\\dev\\4.photo\\condo_images\\htmlToImg\\test.png");
+            }
+            catch(Pdfcrowd.Error why) {
+                System.err.println("Pdfcrowd Error: " + why);
+                throw why;
+            }
+            catch(IOException why) {
+                System.err.println("IO Error: " + why);
+                throw why;
+            }
+
+             */
+
+
+
+
+
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+    }
+
+
+
 
 
 

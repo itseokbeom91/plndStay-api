@@ -14,14 +14,18 @@ import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.w3c.dom.Document;
+import org.xhtmlrenderer.simple.Graphics2DRenderer;
 import org.xml.sax.InputSource;
 
+import javax.imageio.ImageIO;
 import javax.xml.namespace.QName;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.transform.dom.DOMSource;
+import java.awt.image.BufferedImage;
 import java.io.*;
 import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -421,5 +425,24 @@ public class CommonFunction<T> {
         }
 
         return strPenaltyDatas;
+    }
+
+    // html to png
+    public void convertHtmlToImage(String htmlFilePath, String imageFilePath) {
+        int WIDTH = 1024;
+        String IMAGE_FORMAT = "png";
+
+        try {
+            File htmlFile = new File(htmlFilePath);
+            String url = htmlFile.toURI().toURL().toExternalForm();
+            BufferedImage image = Graphics2DRenderer.renderToImageAutoSize(url, WIDTH, BufferedImage.TYPE_INT_ARGB);
+            ImageIO.write(image, IMAGE_FORMAT, new File(imageFilePath));
+
+
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }

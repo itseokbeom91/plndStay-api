@@ -65,5 +65,9 @@
           AND SO.intOMKIdx = 9
     </select>
 
+    <select id="setNumbering" resultType="String">
+        EXEC PLNDSTAY.dbo.spELAND_STOCK_NUMBERING ${intAID}, #{stockDatas}, ''
+    </select>
+
 
 </mapper>
