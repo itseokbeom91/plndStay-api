@@ -14,4 +14,6 @@ public interface ElevenStMapper {
     void updateUsg(int intAID, String usageYn);
 
     String insertSeq(String intAID, String strRmtypeNm, String strDate, String prdStockNo);
+
+    int getMinPrice(String intAID, String strDate);
 }

@@ -908,7 +908,7 @@ public class BookingService {
         String pkgData = "";
 
         JSONObject requestJson = new JSONObject();
-        requestJson.put("businessId", Constants.sonoRoomId);
+        requestJson.put("businessId", Constants.sonoPackId);
         requestJson.put("language", Constants.sonoLanguage);
         requestJson.put("type", "S");
         requestJson.put("stndDt", stndDt);
@@ -917,9 +917,9 @@ public class BookingService {
         RequestBody body = RequestBody.create(mediaType, contents);
 
         Request request = new Request.Builder()
-                .url(Constants.sonoRoomPath + "/settlementNopkgNo")
+                .url(Constants.sonoPackPath + "/settlementNopkgNo")
                 .method("POST", body)
-                .addHeader("X-AUTH-TOKEN", Constants.sonoRoomAuth)
+                .addHeader("X-AUTH-TOKEN", Constants.sonoPackAuth)
                 .addHeader("Content-Type", "application/json")
                 .build();
 
