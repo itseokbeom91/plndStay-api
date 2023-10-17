@@ -427,22 +427,4 @@ public class CommonFunction<T> {
         return strPenaltyDatas;
     }
 
-    // html to png
-    public void convertHtmlToImage(String htmlFilePath, String imageFilePath) {
-        int WIDTH = 1024;
-        String IMAGE_FORMAT = "png";
-
-        try {
-            File htmlFile = new File(htmlFilePath);
-            String url = htmlFile.toURI().toURL().toExternalForm();
-            BufferedImage image = Graphics2DRenderer.renderToImageAutoSize(url, WIDTH, BufferedImage.TYPE_INT_ARGB);
-            ImageIO.write(image, IMAGE_FORMAT, new File(imageFilePath));
-
-
-        } catch (MalformedURLException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
 }

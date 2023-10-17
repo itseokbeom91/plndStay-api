@@ -16,6 +16,8 @@ import org.json.simple.parser.JSONParser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.relational.core.sql.In;
 import org.springframework.stereotype.Service;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
@@ -39,6 +41,9 @@ public class ElandService {
 
     @Autowired
     private CommonService commonService;
+
+    @Autowired
+    private ElandRequestService elandRequestService;
 
     CommonFunction commonFunction = new CommonFunction();
 
@@ -175,6 +180,42 @@ public class ElandService {
         }
 
         return result;
+
+    }
+
+    // 상품 조회
+    public String viewAccomm(HttpServletRequest request, HttpServletResponse response, String dataType, int intAID){
+
+        String statusCode = "200";
+        String message = "";
+        String result = "";
+
+        try {
+
+            String url = "https://int-api.elandmall.co.kr/goods/searchGoodsView.action";  // API 엔드포인트 URL
+            Map<String, String> parameters = new HashMap<>();
+            parameters.put("goods_no", "2309001833");
+            //parameters.put("param2", "value2");
+            String accessToken = getCookie(request, response);
+
+//            result = elandRequestService.callApi(url, parameters, "Bearer " + accessToken);
+            JsonNode jsonNode = elandRequestService.callApi(url, parameters, "Bearer " + accessToken);
+            JSONObject jsonObject = (JSONObject) new JSONParser().parse(jsonNode.toString());
+            message = jsonObject.get("error").toString();
+            if(message.equals("00")){
+                message = "상품조회 성공";
+            }else{
+                message = "상품조회 실패";
+                statusCode = "500";
+            }
+
+        }catch (Exception e){
+            message = "상품조회 실패";
+            statusCode = "500";
+            e.printStackTrace();
+        }
+
+        return commonFunction.makeReturn(dataType, statusCode, message);
 
     }
 
@@ -379,28 +420,32 @@ public class ElandService {
         String result = "";
 
         try {
-            String url = "";
             String accessToken = getCookie(request, response);
 
             AccommDto accommDto = commonMapper.getAcmInfo(intAID, 9);
             String goodsNo = accommDto.getStrPdtCode();
-            url += "goods_no=" + goodsNo;
+
+            Map<String, String> parameters = new HashMap<>();
+            parameters.put("goods_no", goodsNo);
+
 
             if(strType.equals("start")){
-                url += "&prgs_stat_cd=10";
+                parameters.put("prgs_stat_cd", "10");
+                message = "상품 판매 개시";
+                statusCode = "200";
             }else if(strType.equals("stop")){
-                url += "&prgs_stat_cd=20";
+                parameters.put("prgs_stat_cd", "20");
+                message = "상품 판매 중지";
+                statusCode = "200";
             }else if(strType.equals("desc")){
-                // 4000자 제한때문에 빼버려야함
-                String strImgDesc = commonService.getNewDetailInfo(accommDto, intAID, 9).replace("&quot;", "\"");//replace("<", "&lt;").replace(">", "&gt;").replace("/","&#47;");
-;
-                System.out.println(strImgDesc);
-                //strImgDesc = URLEncoder.encode(strImgDesc, "UTF-8");
-                //strImgDesc = URLEncoder.encode(strImgDesc, "UTF-8").replace("+", "%20");
-                url += "&goods_desc10=" + strImgDesc;
+
+                String strImgDesc = commonService.getNewDetailInfo(accommDto, intAID, 9).replace("&quot;", "\"").replace("\n","");
+                parameters.put("goods_desc10", strImgDesc);
+                message = "상품 상세이미지 수정 완료";
+                statusCode = "200";
             }else if(strType.equals("stock")){
 
-                JsonNode infoJsonNode = commonFunction.callJsonApi("eland", "Bearer " + accessToken, new JSONObject(), Constants.elandPath + "/goods/searchGoodsView.action?goods_no=" + goodsNo, "POST");
+                JsonNode infoJsonNode = elandRequestService.callApi(Constants.elandPath + "/goods/searchGoodsView.action", parameters, "Bearer " + accessToken);
                 JSONArray stockArray = (JSONArray) new JSONParser().parse(infoJsonNode.get("itemList").toString());
 
                 List<Integer> intItemNoList = new ArrayList<Integer>();
@@ -433,23 +478,20 @@ public class ElandService {
                         int intItmeNo = dto.getIntElandSeq();
 
                         if(intItemNoList.contains(intItmeNo)){
-                            url += "&item=" + intItmeNo + "," + strStockSubject + "/" + strStockdate + "," + intStockCnt + ",Y," + strStockdate + "," + strStockSubject + ",^,^,^," + strElandDate + "," + intStockSalePrice + "," + intStockCost + ",^";
+                            parameters.put("item", intItmeNo + "," + strStockSubject + "/" + strStockdate + "," + intStockCnt + ",Y," + strStockdate + "," + strStockSubject + ",^,^,^," + strElandDate + "," + intStockSalePrice + "," + intStockCost + ",^");
                         }else{
                             intMaxElandSeq += 1;
-                            url += "&item=" + intMaxElandSeq + "," + strStockSubject + "/" + strStockdate + "," + intStockCnt + ",Y," + strStockdate + "," + strStockSubject + ",^,^,^," + strElandDate + "," + intStockSalePrice + "," + intStockCost + ",^";
+                            parameters.put("item", intMaxElandSeq + "," + strStockSubject + "/" + strStockdate + "," + intStockCnt + ",Y," + strStockdate + "," + strStockSubject + ",^,^,^," + strElandDate + "," + intStockSalePrice + "," + intStockCost + ",^");
                         }
 
-                        //url += "&item=" + intItmeNo + "," + strStockSubject + "/" + strStockdate + "," + intStockCnt + ",Y," + strStockdate + "," + strStockSubject + ",^,^,^," + strElandDate + "," + intStockSalePrice + "," + intStockCost + ",^";
-
                     }
+                    message = "재고 수정 완료";
+                    statusCode = "200";
 
                 }else{
                     // 동기화? 잘못됐음
                     System.out.println("아직 채번 기다려야함");
-                    /**
-                     * todo 20231003
-                     * 개별 재고 수정 추가
-                     */
+
                 }
 
             }else if(strType.equals("stockEach")){
@@ -468,27 +510,168 @@ public class ElandService {
                         int intStockSalePrice = stockDto.getMoneySales(); // 판매가
                         int intStockCost = stockDto.getMoneyCost(); // 공급가
                         int intItmeNo = stockDto.getIntElandSeq();
-                        url += "&item=" + intItmeNo + "," + strStockSubject + "/" + strStockdate + "," + intStockCnt + ",Y," + strStockdate + "," + strStockSubject + ",^,^,^," + strElandDate + "," + intStockSalePrice + "," + intStockCost + ",^";
+                        parameters.put("item", intItmeNo + "," + strStockSubject + "/" + strStockdate + "," + intStockCnt + ",Y," + strStockdate + "," + strStockSubject + ",^,^,^," + strElandDate + "," + intStockSalePrice + "," + intStockCost + ",^");
+                        message = "개별 재고 수정 완료";
+                        statusCode = "200";
                     }else{
                         System.out.println("intStockIdx 없음");
+                        message = "intStockIdx 없음";
+                        statusCode = "500";
                     }
                 }else{
                     System.out.println("intStockIdx 없음");
+                    message = "intStockIdx 없음";
+                    statusCode = "500";
+                }
+
+            }else if(strType.equals("all")){
+
+                // 검색어
+                String strKeywords = (accommDto.getStrKeywords() != null)? accommDto.getStrKeywords() : accommDto.getStrSubject();
+
+                // 상품군 코드 구하기
+                String strPrductType = accommDto.getStrType();
+                String strAcmType = "ELAND_L";
+                if(strPrductType.equals("C")){
+                    strAcmType = "ELAND_L";
+                }else if(strPrductType.equals("H")){
+                    strAcmType = "ELAND_H";
+                }else if(strPrductType.equals("P")) {
+                    strAcmType = "ELAND_P";
+                }else if(strPrductType.equals("T")){
+                    strAcmType = "ELAND_T";
+                }
+                String strRegion = accommDto.getStrRegionKeyword();
+                if(strRegion != null){
+                    strRegion = strRegion.substring(0,2);
+                }else{
+                    strRegion = "";
+                }
+                strRegion = "%"+strRegion+"%";
+                String strElandCate = elandMapper.getCateCode(strAcmType, strRegion);
+                strElandCate = (strElandCate  != null)? strElandCate : "";
+
+                // 카테고리 코드 구하기
+                String strCategoryCode = elandMapper.getCategoryCode(strRegion);
+                strCategoryCode = (strCategoryCode  != null)? strCategoryCode : "";
+
+                // 브랜드 구하기
+                String strCateCode = (accommDto.getStrCateCode() != null)? accommDto.getStrCateCode() : "";
+                String strBrandId = "";
+                if(strCateCode.equals("01")){       // 소노
+                    strBrandId = "2300038117";
+                }else if(strCateCode.equals("02")){ // 한화
+                    strBrandId = "2300038118";
+                }else if(strCateCode.equals("04")){ // 금호
+                    strBrandId = "2100035451";
+                }else if(strCateCode.equals("33")){ // 클럽이에스
+                    strBrandId = "2300038120";
+                }else if(strCateCode.equals("43")){ // 하이원
+                    strBrandId = "2300038119";
+                }else{                              // 기타
+                    strBrandId = "2000017560";
+                }
+
+                // 현재 시간 구하기
+                DateFormat dateElandFormat = new SimpleDateFormat("yyyyMMddHHmmss");
+                String strElandDate = dateElandFormat.format(new Date());
+                DateFormat dateDBFormat = new SimpleDateFormat("yyyyMMdd");
+                String strDBDate = dateDBFormat.format(new Date());
+
+                // 상세설명
+                String strDesc = commonService.getStrPdtDtlInfo(accommDto, intAID, 9).replace("<", "&lt;").replace(">", "&gt;");
+
+                // 최저가
+                int intMinPrice = commonMapper.getMinPrice(intAID, strDBDate);
+
+                // 공급가(수수료 계산)
+                int intRate = 7;
+                int intSupplyPrice = intMinPrice * ((100 - intRate) / 100);
+
+                String url = "";
+
+                parameters.put("goods_nm", accommDto.getStrSubject());
+                parameters.put("disp_start_dt", strElandDate);
+                parameters.put("std_gsgr_no", strElandCate); // 표준상품군조회
+                parameters.put("brand_no", strBrandId);
+                parameters.put("normal_price", String.valueOf(intMinPrice));
+                parameters.put("supply_price", String.valueOf(intSupplyPrice));
+                parameters.put("sale_price", String.valueOf(intMinPrice));
+                parameters.put("goods_desc10", strDesc);
+                parameters.put("vend_goods_no", String.valueOf(intAID));
+                parameters.put("search_kwd", strKeywords);
+                parameters.put("disp_ctg_no", strCategoryCode);
+
+
+                // 사진 다섯장
+                String[] photos = accommDto.getStrACMPhotos().split("\\|");
+                for(int i=0; i<5; i++){
+
+                    if(i>0){
+                        parameters.put("img_url"+i, "https://condo24.com"+photos[i]);
+                    }else{
+                        parameters.put("img_url", "https://condo24.com"+photos[i]);
+                    }
+
+                }
+
+                JsonNode infoJsonNode = elandRequestService.callApi(Constants.elandPath + "/goods/searchGoodsView.action", parameters, "Bearer " + accessToken);
+                JSONArray stockArray = (JSONArray) new JSONParser().parse(infoJsonNode.get("itemList").toString());
+
+                List<Integer> intItemNoList = new ArrayList<Integer>();
+                for(Object object : stockArray){
+                    JSONObject jsonObject = new JSONObject((Map) object);
+                    intItemNoList.add(Integer.parseInt(jsonObject.get("ITEM_NO").toString()));
+                }
+                int intMaxItemNo = Collections.max(intItemNoList);
+
+                // 재고 가져오기
+                List<StockDto> stockList = commonMapper.getStockList(intAID, 9, strDBDate);
+
+                int intMaxElandSeq = elandMapper.getMaxElandSeq(intAID);
+
+                if(intMaxItemNo  == intMaxElandSeq){ // api 상의 itemNo 최대값과 DB상의 tiemNo 값이 같을때
+
+                    for (StockDto dto : stockList) {
+
+                        String strStockSubject = dto.getStrRmtypeName();
+                        int intStockCnt = dto.getIntStock();
+                        String strStockdate = dto.getDateSales();
+                        int intStockSalePrice = dto.getMoneySales(); // 판매가
+                        int intStockCost = dto.getMoneyCost(); // 공급가
+
+                        int intItmeNo = dto.getIntElandSeq();
+
+                        if(intItemNoList.contains(intItmeNo)){
+                            parameters.put("item", intItmeNo + "," + strStockSubject + "/" + strStockdate + "," + intStockCnt + ",Y," + strStockdate + "," + strStockSubject + ",^,^,^," + strElandDate + "," + intStockSalePrice + "," + intStockCost + ",^");
+                        }else{
+                            intMaxElandSeq += 1;
+                            parameters.put("item", intMaxElandSeq + "," + strStockSubject + "/" + strStockdate + "," + intStockCnt + ",Y," + strStockdate + "," + strStockSubject + ",^,^,^," + strElandDate + "," + intStockSalePrice + "," + intStockCost + ",^");
+                        }
+
+                    }
+
+                }else{
+                    // 동기화? 잘못됐음
+                    System.out.println("아직 채번 기다려야함");
                 }
 
             }
 
-            System.out.println(url);
 
-            JsonNode jsonNode = commonFunction.callJsonApi("eland", "Bearer " + accessToken, new JSONObject(), Constants.elandPath + "/goods/temporarygoods/updateGoods.action?" + url, "POST");
+            JsonNode jsonNode = elandRequestService.callApi(Constants.elandPath + "/goods/temporarygoods/updateGoods.action", parameters, "Bearer " + accessToken);
+
 
             JSONObject jsonObject = (JSONObject) new JSONParser().parse(jsonNode.toString());
             System.out.println(jsonObject);
             result = jsonObject.get("error").toString();
-            System.out.println(result);
+            if(!result.equals("00")){
+                message = "API 통신 실패";
+                statusCode = "500";
+            }
 
         }catch (Exception e){
-            message = "재고 등록 실패";
+            message = "상품 수정 실패";
             statusCode = "500";
             e.printStackTrace();
         }

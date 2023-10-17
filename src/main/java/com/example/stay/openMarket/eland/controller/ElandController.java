@@ -14,9 +14,6 @@ import com.pdfcrowd.Pdfcrowd;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
-import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.chrome.ChromeDriver;
-import org.openqa.selenium.chrome.ChromeOptions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -149,6 +146,11 @@ public class ElandController {
 
     }
 
+    @GetMapping("viewAccomm")
+    public String viewAccomm(HttpServletRequest request, HttpServletResponse response, String dataType, int intAID){
+        return elandService.viewAccomm(request, response, dataType, intAID);
+    }
+
     @GetMapping("api")
     public void apiTest(){
 
@@ -202,219 +204,6 @@ public class ElandController {
         }
 
     }
-
-
-    @GetMapping("html")
-    public ResponseEntity<String> html(){
-        HttpHeaders headers = new HttpHeaders();
-        headers.add("Content-Type", "text/html; charset=UTF-8");
-        StringBuilder sb = new StringBuilder();
-
-        try {
-            AccommDto accommDto = commonMapper.getAcmInfo(11471, 9);
-            String strImgDesc = commonService.getNewDetailInfo(accommDto, 11471, 9).replace("&quot;","\"");
-
-            sb.append(strImgDesc);
-
-
-            // Set the path to your ChromeDriver executable
-            System.setProperty("webdriver.chrome.driver", "C:\\Program Files\\Java\\chromedriver.exe");
-
-            // Initialize Chrome driver
-            WebDriver driver = new ChromeDriver(new ChromeOptions().setHeadless(true));
-            driver.get("https://www.naver.com"); // Replace with the desired URL
-
-            // Wait for the page to load
-            try {
-                Thread.sleep(3000);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-
-            // Capture screenshot of the whole page
-            File screenshotFile = ((org.openqa.selenium.TakesScreenshot) driver).getScreenshotAs(org.openqa.selenium.OutputType.FILE);
-            BufferedImage fullImage = null;
-
-            try {
-                fullImage = ImageIO.read(screenshotFile);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-
-            // Save the screenshot as an image
-            saveImage(fullImage, "D:\\dev\\4.photo\\condo_images\\htmlToImg\\screenshot.png");
-
-            // Close the browser
-            driver.quit();
-
-
-        }catch (Exception e){
-            e.printStackTrace();
-        }
-
-        return new ResponseEntity<String>(sb.toString(), headers, HttpStatus.OK);
-
-    }
-
-
-
-    /**
-     *
-     */
-
-    public static void saveImageSc(BufferedImage image, String outputPath) {
-        try {
-            ImageIO.write(image, "png", new File(outputPath));
-            System.out.println("Screenshot saved as " + outputPath);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-
-    /**
-     *
-     */
-
-
-    @Autowired
-    private CommonService commonService;
-    @GetMapping("/pic")
-    public void picture(){
-
-        try {
-
-            AccommDto accommDto = commonMapper.getAcmInfo(11471, 9);
-
-//            String strImgDesc = commonService.getStrPdtDtlInfo(accommDto, 11471, 9).replace("&quot;","\"");
-            String strImgDesc = commonService.getNewDetailInfo(accommDto, 11471, 9).replace("&quot;","\"");
-            System.out.println(strImgDesc);
-
-
-
-            // file to img file
-            String imgHtml = "D:\\dev\\4.photo\\test_html\\test.html";
-            String imageFilePath = "D:\\dev\\4.photo\\condo_images\\htmlToImg\\test.png";
-
-            commonFunction.convertHtmlToImage(imgHtml, imageFilePath);
-
-
-            // convert
-            try {
-                BufferedImage image = renderHtmlToImage(strImgDesc);
-                saveImage(image, "D:\\dev\\4.photo\\condo_images\\htmlToImg\\test1.png");
-                System.out.println("Image saved as test1.png");
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-
-
-            // html2image
-            try {
-                BufferedImage image = convertHtmlToImage(strImgDesc);
-                saveImage(image, "D:\\dev\\4.photo\\condo_images\\htmlToImg\\test2.png");
-                System.out.println("Image saved as test2.png");
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-
-
-            // 순수
-            int width = 1024, height = 3397;
-
-            BufferedImage image = GraphicsEnvironment.getLocalGraphicsEnvironment()
-                    .getDefaultScreenDevice().getDefaultConfiguration()
-                    .createCompatibleImage(width, height);
-
-            Graphics graphics = image.createGraphics();
-
-            JEditorPane jep = new JEditorPane("text/html", strImgDesc);
-            jep.setSize(width, height);
-            jep.print(graphics);
-
-            ImageIO.write(image, "png", new File("D:\\dev\\4.photo\\condo_images\\htmlToImg\\test3.png"));
-            System.out.println("Image saved as test3.png");
-
-
-
-
-            // 유료버전
-            try {
-                // create the API client instance
-                //Pdfcrowd.HtmlToImageClient client = new Pdfcrowd.HtmlToImageClient("dongmooHDS", "4bc54d26d636c3728934198927f3a928");
-                Pdfcrowd.HtmlToImageClient client = new Pdfcrowd.HtmlToImageClient("demo", "ce544b6ea52a5621fb9d55f8b542d14d");
-
-                // configure the conversion
-                client.setOutputFormat("png");
-
-                // run the conversion and write the result to a file
-                client.convertStringToFile(strImgDesc, "D:\\dev\\4.photo\\condo_images\\htmlToImg\\test_real.png");
-                System.out.println("Image saved as test_real.png");
-            }
-            catch(Pdfcrowd.Error why) {
-                System.err.println("Pdfcrowd Error: " + why);
-                throw why;
-            }
-            catch(IOException why) {
-                System.err.println("IO Error: " + why);
-                throw why;
-            }
-
-
-
-
-
-
-
-
-
-        }catch (Exception e){
-            e.printStackTrace();
-        }
-    }
-
-    private static BufferedImage renderHtmlToImage(String htmlContent) throws IOException {
-        JEditorPane editorPane = new JEditorPane("text/html", htmlContent);
-        editorPane.setSize(new Dimension(1024, 3397));
-
-        BufferedImage image = new BufferedImage(1024, 3397, BufferedImage.TYPE_INT_ARGB);
-        Graphics graphics = image.getGraphics();
-        editorPane.print(graphics);
-
-        return image;
-    }
-
-    private static void saveImage(BufferedImage image, String filePath) throws IOException {
-        File output = new File(filePath);
-        ImageIO.write(image, "png", output);
-    }
-
-    private static BufferedImage convertHtmlToImage(String htmlContent) throws IOException {
-        Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-        int width = (int) screenSize.getWidth();
-        int height = (int) screenSize.getHeight();
-
-        // Create a BufferedImage
-        BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
-        Graphics graphics = image.getGraphics();
-        graphics.setColor(Color.WHITE);
-        graphics.fillRect(0, 0, width, height);
-
-        // Create a panel and add the HTML content to it
-        JPanel panel = new JPanel();
-        panel.setSize(width, height);
-
-        Document document = Jsoup.parse(htmlContent);
-        Element body = document.body();
-        Elements children = body.children();
-        for (Element child : children) {
-            panel.add(new JLabel(child.toString()));
-        }
-
-        panel.paint(graphics);
-        return image;
-    }
-
 
 
 
