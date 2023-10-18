@@ -32,4 +32,5 @@ public class AccommDto {
     private String strRegionKeyword;    // 지역 키워드(도/시)
     private String strDistrict2;    // 시/구
     private String strFac;       // 제공 서비스
+    private String strUsageYn; // 사용여부
 }

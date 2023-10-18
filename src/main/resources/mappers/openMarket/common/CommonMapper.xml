@@ -43,7 +43,7 @@
     </select>
 
     <select id="insertAcmOmk" resultType="string">
-        EXEC PLNDSTAY.dbo.spOMK_ACM_OMK_REGIST ${intAID}, ${intOmkIdx}, #{strUsageYn}, #{strPdtSubject}, #{strPdtCode}, #{strDetailInfo}
+        EXEC PLNDSTAY.dbo.spOMK_ACM_OMK_REGIST ${intAID}, ${intOmkIdx}, #{strUsageYn}, #{strPdtSubject}, #{strPdtCode}, #{strOmkSiteCode}, #{strDetailInfo}
     </select>
 
     <select id="getStrPdtCode" parameterType="int" resultType="String">

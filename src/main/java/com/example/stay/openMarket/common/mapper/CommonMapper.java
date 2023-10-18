@@ -25,7 +25,7 @@ public interface CommonMapper {
 
     RoomTypeDto getRmtpeInfo(int intRmIdx, int intOmkIdx);
 
-    String insertAcmOmk(int intAID, int intOmkIdx, String strUsageYn, String strPdtSubject, String strPdtCode, String strDetailInfo);
+    String insertAcmOmk(int intAID, int intOmkIdx, String strUsageYn, String strPdtSubject, String strPdtCode, String strOmkSiteCode, String strDetailInfo);
 
     String getStrPdtCode(int intAID, int intOmkIdx);
 

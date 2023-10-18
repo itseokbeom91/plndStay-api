@@ -362,7 +362,7 @@ public class InsertService {
 
                 // 프로시저 실행(ACCOMM_OMK insert)
                 String strItemId = jsonObject.get("itemId").toString();
-                String strAcmOmk = commonMapper.insertAcmOmk(intAID, 7, "Y", accommDto.getStrSubject(), strItemId, strImgDesc);
+                String strAcmOmk = commonMapper.insertAcmOmk(intAID, 7, "Y", accommDto.getStrSubject(), strItemId, "", strImgDesc);
                 String strAcmOmkResult = strAcmOmk.substring(strAcmOmk.length()-4);
 
                 if(strAcmOmkResult.equals("저장완료")){
