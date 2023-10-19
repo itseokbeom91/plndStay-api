@@ -8,6 +8,7 @@ import com.example.stay.openMarket.common.dto.CondoDto;
 import com.example.stay.openMarket.common.mapper.CommonMapper;
 import com.example.stay.openMarket.common.service.CommonService;
 import com.example.stay.openMarket.eland.mapper.ElandMapper;
+import com.example.stay.openMarket.eland.service.ElandCookieService;
 import com.example.stay.openMarket.eland.service.ElandService;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.pdfcrowd.Pdfcrowd;
@@ -69,14 +70,6 @@ public class ElandController {
     private ElandService elandService;
 
 
-
-    @GetMapping("checkCookie")
-    public void checkCookie(HttpServletRequest request, HttpServletResponse response){
-        String cookie = elandService.getCookie(request, response);
-        System.out.println(cookie);
-    }
-
-
     @GetMapping("createAccomm")
     @ResponseBody
     public String insertAccomm(HttpServletRequest request, HttpServletResponse response, String dataType, int intAID){
@@ -84,9 +77,11 @@ public class ElandController {
         return result;
     }
 
-    public String getReserveList(HttpServletRequest request, HttpServletResponse response, String startdate, String endDate){
+    @GetMapping("getRsvList")
+    @ResponseBody
+    public String getReserveList(HttpServletRequest request, HttpServletResponse response, String startDate, String endDate, String dataType){
 
-        String result = elandService.getReserveList(request, response, startdate, endDate);
+        String result = elandService.getReserveList(request, response, startDate, endDate, dataType);
 
         return result;
 
@@ -108,6 +103,8 @@ public class ElandController {
     private CommonMapper commonMapper;
     @Autowired
     private ElandMapper elandMapper;
+    @Autowired
+    private ElandCookieService elandCookieService;
     CommonFunction commonFunction = new CommonFunction();
 
     @GetMapping("test")
@@ -116,7 +113,7 @@ public class ElandController {
 
         try {
 
-            String accessToken = elandService.getCookie(request, response);
+            String accessToken = elandCookieService.getCookie(request, response);
 
             int intAID = 11471; // 프로시저로 뽑아내야함 list 반복문사용
             AccommDto accommDto = commonMapper.getAcmInfo(intAID, 9);

@@ -133,7 +133,7 @@ public class YPBService {
     }
 
 
-    public String booking(int intRsvID){
+    public String booking(int intRsvID, String dataType){
 
         String statusCode = "200";
         String message = "";
@@ -210,7 +210,7 @@ public class YPBService {
             e.printStackTrace();
         }
 
-        return commonFunction.makeReturn("json", statusCode, message);
+        return commonFunction.makeReturn(dataType, statusCode, message);
     }
 
 
@@ -280,7 +280,7 @@ public class YPBService {
     }
 
 
-    public String bookingCancel(int intRsvID){
+    public String bookingCancel(int intRsvID, String dataType){
 
         String statusCode = "200";
         String message = "";
@@ -354,7 +354,7 @@ public class YPBService {
             e.printStackTrace();
         }
 
-        return commonFunction.makeReturn("json", statusCode, message);
+        return commonFunction.makeReturn(dataType, statusCode, message);
 
     }
 

@@ -47,9 +47,9 @@ public class HanwhaController {
 
     @GetMapping("/createBooking")
     @ResponseBody
-    public String booking(int intRsvID){
+    public String booking(int intRsvID, String dataType){
 
-        String result = hanwhaService.booking(intRsvID);
+        String result = hanwhaService.booking(intRsvID, dataType);
         System.out.println(result);
 
         return result;
@@ -57,9 +57,9 @@ public class HanwhaController {
 
     @GetMapping("/cancelBooking")
     @ResponseBody
-    public String bookingCancel(int intRsvID){
+    public String bookingCancel(int intRsvID, String dataType){
 
-        String result = hanwhaService.bookingCancel(intRsvID);
+        String result = hanwhaService.bookingCancel(intRsvID, dataType);
         System.out.println(result);
 
         return result;

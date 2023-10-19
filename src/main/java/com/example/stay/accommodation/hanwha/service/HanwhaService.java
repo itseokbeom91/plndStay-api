@@ -44,7 +44,7 @@ public class HanwhaService {
      * @param
      * @return
      */
-    public String booking(int intRsvID){ // 예약요청 : 01
+    public String booking(int intRsvID, String dataType){ // 예약요청 : 01
 
         String statusCode = "200";
         String message = "";
@@ -175,7 +175,7 @@ public class HanwhaService {
             e.printStackTrace();
         }
 
-        return commonFunction.makeReturn("json", statusCode, message);
+        return commonFunction.makeReturn(dataType, statusCode, message);
     }
 
 
@@ -184,7 +184,7 @@ public class HanwhaService {
      * 예약 취소
      * @return
      */
-    public String bookingCancel(int intRsvID){ // 예약취소 : 02
+    public String bookingCancel(int intRsvID, String dataType){ // 예약취소 : 02
 
         String statusCode = "200";
         String message = "";
@@ -242,7 +242,7 @@ public class HanwhaService {
             e.printStackTrace();
         }
 
-        return commonFunction.makeReturn("json", statusCode, message);
+        return commonFunction.makeReturn(dataType, statusCode, message);
     }
 
     // 예약조회시 예약확정코드 RR : 확정예약, RC : 취소

@@ -5,7 +5,7 @@ import com.example.stay.common.util.CommonFunction;
 import com.example.stay.common.util.Constants;
 import com.example.stay.openMarket.common.dto.AccommDto;
 import com.example.stay.openMarket.common.mapper.CommonMapper;
-import com.example.stay.openMarket.eland.service.ElandService;
+import com.example.stay.openMarket.eland.service.ElandCookieService;
 import com.fasterxml.jackson.databind.JsonNode;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
@@ -32,7 +32,7 @@ public class Scheduler {
     private CommonMapper commonMapper;
 
     @Autowired
-    private ElandService elandService;
+    private ElandCookieService elandCookieService;
 
     CommonFunction commonFunction = new CommonFunction();
 
@@ -59,7 +59,7 @@ public class Scheduler {
 
         try {
 
-            String accessToken = elandService.getCookie(request, response);
+            String accessToken = elandCookieService.getCookie(request, response);
 
             int intAID = 11471; // 프로시저로 뽑아내야함 list 반복문사용
             AccommDto accommDto = commonMapper.getAcmInfo(intAID, 9);

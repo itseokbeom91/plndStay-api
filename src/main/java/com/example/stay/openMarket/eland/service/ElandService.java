@@ -53,20 +53,33 @@ public class ElandService {
 
 
     // 출고지시조회
-    public String getReserveList(HttpServletRequest request, HttpServletResponse response, String startdate, String endDate){
+    public String getReserveList(HttpServletRequest request, HttpServletResponse response, String startdate, String endDate, String dataType){
 
+        String statusCode = "200";
+        String message = "";
         String result = "";
 
         try {
-            String accessToken = elandCookieService.getCookie(request, response);
+            String url = Constants.elandPath + "/order/searchDeliIndiList.action";
+            String accessToken = "Bearer " + elandCookieService.getCookie(request, response);
 
-            JsonNode jsonNode = commonFunction.callJsonApi("eland", "Bearer " + accessToken, new JSONObject(), Constants.elandPath + "/token/checkAccessTokenValidation.action", "POST");
+            // 파라미터
+            Map<String, String> parameters = new HashMap<>();
+            parameters.put("start_date", startdate);
+            parameters.put("end_date", endDate);
+
+            JsonNode jsonNode = elandRequestService.callApi(url, parameters, accessToken);
+
+            JSONObject jsonObject = (JSONObject) new JSONParser().parse(jsonNode.toString());
+            System.out.println(jsonObject);
 
         }catch (Exception e){
+            message = "예약조회 실패";
+            statusCode = "500";
             e.printStackTrace();
         }
 
-        return result;
+        return commonFunction.makeReturn(dataType, statusCode, message);
 
     }
 
@@ -79,14 +92,22 @@ public class ElandService {
 
         try {
 
-            String url = "https://int-api.elandmall.co.kr/goods/searchGoodsView.action";  // API 엔드포인트 URL
-            Map<String, String> parameters = new HashMap<>();
-            parameters.put("goods_no", "2309001833");
-            //parameters.put("param2", "value2");
-            String accessToken = elandCookieService.getCookie(request, response);
+            // url
+            String url = Constants.elandPath + "/goods/searchGoodsView.action";
 
-//            result = elandRequestService.callApi(url, parameters, "Bearer " + accessToken);
-            JsonNode jsonNode = elandRequestService.callApi(url, parameters, "Bearer " + accessToken);
+            // 파라미터
+            AccommDto accommDto = commonMapper.getAcmInfo(intAID, 9);
+            String strGoodsNo = accommDto.getStrPdtCode();
+
+            Map<String, String> parameters = new HashMap<>();
+            parameters.put("goods_no", strGoodsNo);
+
+            // 토큰
+            String accessToken = "Bearer " + elandCookieService.getCookie(request, response);
+
+            // 호출
+            JsonNode jsonNode = elandRequestService.callApi(url, parameters, accessToken);
+
             JSONObject jsonObject = (JSONObject) new JSONParser().parse(jsonNode.toString());
             message = jsonObject.get("error").toString();
             if(message.equals("00")){
@@ -565,6 +586,37 @@ public class ElandService {
 
         return commonFunction.makeReturn(dataType, statusCode, message);
 
+
+    }
+
+    // 상품문의 조회
+    public String getQnaList(HttpServletRequest request, HttpServletResponse response, String startdate, String endDate, String dataType){
+
+        String statusCode = "200";
+        String message = "";
+        String result = "";
+
+        try {
+            String url = Constants.elandPath + "/goodsquest/searchCsGoodsQuestList.action";
+            String accessToken = "Bearer " + elandCookieService.getCookie(request, response);
+
+            // 파라미터
+            Map<String, String> parameters = new HashMap<>();
+            parameters.put("start_date", startdate);
+            parameters.put("end_date", endDate);
+
+            JsonNode jsonNode = elandRequestService.callApi(url, parameters, accessToken);
+
+            JSONObject jsonObject = (JSONObject) new JSONParser().parse(jsonNode.toString());
+            System.out.println(jsonObject);
+
+        }catch (Exception e){
+            message = "상품문의조회 실패";
+            statusCode = "500";
+            e.printStackTrace();
+        }
+
+        return commonFunction.makeReturn(dataType, statusCode, message);
 
     }
 
