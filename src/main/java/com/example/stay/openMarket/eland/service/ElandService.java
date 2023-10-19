@@ -347,7 +347,7 @@ public class ElandService {
                 statusCode = "200";
             }else if(strType.equals("desc")){
 
-                String strImgDesc = commonService.getNewDetailInfo(accommDto, intAID, 9).replace("&quot;", "\"").replace("\n","");
+                String strImgDesc = commonService.getStrPdtDtlInfo(accommDto, intAID, 9).replace("&quot;", "\"").replace("\n","");
                 parameters.put("goods_desc10", strImgDesc);
                 message = "상품 상세이미지 수정 완료";
                 statusCode = "200";
