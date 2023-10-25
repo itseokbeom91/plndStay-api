@@ -17,4 +17,6 @@ public interface CommonAcmMapper {
     List<Map<String, Object>> getStrPkgCodeList(int intRmIdx, String startDate, String endDate);
 
     String updateGoods(int intAID, int intRmIdx, String strStockDatas);
+
+    String insertRsvStayHistory(int intRsvID, String strFlag, String strContent, String strProcedure, String strIP, int intSID);
 }

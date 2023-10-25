@@ -46,4 +46,8 @@
         EXEC PLNDSTAY.dbo.spGW_STOCK_REAL_REGIST ${intAID}, ${intRmIdx}, #{strStockDatas}, ''
     </select>
 
+    <select id="insertRsvStayHistory" resultType="String">
+        EXEC spGW_RSV_STAY_HISTORY_REGIST ${intRsvID}, #{strFlag}, #{strContent}, #{strProcedure}, #{strIP}, ${intSID}, ''
+    </select>
+
 </mapper>
