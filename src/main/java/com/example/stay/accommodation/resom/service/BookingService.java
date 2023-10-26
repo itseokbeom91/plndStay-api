@@ -584,7 +584,7 @@ public class BookingService {
     }
 
     //패키지 예약
-    public String createBooking(String dataType,String intRsvID, HttpServletRequest httpServletRequest) {
+    public String createBooking(String dataType,String intRsvID, String rsvDate, HttpServletRequest httpServletRequest) {
         long startTime = System.currentTimeMillis();
 
         OkHttpClient client = new OkHttpClient().newBuilder().build();
@@ -595,7 +595,12 @@ public class BookingService {
         JSONObject requestJson = new JSONObject();
         requestJson.put("pkgNo", bookingMap.get("strRateplanID"));
         requestJson.put("storeCd", bookingMap.get("intAID"));
-        requestJson.put("ciYmd", bookingMap.get("dateCheckOut"));
+        if(rsvDate.equals("")){
+            requestJson.put("ciYmd", bookingMap.get("dateCheckIn"));
+        }else{
+            requestJson.put("ciYmd", rsvDate);
+        }
+
         requestJson.put("rmTypeCd", bookingMap.get("strRmtypeID"));
         requestJson.put("comRsvNo", bookingMap.get("intRsvID")); //우리만의 예약번호가 필요함
         requestJson.put("userName", bookingMap.get("strRcvName"));

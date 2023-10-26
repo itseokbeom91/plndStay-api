@@ -26,4 +26,8 @@
         WHERE strFlag = '01' AND strUsageYn = 'Y'
     </select>
 
+    <select id="updateRsvState">
+        EXEC PLNDSTAY.dbo.spGW_RSV_STAY_UPDATE_PROCESS #{intRsvID}, #{strRsvRmNumDatas}, #{strPenaltyDatas}, ''
+    </select>
+
 </mapper>

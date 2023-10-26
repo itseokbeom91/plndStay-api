@@ -4,6 +4,7 @@ import com.example.stay.accommodation.sono.mapper.BookingMapper;
 import com.example.stay.common.util.CommonFunction;
 import com.example.stay.common.util.Constants;
 import com.example.stay.common.util.LogWriter;
+import com.example.stay.openMarket.common.mapper.CommonMapper;
 import com.fasterxml.jackson.databind.util.JSONPObject;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -12,6 +13,7 @@ import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.webservices.client.WebServiceTemplateBuilder;
 import org.springframework.stereotype.Service;
 
@@ -27,7 +29,9 @@ public class BookingService {
     @Autowired
     private BookingMapper bookingMapper;
 
-    
+    @Autowired
+    private CommonMapper  commonMapper;
+
     CommonFunction commonFunction = new CommonFunction();
 
     Gson gson = new GsonBuilder().setPrettyPrinting().create();
@@ -85,7 +89,10 @@ public class BookingService {
                     String curRsvYN = (String) packageResultList.get(i).get("curRsvYN");
                     String curRsvTime = (String) packageResultList.get(i).get("curRsvTime");
                     String nights = (String) packageResultList.get(i).get("nights");
-                    if(curRsvTime.length() == 4){curRsvTime = curRsvTime.substring(0, 2) + ":" + curRsvTime.substring(2, 4);}
+                    if(curRsvTime!=null){
+                        if(curRsvTime.length() == 4){curRsvTime = curRsvTime.substring(0, 2) + ":" + curRsvTime.substring(2, 4);}
+                    }
+
 
                     //pkgData = 패키지구분(소노호텔앤리조트:01)|^|패키지번호|^|패키지명|^|지역코드|^|지역명|^|판매시작일자|^|판매종료일자|^|즉시판매여부|^|예약가능시간|^|박수|^|최대예약가능객실수|^|roomList
                     pkgData += "01" + "|^|" + pkgNo + "|^|" + pkgNm + "|^|" + lcalCd + "|^|" + lcalNm + "|^|" + saleStartDt+ "|^|" + saleEndDT + "|^|"
@@ -385,7 +392,7 @@ public class BookingService {
 
     }
     //예약
-    public String createBooking(String dataType, String intRsvID ,HttpServletRequest httpServletRequest) {
+    public String createBooking(String dataType, String intRsvID, String rsvDate ,HttpServletRequest httpServletRequest) {
         long startTime = System.currentTimeMillis();
         OkHttpClient client = new OkHttpClient().newBuilder().build();
 
@@ -398,11 +405,17 @@ public class BookingService {
         String result = "";
 
         JSONObject requestJson = new JSONObject();
-        requestJson.put("pkgNo", bookingMap.get("strPkgCode"));
+        requestJson.put("pkgNo", bookingMap.get("strMapCode"));
         requestJson.put("storeCd", bookingMap.get("strStoreCode"));
-        requestJson.put("ciYmd", bookingMap.get("dateCheckIn").toString().replaceAll("-", ""));
+        if(rsvDate!=""){
+            requestJson.put("ciYmd", rsvDate);
+
+        }else{
+            requestJson.put("ciYmd", bookingMap.get("dateCheckIn").toString().replaceAll("-", ""));
+
+        }
         requestJson.put("rmTypeCd", bookingMap.get("strRmtypeID"));
-        requestJson.put("comRsvNo", "2023-09-1226813"); //우리만의 예약번호가 필요함
+        requestJson.put("comRsvNo", intRsvID); //우리만의 예약번호가 필요함
         requestJson.put("userName", bookingMap.get("strRcvName"));
         requestJson.put("userTel", bookingMap.get("strRcvPhone"));
         requestJson.put("payAmt", bookingMap.get("moneyCost"));
@@ -433,6 +446,8 @@ public class BookingService {
                 JSONParser jsonParser = new JSONParser();
                 JSONObject responseJson = (JSONObject) jsonParser.parse(responseBody);
 
+                bookingMapper.updateRsvState(intRsvID, "4", responseJson.get("roomRsvNo").toString(), ""); //strstatuscode : 4 예약
+
 
                 return commonFunction.makeReturn(dataType, "200","OK", responseJson);
             }
@@ -461,9 +476,9 @@ public class BookingService {
         String result = "";
 
         JSONObject requestJson = new JSONObject();
-        requestJson.put("roomRsvNo", "4652"); //bookingMap.get("strRsvCode");
-        requestJson.put("roomRsvSeq", "1023914485"); // bookingMap.get("strRcvRmNum");
-        requestJson.put("comRsvNo", "2023-09-1226813"); //우리만의 예약번호가 필요함
+        requestJson.put("roomRsvNo", bookingMap.get("strRsvRmNum"));
+        requestJson.put("roomRsvSeq", bookingMap.get("strRsvCode"));
+        requestJson.put("comRsvNo", intRsvID); //우리만의 예약번호가 필요함
         requestJson.put("businessId", Constants.sonoPackId);
         requestJson.put("language", Constants.sonoLanguage);
         String contents = requestJson.toJSONString();
@@ -504,7 +519,7 @@ public class BookingService {
 
     }
     //예약
-    public String createBookingRoom(String dataType, String intRsvID ,HttpServletRequest httpServletRequest) {
+    public String createBookingRoom(String dataType, String intRsvID, String rsvDate ,HttpServletRequest httpServletRequest) {
         long startTime = System.currentTimeMillis();
         OkHttpClient client = new OkHttpClient().newBuilder().build();
 
@@ -523,14 +538,20 @@ public class BookingService {
         long diffDays;
         diffDays = (out.getTime() - in.getTime()) / 1000 / (24*60*60);
         requestJson.put("storeCd", bookingMap.get("strStoreCode"));
-        requestJson.put("ciYmd", bookingMap.get("dateCheckIn").toString().replaceAll("-", ""));
+        if (rsvDate!=""){
+            requestJson.put("ciYmd", bookingMap.get("dateCheckIn").toString().replaceAll("-", ""));
+            requestJson.put("nights", diffDays);
+
+        }else{
+            requestJson.put("ciYmd", rsvDate.replaceAll("-", ""));
+            requestJson.put("nights", "1");
+        }
         requestJson.put("rmTypeCd", bookingMap.get("strRmtypeID"));
-        requestJson.put("nights", diffDays);
         requestJson.put("rmCnt", bookingMap.get("intRmCnt"));
-        requestJson.put("comRsvNo", "2023-09-1226813"); //우리만의 예약번호가 필요함
+        requestJson.put("comRsvNo", intRsvID); //우리만의 예약번호가 필요함
         requestJson.put("userName", bookingMap.get("strRcvName"));//bookingMap.get("strRcvName"));
         requestJson.put("userTel", bookingMap.get("strRcvPhone"));
-        requestJson.put("payAmt", "100000"); //TO-DO-- 가격 가져오기
+        requestJson.put("payAmt", bookingMap.get("moneySales")); //TO-DO-- 가격 가져오기
         requestJson.put("adultCnt", bookingMap.get("intQuantityA"));
         requestJson.put("childCnt", bookingMap.get("intQuantityC"));
         requestJson.put("businessId", Constants.sonoRoomId);
@@ -557,6 +578,8 @@ public class BookingService {
 
                 JSONParser jsonParser = new JSONParser();
                 JSONObject responseJson = (JSONObject) jsonParser.parse(responseBody);
+
+
 
 
                 return commonFunction.makeReturn(dataType, "200","OK", responseJson);
@@ -586,9 +609,9 @@ public class BookingService {
         String result = "";
 
         JSONObject requestJson = new JSONObject();
-        requestJson.put("roomRsvNo", "4652");
-        requestJson.put("roomRsvSeq", "1023914485");
-        requestJson.put("comRsvNo", "2023-09-1226813"); //우리만의 예약번호가 필요함
+        requestJson.put("roomRsvNo", bookingMap.get("strRsvRmNum"));
+        requestJson.put("roomRsvSeq", bookingMap.get("strRsvCode"));
+        requestJson.put("comRsvNo", intRsvID); //우리만의 예약번호가 필요함
         requestJson.put("businessId", Constants.sonoRoomId);
         requestJson.put("language", Constants.sonoLanguage);
         String contents = requestJson.toJSONString();
@@ -1101,12 +1124,12 @@ public class BookingService {
         }
 
 
+    }
+
+    public String createBookingByDate(String dateCheckIn){
 
 
-        //result = bookingMapper.insertRoom("","","", storeCD, "01");
-
-
-
+        return "";
     }
 
 }

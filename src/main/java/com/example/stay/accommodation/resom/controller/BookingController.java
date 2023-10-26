@@ -98,8 +98,8 @@ public class BookingController {
     //연박 예약
     @GetMapping("/createBooking")
     @ResponseBody
-    public String createBooking2(@RequestParam(required = false, defaultValue="jsonp") String dataType, String intRsvID, HttpServletRequest httpServletRequest) {
-        return bookingService.createBooking(dataType, intRsvID, httpServletRequest);
+    public String createBooking2(@RequestParam(required = false, defaultValue="jsonp") String dataType, String intRsvID, @RequestParam(required = false, defaultValue = "")String rsvDate, HttpServletRequest httpServletRequest) {
+        return bookingService.createBooking(dataType, intRsvID, rsvDate, httpServletRequest);
     }
 
     @GetMapping("/insertAccommInfo")
