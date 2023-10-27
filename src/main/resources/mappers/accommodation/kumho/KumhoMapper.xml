@@ -30,4 +30,15 @@
         WHERE intRmIdx = ${intRmIdx}
             AND strCateCode = '01'
     </select>
+
+    <select id="getPrice" resultType="map">
+        SELECT
+            CONVERT(int,moneyCost) AS moneyCost
+             , CONVERT(int,moneySales) AS moneySales
+        FROM PLNDSTAY.dbo.STOCK_REAL WITH(NOLOCK)
+        WHERE intAID = ${intAID}
+          AND intRmIdx = ${intRmIdx}
+          AND dateSales = #{dateSales}
+    </select>
+    
 </mapper>

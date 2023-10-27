@@ -19,4 +19,6 @@ public interface CommonAcmMapper {
     String updateGoods(int intAID, int intRmIdx, String strStockDatas);
 
     String insertRsvStayHistory(int intRsvID, String strFlag, String strContent, String strProcedure, String strIP, int intSID);
+
+    List<String> getStrRsvRmNum(int intRsvID);
 }
