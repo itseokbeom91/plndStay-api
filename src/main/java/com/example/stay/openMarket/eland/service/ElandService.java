@@ -76,7 +76,6 @@ public class ElandService {
             JSONArray jsonArray = (JSONArray) new JSONParser().parse(jsonNode.get("data").toString());
             System.out.println(jsonArray);
 
-            String strDatas = "";
             for(Object object : jsonArray) {
                 JSONObject jsonObject = (JSONObject) JSONValue.parse(object.toString());
 
@@ -87,8 +86,10 @@ public class ElandService {
                     String strRsvCode = "test";
                     String strProductID = jsonObject.get("goods_no").toString();
                     int intAID = elandMapper.getIntAID(strProductID);
+//                    int intAID = 10147;
                     int intItemNo = Integer.parseInt(jsonObject.get("item_no").toString());
                     int intRmIdx = elandMapper.getIntRmIdx(intAID, intItemNo);
+//                    int intRmIdx = 15302;
                     int intRmCnt = Integer.parseInt(jsonObject.get("indi_qty").toString());
                     String strItemName = jsonObject.get("item_nm").toString();
 
@@ -109,34 +110,14 @@ public class ElandService {
                     int intOrderSeq = Integer.parseInt(jsonObject.get("deli_seq").toString());
                     String strOrderPackage = jsonObject.get("deli_no").toString();
 
+                    result = elandMapper.createBooking(43,strRsvCode,intAID, intRmIdx, intRmCnt,strCheckIn,strCheckOut,strRmtypeName,strOrdName,strOrdPhone,strRcvName,strRcvPhone,strRemark,strOrderCode,intOrderSeq,strProductID,strOrderPackage);
+                    System.out.println(result);
 
-                    strDatas += strRsvCode + "|^|"
-                            + intAID + "|^|"
-                            + intRmIdx + "|^|"
-                            + intRmCnt + "|^|"
-                            + strCheckIn + "|^|"
-                            + strCheckOut + "|^|"
-                            + strRmtypeName + "|^||^|"
-                            + strOrdName + "|^|"
-                            + strOrdPhone + "|^||^|"
-                            + strRcvName + "|^|"
-                            + strRcvPhone + "|^||^||^||^|"
-                            + "127.0.0.1|^|"
-                            + strRemark + "|^|"
-                            + strOrderCode + "|^|"
-                            + intOrderSeq + "|^|"
-                            + "0|^|"
-                            + strProductID + "|^|"
-                            + strOrderPackage + "{{|}}";
+
                 }
 
             }
-            if(strDatas.length() > 1){
-                strDatas = strDatas.substring(0, strDatas.length()-5);
-            }
 
-            System.out.println(strDatas);
-            result = elandMapper.createBooking(43, strDatas);
 
         }catch (Exception e){
             message = "예약조회 실패";

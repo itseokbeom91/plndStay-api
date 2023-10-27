@@ -178,7 +178,7 @@ public class UpdateService {
 
                 if(intMaxNum + intCntTempStock > 99999){
                     System.out.println("방지");
-                    statusCode = "200";
+                    statusCode = "500";
                     message = "99999 넘어서 새로 만들어야함";
                 }else{
 

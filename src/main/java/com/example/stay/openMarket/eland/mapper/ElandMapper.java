@@ -45,6 +45,6 @@ public interface ElandMapper {
     int getIntRmIdx(int intAID, int intItemNo);
 
     // 예약 등록하기
-    String createBooking(int intSeller, String strDatas);
+    String createBooking(int intSeller, String strRsvCode, int intAID, int  intRmIdx, int  intRmCnt, String strCheckIn, String strCheckOut, String strRmtypeName, String strOrdName, String strOrdPhone, String strRcvName, String strRcvPhone, String strRemark, String strOrderCode, int intOrderSeq, String strProductID, String strOrderPackage);
 
 }
