@@ -427,4 +427,19 @@ public class CommonFunction<T> {
         return strPenaltyDatas;
     }
 
+    // RSV_STAY_HISTORY의 strProcedure 만들기
+    public String makeStrProcedure(String procedure, Map<String, Object> dataMap){
+        String strProcedure = "";
+        if(procedure.equals("spGW_RSV_STAY_UPDATE_PROCESS")){
+            int intRsvID = (Integer) dataMap.get("intRsvID");
+            String strStatusCode = dataMap.get("strStatusCode").toString();
+            String strRmNumDatas = dataMap.get("strRmNumDatas").toString();
+            String strPenaltyDatas = dataMap.get("strPenaltyDatas").toString();
+            strProcedure = "EXEC spGW_RSV_STAY_UPDATE_PROCESS @intRSvID = " + intRsvID + ", @strStatusCode = " + strStatusCode
+                    + ", @strRmNumDatas = " + strRmNumDatas + ", @strPenaltyDatas = " + strPenaltyDatas;
+        }
+
+        return strProcedure;
+    }
+
 }

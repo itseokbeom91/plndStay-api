@@ -15,7 +15,9 @@ public interface ElysianMapper {
 
     String updateRsvStay(int intRsvID, String strStatusCode, String strRsvRmNum, String strPenaltyDatas);
 
-    String getStrRsvRmNum(int intRsvID);
+    List<String> getStrRsvRmNum(int intRsvID);
 
     int getTseq();
+
+    Map<String, Integer> getPrice(int intAID, int intRmIdx, String dateSales);
 }

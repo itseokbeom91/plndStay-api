@@ -31,8 +31,8 @@
     </select>
 
     <select id="getStrRsvRmNum" parameterType="int" resultType="String">
-        SELECT strRsvRmNum
-        FROM PLNDSTAY.dbo.RSV_STAY
+        SELECT DISTINCT(strRsvRmNum)
+        FROM PLNDSTAY.dbo.RSV_STAY_RM_NUM
         WHERE intRsvID = ${intRsvID}
     </select>
 
@@ -41,6 +41,16 @@
         FROM PLNDSTAY.dbo.RSV_STAY R WITH(NOLOCK)
             INNER JOIN PLNDSTAY.dbo.ACCOMM A WITH(NOLOCK) ON A.intAID = R.intAID
         WHERE A.strCateCode = '49'
+    </select>
+
+    <select id="getPrice" resultType="map">
+        SELECT
+            CONVERT(int,moneyCost) AS moneyCost
+            , CONVERT(int,moneySales) AS moneySales
+        FROM PLNDSTAY.dbo.STOCK_REAL WITH(NOLOCK)
+        WHERE intAID = ${intAID}
+            AND intRmIdx = ${intRmIdx}
+            AND dateSales = #{dateSales}
     </select>
 
 </mapper>

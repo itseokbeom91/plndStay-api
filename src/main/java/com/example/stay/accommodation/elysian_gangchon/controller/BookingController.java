@@ -106,4 +106,11 @@ public class BookingController {
     public void checkAvailBooking(String pcode, String pcode_seq, String sdate, int cnt){
         bookingService.checkAvailBooking(pcode, pcode_seq, sdate, cnt);
     }
+
+    // 예약 - 날짜로
+    @RequestMapping("createBookingByDate")
+    @ResponseBody
+    public String createBookingByDate(String dataType, int intRsvID, String startDate, HttpServletRequest httpServletRequest){
+        return bookingService.createBookingByDate(dataType, intRsvID, startDate, httpServletRequest);
+    }
 }

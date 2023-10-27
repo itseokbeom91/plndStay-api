@@ -17,8 +17,10 @@ public class StockDto {
     private int intSsgSeq;
     private int intGsshopSeq;
     private int intElandSeq;
-    private int intNextStock;
     private int intElevenSeq;
+    private int intNextStock;
+    private String strMapCode;
+    private String strPkgName;
 
     
 

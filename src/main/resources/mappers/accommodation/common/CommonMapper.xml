@@ -46,4 +46,14 @@
         EXEC PLNDSTAY.dbo.spGW_STOCK_REAL_REGIST ${intAID}, ${intRmIdx}, #{strStockDatas}, ''
     </select>
 
+    <select id="insertRsvStayHistory" resultType="String">
+        EXEC PLNDSTAY.dbo.spGW_RSV_STAY_HISTORY_REGIST ${intRsvID}, #{strFlag}, #{strContent}, #{strProcedure}, #{strIP}, ${intSID}, ''
+    </select>
+
+    <select id="getStrRsvRmNum" parameterType="int" resultType="String">
+        SELECT DISTINCT(strRsvRmNum)
+        FROM PLNDSTAY.dbo.RSV_STAY_RM_NUM
+        WHERE intRsvID = ${intRsvID}
+    </select>
+
 </mapper>

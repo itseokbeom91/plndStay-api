@@ -16,4 +16,6 @@ public interface BookingMapper {
 
     List<Map<String, Object>> getPackageCodeAndStoreCode(String type, String startDate);
 
+    String updateRsvState(String intRsvID, String strStatusCode, String strRsvRmNumDatas, String strPenaltyDatas);
+
 }

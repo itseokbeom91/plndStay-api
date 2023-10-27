@@ -39,6 +39,15 @@ public class BookingController {
     }
 
     /**
+     * 예약 생성 - 날짜로
+     */
+    @GetMapping("createBookingByDate")
+    @ResponseBody
+    public String createBookingByDate(String dataType, int intRsvID, String strDate, HttpServletRequest httpServletRequest) {
+        return bookingService.createBookingByDate(dataType, intRsvID, strDate, httpServletRequest);
+    }
+
+    /**
      * 예약 취소
      */
     @GetMapping("cancelBooking")

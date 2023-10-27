@@ -42,8 +42,8 @@ public class BookingController {
 
     @GetMapping("/createBookingPackage")
     @ResponseBody
-    public String createBooking(@RequestParam(required = false, defaultValue="jsonp") String dataType, String intRsvID ,HttpServletRequest httpServletRequest){
-        return  bookingService.createBooking(dataType, intRsvID ,httpServletRequest);
+    public String createBooking(@RequestParam(required = false, defaultValue="jsonp") String dataType, String intRsvID, @RequestParam(required = false, defaultValue = "")String rsvDate ,HttpServletRequest httpServletRequest){
+        return  bookingService.createBooking(dataType, intRsvID, rsvDate ,httpServletRequest);
     }
 
     @GetMapping("/cancelBookingPackage")
@@ -53,8 +53,8 @@ public class BookingController {
     }
     @GetMapping("/createBookingRoom")
     @ResponseBody
-    public String createBookingRoom(@RequestParam(required = false, defaultValue="jsonp") String dataType, String intRsvID ,HttpServletRequest httpServletRequest){
-        return  bookingService.createBookingRoom(dataType, intRsvID ,httpServletRequest);
+    public String createBookingRoom(@RequestParam(required = false, defaultValue="jsonp") String dataType, String intRsvID, @RequestParam(required = false, defaultValue = "")String rsvDate ,HttpServletRequest httpServletRequest){
+        return  bookingService.createBookingRoom(dataType, intRsvID, rsvDate ,httpServletRequest);
     }
 
     @GetMapping("/cancelBookingRoom")
@@ -101,5 +101,6 @@ public class BookingController {
     public String getSettlement(@RequestParam(required = false, defaultValue="jsonp") String dataType,String stndDt) {
         return bookingService.getSettlement(dataType, stndDt);
     }
+
 
 }
