@@ -55,6 +55,16 @@ public class HanwhaController {
         return result;
     }
 
+    @GetMapping("/createBookingDate")
+    @ResponseBody
+    public String bookingByDate(int intRsvID, String strDate, String dataType){
+
+        String result = hanwhaService.bookingByDate(intRsvID, strDate, dataType);
+        System.out.println(result);
+
+        return result;
+    }
+
     @GetMapping("/cancelBooking")
     @ResponseBody
     public String bookingCancel(int intRsvID, String dataType){

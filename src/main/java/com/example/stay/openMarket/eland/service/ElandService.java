@@ -12,6 +12,7 @@ import com.example.stay.openMarket.eland.mapper.ElandMapper;
 import com.fasterxml.jackson.databind.JsonNode;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
+import org.json.simple.JSONValue;
 import org.json.simple.parser.JSONParser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.relational.core.sql.In;
@@ -28,6 +29,8 @@ import java.net.URL;
 import java.net.URLEncoder;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 @Service
@@ -70,8 +73,70 @@ public class ElandService {
 
             JsonNode jsonNode = elandRequestService.callApi(url, parameters, accessToken);
 
-            JSONObject jsonObject = (JSONObject) new JSONParser().parse(jsonNode.toString());
-            System.out.println(jsonObject);
+            JSONArray jsonArray = (JSONArray) new JSONParser().parse(jsonNode.get("data").toString());
+            System.out.println(jsonArray);
+
+            String strDatas = "";
+            for(Object object : jsonArray) {
+                JSONObject jsonObject = (JSONObject) JSONValue.parse(object.toString());
+
+                // 예약인것만 (not 취소)
+                String isSell = jsonObject.get("deli_divi_cd").toString();
+                if(isSell.equals("10")){
+
+                    String strRsvCode = "test";
+                    String strProductID = jsonObject.get("goods_no").toString();
+                    int intAID = elandMapper.getIntAID(strProductID);
+                    int intItemNo = Integer.parseInt(jsonObject.get("item_no").toString());
+                    int intRmIdx = elandMapper.getIntRmIdx(intAID, intItemNo);
+                    int intRmCnt = Integer.parseInt(jsonObject.get("indi_qty").toString());
+                    String strItemName = jsonObject.get("item_nm").toString();
+
+                    // 체크인, 체크아웃
+                    String strCheckIn = strItemName.split("/")[0];
+                    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+                    LocalDate localDate = LocalDate.parse(strCheckIn, formatter);
+                    localDate = localDate.plusDays(1);
+                    String strCheckOut = localDate.format(formatter);
+
+                    String strRmtypeName = strItemName.replace(strCheckIn+"/", "");
+                    String strOrdName = jsonObject.get("orderer_nm").toString();
+                    String strOrdPhone = jsonObject.get("cell_no").toString();
+                    String strRcvName = jsonObject.get("recvr_nm").toString();
+                    String strRcvPhone = jsonObject.get("recvr_cell_no").toString();
+                    String strRemark = (jsonObject.get("deli_memo_cont").toString().equals("미입력") || jsonObject.get("deli_memo_cont").toString().equals("미입력"))? "" : jsonObject.get("deli_memo_cont").toString();
+                    String strOrderCode = jsonObject.get("ord_no").toString();
+                    int intOrderSeq = Integer.parseInt(jsonObject.get("deli_seq").toString());
+                    String strOrderPackage = jsonObject.get("deli_no").toString();
+
+
+                    strDatas += strRsvCode + "|^|"
+                            + intAID + "|^|"
+                            + intRmIdx + "|^|"
+                            + intRmCnt + "|^|"
+                            + strCheckIn + "|^|"
+                            + strCheckOut + "|^|"
+                            + strRmtypeName + "|^||^|"
+                            + strOrdName + "|^|"
+                            + strOrdPhone + "|^||^|"
+                            + strRcvName + "|^|"
+                            + strRcvPhone + "|^||^||^||^|"
+                            + "127.0.0.1|^|"
+                            + strRemark + "|^|"
+                            + strOrderCode + "|^|"
+                            + intOrderSeq + "|^|"
+                            + "0|^|"
+                            + strProductID + "|^|"
+                            + strOrderPackage + "{{|}}";
+                }
+
+            }
+            if(strDatas.length() > 1){
+                strDatas = strDatas.substring(0, strDatas.length()-5);
+            }
+
+            System.out.println(strDatas);
+            result = elandMapper.createBooking(43, strDatas);
 
         }catch (Exception e){
             message = "예약조회 실패";

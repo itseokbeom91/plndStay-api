@@ -28,6 +28,8 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
 import javax.imageio.ImageIO;
 import javax.servlet.http.HttpServletRequest;
@@ -39,6 +41,7 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 
+import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
@@ -58,8 +61,7 @@ import javax.swing.text.html.HTMLEditorKit;
 
 import java.io.*;
 import java.net.*;
-
-
+import java.util.List;
 
 
 @Controller
@@ -77,11 +79,25 @@ public class ElandController {
         return result;
     }
 
-    @GetMapping("getRsvList")
+    @GetMapping("getRsvListTest")
     @ResponseBody
-    public String getReserveList(HttpServletRequest request, HttpServletResponse response, String startDate, String endDate, String dataType){
+    public String getReserveListTest(HttpServletRequest request, HttpServletResponse response, String startDate, String endDate, String dataType){
 
         String result = elandService.getReserveList(request, response, startDate, endDate, dataType);
+
+        return result;
+
+    }
+
+    @GetMapping("getRsvList")
+    @ResponseBody
+    public String getReserveList(HttpServletRequest request, HttpServletResponse response){
+
+        DateFormat dateDBFormat = new SimpleDateFormat("yyyyMMdd");
+        String strDate = dateDBFormat.format(new Date());
+        String dataType = "jsonp";
+
+        String result = elandService.getReserveList(request, response, strDate, strDate, dataType);
 
         return result;
 
@@ -95,6 +111,39 @@ public class ElandController {
 
         return result;
 
+    }
+
+    @GetMapping("testSCD")
+    @ResponseBody
+    public String testSCD(HttpServletRequest request, HttpServletResponse response){
+
+        String result = "";
+
+        try {
+
+            String accessToken = elandCookieService.getCookie(request, response);
+
+            int intAID = 101471; // 프로시저로 뽑아내야함 list 반복문사용
+            AccommDto accommDto = commonMapper.getAcmInfo(intAID, 9);
+
+            String goodsNo = accommDto.getStrPdtCode();
+
+            JsonNode infoJsonNode = commonFunction.callJsonApi("eland", "Bearer " + accessToken, new JSONObject(), Constants.elandPath + "/goods/searchGoodsView.action?goods_no=" + goodsNo, "POST");
+            JSONArray stockArray = (JSONArray) new JSONParser().parse(infoJsonNode.get("itemList").toString());
+
+            List<Integer> intItemNoList = new ArrayList<Integer>();
+            for(Object object : stockArray){
+                JSONObject jsonObject = new JSONObject((Map) object);
+                intItemNoList.add(Integer.parseInt(jsonObject.get("ITEM_NO").toString()));
+            }
+            System.out.println(stockArray);
+            System.out.println(intItemNoList);
+
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+
+        return result;
     }
 
 

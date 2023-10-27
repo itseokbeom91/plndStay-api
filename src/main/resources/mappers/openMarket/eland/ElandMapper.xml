@@ -69,5 +69,17 @@
         EXEC PLNDSTAY.dbo.spELAND_STOCK_NUMBERING ${intAID}, #{stockDatas}, ''
     </select>
 
+    <select id="getIntAID" resultType="int">
+        SELECT intAID FROM ACCOMM_OMK WITH(NOLOCK) WHERE intOMKIdx = 9 AND strPdtCode = #{strPdtCode}
+    </select>
+
+    <select id="getIntRmIdx" resultType="int">
+        SELECT * FROM STOCK_REAL WITH(NOLOCK) WHERE	intAID = ${intAID} AND intElandSeq = ${intItemNo}
+    </select>
+
+    <select id="createBooking" resultType="String">
+        EXEC spOMK_RSV_REGIST ${intSeller}, #{strDatas}, ''
+    </select>
+
 
 </mapper>
