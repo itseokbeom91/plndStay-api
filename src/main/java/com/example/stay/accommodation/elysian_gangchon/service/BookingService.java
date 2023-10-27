@@ -247,7 +247,6 @@ public class BookingService extends CommonFunction{
                 }
             }
 
-            String strContentCode = "200";
             String strProcedure = "";
             // 모든 방이 가능할 때 예약
             if (falseCnt == 0) {
@@ -308,6 +307,7 @@ public class BookingService extends CommonFunction{
                 // DB update & insert
                 String result = elysianMapper.updateRsvStay(intRsvID, Constants.rsvStatus_rsv_complete, strRmNumDatas, strPenaltyDatas);
 
+                String strContentCode = "200";
                 // 예약 api 실패 있는 경우
                 if(apiFail != 0) {
                     strContentCode = "500";
@@ -323,7 +323,7 @@ public class BookingService extends CommonFunction{
                     if (result.equals("저장완료")) {
                         message = "예약완료";
                     } else {
-                        message = "DB 저장 실패";
+                        message = "예약완료 / DB 저장 실패";
                     }
                 }
 
@@ -468,7 +468,7 @@ public class BookingService extends CommonFunction{
                 httpServletRequest.getQueryString(), System.currentTimeMillis());
         List<Map<String, Object>> resultMapList = new ArrayList<>();
         try{
-            List<String> rsvRmNumList = elysianMapper.getStrRsvRmNum(intRsvID);
+            List<String> rsvRmNumList = commonAcmMapper.getStrRsvRmNum(intRsvID);
 
             for(String strRsvRmNum : rsvRmNumList) {
                 Map<String, Object> resultMap = new HashMap<>();
@@ -532,7 +532,7 @@ public class BookingService extends CommonFunction{
         LogWriter logWriter = new LogWriter(httpServletRequest.getMethod(), httpServletRequest.getServletPath(),
                 httpServletRequest.getQueryString(), System.currentTimeMillis());
         try{
-            List<String> rsvRmNumList = elysianMapper.getStrRsvRmNum(intRsvID);
+            List<String> rsvRmNumList = commonAcmMapper.getStrRsvRmNum(intRsvID);
 
             String strContentCode = "200";
             int apiFail = 0;
@@ -547,7 +547,7 @@ public class BookingService extends CommonFunction{
                         logWriter.add(strResponse);
                     }else{
                         // TODO : intSID 수정
-                        strRmNumDatas += "C24|^|" + 148 + "{{|}}";
+                        strRmNumDatas += strRsvRmNum + "|^|C24|^|" + 148 + "{{|}}";
                     }
                 }else{
                     apiFail ++;

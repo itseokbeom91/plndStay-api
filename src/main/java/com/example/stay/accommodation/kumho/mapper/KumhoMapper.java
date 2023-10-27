@@ -4,6 +4,7 @@ import com.example.stay.openMarket.common.dto.BookingDto;
 import com.example.stay.openMarket.common.dto.RsvStayDto;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Map;
 
 @Repository
@@ -16,5 +17,7 @@ public interface KumhoMapper {
     Map<String, Object> getRmtypeInfo(int intRmIdx);
 
     int getBreakfastYn(int intRmIdx);
+
+    Map<String, Integer> getPrice(int intAID, int intRmIdx, String dateSales);
 
 }
