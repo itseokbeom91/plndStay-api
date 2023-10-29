@@ -56,8 +56,10 @@ public class SsgService {
      * @param strEndDate
      * @return
      */
-    public String getReserveList(String strStarteDate, String strEndDate){
+    public String getReserveList(String strStarteDate, String strEndDate, String dataType){
 
+        String statusCode = "200";
+        String message = "";
         String result = "";
 
         try {
@@ -111,19 +113,26 @@ public class SsgService {
                         int intOrderSeq = Integer.parseInt(jsonObject.get("ordItemSeq").toString());
                         String strOrderPackage = jsonObject.get("orordNo").toString();
 
-                        result = ssgMapper.createBooking(43,strRsvCode,intAID, intRmIdx, intRmCnt,strCheckIn,strCheckOut,strRmtypeName,strOrdName,strOrdPhone,strRcvName,strRcvPhone,strRemark,strOrderCode,intOrderSeq,strProductID,strOrderPackage);
+                        //result = ssgMapper.createBooking(42,strRsvCode,intAID, intRmIdx, intRmCnt,strCheckIn,strCheckOut,strRmtypeName,strOrdName,strOrdPhone,strRcvName,strRcvPhone,strRemark,strOrderCode,intOrderSeq,strProductID,strOrderPackage);
                         System.out.println(result);
+
 
                     }
                 }
+            }else{
+                message = " 예약 없음";
+                statusCode = "200";
             }
 
 
 
         }catch (Exception e){
+            message = " 실패";
+            statusCode = "500";
             e.printStackTrace();
         }
-        return result;
+
+        return commonFunction.makeReturn(dataType, statusCode, message);
         /* result sample
             {
                 "result": {

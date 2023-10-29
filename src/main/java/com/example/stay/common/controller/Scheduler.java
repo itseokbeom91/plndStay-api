@@ -36,16 +36,21 @@ public class Scheduler {
 
     CommonFunction commonFunction = new CommonFunction();
 
-    //@Scheduled(cron = "15 * * * * *")
+    //@Scheduled(cron = "0 0/3 * * * *")
     public void cron(){
 
         try {
-            System.out.println("another test");
+            System.out.println("go scheduler");
 
-            URL url = new URL("http://localhost:8080/eland/testSCD");
-            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+            URL url1 = new URL("http://localhost:8080/eland/getRsvList");
+            HttpURLConnection conn1 = (HttpURLConnection) url1.openConnection();
 
-            new BufferedReader(new InputStreamReader(conn.getInputStream(), "UTF-8"));
+            new BufferedReader(new InputStreamReader(conn1.getInputStream(), "UTF-8"));
+
+            URL url2 = new URL("http://localhost:8080/SSG/getRsvList");
+            HttpURLConnection conn2 = (HttpURLConnection) url2.openConnection();
+
+            new BufferedReader(new InputStreamReader(conn2.getInputStream(), "UTF-8"));
 
         }catch (Exception e){
             e.printStackTrace();

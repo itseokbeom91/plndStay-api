@@ -10,6 +10,10 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 @Controller
 @RequestMapping("/SSG/*")
 public class SsgController {
@@ -30,9 +34,21 @@ public class SsgController {
     // 배송지시 목록조회
     @GetMapping("/getRsvList")
     @ResponseBody
-    public void getReserveList(String startDate, String endDate){
+    public void getReserveList(){
 
-        ssgService.getReserveList(startDate, endDate);
+        DateFormat dateDBFormat = new SimpleDateFormat("yyyyMMdd");
+        String strDate = dateDBFormat.format(new Date());
+        String dataType = "jsonp";
+
+        ssgService.getReserveList(strDate, strDate, dataType);
+
+    }
+
+    @GetMapping("/getRsvListTest")
+    @ResponseBody
+    public void getReserveListTest(String startDate, String endDate, String dataType){
+
+        ssgService.getReserveList(startDate, endDate, dataType);
 
     }
 

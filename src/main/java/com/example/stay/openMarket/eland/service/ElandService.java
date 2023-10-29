@@ -74,49 +74,55 @@ public class ElandService {
             JsonNode jsonNode = elandRequestService.callApi(url, parameters, accessToken);
 
             JSONArray jsonArray = (JSONArray) new JSONParser().parse(jsonNode.get("data").toString());
-            System.out.println(jsonArray);
+            System.out.println(jsonArray.size());
 
-            for(Object object : jsonArray) {
-                JSONObject jsonObject = (JSONObject) JSONValue.parse(object.toString());
+            if(jsonArray.size() > 0){
+                for(Object object : jsonArray) {
+                    JSONObject jsonObject = (JSONObject) JSONValue.parse(object.toString());
 
-                // 예약인것만 (not 취소)
-                String isSell = jsonObject.get("deli_divi_cd").toString();
-                if(isSell.equals("10")){
+                    // 예약인것만 (not 취소)
+                    String isSell = jsonObject.get("deli_divi_cd").toString();
+                    if(isSell.equals("10")){
 
-                    String strRsvCode = "test";
-                    String strProductID = jsonObject.get("goods_no").toString();
-                    int intAID = elandMapper.getIntAID(strProductID);
-//                    int intAID = 10147;
-                    int intItemNo = Integer.parseInt(jsonObject.get("item_no").toString());
-                    int intRmIdx = elandMapper.getIntRmIdx(intAID, intItemNo);
-//                    int intRmIdx = 15302;
-                    int intRmCnt = Integer.parseInt(jsonObject.get("indi_qty").toString());
-                    String strItemName = jsonObject.get("item_nm").toString();
+                        String strRsvCode = "test";
+                        String strProductID = jsonObject.get("goods_no").toString();
+//                    int intAID = elandMapper.getIntAID(strProductID);
+                        int intAID = 10147;
+                        int intItemNo = Integer.parseInt(jsonObject.get("item_no").toString());
+//                    int intRmIdx = elandMapper.getIntRmIdx(intAID, intItemNo);
+                        int intRmIdx = 15302;
+                        int intRmCnt = Integer.parseInt(jsonObject.get("indi_qty").toString());
+                        String strItemName = jsonObject.get("item_nm").toString();
 
-                    // 체크인, 체크아웃
-                    String strCheckIn = strItemName.split("/")[0];
-                    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-                    LocalDate localDate = LocalDate.parse(strCheckIn, formatter);
-                    localDate = localDate.plusDays(1);
-                    String strCheckOut = localDate.format(formatter);
+                        // 체크인, 체크아웃
+                        String strCheckIn = strItemName.split("/")[0];
+                        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+                        LocalDate localDate = LocalDate.parse(strCheckIn, formatter);
+                        localDate = localDate.plusDays(1);
+                        String strCheckOut = localDate.format(formatter);
 
-                    String strRmtypeName = strItemName.replace(strCheckIn+"/", "");
-                    String strOrdName = jsonObject.get("orderer_nm").toString();
-                    String strOrdPhone = jsonObject.get("cell_no").toString();
-                    String strRcvName = jsonObject.get("recvr_nm").toString();
-                    String strRcvPhone = jsonObject.get("recvr_cell_no").toString();
-                    String strRemark = (jsonObject.get("deli_memo_cont").toString().equals("미입력") || jsonObject.get("deli_memo_cont").toString().equals("미입력"))? "" : jsonObject.get("deli_memo_cont").toString();
-                    String strOrderCode = jsonObject.get("ord_no").toString();
-                    int intOrderSeq = Integer.parseInt(jsonObject.get("deli_seq").toString());
-                    String strOrderPackage = jsonObject.get("deli_no").toString();
+                        String strRmtypeName = strItemName.replace(strCheckIn+"/", "");
+                        String strOrdName = jsonObject.get("orderer_nm").toString();
+                        String strOrdPhone = jsonObject.get("cell_no").toString();
+                        String strRcvName = jsonObject.get("recvr_nm").toString();
+                        String strRcvPhone = jsonObject.get("recvr_cell_no").toString();
+                        String strRemark = (jsonObject.get("deli_memo_cont").toString().equals("미입력") || jsonObject.get("deli_memo_cont").toString().equals("미입력"))? "" : jsonObject.get("deli_memo_cont").toString();
+                        String strOrderCode = jsonObject.get("ord_no").toString();
+                        int intOrderSeq = Integer.parseInt(jsonObject.get("deli_seq").toString());
+                        String strOrderPackage = jsonObject.get("deli_no").toString();
 
-                    result = elandMapper.createBooking(43,strRsvCode,intAID, intRmIdx, intRmCnt,strCheckIn,strCheckOut,strRmtypeName,strOrdName,strOrdPhone,strRcvName,strRcvPhone,strRemark,strOrderCode,intOrderSeq,strProductID,strOrderPackage);
-                    System.out.println(result);
+                        //result = elandMapper.createBooking(43,strRsvCode,intAID, intRmIdx, intRmCnt,strCheckIn,strCheckOut,strRmtypeName,strOrdName,strOrdPhone,strRcvName,strRcvPhone,strRemark,strOrderCode,intOrderSeq,strProductID,strOrderPackage);
+                        System.out.println(result);
 
+
+                    }
 
                 }
-
+            }else{
+                message = "예약 없음";
+                statusCode = "200";
             }
+
 
 
         }catch (Exception e){
