@@ -6,6 +6,7 @@ import com.example.stay.openMarket.common.dto.StockDto;
 import com.example.stay.openMarket.common.dto.ToconDto;
 import com.example.stay.openMarket.common.mapper.CommonMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -292,6 +293,107 @@ public class CommonService {
                 "      <img src=\"https://www.condo24.com" + imgList[1] + "\" alt=\"앱지콘도 이미지 하단\" style=\"display: block; width: 80%; max-width: 80%; padding: 0; margin: 15px auto 0;\"/>\n" +
                 "   </div>\n" +
                 "</div>";
+
+        return result;
+    }
+
+    /**
+     * @param intRsvID : 예약번호
+     * @param rsvState : 변경코자 하는 예약상태
+     */
+    @Async
+    public void rsvAuto(String intRsvID, String rsvState){
+        /*
+        TODO 예약 생성시 시설/공급사여부 => 예약생성(RSV_STAY_EM_NUM 기록) => 팩스,이메일
+        ACCOMM 테이블에서 strType이 C면 시설 나머지는 공급사
+        모든 API 호출시 로그 저장
+         */
+
+        String typeFlag = commonMapper.getTypeCode(intRsvID);//플래그값 받아오기 시설일때를위해서 카테고리값까지
+        String rsvResult = ""; //예약결과 저장용
+
+        if(typeFlag==null){
+            //공급사 예약
+            rsvResult = createBookingSupplier(intRsvID, typeFlag);
+        }else {
+            //시설사 예약
+            rsvResult = createBookingAccomm(intRsvID, "");
+        }
+
+        if(rsvResult=="SUCCES"){
+            //예약 성공했으니 RSV_STAY, RSV_STAY_RM_NUM 기록해주고 팩스,이메일
+        } else {
+            //예약 실패 실패했다는거 저장하고 알리고 끝맺음
+
+        }
+        //TODO 팩스, 이메일 DTO만들어서 안에다가 집어넣고 보낼수만 있으면 됨 두개 따로 빈을 만들던가 합쳐서 만들던가 해야함
+
+
+
+
+    }
+
+    /**
+     *
+     * @param intRsvID : 예약번호
+     * @param accommCateCode : 시설분류코드 (CODE_SYSTEM)
+     * @return
+     */
+    private String createBookingAccomm(String intRsvID, String accommCateCode){
+        /*
+        소노 01
+        리솜 RE
+        용평 37
+        비체 38
+        금호 04
+        한화 02
+        엘리시안 49
+        스파비스 35
+        웰리힐리 18
+         */
+        String result = "";
+        switch (accommCateCode){
+            case "01":
+                //소노예약
+                break;
+            case "RE":
+                //리솜예약
+                break;
+            case "37":
+                //용평예약
+                break;
+            case "48":
+                //비체예약
+                break;
+            case "04":
+                //금호예약
+                break;
+            case "02":
+                //한호예약
+                break;
+            case "49":
+                //엘리시안
+                break;
+            case "35":
+                //스파비스
+                break;
+            case "18":
+                //웰리힐리
+                break;
+        }
+        return result;
+    }
+
+    private String createBookingSupplier (String intRsvID, String typeSupplier){
+        /*
+        호텔패스 -- 얘는 실시간이라 안해도될지...도?
+        지펜션
+        루미오
+        온다
+        호텔스토리
+
+         */
+        String result = "";
 
         return result;
     }
