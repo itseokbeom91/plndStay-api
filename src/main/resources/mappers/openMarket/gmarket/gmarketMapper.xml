@@ -18,4 +18,11 @@
         WHERE intAID = ${intAID}
     </select>
 
+    <select id="getOmkSiteCode" parameterType="int" resultType="String">
+        SELECT strOmkSiteCode
+        FROM PLNDSTAY.dbo.ACCOMM_OMK
+        WHERE intAID = ${intAID}
+          AND intOMKIdx = ${intOmkIdx}
+    </select>
+
 </mapper>

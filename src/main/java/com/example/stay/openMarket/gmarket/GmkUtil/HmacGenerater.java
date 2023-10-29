@@ -1,4 +1,4 @@
-package com.example.stay.openMarket.gmarket.hmac;
+package com.example.stay.openMarket.gmarket.GmkUtil;
 
 import com.example.stay.common.util.Base64Encoder;
 import com.example.stay.common.util.Constants;

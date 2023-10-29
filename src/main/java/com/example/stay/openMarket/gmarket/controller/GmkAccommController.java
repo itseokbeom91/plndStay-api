@@ -1,6 +1,6 @@
 package com.example.stay.openMarket.gmarket.controller;
 
-import com.example.stay.openMarket.gmarket.hmac.HmacGenerater;
+import com.example.stay.openMarket.gmarket.GmkUtil.HmacGenerater;
 import com.example.stay.openMarket.gmarket.service.GmkAccommService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -9,9 +9,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.servlet.http.HttpServletRequest;
-import java.io.BufferedReader;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 
 @Controller
 @RequestMapping("/gmk/accomm/*")
@@ -116,13 +113,6 @@ public class GmkAccommController {
 //        gmkAccommService.getRecommendOpts();
 //    }
 
-    @GetMapping("/getCategory")
-    public String getCategorty(){
-        return gmkAccommService.getCategory();
-    }
-
-
-
 
 
 
@@ -168,6 +158,59 @@ public class GmkAccommController {
         return gmkAccommService.getSellerDiscount(dataType, intAID, httpServletRequest);
     }
 
+    // 상품번호 조회 - 마스터번호 기준으로 site번호 조회
+    @GetMapping("/getOmkSiteCode")
+    @ResponseBody
+    public String getOmkSiteCode(String dataType, int intAID, HttpServletRequest httpServletRequest){
+        return gmkAccommService.getOmkSiteCode(dataType, intAID, httpServletRequest);
+    }
+
+    // 상품번호 조회 - site번호 기준으로 마스터번호 조회
+    @GetMapping("/getPdtCode")
+    @ResponseBody
+    public String getPdtCode(String dataType, int intAID, HttpServletRequest httpServletRequest){
+        return gmkAccommService.getPdtCode(dataType, intAID, httpServletRequest);
+    }
 
 
+
+
+
+
+
+
+    // 지마켓 카테고리 조회
+    @GetMapping("/getGmkCategory")
+    @ResponseBody
+    public String getGmkCategory(){
+        return gmkAccommService.getGmkCategory();
+    }
+
+    // 지마켓 카테고리 조회
+    @ResponseBody
+    @GetMapping("/getEsmCategory")
+    public String getEsmCategory(){
+        return gmkAccommService.getEsmCategory();
+    }
+
+    // Stie-ESM 카테고리 매칭조회
+    @ResponseBody
+    @GetMapping("/getSiteEsmCategory")
+    public String getSiteEsmCategory(){
+        return gmkAccommService.getSiteEsmCategory();
+    }
+
+    // 미니샵 카테고리 조회
+    @ResponseBody
+    @GetMapping("/getMiniShopCategory")
+    public String getMiniShopCategory(){
+        return gmkAccommService.getMiniShopCategory();
+    }
+
+    // 브랜드코드 조회 - 브랜드명으로 조회
+    @ResponseBody
+    @GetMapping("/getBrandCodeCategory")
+    public String getBrandCodeCategory(String strBrandName){
+        return gmkAccommService.getBrandCodeCategory(strBrandName);
+    }
 }
