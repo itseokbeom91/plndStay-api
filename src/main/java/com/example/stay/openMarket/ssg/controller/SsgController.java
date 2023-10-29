@@ -29,6 +29,7 @@ public class SsgController {
      */
     // 배송지시 목록조회
     @GetMapping("/getRsvList")
+    @ResponseBody
     public void getReserveList(String startDate, String endDate){
 
         ssgService.getReserveList(startDate, endDate);
@@ -37,6 +38,7 @@ public class SsgController {
 
     // 츨고대상목록조회
     @GetMapping("/getRlsList")
+    @ResponseBody
     public void getReleaseList(String startDate, String endDate){
 
         ssgService.getReleaseList(startDate, endDate);
@@ -44,6 +46,7 @@ public class SsgController {
 
     // 배송완료관리
     @GetMapping("/getFinishList")
+    @ResponseBody
     public void getFinishList(String startDate, String endDate, String orderNo){
 
         ssgService.getFinishList(startDate, endDate, orderNo);
@@ -51,6 +54,7 @@ public class SsgController {
 
     // 주문별 상태 조회
     @GetMapping("getRsvDetail")
+    @ResponseBody
     public void getReserveDetail(String orderNo){
 
         ssgService.getReserveDetail(orderNo);
@@ -58,6 +62,7 @@ public class SsgController {
 
     // 취소신청 목록조회
     @GetMapping("/getcancelList")
+    @ResponseBody
     public void getCancelList(String startDate, String endDate){
 
         ssgService.getCancelList(startDate,endDate);

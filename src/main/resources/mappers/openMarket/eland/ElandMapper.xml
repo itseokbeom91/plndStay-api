@@ -74,7 +74,7 @@
     </select>
 
     <select id="getIntRmIdx" resultType="int">
-        SELECT * FROM STOCK_REAL WITH(NOLOCK) WHERE	intAID = ${intAID} AND intElandSeq = ${intItemNo}
+        SELECT intRmIdx FROM STOCK_REAL WITH(NOLOCK) WHERE	intAID = ${intAID} AND intElandSeq = ${intItemNo}
     </select>
 
     <select id="createBooking" resultType="String">
