@@ -10,6 +10,13 @@ import com.example.stay.openMarket.common.service.CommonService;
 import com.example.stay.openMarket.ssg.mapper.SsgMapper;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.StringEntity;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
+import org.apache.http.util.EntityUtils;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -178,7 +185,7 @@ public class UpdateService {
 
                 if(intMaxNum + intCntTempStock > 99999){
                     System.out.println("방지");
-                    statusCode = "200";
+                    statusCode = "500";
                     message = "99999 넘어서 새로 만들어야함";
                 }else{
 
@@ -194,10 +201,12 @@ public class UpdateService {
                     }
 
 
-                    List<StockDto> stockList = commonMapper.getStockList(intAID, 7, strNow);
+//                    List<StockDto> stockList = commonMapper.getStockList(intAID, 7, strNow);
+                    List<StockDto> stockList = ssgMapper.getTestStockList();
 
                     List<Object> uitemList = new ArrayList<>();
-//                List<Object> priceList = new ArrayList<>();
+                    List<Object> priceList = new ArrayList<>();
+                    int testDataIdx = 23;
                     for (StockDto dto : stockList) {
                         JSONObject itemObject = new JSONObject();
 
@@ -211,6 +220,7 @@ public class UpdateService {
                             itemObject.put("uitemId", strUitemId);
                         } else {
                             intMaxNum += 1;
+                            testDataIdx += 1;
                             String strTmepUitemId = String.format("%05d", intMaxNum);
                             itemObject.put("tempUitemId", strTmepUitemId);
                         }
@@ -233,12 +243,12 @@ public class UpdateService {
                         // 캘린더형으로 할때 유형
 //                    SimpleDateFormat goodDate = new SimpleDateFormat("yyyy-MM-dd");
                         String strGoodDate = goodDate.format(dateStrDate);
-                        itemObject.put("uitemOptnNm1", strGoodDate);
+                        itemObject.put("uitemOptnNm1", strGoodDate+"[test]");
 
                         // 2번옵션명(타입)
                         itemObject.put("uitemOptnTypeNm2", "타입");
                         String strTocode = dto.getStrRmtypeName();
-                        itemObject.put("uitemOptnNm2", strTocode);
+                        itemObject.put("uitemOptnNm2", strTocode+testDataIdx);
 
 
                         // 재고
@@ -248,37 +258,39 @@ public class UpdateService {
                         }
                         itemObject.put("baseInvQty", intOMKStock);
 
-                        itemObject.put("splVenItemId", dto.getIntIdx());
+//                        itemObject.put("splVenItemId", dto.getIntIdx());
+                        itemObject.put("splVenItemId", testDataIdx);
                         itemObject.put("useYn", "Y");
 
                         uitemList.add(itemObject);
 
                         // 가격
-//                    JSONObject priceObject = new JSONObject();
-//
-//                    int intPrice = dto.getMoneySales();
-//
-//                    int intSSGPrice = (intPrice * (100 - 8) / 100);
-//                    if(uitemIdList.contains(strUitemId)){
-//                        priceObject.put("uitemId", strUitemId);
-//                    }else{
-//                        priceObject.put("tempUitemId", strUitemId);
-//                    }
-//                    //priceObject.put("uitemId", uitemId);
-//                    priceObject.put("splprc", intSSGPrice);
-//                    priceObject.put("sellprc", intPrice);
-//                    priceObject.put("mrgrt", 8);
-//
-//                    priceList.add(priceObject);
+                        JSONObject priceObject = new JSONObject();
+
+                        int intPrice = dto.getMoneySales();
+
+                        int intSSGPrice = (intPrice * (100 - 8) / 100);
+                        if(uitemIdList.contains(strUitemId)){
+                            priceObject.put("uitemId", strUitemId);
+                        }else{
+                            String strTmepUitemId = String.format("%05d", intMaxNum);
+                            priceObject.put("tempUitemId", strTmepUitemId);
+                        }
+                        //priceObject.put("uitemId", uitemId);
+                        priceObject.put("splprc", intSSGPrice);
+                        priceObject.put("sellprc", intPrice);
+                        priceObject.put("mrgrt", 8);
+
+                        priceList.add(priceObject);
                     }
 
                     JSONObject itemObject = new JSONObject();
                     itemObject.put("uitem", uitemList);
                     updateObject.put("uitems", itemObject);
 
-//                JSONObject itemPriceObject = new JSONObject();
-//                itemPriceObject.put("uitemPrc", priceList);
-//                updateObject.put("uitemPluralPrcs", itemPriceObject);
+                    JSONObject itemPriceObject = new JSONObject();
+                    itemPriceObject.put("uitemPrc", priceList);
+                    updateObject.put("uitemPluralPrcs", itemPriceObject);
 
 
                     // attr
@@ -364,9 +376,20 @@ public class UpdateService {
             //result = resultObject.toJSONString();
 
             // api 호출
-            JsonNode resultNode = commonFunction.callJsonApi("SSG", "", resultObject, "https://eapi.ssgadm.com/item/0.4/updateItem.ssg", "POST");
-            result = resultNode.toString();
+            //JsonNode resultNode = commonFunction.callJsonApi("SSG", "", resultObject, "https://eapi.ssgadm.com/item/0.4/updateItem.ssg", "POST");
+            result = callAPI("https://eapi.ssgadm.com/item/0.4/updateItem.ssg", resultObject.toJSONString());
             System.out.println(result);
+            ObjectMapper objectMapper = new ObjectMapper();
+            JsonNode node = objectMapper.readTree(result);
+            JSONObject jsonObject = (JSONObject) new JSONParser().parse(node.get("result").toString());
+            System.out.println(jsonObject.get("resultCode").toString());
+            System.out.println(jsonObject.get("resultMessage").toString());
+            if(jsonObject.get("resultCode").toString().equals("00")){
+
+            }else{
+                statusCode = "500";
+                message = jsonObject.get("resultMessage").toString();
+            }
 
 
         }catch (Exception e){
@@ -378,5 +401,36 @@ public class UpdateService {
 
 
         return commonFunction.makeReturn(dataType, statusCode, message);
+    }
+
+    public String callAPI(String strUrl, String jsonRequest){
+        String responseBody = "";
+        try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
+            // API 엔드포인트 URL 설정
+//            String apiUrl = "https://example.com/api/endpoint";
+
+            // JSON 요청 데이터 생성
+//            String jsonRequest = "{\"key1\": \"value1\", \"key2\": \"value2\"}";
+
+            // HTTP POST 요청 생성
+            HttpPost httpPost = new HttpPost(strUrl);
+            httpPost.setHeader("Content-Type", "application/json");
+            httpPost.setEntity(new StringEntity(jsonRequest));
+            httpPost.setHeader("Authorization", Constants.SsgAuthorization);
+
+            // HTTP 요청 보내기
+            HttpResponse response = httpClient.execute(httpPost);
+
+            // HTTP 응답 처리
+            HttpEntity entity = response.getEntity();
+            if (entity != null) {
+                responseBody = EntityUtils.toString(entity);
+                System.out.println("HTTP 응답: " + responseBody);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return responseBody;
+
     }
 }

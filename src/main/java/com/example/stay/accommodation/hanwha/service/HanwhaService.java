@@ -179,6 +179,158 @@ public class HanwhaService {
     }
 
 
+    /**
+     * 날짜로 예약하기
+     * @param intRsvID
+     * @param strDate
+     * @param dataType
+     * @return
+     */
+    public String bookingByDate(int intRsvID, String strDate, String dataType){ // 예약요청 : 01
+
+        String statusCode = "200";
+        String message = "";
+        String result = "";
+
+        try {
+            JSONObject mainObject = getCommonHeader("01");
+            JSONObject dataObject = new JSONObject();
+            JSONObject detailObject = new JSONObject();
+
+            RsvStayDto rsvStayDto = hanwhaMapper.getRsvInfo(intRsvID);
+
+
+            String strPackNo = rsvStayDto.getStrPkgCode();
+            String strLocCd = rsvStayDto.getStrLocalCode();
+            String strRMCd = rsvStayDto.getStrRmtypeID();
+            String strRoomCnt = String.valueOf(rsvStayDto.getIntRmCnt());
+            String strReserveName = rsvStayDto.getStrOrdName();
+            String strReservePhone = rsvStayDto.getStrOrdPhone();
+            String strStayName = rsvStayDto.getStrRcvName();
+            String strStayPhone = rsvStayDto.getStrRcvPhone();
+
+
+            // 몇 박인지 구하기
+            String strStaycnt = "";
+            if(strDate != null){
+
+                // 체크인 날짜 포멧
+                strDate = strDate.replace("-", "");
+                strStaycnt = "1";
+
+            }else{
+
+                Date checkInDate = rsvStayDto.getDateCheckIn();
+                Date checkOutDate = rsvStayDto.getDateCheckOut();
+                long longStayCnt = (checkOutDate.getTime() - checkInDate.getTime()) / 86400000;
+                strStaycnt = String.valueOf(longStayCnt);
+                System.out.println(strStaycnt);
+
+                // 체크인 날짜 포멧
+                strDate = new SimpleDateFormat("yyyyMMdd").format(checkInDate);
+            }
+
+
+            // 번호 구하기
+            String strStayPhone1 = "010";
+            String strStayPhone2 = "";
+            String strStayPhone3 = "";
+            if(strStayPhone.substring(0,3).equals("010")){
+                System.out.println("phone"+strStayPhone);
+                strStayPhone2 = strStayPhone.substring(3,7);
+                strStayPhone3 = strStayPhone.substring(7,11);
+            }else{
+                int lenPhone = strStayPhone.length();
+                int stand = lenPhone/3;
+                strStayPhone1 = strStayPhone.substring(0, stand);
+                strStayPhone2 = strStayPhone.substring(stand, stand*2);
+                strStayPhone3 = strStayPhone.substring(stand*2, lenPhone);
+            }
+
+            String strReservePhone1 = "010";
+            String strReservePhone2 = "";
+            String strReservePhone3 = "";
+            if(strReservePhone.substring(0,3).equals("010")){
+                System.out.println("phone"+strReservePhone);
+                strReservePhone2 = strReservePhone.substring(3,7);
+                strReservePhone3 = strReservePhone.substring(7,11);
+            }else{
+                int lenPhone = strReservePhone.length();
+                int stand = lenPhone/3;
+                strReservePhone1 = strReservePhone.substring(0, stand);
+                strReservePhone2 = strReservePhone.substring(stand, stand*2);
+                strReservePhone3 = strReservePhone.substring(stand*2, lenPhone);
+            }
+
+
+
+            detailObject.put("CUST_NO", Constants.hanwhaCustNo);
+            detailObject.put("MEMB_NO", "");
+            detailObject.put("CUST_IDNT_NO", "");
+            detailObject.put("CONT_NO", Constants.hanwhaContNo);
+            detailObject.put("PAKG_NO", strPackNo);
+            detailObject.put("CPON_NO", "");
+            detailObject.put("LOC_CD", strLocCd);
+            detailObject.put("ROOM_TYPE_CD", strRMCd);
+            detailObject.put("RSRV_LOC_DIV_CD", "C");
+            detailObject.put("ARRV_DATE", strDate); //20231010
+            detailObject.put("RSRV_ROOM_CNT", strRoomCnt); // 객실 수
+            detailObject.put("OVNT_CNT", strStaycnt); // 몇박
+            detailObject.put("INHS_CUST_NM", strStayName);
+            detailObject.put("INHS_CUST_TEL_NO2", strStayPhone1);
+            detailObject.put("INHS_CUST_TEL_NO3", strStayPhone2);
+            detailObject.put("INHS_CUST_TEL_NO4", strStayPhone3);
+            detailObject.put("RSRV_CUST_NM", strReserveName);
+            detailObject.put("RSRV_CUST_TEL_NO2", strReservePhone1);
+            detailObject.put("RSRV_CUST_TEL_NO3", strReservePhone2);
+            detailObject.put("RSRV_CUST_TEL_NO4", strReservePhone3);
+            detailObject.put("REFRESH_YN", "N");
+
+            List<Object> dataList = new ArrayList<>();
+            dataList.add(detailObject);
+
+            dataObject.put("ds_rsrvInfo", dataList);
+
+            mainObject.put("Data", dataObject);
+
+            System.out.println(mainObject);
+
+//            JsonNode jsonNode = commonFunction.callJsonApi("hanwha", "", mainObject, "", "POST");
+//
+//            result = jsonNode.toString();
+//            System.out.println(result);
+//
+//            // 통신결과 0:실패, 1:성공
+//            JSONObject codeObject = (JSONObject) new JSONParser().parse(jsonNode.get("MessageHeader").get("MSG_DATA_SUB").get(0).toString());
+//            String resultCode = codeObject.get("MSG_INDC_CD").toString();
+//
+//            if(resultCode.equals("1")){
+//                JSONObject responseObject = (JSONObject) new JSONParser().parse(jsonNode.get("Data").get("ds_prcsResult").get(0).toString());
+//                String strRsvRmNum = responseObject.get("RSRV_NO").toString();
+//
+//                // 에악 정보 update
+//                String procResult = hanwhaMapper.updateRsv(intRsvID, "4", strRsvRmNum);
+//
+//                if (procResult.trim().equals("저장완료")) {
+//                    message = "예약 완료";
+//                } else {
+//                    message = "DB저장 실패[객실번호 : " + strRsvRmNum + "]";
+//                }
+//
+//            }else{
+//                message = "호출 실패";
+//            }
+
+        }catch (Exception e){
+            message = "예약 실패";
+            statusCode = "500";
+            e.printStackTrace();
+        }
+
+        return commonFunction.makeReturn(dataType, statusCode, message);
+    }
+
+
 
     /**
      * 예약 취소

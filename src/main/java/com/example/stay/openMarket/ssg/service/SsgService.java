@@ -3,12 +3,16 @@ package com.example.stay.openMarket.ssg.service;
 import com.example.stay.common.util.CommonFunction;
 import com.example.stay.openMarket.ssg.mapper.SsgMapper;
 import com.fasterxml.jackson.databind.JsonNode;
+import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
+import org.json.simple.JSONValue;
 import org.json.simple.parser.JSONParser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.Date;
 import java.util.Objects;
 
@@ -52,8 +56,10 @@ public class SsgService {
      * @param strEndDate
      * @return
      */
-    public String getReserveList(String strStarteDate, String strEndDate){
+    public String getReserveList(String strStarteDate, String strEndDate, String dataType){
 
+        String statusCode = "200";
+        String message = "";
         String result = "";
 
         try {
@@ -73,16 +79,60 @@ public class SsgService {
 
             int intCnt = jsonNode.get("result").get("shppDirections").get(0).size();
             if(intCnt > 0){
-                JSONObject jsonObject = (JSONObject) new JSONParser().parse(jsonNode.get("result").get("shppDirections").get(0).toString());
-                System.out.println(jsonObject);
+                JSONArray jsonArray = (JSONArray) new JSONParser().parse(jsonNode.get("result").get("shppDirections").toString());
+                System.out.println(jsonArray);
+                for(Object object : jsonArray) {
+                    JSONObject dataObject = (JSONObject) JSONValue.parse(object.toString());
+                    JSONObject jsonObject = (JSONObject) dataObject.get("shppDirection");
+                    if(jsonObject.get("shppStatCd").toString().equals("30")){
+
+                        String strRsvCode = "test";
+                        String strProductID = jsonObject.get("itemId").toString();
+//                        int intAID = ssgMapper.getIntAID(strProductID);
+                        int intAID = 10147;
+                        int intStockIdx = Integer.parseInt(jsonObject.get("uSplVenItemId").toString());
+//                        int intRmIdx = ssgMapper.getIntRmIdx(intStockIdx);
+                        int intRmIdx = 15302;
+                        int intRmCnt = Integer.parseInt(jsonObject.get("ordQty").toString());
+                        String strItemName = jsonObject.get("uitemNm").toString();
+
+                        // 체크인, 체크아웃
+                        String strCheckIn = ssgMapper.getCheckIn(intStockIdx);
+                        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+                        LocalDate localDate = LocalDate.parse(strCheckIn, formatter);
+                        localDate = localDate.plusDays(1);
+                        String strCheckOut = localDate.format(formatter);
+
+                        String strRmtypeName = strItemName.replace(strCheckIn+"/", "");
+                        String strOrdName = jsonObject.get("ordpeNm").toString();
+                        String strOrdPhone = jsonObject.get("ordpeHpno").toString();
+                        String strRcvName = jsonObject.get("rcptpeNm").toString();
+                        String strRcvPhone = jsonObject.get("rcptpeHpno").toString();
+                        String strRemark = (jsonObject.get("ordMemoCntt").toString().equals("미입력") || jsonObject.get("ordMemoCntt").toString().equals("미입력"))? "" : jsonObject.get("ordMemoCntt").toString();
+                        String strOrderCode = jsonObject.get("ordNo").toString();
+                        int intOrderSeq = Integer.parseInt(jsonObject.get("ordItemSeq").toString());
+                        String strOrderPackage = jsonObject.get("orordNo").toString();
+
+                        //result = ssgMapper.createBooking(42,strRsvCode,intAID, intRmIdx, intRmCnt,strCheckIn,strCheckOut,strRmtypeName,strOrdName,strOrdPhone,strRcvName,strRcvPhone,strRemark,strOrderCode,intOrderSeq,strProductID,strOrderPackage);
+                        System.out.println(result);
+
+
+                    }
+                }
+            }else{
+                message = " 예약 없음";
+                statusCode = "200";
             }
 
 
 
         }catch (Exception e){
+            message = " 실패";
+            statusCode = "500";
             e.printStackTrace();
         }
-        return result;
+
+        return commonFunction.makeReturn(dataType, statusCode, message);
         /* result sample
             {
                 "result": {

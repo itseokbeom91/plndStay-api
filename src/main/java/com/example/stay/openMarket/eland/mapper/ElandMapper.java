@@ -38,4 +38,13 @@ public interface ElandMapper {
     // 채번
     String setNumbering(int intAID, String stockDatas);
 
+    // 오픈마켓 상품코드로 intAID 가져오기
+    int getIntAID(String strPdtCode);
+
+    // itme_no로 intRmIdx 가져오기
+    int getIntRmIdx(int intAID, int intItemNo);
+
+    // 예약 등록하기
+    String createBooking(int intSeller, String strRsvCode, int intAID, int  intRmIdx, int  intRmCnt, String strCheckIn, String strCheckOut, String strRmtypeName, String strOrdName, String strOrdPhone, String strRcvName, String strRcvPhone, String strRemark, String strOrderCode, int intOrderSeq, String strProductID, String strOrderPackage);
+
 }

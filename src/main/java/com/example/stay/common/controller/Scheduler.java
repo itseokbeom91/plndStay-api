@@ -36,16 +36,21 @@ public class Scheduler {
 
     CommonFunction commonFunction = new CommonFunction();
 
-    //@Scheduled(cron = "5 * * * * *")
+    //@Scheduled(cron = "0 0/3 * * * *")
     public void cron(){
 
         try {
-            System.out.println("another test");
+            System.out.println("go scheduler");
 
-            URL url = new URL("http://localhost:8080/SSG/info?intAID=11471");
-            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+            URL url1 = new URL("http://localhost:8080/eland/getRsvList");
+            HttpURLConnection conn1 = (HttpURLConnection) url1.openConnection();
 
-            new BufferedReader(new InputStreamReader(conn.getInputStream(), "UTF-8"));
+            new BufferedReader(new InputStreamReader(conn1.getInputStream(), "UTF-8"));
+
+            URL url2 = new URL("http://localhost:8080/SSG/getRsvList");
+            HttpURLConnection conn2 = (HttpURLConnection) url2.openConnection();
+
+            new BufferedReader(new InputStreamReader(conn2.getInputStream(), "UTF-8"));
 
         }catch (Exception e){
             e.printStackTrace();
@@ -53,6 +58,45 @@ public class Scheduler {
 
     }
 
+    /*
+    @Scheduled(cron = "5 * * * * *")
+    public void scd(){
+        System.out.println("go sheduler");
+        try {
+            // 호출할 URL 생성
+            URL url = new URL("http://localhost:8080/eland/testSCD"); // 호출하고자 하는 URL로 변경
+
+            // URL 연결 설정
+            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+
+            // HTTP 요청 메소드 설정 (GET, POST, 등)
+            conn.setRequestMethod("GET");
+
+            // 응답 코드 확인
+            int responseCode = conn.getResponseCode();
+            if (responseCode == HttpURLConnection.HTTP_OK) {
+                // URL에 대한 연결이 성공했을 때 응답 데이터를 읽어옴
+                BufferedReader in = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+                String inputLine;
+                StringBuilder response = new StringBuilder();
+
+                while ((inputLine = in.readLine()) != null) {
+                    response.append(inputLine);
+                }
+                in.close();
+
+                // 응답 데이터 출력
+                System.out.println(response.toString());
+            } else {
+                System.out.println("HTTP 요청 실패: " + responseCode);
+            }
+
+            // 연결 닫기
+            conn.disconnect();
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+    }
 
     public String test(HttpServletRequest request, HttpServletResponse response){
         String result = "";
@@ -84,4 +128,6 @@ public class Scheduler {
         return result;
 
     }
+
+     */
 }

@@ -13,10 +13,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
 
 @Service
 public class YPBService {
@@ -148,7 +149,7 @@ public class YPBService {
             String strPropertyId = rsvStayDto.getStrPropertyID();
             String strLocalCode = rsvStayDto.getStrLocalCode();
             String strRmTypeID = rsvStayDto.getStrRmtypeID();
-            String strDate = new SimpleDateFormat("yyyyMMdd").format(rsvStayDto.getDateCheckIn().toString());
+            String strDate = new SimpleDateFormat("yyyyMMdd").format(rsvStayDto.getDateCheckIn());
             String strPkgCode = rsvStayDto.getStrMapCode();
             String strRsvID = String.valueOf(intRsvID);
             String strPgkName = rsvStayDto.getStrPkgName();
@@ -165,7 +166,7 @@ public class YPBService {
             dataObject.put("brch_cd", strPropertyId); // 용평 : 11 / 비체 : 22
             dataObject.put("outlet_cd", strLocalCode); // 영업장 코드
             dataObject.put("room_type_cd", strRmTypeID);
-            dataObject.put("arrv_date", strDate);
+            //dataObject.put("arrv_date", strDate);
             dataObject.put("rsvpl_type_cd", "07"); // condo24
             dataObject.put("pkg_cd", strPkgCode);
             dataObject.put("bkng_id", strRsvID); // 주문번호
@@ -175,34 +176,66 @@ public class YPBService {
             dataObject.put("guest_contp", strPhone); // 투숙객 연락처
             dataObject.put("guest_sms_send_yn", "N"); // 취소 메세지 전송 여부
 
-            mainObject.put("DATA", dataObject);
+            // 몇 박인지 구하기
+            Date checkInDate = rsvStayDto.getDateCheckIn();
+            Date checkOutDate = rsvStayDto.getDateCheckOut();
+            long longStayCnt = (checkOutDate.getTime() - checkInDate.getTime()) / 86400000;
 
-            System.out.println(mainObject);
+            // 객실번호 데이터
+            String strRmNumDatas = "";
 
-            JsonNode jsonNode = commonFunction.callJsonApi("YPB", "booking", mainObject, "", "POST");
+            for(long i=0; i<longStayCnt; i++){
 
-            // 통신결과 0:실패, 1:성공
-            JSONObject codeObject = (JSONObject) new JSONParser().parse(jsonNode.get("HEADER").toString());
-            String resultCode = codeObject.get("statusCode").toString();
+                Instant instant = checkInDate.toInstant();
+                LocalDate localDate = instant.atZone(ZoneId.systemDefault()).toLocalDate();
+                localDate = localDate.plusDays(i);
+                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd");
 
-            JSONObject resultObject = (JSONObject) new JSONParser().parse(jsonNode.get("DATA").toString());
-            String strRmCode = resultObject.get("rsrv_no").toString();
+                // LocalDate를 문자열로 변환
+                String formatDate = localDate.format(formatter);
+                dataObject.put("arrv_date", formatDate);
 
-            if(resultCode.equals("1")){
-                // 프로시저 작업 해야함
-                String procResult = ypbMapper.updateRsv(intRsvID, "4", strRmCode);
-                if(procResult.equals("저장완료")){
-                    message = "예약 완료";
-                }else{
-                    message = "DB저장 실패[객실번호 : " + strRmCode + "]";
-                }
+                mainObject.put("DATA", dataObject);
 
-            }else{
-                message = "호출 실패";
+                System.out.println(mainObject);
+
+//                JsonNode jsonNode = commonFunction.callJsonApi("YPB", "booking", mainObject, "", "POST");
+//
+//                // 통신결과 0:실패, 1:성공
+//                JSONObject codeObject = (JSONObject) new JSONParser().parse(jsonNode.get("HEADER").toString());
+//                String resultCode = codeObject.get("statusCode").toString();
+//
+//                JSONObject resultObject = (JSONObject) new JSONParser().parse(jsonNode.get("DATA").toString());
+//                String strRmCode = resultObject.get("rsrv_no").toString();
+//                String strRsvResult = resultObject.get("result").toString();
+//
+//                if(resultCode.equals("1")){
+//                    if(strRsvResult.equals("객실예약완료")){
+//                        //strRmNumDatas += intRsvID + "|^|" + ;
+//                    }else{
+//
+//                    }
+//
+//
+//                }else{
+//                    statusCode = "500";
+//                    message = "호출 실패";
+//                }
+//
+//                result = jsonNode.toString();
+//                System.out.println(result);
+
             }
 
-            result = jsonNode.toString();
-            System.out.println(result);
+            // 여기에다가 통합 프로시저 ㄱㄱ
+            String procResult = ypbMapper.updateRsv(intRsvID, "4", strRmNumDatas);
+            if(procResult.equals("저장완료")){
+                //message += "예약 완료[객실번호 : " + strRmCode + "]";
+            }else{
+                //message += "DB저장 실패[객실번호 : " + strRmCode + "]";
+            }
+
+
 
         }catch (Exception e){
             message = "재고 등록 및 수정 실패";
@@ -296,7 +329,7 @@ public class YPBService {
             String strRmNum = rsvStayDto.getStrRsvRmNum();;
             String strLocalCode = rsvStayDto.getStrLocalCode();
             String strRmTypeID = rsvStayDto.getStrRmtypeID();
-            String strDate = new SimpleDateFormat("yyyyMMdd").format(rsvStayDto.getDateCheckIn().toString());
+            String strDate = new SimpleDateFormat("yyyyMMdd").format(rsvStayDto.getDateCheckIn());
             String strPkgCode = rsvStayDto.getStrMapCode();
             String strRsvID = String.valueOf(intRsvID);
             String strName = rsvStayDto.getStrRcvName();

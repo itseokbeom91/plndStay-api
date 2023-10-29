@@ -32,5 +32,49 @@
         AND SR.intSsgSeq IS NULL OR SR.intSsgSeq = ''
     </select>
 
+    <select id="getIntAID" resultType="int">
+        SELECT intAID FROM ACCOMM_OMK WITH(NOLOCK) WHERE intOMKIdx = 7 AND strPdtCode = #{strPdtCode}
+    </select>
+
+    <select id="getIntRmIdx" resultType="int">
+        SELECT intRmIdx FROM STOCK_REAL WITH(NOLOCK) WHERE	intIdx = ${intStockIdx}
+    </select>
+
+    <select id="getCheckIn" resultType="string">
+        --SELECT dateSales FROM STOCK_REAL WITH(NOLOCK) WHERE intIdx = ${intStockIdx}
+        select CONVERT(CHAR(10), good_date, 23) from andrew.dbo.goods with(nolock) where good_seq = ${intStockIdx}
+    </select>
+
+    <select id="createBooking" resultType="String">
+        EXEC spOMK_RSV_REGIST ${intSeller}, #{strRsvCode}, ${intAID}, ${intRmIdx}, ${intRmCnt}, #{strCheckIn}, #{strCheckOut}, #{strRmtypeName}, '', #{strOrdName}, #{strOrdPhone}, '', #{strRcvName}, #{strRcvPhone}, '','', '', '127.0.0.1', #{strRemark}, #{strOrderCode}, ${intOrderSeq}, '0', #{strProductID}, #{strOrderPackage}, ''
+    </select>
+
+    <select id="getTestStockList" resultType="StockDto">
+        SELECT
+            SR.intIdx
+             , SR.dateSales
+             , RM.strRmtypeName
+             , RM.strCpItemCode
+             , RM.strCpRateCode
+             , SR.intRmIdx
+             , SR.moneyCost
+             , SR.moneySales
+             , SR.intStock
+             , SR.intSsgSeq
+             , SR.intGsshopSeq
+             , SR.intElandSeq
+             , SR.intElevenSeq
+             , SRN.intStock AS intNextStock
+        FROM STOCK_REAL SR
+                 CROSS JOIN (
+            SELECT TOP 1 *
+            FROM sys.objects  -- 더미 테이블
+        ) n
+                 INNER JOIN RMTYPE RM WITH(NOLOCK) ON SR.intRmIdx = RM.intIdx
+            LEFT OUTER JOIN STOCK_REAL SRN WITH(NOLOCK) ON SRN.intRmIdx = SR.intRmIdx AND SRN.dateSales = dateadd(day,1, SR.dateSales)
+        WHERE SR.intAID = 101471
+          AND SR.intSsgSeq IS NULL
+    </select>
+
 
 </mapper>
