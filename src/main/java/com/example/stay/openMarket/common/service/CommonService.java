@@ -464,7 +464,7 @@ public class CommonService {
         switch (typeSupplier){
             case "HP":
                 //호텔패스
-                hpBooking.createBooking()
+//                hpBooking.createBooking()
                 break;
             case "RMO":
                 //루미오
