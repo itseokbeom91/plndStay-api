@@ -20,6 +20,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
+import java.net.InetAddress;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
@@ -37,21 +38,46 @@ public class Scheduler {
     CommonFunction commonFunction = new CommonFunction();
 
     //@Scheduled(cron = "0 0/3 * * * *")
-    public void cron(){
-
+    public void bookingEland(){
         try {
-            System.out.println("go scheduler");
+            System.out.println("scheduler booking ELAND");
 
-            URL url1 = new URL("http://localhost:8080/eland/getRsvList");
-            HttpURLConnection conn1 = (HttpURLConnection) url1.openConnection();
+            URL url = new URL("http://localhost:8080/eland/getRsvList");
+            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
 
-            new BufferedReader(new InputStreamReader(conn1.getInputStream(), "UTF-8"));
+            new BufferedReader(new InputStreamReader(conn.getInputStream(), "UTF-8"));
 
-            URL url2 = new URL("http://localhost:8080/SSG/getRsvList");
-            HttpURLConnection conn2 = (HttpURLConnection) url2.openConnection();
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+    }
 
-            new BufferedReader(new InputStreamReader(conn2.getInputStream(), "UTF-8"));
+    //@Scheduled(cron = "0 0/3 * * * *")
+    public void bookingSSG(){
+        try {
+            System.out.println("scheduler booking SSG");
 
+            URL url = new URL("http://localhost:8080/SSG/getRsvList");
+            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+
+            new BufferedReader(new InputStreamReader(conn.getInputStream(), "UTF-8"));
+
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+    }
+
+    
+    //@Scheduled(cron = "0/10 * * * * *")
+    public void test(){
+        try {
+            InetAddress localHost = InetAddress.getLocalHost();
+            String serverAddress = localHost.getHostAddress();
+            System.out.println(serverAddress);
+            URL url = new URL("/SSG/getRsvList");
+            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+
+            new BufferedReader(new InputStreamReader(conn.getInputStream(), "UTF-8"));
         }catch (Exception e){
             e.printStackTrace();
         }
