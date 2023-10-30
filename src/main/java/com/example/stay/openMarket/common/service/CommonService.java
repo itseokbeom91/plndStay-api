@@ -18,6 +18,7 @@ public class CommonService {
     @Autowired
     private CommonMapper commonMapper;
 
+
     // 시설 정보 가져오기 test 중
     public AccommDto getAcmInfo(int intAID, int intOmkIdx){
 
@@ -309,15 +310,15 @@ public class CommonService {
         모든 API 호출시 로그 저장
          */
 
-        String typeFlag = commonMapper.getTypeCode(intRsvID);//플래그값 받아오기 시설일때를위해서 카테고리값까지
+        Map<String, Object> typeFlag = commonMapper.getTypeCode(intRsvID);//플래그값 받아오기 시설일때를위해서 카테고리값까지
         String rsvResult = ""; //예약결과 저장용
 
         if(typeFlag==null){
             //공급사 예약
-            rsvResult = createBookingSupplier(intRsvID, typeFlag);
+            rsvResult = createBookingSupplier(intRsvID, typeFlag.get("strApiFlag").toString());
         }else {
             //시설사 예약
-            rsvResult = createBookingAccomm(intRsvID, "");
+            rsvResult = createBookingAccomm(intRsvID, typeFlag.get("strCateCode").toString());
         }
 
         if(rsvResult=="SUCCES"){
@@ -327,6 +328,11 @@ public class CommonService {
 
         }
         //TODO 팩스, 이메일 DTO만들어서 안에다가 집어넣고 보낼수만 있으면 됨 두개 따로 빈을 만들던가 합쳐서 만들던가 해야함
+        if(rsvResult=="SUCCESS"){
+            createInform(intRsvID, rsvState);
+        }else{
+
+        }
 
 
 
@@ -396,5 +402,10 @@ public class CommonService {
         String result = "";
 
         return result;
+    }
+
+    private String createInform(String intRsvID, String rsvState){
+
+        return "";
     }
 }

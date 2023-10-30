@@ -34,5 +34,5 @@ public interface CommonMapper {
     RsvStayDto getBookingInfo(int intRsvID);
 
     List<Map<String, Object>> getBookingInfo(String intRsvID);
-    String getTypeCode (String intRsvID);
+    Map<String, Object> getTypeCode (String intRsvID);
 }
