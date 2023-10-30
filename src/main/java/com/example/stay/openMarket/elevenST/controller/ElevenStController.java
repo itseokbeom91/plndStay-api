@@ -91,5 +91,11 @@ public class ElevenStController {
         return elevenStService.getSettlement(startDay, endDay);
     }
 
+    @GetMapping("/getStockList2")
+    @ResponseBody
+    public String getStockList(String prdNo){
+        return elevenStService.insertStockNo(prdNo);
+    }
+
 
 }

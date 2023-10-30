@@ -35,4 +35,8 @@ public interface CommonMapper {
 
     List<Map<String, Object>> getBookingInfo(String intRsvID);
     Map<String, Object> getTypeCode (String intRsvID);
+
+    String updateRsv(String intRsvID);
+
+    String getMailYn(String intAID);
 }

@@ -66,4 +66,16 @@
         WHERE intRsvID=#{intRsvID}
     </select>
 
+    <select id="getTypeCode" resultType="map">
+        SELECT strCateCode, strApiFlag, strStatusCode
+        FROM PLNDSTAY.dbo.ACCOMM
+        WHERE intAID = (SELECT intAID FROM PLNDSTAY.dbo.RSV_STAY WHERE intRsvID = ${intRsvID})
+    </select>
+
+    <select id="getMailYn" resultType="string">
+        SELECT strRsvMailYn
+        FROM PLNDSTAY.dbo.ACCOMM_CONTACT
+        WHERE intAID = ${intRsvID}
+    </select>
+
 </mapper>

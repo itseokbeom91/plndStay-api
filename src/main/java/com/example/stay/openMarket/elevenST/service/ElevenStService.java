@@ -5,6 +5,7 @@ import com.example.stay.common.util.Constants;
 import com.example.stay.common.util.LogWriter;
 import com.example.stay.common.util.XmlUtility;
 import com.example.stay.openMarket.common.dto.AccommDto;
+import com.example.stay.openMarket.common.dto.RsvStayDto;
 import com.example.stay.openMarket.common.dto.StockDto;
 import com.example.stay.openMarket.common.mapper.CommonMapper;
 import com.example.stay.openMarket.common.service.CommonService;
@@ -27,6 +28,7 @@ import java.io.StringReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLDecoder;
+import java.sql.Time;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
@@ -152,6 +154,7 @@ public class ElevenStService {
                 intStockSalePrice = intStockSalePrice-selprc; //판매가 - 최저가 = 추가금액
                 int intStockCost = dto.getMoneyCost(); // 공급가
                 int intIdx = dto.getIntIdx();
+                String strPkgName = dto.getStrPkgName();
                 if(intStockCnt == 0){
                     intStockCnt=1;
                 }
@@ -162,7 +165,7 @@ public class ElevenStService {
                 sb.append("<optWght/>");
                 sb.append("<useYn>Y</useYn>");
                 sb.append("<colSellerStockCd>"+intIdx+"</colSellerStockCd>");//셀러가 사용할 재고번호
-                sb.append("<optionMappingKey><![CDATA[투숙일자:" + strStockdate + "†" + "객실타입:" + strStockSubject + " ]]></optionMappingKey>");
+                sb.append("<optionMappingKey><![CDATA[투숙일자:" + strStockdate + "†" + "객실타입:" + strStockSubject +" / " + strPkgName + " ]]></optionMappingKey>");
                 sb.append("</ProductOption>");
             }
             sb.append("</ProductOptionExt>");
@@ -241,6 +244,9 @@ public class ElevenStService {
             //오픈마켓 테이블에 박아야겠지?
 
             elevenStMapper.insertAccomm(map.get("intAID").toString(),"1","Y", map.get("strSubject").toString(), prdNo, map.get("strDescription").toString());
+
+            getStockList(Integer.parseInt(intAID));
+
             if(isUpdate){
                 return xmlUtility.getTagValue( "message", (Element) nl.item(0)).toString();
             }
@@ -488,7 +494,7 @@ public class ElevenStService {
                 String strRmtypeNm = resMap.get("strRmtypeNm").toString();
                 String strDate = resMap.get("strDate").toString();
                 String prdStockNo = resMap.get("prdStockNo").toString();
-                elevenStMapper.insertSeq(String.valueOf(intAID), strRmtypeNm, strDate, prdStockNo);
+                elevenStMapper.updateSeq(String.valueOf(intAID), strRmtypeNm, strDate, prdStockNo);
             }
 
             return commonFunction.makeReturn("jsonp", "200", "OK", resultList.toString());
@@ -650,7 +656,7 @@ public class ElevenStService {
             Calendar c = Calendar.getInstance();
             c.setTime(current);
             enddate = sdf.format(c.getTime());
-            c.add(Calendar.MINUTE, -15); //현재시각 - 15분
+            c.add(Calendar.DATE, -1); //현재시각 - 1일 11번가는 3분마다 스케쥴링
             startdate = sdf.format(c.getTime());
             URL url = new URL(Constants.elevenUrl + "/rest/ordservices/dlvcompleted/" + startdate + "/" + enddate);
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
@@ -677,15 +683,55 @@ public class ElevenStService {
             NodeList nl = dc.getElementsByTagName("ns2:order");
             List<Map<String, Object>>listMap = new ArrayList<>(); //
             String ordNo = "";
+            SimpleDateFormat oldDateFormat = new SimpleDateFormat("MM월dd일(E)");
+            SimpleDateFormat newDateFormat = new SimpleDateFormat("yyyy-MM-dd");
 
             for (int i = 0 ; i<nl.getLength();i++){
                 //예약정보 DB에 인입하는과정 필요
                 Map<String, Object> map = new HashMap<>();
 //                ordNo += nl.item(i).getChildNodes().item(23).getTextContent() + ",";
                 ordNo =  xmlUtility.getTagValue("ordNo", (Element) nl.item(i));
+                map.put("dlvNo", xmlUtility.getTagValue("dlvNo", (Element) nl.item(i)));
+                map.put("ordPrdSeq", xmlUtility.getTagValue("ordPrdSeq", (Element) nl.item(i)));
+                map.put("ordQty", xmlUtility.getTagValue("ordQty", (Element) nl.item(i)));
+                map.put("prdNo", xmlUtility.getTagValue("prdNo", (Element) nl.item(i)));
+                map.put("prdStckNo", xmlUtility.getTagValue("prdStckNo", (Element) nl.item(i)));
+                map.put("slctPrdOptNm", xmlUtility.getTagValue("slctPrdOptNm", (Element) nl.item(i)));
+                String [] test = map.get("slctPrdOptNm").toString().split(",");
+                String dateCheckIn = "";
+                String strRmTypeName = "";
+
+                if(test.length>2){
+                    dateCheckIn = test[1].substring(test[1].indexOf(':')+1);
+                    strRmTypeName = test[2].substring(test[2].indexOf(':')+1, test[2].lastIndexOf('-'));
+                }else{
+                    dateCheckIn = test[0].substring(test[0].indexOf(':')+1);
+                    strRmTypeName = test[1].substring(test[1].indexOf(':')+1, test[1].lastIndexOf('-'));
+                }
+                Date formatDate = oldDateFormat.parse(dateCheckIn);
+                Date today = new Date();
+                String localDate = oldDateFormat.format(today);
+                // Date타입의 변수를 새롭게 지정한 포맷으로 변환
+                Date strNewDtFormat = oldDateFormat.parse(localDate);
+                if(formatDate.after(strNewDtFormat)){
+                    //동일년도
+                    String ll = newDateFormat.format(today).toString().substring(0, 4) + newDateFormat.format(formatDate).toString().substring(4);
+                }else{
+                    //내년
+                    String ll = String.valueOf(Integer.parseInt(newDateFormat.format(today).toString().substring(0, 4)) + 1) + newDateFormat.format(formatDate).toString().substring(4);
+                }
+
+//                Date newformatDate = newDateFormat.parse(strNewDtFormat);
+
+
+//                map.put("sellerStockCd", xmlUtility.getTagValue("sellerStockCd", (Element) nl.item(i)));
+                map.put("prdStckNo", xmlUtility.getTagValue("prdStckNo", (Element) nl.item(i)));
+                map.put("prdStckNo", xmlUtility.getTagValue("prdStckNo", (Element) nl.item(i)));
                 map.put("ordNo", ordNo);
+//                elevenStMapper.updateRsv(map.get("dlvNo").toString(), "", rsvStayDto);
                 listMap.add(map);
             }
+
 
 
             return commonFunction.makeReturn("jsonp", "200", "OK", listMap);
@@ -720,9 +766,13 @@ public class ElevenStService {
             Document dc = db.parse(is);
             NodeList nl = dc.getElementsByTagName("ns2:order");
             List<Map<String, Object>>listMap = new ArrayList<>(); //
+            for (int i = 0 ; i < nl.getLength() ; i++){
+                Map<String, Object> orderMap = new HashMap<>();
+                orderMap.put("orderNo", "0");
+            }
 
 
-            return commonFunction.makeReturn("jsonp", "200", "OK", "OK");
+            return commonFunction.makeReturn("jsonp", "200", "OK", returnStr);
         } catch (Exception e) {
             return commonFunction.makeReturn("jsonp", "500", e.getMessage());
         }
@@ -895,6 +945,41 @@ public class ElevenStService {
             InputSource is = new InputSource(sr);
             Document dc = db.parse(is);
             NodeList nl = dc.getElementsByTagName("ns2:seStlDtlLists");
+            return commonFunction.makeReturn("jsonp", "200", "OK");
+
+
+        } catch (Exception e) {
+            return commonFunction.makeReturn("jsonp", "500", e.getMessage());
+        }
+
+    }
+
+    public String insertStockNo(String prdNo) {
+        try{
+            URL url = new URL(Constants.elevenUrl + "/rest/prodmarketservice/prodmarket/stocks/"+prdNo);
+            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+            conn.setDoOutput(true);
+            conn.setInstanceFollowRedirects(false);
+            conn.setRequestMethod("GET");
+            conn.setRequestProperty("openapikey", Constants.elevenApiKey);
+
+            BufferedReader in = new BufferedReader(new InputStreamReader(conn.getInputStream(), "EUC-KR"));
+            String inputLine = null;
+            String returnStr = "";
+            while ((inputLine = in.readLine()) != null) {
+                returnStr += inputLine;
+            }
+            System.out.println(returnStr);
+
+            DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+            DocumentBuilder db = dbf.newDocumentBuilder();
+            StringReader sr = new StringReader(returnStr);
+            InputSource is = new InputSource(sr);
+            Document dc = db.parse(is);
+            NodeList nl = dc.getElementsByTagName("ns2:ProductStock");
+            if (!xmlUtility.getTagValue( "resultCode", (Element) nl.item(0)).equals("200")) {
+                return commonFunction.makeReturn("jsonp", "500", "ERROR", xmlUtility.getTagValue( "message", (Element) nl.item(0)));
+            }
             return commonFunction.makeReturn("jsonp", "200", "OK");
 
 
