@@ -37,7 +37,7 @@ public class Scheduler {
 
     CommonFunction commonFunction = new CommonFunction();
 
-    @Scheduled(cron = "0 0/3 * * * *")
+    //@Scheduled(cron = "0 0/3 * * * *")
     public void bookingEland(){
         try {
             System.out.println("scheduler booking ELAND");
@@ -53,7 +53,7 @@ public class Scheduler {
         }
     }
 
-    @Scheduled(cron = "0 0/3 * * * *")
+    //@Scheduled(cron = "0 0/3 * * * *")
     public void bookingSSG(){
         try {
             System.out.println("scheduler booking SSG");

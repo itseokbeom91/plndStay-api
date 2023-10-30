@@ -90,7 +90,7 @@ public class SsgService {
                         String strRsvCode = "test";
                         String strProductID = jsonObject.get("itemId").toString();
 //                        int intAID = ssgMapper.getIntAID(strProductID);
-                        int intAID = 10147;
+                        int intAID = 101471;
                         int intStockIdx = Integer.parseInt(jsonObject.get("uSplVenItemId").toString());
                         //Map<String, String> map = ssgMapper.getRmIdxNChechIn(intStockIdx);
                         //int intRmIdx = Integer.parseInt(map.get("intRmIdx").toString());

@@ -101,9 +101,9 @@ public class SsgController {
     // 상품 정보 수정
     @GetMapping("updateInfo")
     @ResponseBody
-    public String modifySSG(String dataType, int intAID, String strType, @Nullable String strCode){
+    public String modifySSG(String dataType, int intAID, String strType, @Nullable String strCode, @Nullable String strStockIdx){
 
-        return updateService.updateInfo(dataType, intAID, strType, strCode);
+        return updateService.updateInfo(dataType, intAID, strType, strCode, strStockIdx);
 
     }
 

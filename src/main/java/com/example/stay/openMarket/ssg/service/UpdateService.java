@@ -26,6 +26,7 @@ import org.springframework.stereotype.Service;
 import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -47,7 +48,7 @@ public class UpdateService {
 
     CommonFunction commonFunction = new CommonFunction();
 
-    public String updateInfo(String dataType, int intAID, String strType, String strCode){
+    public String updateInfo(String dataType, int intAID, String strType, String strCode, String strStockIdx){
 
         String statusCode = "200";
         String message = "";
@@ -201,12 +202,11 @@ public class UpdateService {
                     }
 
 
-//                    List<StockDto> stockList = commonMapper.getStockList(intAID, 7, strNow);
-                    List<StockDto> stockList = ssgMapper.getTestStockList();
+                    List<StockDto> stockList = commonMapper.getStockList(intAID, 7, strNow);
+//                    List<StockDto> stockList = ssgMapper.getTestStockList();
 
                     List<Object> uitemList = new ArrayList<>();
                     List<Object> priceList = new ArrayList<>();
-                    int testDataIdx = 23;
                     for (StockDto dto : stockList) {
                         JSONObject itemObject = new JSONObject();
 
@@ -220,7 +220,6 @@ public class UpdateService {
                             itemObject.put("uitemId", strUitemId);
                         } else {
                             intMaxNum += 1;
-                            testDataIdx += 1;
                             String strTmepUitemId = String.format("%05d", intMaxNum);
                             itemObject.put("tempUitemId", strTmepUitemId);
                         }
@@ -243,12 +242,12 @@ public class UpdateService {
                         // 캘린더형으로 할때 유형
 //                    SimpleDateFormat goodDate = new SimpleDateFormat("yyyy-MM-dd");
                         String strGoodDate = goodDate.format(dateStrDate);
-                        itemObject.put("uitemOptnNm1", strGoodDate+"[test]");
+                        itemObject.put("uitemOptnNm1", strGoodDate);
 
                         // 2번옵션명(타입)
                         itemObject.put("uitemOptnTypeNm2", "타입");
                         String strTocode = dto.getStrRmtypeName();
-                        itemObject.put("uitemOptnNm2", strTocode+testDataIdx);
+                        itemObject.put("uitemOptnNm2", strTocode);
 
 
                         // 재고
@@ -258,8 +257,7 @@ public class UpdateService {
                         }
                         itemObject.put("baseInvQty", intOMKStock);
 
-//                        itemObject.put("splVenItemId", dto.getIntIdx());
-                        itemObject.put("splVenItemId", testDataIdx);
+                        itemObject.put("splVenItemId", dto.getIntIdx());
                         itemObject.put("useYn", "Y");
 
                         uitemList.add(itemObject);
@@ -314,23 +312,66 @@ public class UpdateService {
              */
             }else if(strType.equals("stockEach")){ // 개별로 재고 조정 - 코드 어떻게 짤지 아직 미정
 
-                List<Object> uitemList = new ArrayList<>();
+                if(strStockIdx != null){
+                    if(strStockIdx.length() > 0) {
+                        int intStockIdx = Integer.parseInt(strStockIdx);
 
-                JSONObject oneObject = new JSONObject();
-                oneObject.put("uitemId","00002");
-                oneObject.put("sellStatCd","20");
-                oneObject.put("uitemOptnTypeNm1","입실일자");
-                oneObject.put("uitemOptnNm1","10월02일(일)");
-                oneObject.put("uitemOptnTypeNm2","타입");
-                oneObject.put("uitemOptnNm2","24평 한실");
-                oneObject.put("baseInvQty",9);
-                oneObject.put("splVenItemId",2);
-                oneObject.put("useYn","Y");
-                uitemList.add(oneObject);
+                        DateFormat dateElandFormat = new SimpleDateFormat("yyyyMMddHHmmss");
+                        String strElandDate = dateElandFormat.format(new Date());
 
-                JSONObject itemObject = new JSONObject();
-                itemObject.put("uitem", uitemList);
-                updateObject.put("uitems", itemObject);
+                        StockDto dto = commonMapper.getStockInfo(intStockIdx, 7);
+
+                        // uitem
+                        String strUitemId = String.format("%05d", dto.getIntSsgSeq());
+                        // 품절여부
+                        String strSellStatCd = "20";
+                        if (((dto.getStrRmtypeName().contains("2박") == true || dto.getStrRmtypeName().contains(" 연박") == true) & dto.getIntNextStock() == 0) || dto.getIntStock() == 0) {
+                            strSellStatCd = "80";
+                        }
+                        // 1번 옵션(n월n일(요일))
+                        String strDate = dto.getDateSales().trim();
+                        SimpleDateFormat dateDate = new SimpleDateFormat("yyyyMMdd");
+                        Date dateStrDate = dateDate.parse(strDate);
+                        SimpleDateFormat goodDate = new SimpleDateFormat("MM월dd일(E)");
+                        String strGoodDate = goodDate.format(dateStrDate);
+                        // 2번 옵션
+                        String strTocode = dto.getStrRmtypeName();
+                        // 재고
+                        int intOMKStock = dto.getIntStock();
+                        if (((dto.getStrRmtypeName().contains("2박") == true || dto.getStrRmtypeName().contains(" 연박") == true) & dto.getIntNextStock() == 0) || dto.getIntStock() == 0) {
+                            intOMKStock = 0;
+                        }
+
+                        List<Object> uitemList = new ArrayList<>();
+
+                        JSONObject oneObject = new JSONObject();
+                        oneObject.put("uitemId",strUitemId);
+                        oneObject.put("sellStatCd",strSellStatCd);
+                        oneObject.put("uitemOptnTypeNm1","입실일자");
+                        oneObject.put("uitemOptnNm1",strGoodDate);
+                        oneObject.put("uitemOptnTypeNm2","타입");
+                        oneObject.put("uitemOptnNm2",strTocode);
+                        oneObject.put("baseInvQty",intOMKStock);
+                        oneObject.put("splVenItemId",dto.getIntIdx());
+                        oneObject.put("useYn","Y");
+                        uitemList.add(oneObject);
+
+                        JSONObject itemObject = new JSONObject();
+                        itemObject.put("uitem", uitemList);
+                        updateObject.put("uitems", itemObject);
+
+                        message = "개별 재고 수정 완료";
+                        statusCode = "200";
+                    }else{
+                        System.out.println("intStockIdx 없음");
+                        message = "intStockIdx 없음";
+                        statusCode = "500";
+                    }
+                }else{
+                    System.out.println("intStockIdx 없음");
+                    message = "intStockIdx 없음";
+                    statusCode = "500";
+                }
 
             /**
              * 판매 중지

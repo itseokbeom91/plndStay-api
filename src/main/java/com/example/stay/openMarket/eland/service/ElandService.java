@@ -87,7 +87,7 @@ public class ElandService {
                         String strRsvCode = "test";
                         String strProductID = jsonObject.get("goods_no").toString();
 //                    int intAID = elandMapper.getIntAID(strProductID);
-                        int intAID = 10147;
+                        int intAID = 101471;
                         int intItemNo = Integer.parseInt(jsonObject.get("item_no").toString());
                         //Map<String, String> map =  elandMapper.getRmIdxNChechIn(intAID, intItemNo);
                         //int intRmIdx = Integer.parseInt(map.get("intRmIdx").toString());
