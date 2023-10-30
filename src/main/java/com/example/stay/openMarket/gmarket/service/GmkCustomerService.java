@@ -31,7 +31,7 @@ public class GmkCustomerService {
         try{
             JSONObject requestJson = new JSONObject();
             requestJson.put("qnaType", 3); // 3 : G마켓 게시판
-            requestJson.put("status", "1"); // 1 : 전체, 2 : 미처리, 3 : 처리완료, 4 : 처리중, 5 : 중복문의
+            requestJson.put("status", 1); // 1 : 전체, 2 : 미처리, 3 : 처리완료, 4 : 처리중, 5 : 중복문의
             requestJson.put("type", 1); // 조회 기준 구분 1 : 접수일
             requestJson.put("startDate", startDate);
             requestJson.put("endDate", endDate); // 당일 조회시 시작일 +1일로 조회
