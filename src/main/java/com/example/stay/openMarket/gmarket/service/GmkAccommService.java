@@ -857,7 +857,7 @@ public class GmkAccommService {
                         sellerDiscount.put("isUse", false); // true : 할인 적용, false : 할인 미적용
                         addtionalInfo.put("sellerDiscount", sellerDiscount);
 
-                        // 지마켓용 사이트부담 지원할인
+                        // 사이트부담 지원할인
                         JSONObject siteDiscount = new JSONObject();
                         siteDiscount.put("gmkt", true);
                         siteDiscount.put("iac", true);
@@ -1220,7 +1220,15 @@ public class GmkAccommService {
                 detailJson.put("recommendedOptValue1", recommendedOptValue1);
 
                 JSONObject recommendedOptValue2 = new JSONObject();
-                recommendedOptValue2.put("koreanText", stock.getStrRmtypeName()); // 객실타입명
+
+                String strRmtypeName = "";
+                if(stock.getStrPkgName() != null){
+                    strRmtypeName = stock.getStrRmtypeName() + "/" + stock.getStrPkgName();
+                }else{
+                    strRmtypeName = stock.getStrRmtypeName();
+                }
+                recommendedOptValue2.put("koreanText", strRmtypeName); // 객실타입명
+
                 detailJson.put("manageCode", stock.getIntRmIdx());
 
                 detailJson.put("recommendedOptValue2", recommendedOptValue2);
@@ -1736,7 +1744,7 @@ public class GmkAccommService {
         String result = "";
         try{
             String authorization = HmacGenerator.generate("sell");
-            JSONObject resultJson = GmkApi.callGmkApi(Constants.gmkUrl + "item/v1/categories/shop-cats/", "GET", authorization, null);
+            JSONObject resultJson = GmkApi.callGmkApi(Constants.gmkUrl + "item/v1/categories/shop-cats/" + strBrandName, "GET", authorization, null);
 
             if(resultJson.get("resultCode") == null){
                 result = resultJson.toString();
@@ -1761,12 +1769,12 @@ public class GmkAccommService {
             requestJson.put("addr2", "동무마포타워 3층"); // 주소 상세
             requestJson.put("homeTel", "1588-0134");
             requestJson.put("cellPhone", "010-6536-2403");
-            requestJson.put("isVisitAndTakeAddr", "true"); // 기본 방문수령지여부
-            requestJson.put("isReturnAddr", "true"); // 기본 반품배송지 주소여부
+            requestJson.put("isVisitAndTakeAddr", true); // 기본 방문수령지여부
+            requestJson.put("isReturnAddr", true); // 기본 반품배송지 주소여부
             
 
             String authorization = HmacGenerator.generate("sell");
-            JSONObject resultJson = GmkApi.callGmkApi(Constants.gmkUrl + "item/v1/sellers/address", "POST", authorization, null);
+            JSONObject resultJson = GmkApi.callGmkApi(Constants.gmkUrl + "item/v1/sellers/address", "POST", authorization, requestJson);
 
             if(resultJson.get("resultCode") == null){
                 result = "판매자주소록 등록 완료";
@@ -1793,8 +1801,8 @@ public class GmkAccommService {
             requestJson.put("addr2", "동무마포타워 3층"); // 주소 상세
             requestJson.put("homeTel", "1588-0134");
             requestJson.put("cellPhone", "010-6536-2403");
-            requestJson.put("isVisitAndTakeAddr", "true"); // 기본 방문수령지여부
-            requestJson.put("isReturnAddr", "true"); // 기본 반품배송지 주소여부
+            requestJson.put("isVisitAndTakeAddr", true); // 기본 방문수령지여부
+            requestJson.put("isReturnAddr", true); // 기본 반품배송지 주소여부
 
 
             String authorization = HmacGenerator.generate("sell");

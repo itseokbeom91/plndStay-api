@@ -173,14 +173,14 @@ public class AucAccommController {
 
 
 
-    // 지마켓 카테고리 조회
-    @GetMapping("/getGmkCategory")
+    // 옥션 카테고리 조회
+    @GetMapping("/getAucCategory")
     @ResponseBody
-    public String getGmkCategory(){
-        return aucAccommService.getGmkCategory();
+    public String getAucCategory(){
+        return aucAccommService.getAucCategory();
     }
 
-    // 지마켓 카테고리 조회
+    // ESM 카테고리 조회
     @ResponseBody
     @GetMapping("/getEsmCategory")
     public String getEsmCategory(){

@@ -75,7 +75,7 @@ public class AucAccommService {
                     // =============================
                     JSONObject category = new JSONObject();
 
-                    // 지마켓 카테고리 코드
+                    // 옥션 카테고리 코드
                     List<JSONObject> site = new ArrayList<>();
                     JSONObject siteJson = new JSONObject();
                     siteJson.put("siteType", 1); // 1 : 옥션
@@ -428,7 +428,7 @@ public class AucAccommService {
                         sellerDiscount.put("isUse", false); // true : 할인 적용, false : 할인 미적용
                         addtionalInfo.put("sellerDiscount", sellerDiscount);
 
-                        // 지마켓용 사이트부담 지원할인
+                        // 사이트부담 지원할인
                         JSONObject siteDiscount = new JSONObject();
                         siteDiscount.put("gmkt", true);
                         siteDiscount.put("iac", true);
@@ -470,7 +470,7 @@ public class AucAccommService {
                         }else{
                             String resultMsg = resultJson.get("message").toString();
                             logWriter.add(resultMsg);
-                            message = "지마켓 api 호출 실패";
+                            message = "옥션 api 호출 실패";
                         }
 
 
@@ -525,13 +525,13 @@ public class AucAccommService {
                     // =============================
                     JSONObject category = new JSONObject();
 
-                    // 지마켓 카테고리 코드
+                    // 옥션 카테고리 코드
                     List<JSONObject> site = new ArrayList<>();
                     JSONObject siteJson = new JSONObject();
-                    siteJson.put("siteType", 2); // 2 : 지마켓
+                    siteJson.put("siteType", 1); // 1 : 옥션
 
                     Map<String, String> categoryMap = aucMapper.getCategories(intAID);
-                    siteJson.put("catCode", categoryMap.get("strGmkCate3")); // 최하위(Leaf) 카테고리 코드
+                    siteJson.put("catCode", categoryMap.get("strAucCate3")); // 최하위(Leaf) 카테고리 코드
 
                     site.add(siteJson);
                     category.put("site", site);
@@ -671,7 +671,7 @@ public class AucAccommService {
                         // =============================
                         // 배송방법 타입
                         JSONObject shipping = new JSONObject();
-                        shipping.put("type", 1); // 1 : 택배, 2 : 직접배송 (지마켓 단독등록시 1만 가능)
+                        shipping.put("type", 1); // 1 : 택배, 2 : 직접배송 (옥션 단독등록시 1만 가능)
 
                         // 택배사 코드 - 기타
                         shipping.put("companyNo", Constants.gmk_delivery_compnay_code);
@@ -692,7 +692,7 @@ public class AucAccommService {
 
                         // 발송정책번호
                         JSONObject dispatchPolicyNo = new JSONObject();
-                        dispatchPolicyNo.put("iac", Constants.gmk_dispatch_policy_no); // 발송일미정
+                        dispatchPolicyNo.put("iac", Constants.auc_dispatch_policy_no); // 발송일미정
                         shipping.put("dispatchPolicyNo", dispatchPolicyNo);
 
                         shipping.put("backwoodsDeliveryYn", "Y");
@@ -884,7 +884,7 @@ public class AucAccommService {
                         sellerDiscount.put("isUse", false); // true : 할인 적용, false : 할인 미적용
                         addtionalInfo.put("sellerDiscount", sellerDiscount);
 
-                        // 지마켓용 사이트부담 지원할인
+                        // 옥션용 사이트부담 지원할인
                         JSONObject siteDiscount = new JSONObject();
                         siteDiscount.put("gmkt", true);
                         siteDiscount.put("iac", true);
@@ -925,7 +925,7 @@ public class AucAccommService {
                         }else{
                             String resultMsg = resultJson.get("message").toString();
                             logWriter.add(resultMsg);
-                            message = "지마켓 api 호출 실패";
+                            message = "옥션 api 호출 실패";
                         }
                     }
                 }else{
@@ -967,7 +967,7 @@ public class AucAccommService {
             }else{
                 String resultMsg = resultJson.get("message").toString();
                 logWriter.add(resultMsg);
-                message = "지마켓 api 호출 실패";
+                message = "옥션 api 호출 실패";
             }
         }catch (Exception e){
             e.printStackTrace();
@@ -1038,7 +1038,7 @@ public class AucAccommService {
             }else{
                 String resultMsg = resultJson.get("message").toString();
                 logWriter.add(resultMsg);
-                message = "지마켓 api 호출 실패";
+                message = "옥션 api 호출 실패";
             }
 
             logWriter.add(message);
@@ -1081,7 +1081,7 @@ public class AucAccommService {
                 if(resultCode.equals("0")){
                     message = "상품명 수정 완료";
                 }else{
-                    message = "지마켓 api 호출 실패";
+                    message = "옥션 api 호출 실패";
                     String resultMsg = resultJson.get("message").toString();
                     logWriter.add(resultMsg);
                 }
@@ -1138,7 +1138,7 @@ public class AucAccommService {
             if(resultCode.equals("0")){
                 message = "상품 이미지 수정 완료";
             }else{
-                message = "지마켓 api 호출 실패";
+                message = "옥션 api 호출 실패";
                 String resultMsg = resultJson.get("message").toString();
                 logWriter.add(resultMsg);
             }
@@ -1187,7 +1187,7 @@ public class AucAccommService {
             }else{
                 String resultMsg = resultJson.get("message").toString();
                 logWriter.add(resultMsg);
-                message = "지마켓 api 호출 실패";
+                message = "옥션 api 호출 실패";
             }
 
             logWriter.add(message);
@@ -1248,7 +1248,15 @@ public class AucAccommService {
                 detailJson.put("recommendedOptValue1", recommendedOptValue1);
 
                 JSONObject recommendedOptValue2 = new JSONObject();
-                recommendedOptValue2.put("koreanText", stock.getStrRmtypeName()); // 객실타입명
+
+                String strRmtypeName = "";
+                if(stock.getStrPkgName() != null){
+                    strRmtypeName = stock.getStrRmtypeName() + "/" + stock.getStrPkgName();
+                }else{
+                    strRmtypeName = stock.getStrRmtypeName();
+                }
+                recommendedOptValue2.put("koreanText", strRmtypeName); // 객실타입명
+
                 detailJson.put("manageCode", stock.getIntRmIdx());
 
                 detailJson.put("recommendedOptValue2", recommendedOptValue2);
@@ -1289,7 +1297,7 @@ public class AucAccommService {
                 }else{
                     String resultMsg = resultJson.get("message").toString();
                     logWriter.add(resultMsg);
-                    message = "지마켓 api 호출 실패";
+                    message = "옥션 api 호출 실패";
                 }
             }
 
@@ -1326,7 +1334,7 @@ public class AucAccommService {
             }else{
                 String resultMsg = resultJson.get("message").toString();
                 logWriter.add(resultMsg);
-                message = "지마켓 api 호출 실패";
+                message = "옥션 api 호출 실패";
             }
         }catch (Exception e){
             e.printStackTrace();
@@ -1359,7 +1367,7 @@ public class AucAccommService {
             }else{
                 String resultMsg = resultJson.get("message").toString();
                 logWriter.add(resultMsg);
-                message = "지마켓 api 호출 실패";
+                message = "옥션 api 호출 실패";
             }
 
             logWriter.add(message);
@@ -1395,7 +1403,7 @@ public class AucAccommService {
             }else{
                 String resultMsg = resultJson.get("message").toString();
                 logWriter.add(resultMsg);
-                message = "지마켓 api 호출 실패";
+                message = "옥션 api 호출 실패";
             }
 
             logWriter.add(message);
@@ -1425,15 +1433,15 @@ public class AucAccommService {
             JSONObject sellerDiscount = new JSONObject();
             sellerDiscount.put("isUse", false); // 판매자할인 사용여부
 
-            JSONObject gmkt = new JSONObject();
-            gmkt.put("type", 0); // 0 : 사용안함, 1 : 정액, 2 : 정률
+            JSONObject iac = new JSONObject();
+            iac.put("type", 0); // 0 : 사용안함, 1 : 정액, 2 : 정률
 
             // TODO : 판매자할인 어떻게 진행할건지?
-//            gmkt.put("priceOrRate1", ); // 할인액(율), 최소 100원 이상. 10원단위 입력, 판매가대비 70%까지 허용
-//            gmkt.put("priceOrRate2", ); // 권한이 있는 셀러만 사용 가능. 최소 100원 이상, 10원단위 입력, 판매가대비 70%까지 허용
-//            gmkt.put("startDate", ); // 할인 시작일자(YYYY-MM-DD)
-//            gmkt.put("endDate", ); // 할인 종료일자(YYYY-MM-DD)
-            sellerDiscount.put("gmkt", gmkt);
+//            iac.put("priceOrRate1", ); // 할인액(율), 최소 100원 이상. 10원단위 입력, 판매가대비 70%까지 허용
+//            iac.put("priceOrRate2", ); // 권한이 있는 셀러만 사용 가능. 최소 100원 이상, 10원단위 입력, 판매가대비 70%까지 허용
+//            iac.put("startDate", ); // 할인 시작일자(YYYY-MM-DD)
+//            iac.put("endDate", ); // 할인 종료일자(YYYY-MM-DD)
+            sellerDiscount.put("iac", iac);
 
             requestJson.put("sellerDiscount", sellerDiscount);
 
@@ -1446,7 +1454,7 @@ public class AucAccommService {
             }else{
                 String resultMsg = resultJson.get("message").toString();
                 logWriter.add(resultMsg);
-                message = "지마켓 api 호출 실패";
+                message = "옥션 api 호출 실패";
             }
 
             logWriter.add(message);
@@ -1480,7 +1488,7 @@ public class AucAccommService {
             }else{
                 String resultMsg = resultJson.get("message").toString();
                 logWriter.add(resultMsg);
-                message = "지마켓 api 호출 실패";
+                message = "옥션 api 호출 실패";
             }
 
             logWriter.add(message);
@@ -1515,7 +1523,7 @@ public class AucAccommService {
             }else{
                 String resultMsg = resultJson.get("message").toString();
                 logWriter.add(resultMsg);
-                message = "지마켓 api 호출 실패";
+                message = "옥션 api 호출 실패";
             }
 
             logWriter.add(message);
@@ -1550,7 +1558,7 @@ public class AucAccommService {
             }else{
                 String resultMsg = resultJson.get("message").toString();
                 logWriter.add(resultMsg);
-                message = "지마켓 api 호출 실패";
+                message = "옥션 api 호출 실패";
             }
 
             logWriter.add(message);
@@ -1585,7 +1593,7 @@ public class AucAccommService {
             }else{
                 String resultMsg = resultJson.get("message").toString();
                 logWriter.add(resultMsg);
-                message = "지마켓 api 호출 실패";
+                message = "옥션 api 호출 실패";
             }
 
             logWriter.add(message);
@@ -1618,7 +1626,7 @@ public class AucAccommService {
 
 
 
-    // 실시간 가격, 재고 체크(지마켓에서 호출)
+    // 실시간 가격, 재고 체크(옥션에서 호출)
     public String getPriceNStock(HttpServletRequest httpServletRequest){
         LogWriter logWriter = new LogWriter(httpServletRequest.getMethod(), httpServletRequest.getServletPath(),
                 httpServletRequest.getQueryString(), System.currentTimeMillis());
@@ -1687,8 +1695,8 @@ public class AucAccommService {
     //==================================================================================================================
 
 
-    // 지마켓 카테고리조회
-    public String getGmkCategory(){
+    // 옥션 카테고리조회
+    public String getAucCategory(){
         String result = "";
         try{
             String authorization = HmacGenerator.generate("sell");
@@ -1705,7 +1713,7 @@ public class AucAccommService {
         return result;
     }
 
-    // 지마켓 카테고리조회
+    // ESM 카테고리조회
     public String getEsmCategory(){
         String result = "";
         try{
@@ -1764,7 +1772,7 @@ public class AucAccommService {
         String result = "";
         try{
             String authorization = HmacGenerator.generate("sell");
-            JSONObject resultJson = AuctionApi.callAucApi(Constants.gmkUrl + "item/v1/categories/shop-cats/", "GET", authorization, null);
+            JSONObject resultJson = AuctionApi.callAucApi(Constants.gmkUrl + "item/v1/categories/shop-cats/" + strBrandName, "GET", authorization, null);
 
             if(resultJson.get("resultCode") == null){
                 result = resultJson.toString();
@@ -1789,12 +1797,12 @@ public class AucAccommService {
             requestJson.put("addr2", "동무마포타워 3층"); // 주소 상세
             requestJson.put("homeTel", "1588-0134");
             requestJson.put("cellPhone", "010-6536-2403");
-            requestJson.put("isVisitAndTakeAddr", "true"); // 기본 방문수령지여부
-            requestJson.put("isReturnAddr", "true"); // 기본 반품배송지 주소여부
+            requestJson.put("isVisitAndTakeAddr", true); // 기본 방문수령지여부
+            requestJson.put("isReturnAddr", true); // 기본 반품배송지 주소여부
 
 
             String authorization = HmacGenerator.generate("sell");
-            JSONObject resultJson = AuctionApi.callAucApi(Constants.gmkUrl + "item/v1/sellers/address", "POST", authorization, null);
+            JSONObject resultJson = AuctionApi.callAucApi(Constants.gmkUrl + "item/v1/sellers/address", "POST", authorization, requestJson);
 
             if(resultJson.get("resultCode") == null){
                 result = "판매자주소록 등록 완료";
@@ -1883,7 +1891,7 @@ public class AucAccommService {
         try{
             // api 호출
             String authorization = HmacGenerator.generate("sell");
-            JSONObject resultJson = AuctionApi.callAucApi(Constants.gmkUrl + "item/v1/options/recommended-opts?catCode=300023931" , "GET", authorization, null);
+            JSONObject resultJson = AuctionApi.callAucApi(Constants.gmkUrl + "item/v1/options/recommended-opts?catCode=24010102" , "GET", authorization, null);
 
             if(resultJson.get("resultCode") == null){
                 result = resultJson.toString();
