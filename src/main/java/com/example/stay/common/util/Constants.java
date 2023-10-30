@@ -157,15 +157,19 @@ public class Constants {
     public static final String elevenUrl = "https://api.11st.co.kr";
 
     // ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-    // ┃ 지마켓
+    // ┃ 지마켓 & 옥션
     // ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-    public static final String gmk_secret_key = "BtqV+nlQ2EisJBB0BGNULA==";
+    public static final String gmk_secret_key = "BtqV+nlQ2EisJBB0BGNULA=="; // 일반배송상품 지마켓, 옥션 시크릿키
     public static final String gmkEsmMasterID = "condo24";
-    public static final String gmkUrl = "https://sa2.esmplus.com/";
+    public static final String gmkUrl = "https://sa2.esmplus.com/"; // 일반배송상품 지마켓, 옥션 시크릿키
     public static final int intGmkOmkIdx = 5;
+    public static final int intGmkConnID = 34;
     public static final int gmk_delivery_compnay_code = 10070; // 택배사 코드 - 기타
     public static final int gmk_dispatch_policy_no = 85888; // 발송정책번호 - 미정
     public static final int gmk_official_notice = 27; // 상품정보고시 상품군코드 - 호텔/펜션 예약
     public static final int gmk_shipping_place = 716363; // 출하지번호 - 본점
     public static final int gmk_seller_AddrNo = 1113012; // 출하지번호 - 본점
+
+    public static final int intAucOmkIdx = 6;
+    public static final int intAucConnID = 35;
 }

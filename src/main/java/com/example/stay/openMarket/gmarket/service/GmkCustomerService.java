@@ -38,7 +38,7 @@ public class GmkCustomerService {
             requestJson.put("endDate", endDate); // 당일 조회시 시작일 +1일로 조회
 
             // api 호출
-            String authorization = HmacGenerater.generate("sell", "G");
+            String authorization = HmacGenerater.generate("sell");
             JSONArray resultJsonArr = GmkApi.callGmkArrApi(Constants.gmkUrl + "item/v1/communications/customer/bulletin-board", "POST", authorization, requestJson);
 
             for(Object arr : resultJsonArr){
@@ -85,7 +85,7 @@ public class GmkCustomerService {
 //            requestJson.put("Comments", ); // 답변 내용
 
             // api 호출
-            String authorization = HmacGenerater.generate("sell", "G");
+            String authorization = HmacGenerater.generate("sell");
             JSONObject resultJson = GmkApi.callGmkApi(Constants.gmkUrl + "item/v1/communications/customer/bulletin-board/qna", "POST", authorization, requestJson);
 
             if(resultJson.get("resultCode").toString() == null) {
@@ -125,7 +125,7 @@ public class GmkCustomerService {
             requestJson.put("endDate", endDate);
 
             // api 호출
-            String authorization = HmacGenerater.generate("sell", "G");
+            String authorization = HmacGenerater.generate("sell");
             JSONObject resultJson = GmkApi.callGmkApi(Constants.gmkUrl + "assist/v1/Selling/GetEmergencyInformList", "POST", authorization, requestJson);
 
             String code = resultJson.get("ResultCode").toString();
@@ -169,7 +169,7 @@ public class GmkCustomerService {
 //            requestJson.put("Comments", ); // 답변 제목
 
             // api 호출
-            String authorization = HmacGenerater.generate("sell", "G");
+            String authorization = HmacGenerater.generate("sell");
             JSONObject resultJson = GmkApi.callGmkApi(Constants.gmkUrl + "assist/v1/Selling/AddEmergencyInformReply", "POST", authorization, requestJson);
 
             String code = resultJson.get("ResultCode").toString();
@@ -219,7 +219,7 @@ public class GmkCustomerService {
             requestJson.put("EndDate", endDate);
 
             // api 호출
-            String authorization = HmacGenerater.generate("sell", "G");
+            String authorization = HmacGenerater.generate("sell");
             JSONArray resultJsonArr = GmkApi.callGmkArrApi(Constants.gmkUrl + "item/v1/communications/notices", "POST", authorization, requestJson);
 
             for(Object arr : resultJsonArr){
