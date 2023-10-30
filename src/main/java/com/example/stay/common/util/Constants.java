@@ -172,4 +172,6 @@ public class Constants {
 
     public static final int intAucOmkIdx = 6;
     public static final int intAucConnID = 35;
+    public static final int auc_dispatch_policy_no = 86154; // 발송정책번호 - 미정
+
 }
