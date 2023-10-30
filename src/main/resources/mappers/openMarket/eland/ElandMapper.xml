@@ -77,8 +77,20 @@
         SELECT intRmIdx FROM STOCK_REAL WITH(NOLOCK) WHERE	intAID = ${intAID} AND intElandSeq = ${intItemNo}
     </select>
 
+    <select id="getRmIdxNChechIn" resultType="map">
+        SELECT SR.intRmIdx, SR.dateSales FROM STOCK_REAL SR WITH(NOLOCK)
+        INNER JOIN STOCK_OMK SO WITH(NOLOCK) ON SR.intIdx = SO.intStockIdx
+        WHERE SR.intAID = ${intAID}
+          AND SO.intOMKIdx = 9
+          AND SR.intElandSeq = ${intItemNo}
+    </select>
+
     <select id="createBooking" resultType="String">
-        EXEC spOMK_RSV_REGIST ${intSeller}, #{strRsvCode}, ${intAID}, ${intRmIdx}, ${intRmCnt}, #{strCheckIn}, #{strCheckOut}, #{strRmtypeName}, '', #{strOrdName}, #{strOrdPhone}, '', #{strRcvName}, #{strRcvPhone}, '','', '', '127.0.0.1', #{strRemark}, #{strOrderCode}, ${intOrderSeq}, '0', #{strProductID}, #{strOrderPackage}, ''
+        EXEC spOMK_RSV_REGIST ${intSeller}, #{strRsvCode}, ${intAID}, ${intRmIdx}, ${intRmCnt}, #{strCheckIn}, #{strCheckOut}, #{strRmtypeName}, '', #{strOrdName}, #{strOrdPhone}, '', #{strRcvName}, #{strRcvPhone}, '','', '', '211.242.129.51', #{strRemark}, #{strOrderCode}, ${intOrderSeq}, '0', #{strProductID}, #{strOrderPackage}, ''
+    </select>
+
+    <select id="getDeliInfo" resultType="map">
+        SELECT strOrderPackage, intOrderSeq FROM RSV_STAY_OMK WITH(NOLOCK) WHERE intRsvID = ${intRsvID}
     </select>
 
 

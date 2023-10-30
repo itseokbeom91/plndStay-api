@@ -1,11 +1,11 @@
-package com.example.stay.openMarket.gmarket.service;
+package com.example.stay.openMarket.auction.service;
 
 import com.example.stay.common.util.CommonFunction;
 import com.example.stay.common.util.Constants;
 import com.example.stay.common.util.LogWriter;
-import com.example.stay.openMarket.gmarket.GmkUtil.GmkApi;
-import com.example.stay.openMarket.gmarket.GmkUtil.HmacGenerator;
-import com.example.stay.openMarket.gmarket.mapper.GmkMapper;
+import com.example.stay.openMarket.auction.aucUtil.AuctionApi;
+import com.example.stay.openMarket.auction.mapper.AucMapper;
+import com.example.stay.openMarket.auction.aucUtil.HmacGenerator;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,11 +16,10 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 @Service
-public class GmkBookingService {
-
+public class AucBookingService {
     @Autowired
-    private GmkMapper gmkMapper;
-
+    private AucMapper aucMapper;
+    
     CommonFunction commonFunction = new CommonFunction();
 
     // 결제 완료된 주문 데이터 조회 - 클레임(취소, 반품, 교환, 미수령신고) 주문은 조회 X
@@ -32,7 +31,7 @@ public class GmkBookingService {
 
         try{
             JSONObject requestJson = new JSONObject();
-            requestJson.put("siteType", 2); // 1: 옥션, 2 : 지마켓
+            requestJson.put("siteType", 1); // 1: 옥션
             requestJson.put("orderStatus", 4); // 1 : 결제완료(주문 확인 전)
             requestJson.put("requestDateType", 5); // 조회 기준 구분 1 : 주문일
             requestJson.put("requestDateFrom", startDate);
@@ -40,7 +39,7 @@ public class GmkBookingService {
 
             // api 호출
             String authorization = HmacGenerator.generate("sell");
-            JSONObject resultJson = GmkApi.callGmkApi(Constants.gmkUrl + "shipping/v1/Order/RequestOrders", "POST", authorization, requestJson);
+            JSONObject resultJson = AuctionApi.callAucApi(Constants.gmkUrl + "shipping/v1/Order/RequestOrders", "POST", authorization, requestJson);
             String code = resultJson.get("ResultCode").toString();
             if(code.equals("0")) {
                 SimpleDateFormat sdf = new SimpleDateFormat("yy년MM월dd일");
@@ -195,7 +194,7 @@ public class GmkBookingService {
 
         try{
             JSONObject requestJson = new JSONObject();
-            requestJson.put("SiteType", 3);
+            requestJson.put("SiteType", 1);
             requestJson.put("CancelStatus", 0); // 0 : 전체
             requestJson.put("Type", 2); // 조회기준 구분 - 2: 취소신청일
             requestJson.put("StartDate", startDate);
@@ -203,7 +202,7 @@ public class GmkBookingService {
 
             // api 호출
             String authorization = HmacGenerator.generate("sell");
-            JSONObject resultJson = GmkApi.callGmkApi(Constants.gmkUrl + "claim/v1/sa/Cancels", "POST", authorization, requestJson);
+            JSONObject resultJson = AuctionApi.callAucApi(Constants.gmkUrl + "claim/v1/sa/Cancels", "POST", authorization, requestJson);
 
             String code = resultJson.get("ResultCode").toString();
             if(code.equals("0")) {
@@ -283,7 +282,7 @@ public class GmkBookingService {
 
             // api 호출
             String authorization = HmacGenerator.generate("sell");
-            JSONObject resultJson = GmkApi.callGmkApi(Constants.gmkUrl + "shipping/v1/Order/OrderCheck/" + strOrderNo, "POST", authorization, null);
+            JSONObject resultJson = AuctionApi.callAucApi(Constants.gmkUrl + "shipping/v1/Order/OrderCheck/" + strOrderNo, "POST", authorization, null);
 
             String code = resultJson.get("ResultCode").toString();
             if(code.equals("0")) {
@@ -328,7 +327,7 @@ public class GmkBookingService {
 
             // api 호출
             String authorization = HmacGenerator.generate("sell");
-            JSONObject resultJson = GmkApi.callGmkApi(Constants.gmkUrl + "shipping/v1/Delivery/ShippingInfo", "POST", authorization, requestJson);
+            JSONObject resultJson = AuctionApi.callAucApi(Constants.gmkUrl + "shipping/v1/Delivery/ShippingInfo", "POST", authorization, requestJson);
 
             String code = resultJson.get("ResultCode").toString();
             if(code.equals("0")) {
@@ -362,7 +361,7 @@ public class GmkBookingService {
 
             // api 호출
             String authorization = HmacGenerator.generate("sell");
-            JSONObject resultJson = GmkApi.callGmkApi(Constants.gmkUrl + "shipping/v1/Delivery/AddShippingCompleteInfo/" + strOrderNo, "POST", authorization, null);
+            JSONObject resultJson = AuctionApi.callAucApi(Constants.gmkUrl + "shipping/v1/Delivery/AddShippingCompleteInfo/" + strOrderNo, "POST", authorization, null);
 
             String code = resultJson.get("ResultCode").toString();
             if(code.equals("0")) {
@@ -401,7 +400,7 @@ public class GmkBookingService {
 
             // api 호출
             String authorization = HmacGenerator.generate("sell");
-            JSONObject resultJson = GmkApi.callGmkApi(Constants.gmkUrl + "shipping/v1/Delivery/GetDeliveryStatus", "POST", authorization, requestJson);
+            JSONObject resultJson = AuctionApi.callAucApi(Constants.gmkUrl + "shipping/v1/Delivery/GetDeliveryStatus", "POST", authorization, requestJson);
 
             String code = resultJson.get("ResultCode").toString();
             if(code.equals("0")) {
@@ -448,7 +447,7 @@ public class GmkBookingService {
 
                 // api 호출
                 String authorization = HmacGenerator.generate("sell");
-                JSONObject resultJson = GmkApi.callGmkApi(Constants.gmkUrl + "shipping/v1/Delivery/ClaimRelease", "POST", authorization, requestJson);
+                JSONObject resultJson = AuctionApi.callAucApi(Constants.gmkUrl + "shipping/v1/Delivery/ClaimRelease", "POST", authorization, requestJson);
 
                 String code = resultJson.get("ResultCode").toString();
                 if(code.equals("0")) {
@@ -486,7 +485,7 @@ public class GmkBookingService {
 
             // api 호출
             String authorization = HmacGenerator.generate("sell");
-            JSONObject resultJson = GmkApi.callGmkApi(Constants.gmkUrl + "claim/v1/sa/Cancel/" + strOrderNo, "PUT", authorization, requestJson);
+            JSONObject resultJson = AuctionApi.callAucApi(Constants.gmkUrl + "claim/v1/sa/Cancel/" + strOrderNo, "PUT", authorization, requestJson);
 
             String code = resultJson.get("ResultCode").toString();
             if(code.equals("0")) {
@@ -520,11 +519,11 @@ public class GmkBookingService {
             String strOrderNo = "";
 
             JSONObject requestJson = new JSONObject();
-            requestJson.put("SiteType", 2);
+            requestJson.put("SiteType", 1);
 
             // api 호출
             String authorization = HmacGenerator.generate("sell");
-            JSONObject resultJson = GmkApi.callGmkApi(Constants.gmkUrl + "claim/v1/sa/Cancel/" + strOrderNo + "/SoldOut", "POST", authorization, requestJson);
+            JSONObject resultJson = AuctionApi.callAucApi(Constants.gmkUrl + "claim/v1/sa/Cancel/" + strOrderNo + "/SoldOut", "POST", authorization, requestJson);
 
             String code = resultJson.get("ResultCode").toString();
             if(code.equals("0")) {
@@ -556,7 +555,7 @@ public class GmkBookingService {
         JSONArray resultArr = new JSONArray();
         try{
             JSONObject requestJson = new JSONObject();
-            requestJson.put("SiteType", 3);
+            requestJson.put("SiteType", 1);
             requestJson.put("ReturnStatus", 1); // 1 : 반품요청
             requestJson.put("Type", 2); // 조회기준 구분 2 : 반품 신청일
             requestJson.put("StartDate", startDate);
@@ -564,7 +563,7 @@ public class GmkBookingService {
 
             // api 호출
             String authorization = HmacGenerator.generate("sell");
-            JSONObject resultJson = GmkApi.callGmkApi(Constants.gmkUrl + "claim/v1/sa/Returns", "POST", authorization, requestJson);
+            JSONObject resultJson = AuctionApi.callAucApi(Constants.gmkUrl + "claim/v1/sa/Returns", "POST", authorization, requestJson);
 
             String code = resultJson.get("ResultCode").toString();
             if(code.equals("0")) {
@@ -604,11 +603,11 @@ public class GmkBookingService {
             String strOrderNo = "";
 
             JSONObject requestJson = new JSONObject();
-            requestJson.put("SiteType", 2);
+            requestJson.put("SiteType", 1);
 
             // api 호출
             String authorization = HmacGenerator.generate("sell");
-            JSONObject resultJson = GmkApi.callGmkApi(Constants.gmkUrl + "claim/v1/sa/return/" + strOrderNo, "PUT", authorization, requestJson);
+            JSONObject resultJson = AuctionApi.callAucApi(Constants.gmkUrl + "claim/v1/sa/return/" + strOrderNo, "PUT", authorization, requestJson);
 
             String code = resultJson.get("ResultCode").toString();
             if(code.equals("0")) {
@@ -642,11 +641,11 @@ public class GmkBookingService {
             JSONObject requestJson = new JSONObject();
             requestJson.put("OrderNo", strOrderNo);
             requestJson.put("HoldReason", 0); // 보류 사유 - 0 : 기타유보사유
-            requestJson.put("SiteType", 2);
+            requestJson.put("SiteType", 1);
 
             // api 호출
             String authorization = HmacGenerator.generate("sell");
-            JSONObject resultJson = GmkApi.callGmkApi(Constants.gmkUrl + "claim/v1/sa/return/" + strOrderNo + "/hold", "POST", authorization, requestJson);
+            JSONObject resultJson = AuctionApi.callAucApi(Constants.gmkUrl + "claim/v1/sa/return/" + strOrderNo + "/hold", "POST", authorization, requestJson);
 
             String code = resultJson.get("ResultCode").toString();
             if(code.equals("0")) {
@@ -681,7 +680,7 @@ public class GmkBookingService {
             endDate = sdf.format(sdf.parse(endDate));
 
             JSONObject requestJson = new JSONObject();
-            requestJson.put("siteType", "G");
+            requestJson.put("siteType", "A");
             // D1 : 입금확인일(정상), D2 : 배송일(정상), D3 : 배송완료일(정상), D4 : 구매결정일(정상), D5 : 정산예정일, D6 : 송금일(당일데이터는 영업일 기준 D+1일 조회가능), D7 : 환불일(환불), D8 : 입금확인일+환불일, D9 : 배송완료일 + 배송완료일 있는 환불일
             requestJson.put("SrchType", "D2");
             requestJson.put("SrchStartDate", startDate);
@@ -691,7 +690,7 @@ public class GmkBookingService {
 
             // api 호출
             String authorization = HmacGenerator.generate("sell");
-            JSONObject resultJson = GmkApi.callGmkApi(Constants.gmkUrl + "account/v1/settle/getsettleorder", "POST", authorization, requestJson);
+            JSONObject resultJson = AuctionApi.callAucApi(Constants.gmkUrl + "account/v1/settle/getsettleorder", "POST", authorization, requestJson);
 
             String code = resultJson.get("ResultCode").toString();
             if(code.equals("0")) {
@@ -734,13 +733,13 @@ public class GmkBookingService {
 
         try{
             JSONObject requestJson = new JSONObject();
-            requestJson.put("SiteType", 2);
+            requestJson.put("SiteType", 1);
             requestJson.put("requestDateFrom", startDate);
             requestJson.put("requestDateTo", endDate);
 
             // api 호출
             String authorization = HmacGenerator.generate("sell");
-            JSONObject resultJson = GmkApi.callGmkApi(Constants.gmkUrl + "shipping/v1/Order/PreRequestOrders", "POST", authorization, requestJson);
+            JSONObject resultJson = AuctionApi.callAucApi(Constants.gmkUrl + "shipping/v1/Order/PreRequestOrders", "POST", authorization, requestJson);
 
             String code = resultJson.get("ResultCode").toString();
             if(code.equals("0")) {
@@ -778,7 +777,7 @@ public class GmkBookingService {
 
             // api 호출
             String authorization = HmacGenerator.generate("sell");
-            JSONObject resultJson = GmkApi.callGmkApi(Constants.gmkUrl + "shipping/v1/Delivery/Progress", "POST", authorization, requestJson);
+            JSONObject resultJson = AuctionApi.callAucApi(Constants.gmkUrl + "shipping/v1/Delivery/Progress", "POST", authorization, requestJson);
 
             String code = resultJson.get("ResultCode").toString();
             if(code.equals("0")) {
@@ -823,7 +822,7 @@ public class GmkBookingService {
 
             // api 호출
             String authorization = HmacGenerator.generate("sell");
-            JSONObject resultJson = GmkApi.callGmkApi(Constants.gmkUrl + "shipping/v1/Delivery/ClaimList", "POST", authorization, requestJson);
+            JSONObject resultJson = AuctionApi.callAucApi(Constants.gmkUrl + "shipping/v1/Delivery/ClaimList", "POST", authorization, requestJson);
 
             String code = resultJson.get("ResultCode").toString();
             if(code.equals("0")) {
@@ -853,7 +852,4 @@ public class GmkBookingService {
 
         return commonFunction.makeReturn(dataType, statusCode, message, resultArr);
     }
-
-
-
 }

@@ -1,10 +1,10 @@
-package com.example.stay.openMarket.gmarket.service;
+package com.example.stay.openMarket.auction.service;
 
 import com.example.stay.common.util.CommonFunction;
 import com.example.stay.common.util.Constants;
 import com.example.stay.common.util.LogWriter;
-import com.example.stay.openMarket.gmarket.GmkUtil.GmkApi;
-import com.example.stay.openMarket.gmarket.GmkUtil.HmacGenerator;
+import com.example.stay.openMarket.auction.aucUtil.AuctionApi;
+import com.example.stay.openMarket.auction.aucUtil.HmacGenerator;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -15,7 +15,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 @Service
-public class GmkCustomerService {
+public class AucCustomerService {
 
     CommonFunction commonFunction = new CommonFunction();
 
@@ -30,7 +30,7 @@ public class GmkCustomerService {
         JSONArray resultArr = new JSONArray();
         try{
             JSONObject requestJson = new JSONObject();
-            requestJson.put("qnaType", 3); // 3 : G마켓 게시판
+            requestJson.put("qnaType", 1); // 1 : 옥션 게시판
             requestJson.put("status", 1); // 1 : 전체, 2 : 미처리, 3 : 처리완료, 4 : 처리중, 5 : 중복문의
             requestJson.put("type", 1); // 조회 기준 구분 1 : 접수일
             requestJson.put("startDate", startDate);
@@ -38,7 +38,7 @@ public class GmkCustomerService {
 
             // api 호출
             String authorization = HmacGenerator.generate("sell");
-            JSONArray resultJsonArr = GmkApi.callGmkArrApi(Constants.gmkUrl + "item/v1/communications/customer/bulletin-board", "POST", authorization, requestJson);
+            JSONArray resultJsonArr = AuctionApi.callAucArrApi(Constants.gmkUrl + "item/v1/communications/customer/bulletin-board", "POST", authorization, requestJson);
 
             for(Object arr : resultJsonArr){
                 JSONObject resultJson = (JSONObject) arr;
@@ -49,7 +49,7 @@ public class GmkCustomerService {
                     if(resultJson.get("resultCode").toString().equals("1000")){
                         message = resultJson.get("message").toString();
                     }else{
-                        message = "지마켓 api 호출 실패";
+                        message = "옥션 api 호출 실패";
                     }
                 }
             }
@@ -85,13 +85,13 @@ public class GmkCustomerService {
 
             // api 호출
             String authorization = HmacGenerator.generate("sell");
-            JSONObject resultJson = GmkApi.callGmkApi(Constants.gmkUrl + "item/v1/communications/customer/bulletin-board/qna", "POST", authorization, requestJson);
+            JSONObject resultJson = AuctionApi.callAucApi(Constants.gmkUrl + "item/v1/communications/customer/bulletin-board/qna", "POST", authorization, requestJson);
 
             if(resultJson.get("resultCode").toString() == null) {
                 message = "판매자문의 답변 완료";
 
             }else{
-                message = "지마켓 api 호출 실패";
+                message = "옥션 api 호출 실패";
                 logWriter.add(resultJson.get("message").toString());
             }
             logWriter.add(message);
@@ -125,7 +125,7 @@ public class GmkCustomerService {
 
             // api 호출
             String authorization = HmacGenerator.generate("sell");
-            JSONObject resultJson = GmkApi.callGmkApi(Constants.gmkUrl + "assist/v1/Selling/GetEmergencyInformList", "POST", authorization, requestJson);
+            JSONObject resultJson = AuctionApi.callAucApi(Constants.gmkUrl + "assist/v1/Selling/GetEmergencyInformList", "POST", authorization, requestJson);
 
             String code = resultJson.get("ResultCode").toString();
             String resultMsg = resultJson.get("Message").toString();
@@ -137,7 +137,7 @@ public class GmkCustomerService {
                     message = "긴급알리미 조회 완료";
                 }
             }else{
-                message = "지마켓 api 호출 실패";
+                message = "옥션 api 호출 실패";
                 logWriter.add(resultMsg);
             }
             logWriter.add(message);
@@ -169,7 +169,7 @@ public class GmkCustomerService {
 
             // api 호출
             String authorization = HmacGenerator.generate("sell");
-            JSONObject resultJson = GmkApi.callGmkApi(Constants.gmkUrl + "assist/v1/Selling/AddEmergencyInformReply", "POST", authorization, requestJson);
+            JSONObject resultJson = AuctionApi.callAucApi(Constants.gmkUrl + "assist/v1/Selling/AddEmergencyInformReply", "POST", authorization, requestJson);
 
             String code = resultJson.get("ResultCode").toString();
 
@@ -177,7 +177,7 @@ public class GmkCustomerService {
                 message = "긴급알리미 답변 완료";
 
             }else{
-                message = "지마켓 api 호출 실패";
+                message = "옥션 api 호출 실패";
                 logWriter.add(resultJson.get("message").toString());
             }
             logWriter.add(message);
@@ -204,7 +204,7 @@ public class GmkCustomerService {
         JSONArray resultArr = new JSONArray();
         try{
             JSONObject requestJson = new JSONObject();
-            requestJson.put("SiteType", 3); // 1 : ESM+(전체), 2 : dhrtus, 3 : 지마켓
+            requestJson.put("SiteType", 2); // 1 : ESM+(전체), 2 : 옥션, 3 : 지마켓
 
             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
             Date dateStart = sdf.parse(startDate);
@@ -219,7 +219,7 @@ public class GmkCustomerService {
 
             // api 호출
             String authorization = HmacGenerator.generate("sell");
-            JSONArray resultJsonArr = GmkApi.callGmkArrApi(Constants.gmkUrl + "item/v1/communications/notices", "POST", authorization, requestJson);
+            JSONArray resultJsonArr = AuctionApi.callAucArrApi(Constants.gmkUrl + "item/v1/communications/notices", "POST", authorization, requestJson);
 
             for(Object arr : resultJsonArr){
                 JSONObject resultJson = (JSONObject) arr;
@@ -231,7 +231,7 @@ public class GmkCustomerService {
                     if(resultJson.get("resultCode").toString().equals("1000")){
                         message = "조회된 기간에 공지사항이 없습니다";
                     }else{
-                        message = "지마켓 api 호출 실패";
+                        message = "옥션 api 호출 실패";
                     }
                 }
             }
@@ -248,7 +248,4 @@ public class GmkCustomerService {
 
         return commonFunction.makeReturn(dataType, statusCode, message, resultArr);
     }
-
-
-
 }

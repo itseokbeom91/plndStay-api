@@ -1,5 +1,10 @@
 package com.example.stay.openMarket.common.service;
 
+import com.example.stay.common.util.Constants;
+import com.example.stay.openMarket.common.dto.AccommDto;
+import com.example.stay.openMarket.common.dto.RoomTypeDto;
+import com.example.stay.openMarket.common.dto.StockDto;
+import com.example.stay.openMarket.common.dto.ToconDto;
 import com.example.stay.accommodation.hanwha.service.HanwhaService;
 import com.example.stay.accommodation.kumho.service.SpavisService;
 import com.example.stay.accommodation.sono.service.BookingService;
@@ -79,9 +84,9 @@ public class CommonService {
     }
 
     // 재고 최소값 가져오기
-    public int getMinPrice(int intAID, String strDate){
+    public int getMinPrice(int intAID, String strDate, int intOmkIdx){
 
-        int intMinPrice = commonMapper.getMinPrice(intAID, strDate);
+        int intMinPrice = commonMapper.getMinPrice(intAID, strDate, intOmkIdx);
 
         return intMinPrice;
     }
@@ -347,7 +352,7 @@ public class CommonService {
                 //시설사 예약
                 createBookingAccomm(intRsvID, typeFlag.get("strCateCode").toString(), httpServletRequest);
             }
-            
+
         } else if (rsvState.equals("5")) {
             if(!typeFlag.containsKey("strCateCode")){
                 //공급사 예약
@@ -356,7 +361,7 @@ public class CommonService {
                 //시설사 예약
                 cancelBookingAccomm(intRsvID, typeFlag.get("strCateCode").toString(), httpServletRequest);
             }
-            
+
         }
 
 

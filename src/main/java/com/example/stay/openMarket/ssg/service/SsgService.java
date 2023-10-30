@@ -14,6 +14,7 @@ import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.Date;
+import java.util.Map;
 import java.util.Objects;
 
 @Service
@@ -91,12 +92,14 @@ public class SsgService {
 //                        int intAID = ssgMapper.getIntAID(strProductID);
                         int intAID = 10147;
                         int intStockIdx = Integer.parseInt(jsonObject.get("uSplVenItemId").toString());
-//                        int intRmIdx = ssgMapper.getIntRmIdx(intStockIdx);
+                        //Map<String, String> map = ssgMapper.getRmIdxNChechIn(intStockIdx);
+                        //int intRmIdx = Integer.parseInt(map.get("intRmIdx").toString());
                         int intRmIdx = 15302;
                         int intRmCnt = Integer.parseInt(jsonObject.get("ordQty").toString());
                         String strItemName = jsonObject.get("uitemNm").toString();
 
                         // 체크인, 체크아웃
+                        //String strCheckIn = map.get("dateSales").toString();
                         String strCheckIn = ssgMapper.getCheckIn(intStockIdx);
                         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
                         LocalDate localDate = LocalDate.parse(strCheckIn, formatter);
