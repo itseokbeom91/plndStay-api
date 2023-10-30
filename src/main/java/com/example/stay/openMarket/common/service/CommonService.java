@@ -1,6 +1,7 @@
 package com.example.stay.openMarket.common.service;
 
 import com.example.stay.common.util.Constants;
+import com.example.stay.common.util.MailService;
 import com.example.stay.openMarket.common.dto.AccommDto;
 import com.example.stay.openMarket.common.dto.RoomTypeDto;
 import com.example.stay.openMarket.common.dto.StockDto;
@@ -9,7 +10,6 @@ import com.example.stay.accommodation.hanwha.service.HanwhaService;
 import com.example.stay.accommodation.kumho.service.SpavisService;
 import com.example.stay.accommodation.sono.service.BookingService;
 import com.example.stay.accommodation.yongpyong_beache.service.YPBService;
-import com.example.stay.common.util.MailService;
 import com.example.stay.openMarket.common.dto.*;
 import com.example.stay.openMarket.common.mapper.CommonMapper;
 import org.json.simple.JSONObject;
