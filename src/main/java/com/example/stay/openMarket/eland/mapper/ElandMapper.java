@@ -4,6 +4,8 @@ import com.example.stay.openMarket.common.dto.AccommDto;
 import com.example.stay.openMarket.common.dto.CondoDto;
 import org.springframework.stereotype.Repository;
 
+import java.util.Map;
+
 @Repository
 public interface ElandMapper {
 
@@ -44,7 +46,13 @@ public interface ElandMapper {
     // itme_no로 intRmIdx 가져오기
     int getIntRmIdx(int intAID, int intItemNo);
 
+    // intRmIdx, 체크인날짜 가져오기
+    Map<String, String> getRmIdxNChechIn(int intAID, int intItemNo);
+
     // 예약 등록하기
     String createBooking(int intSeller, String strRsvCode, int intAID, int  intRmIdx, int  intRmCnt, String strCheckIn, String strCheckOut, String strRmtypeName, String strOrdName, String strOrdPhone, String strRcvName, String strRcvPhone, String strRemark, String strOrderCode, int intOrderSeq, String strProductID, String strOrderPackage);
+
+    // 배송번호, 배송순번 가져오기
+    Map<String, String> getDeliInfo(int intRsvID);
 
 }

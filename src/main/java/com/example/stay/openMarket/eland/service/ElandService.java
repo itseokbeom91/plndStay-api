@@ -89,12 +89,14 @@ public class ElandService {
 //                    int intAID = elandMapper.getIntAID(strProductID);
                         int intAID = 10147;
                         int intItemNo = Integer.parseInt(jsonObject.get("item_no").toString());
-//                    int intRmIdx = elandMapper.getIntRmIdx(intAID, intItemNo);
+                        //Map<String, String> map =  elandMapper.getRmIdxNChechIn(intAID, intItemNo);
+                        //int intRmIdx = Integer.parseInt(map.get("intRmIdx").toString());
                         int intRmIdx = 15302;
                         int intRmCnt = Integer.parseInt(jsonObject.get("indi_qty").toString());
                         String strItemName = jsonObject.get("item_nm").toString();
 
                         // 체크인, 체크아웃
+                        //String strCheckIn = map.get("dateSales").toString();
                         String strCheckIn = strItemName.split("/")[0];
                         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
                         LocalDate localDate = LocalDate.parse(strCheckIn, formatter);
@@ -111,7 +113,7 @@ public class ElandService {
                         int intOrderSeq = Integer.parseInt(jsonObject.get("deli_seq").toString());
                         String strOrderPackage = jsonObject.get("deli_no").toString();
 
-                        //result = elandMapper.createBooking(43,strRsvCode,intAID, intRmIdx, intRmCnt,strCheckIn,strCheckOut,strRmtypeName,strOrdName,strOrdPhone,strRcvName,strRcvPhone,strRemark,strOrderCode,intOrderSeq,strProductID,strOrderPackage);
+                        result = elandMapper.createBooking(43,strRsvCode,intAID, intRmIdx, intRmCnt,strCheckIn,strCheckOut,strRmtypeName,strOrdName,strOrdPhone,strRcvName,strRcvPhone,strRemark,strOrderCode,intOrderSeq,strProductID,strOrderPackage);
                         System.out.println(result);
 
 
@@ -134,6 +136,98 @@ public class ElandService {
         return commonFunction.makeReturn(dataType, statusCode, message);
 
     }
+
+    // 예약 완료 처리
+    public String approveBooking(HttpServletRequest request, HttpServletResponse response, int intRsvID){
+        String statusCode = "200";
+        String message = "";
+        String result = "";
+
+        try {
+
+            // url
+            String url = Constants.elandPath + "/deli/registDeliStat.action";
+
+            // 파라미터
+            Map<String, String> map = elandMapper.getDeliInfo(intRsvID);
+            String strDeliNo = map.get("strOrderPackage");
+            String strDeliSeq = map.get("intOrderSeq");
+
+            Map<String, String> parameters = new HashMap<>();
+            parameters.put("deli_no", strDeliNo);
+            parameters.put("deli_seq", strDeliSeq);
+            parameters.put("deli_proc_divi_cd", "160");
+
+            // 토큰
+            String accessToken = "Bearer " + elandCookieService.getCookie(request, response);
+
+            // 호출
+            JsonNode jsonNode = elandRequestService.callApi(url, parameters, accessToken);
+
+            JSONObject jsonObject = (JSONObject) new JSONParser().parse(jsonNode.toString());
+            message = jsonObject.get("error").toString();
+            if(message.equals("00")){
+                message = "상품조회 성공";
+            }else{
+                message = "상품조회 실패";
+                statusCode = "500";
+            }
+
+        }catch (Exception e){
+            statusCode = "500";
+            message = "호출 실패";
+            e.printStackTrace();
+        }
+
+        return commonFunction.makeReturn("jsonp", statusCode, message);
+    }
+
+    // 반품 완료 처리
+    public String CancelBooking(HttpServletRequest request, HttpServletResponse response, int intRsvID){
+        String statusCode = "200";
+        String message = "";
+        String result = "";
+
+        try {
+
+            // url
+            String url = Constants.elandPath + "/deli/registReturnStat.action";
+
+            // 파라미터
+            Map<String, String> map = elandMapper.getDeliInfo(intRsvID);
+            String strDeliNo = map.get("strOrderPackage");
+            String strDeliSeq = map.get("intOrderSeq");
+
+            Map<String, String> parameters = new HashMap<>();
+            parameters.put("deli_no", strDeliNo);
+            parameters.put("deli_seq", strDeliSeq);
+            parameters.put("deli_proc_divi_cd", "250");
+            parameters.put("invoice_no", "000000000");
+
+            // 토큰
+            String accessToken = "Bearer " + elandCookieService.getCookie(request, response);
+
+            // 호출
+            JsonNode jsonNode = elandRequestService.callApi(url, parameters, accessToken);
+
+            JSONObject jsonObject = (JSONObject) new JSONParser().parse(jsonNode.toString());
+            message = jsonObject.get("error").toString();
+            if(message.equals("00")){
+                message = "상품조회 성공";
+            }else{
+                message = "상품조회 실패";
+                statusCode = "500";
+            }
+
+        }catch (Exception e){
+            statusCode = "500";
+            message = "호출 실패";
+            e.printStackTrace();
+        }
+
+        return commonFunction.makeReturn("jsonp", statusCode, message);
+    }
+
 
     // 상품 조회
     public String viewAccomm(HttpServletRequest request, HttpServletResponse response, String dataType, int intAID){

@@ -37,12 +37,13 @@ public class Scheduler {
 
     CommonFunction commonFunction = new CommonFunction();
 
-    //@Scheduled(cron = "0 0/3 * * * *")
+    @Scheduled(cron = "0 0/3 * * * *")
     public void bookingEland(){
         try {
             System.out.println("scheduler booking ELAND");
 
-            URL url = new URL("http://localhost:8080/eland/getRsvList");
+            //URL url = new URL("http://localhost:8080/eland/getRsvList");
+            URL url = new URL("https://dmapi.condo24.com/eland/getRsvList");
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
 
             new BufferedReader(new InputStreamReader(conn.getInputStream(), "UTF-8"));
@@ -52,12 +53,13 @@ public class Scheduler {
         }
     }
 
-    //@Scheduled(cron = "0 0/3 * * * *")
+    @Scheduled(cron = "0 0/3 * * * *")
     public void bookingSSG(){
         try {
             System.out.println("scheduler booking SSG");
 
-            URL url = new URL("http://localhost:8080/SSG/getRsvList");
+            //URL url = new URL("http://localhost:8080/SSG/getRsvList");
+            URL url = new URL("https://dmapi.condo24.com/SSG/getRsvList");
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
 
             new BufferedReader(new InputStreamReader(conn.getInputStream(), "UTF-8"));
@@ -123,7 +125,7 @@ public class Scheduler {
             e.printStackTrace();
         }
     }
-
+*/
     public String test(HttpServletRequest request, HttpServletResponse response){
         String result = "";
 
@@ -155,5 +157,5 @@ public class Scheduler {
 
     }
 
-     */
+
 }
