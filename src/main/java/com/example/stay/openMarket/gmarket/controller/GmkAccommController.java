@@ -92,28 +92,15 @@ public class GmkAccommController {
 
 
 
-
-
-
-
-
-
-    @GetMapping("/testHmac")
-    public void testHmac(){
-        HmacGenerator.generate("");
-    }
-
-    @GetMapping("/getPriceNStock")
-    public String getPriceNStock(HttpServletRequest httpServletRequest){
-        return gmkAccommService.getPriceNStock(httpServletRequest);
-    }
-
-//    @GetMapping("/getRecommendOpts")
-//    public void getRecommendOpts(){
-//        gmkAccommService.getRecommendOpts();
+//    @GetMapping("/testHmac")
+//    public void testHmac(){
+//        HmacGenerator.generate("");
 //    }
-
-
+//
+//    @GetMapping("/getPriceNStock")
+//    public String getPriceNStock(HttpServletRequest httpServletRequest){
+//        return gmkAccommService.getPriceNStock(httpServletRequest);
+//    }
 
 
     // 가격/재고/판매상태 조회
