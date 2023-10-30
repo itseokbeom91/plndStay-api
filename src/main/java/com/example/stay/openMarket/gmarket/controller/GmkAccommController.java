@@ -100,7 +100,7 @@ public class GmkAccommController {
 
     @GetMapping("/testHmac")
     public void testHmac(){
-        HmacGenerater.generate("", "");
+        HmacGenerater.generate("");
     }
 
     @GetMapping("/getPriceNStock")
@@ -212,5 +212,47 @@ public class GmkAccommController {
     @GetMapping("/getBrandCodeCategory")
     public String getBrandCodeCategory(String strBrandName){
         return gmkAccommService.getBrandCodeCategory(strBrandName);
+    }
+
+    // 판매자주소록 등록
+    @ResponseBody
+    @GetMapping("/sellerAddrRegist")
+    public String sellerAddrRegist(){
+        return gmkAccommService.sellerAddrRegist();
+    }
+
+    // 판매자주소록 수정
+    @ResponseBody
+    @GetMapping("/sellerAddrUpdate")
+    public String sellerAddrUpdate(){
+        return gmkAccommService.sellerAddrUpdate();
+    }
+
+    // 판매자주소록 조회
+    @ResponseBody
+    @GetMapping("/getSellerAddr")
+    public String getSellerAddr(){
+        return gmkAccommService.getSellerAddr();
+    }
+
+    // 판매자주소록 전체조회
+    @ResponseBody
+    @GetMapping("/getSellerAddrList")
+    public String getSellerAddrList(){
+        return gmkAccommService.getSellerAddrList();
+    }
+
+    // 카테고리별 추천옵션 조회
+    @ResponseBody
+    @GetMapping("/getRecOption")
+    public String getRecOption(){
+        return gmkAccommService.getRecOption();
+    }
+
+    // 추천옵션별 선택항목 조회
+    @ResponseBody
+    @GetMapping("/getSelectOption")
+    public String getSelectOption(){
+        return gmkAccommService.getSelectOption();
     }
 }

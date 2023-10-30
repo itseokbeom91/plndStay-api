@@ -15,7 +15,7 @@ import java.util.Date;
 import java.util.TimeZone;
 
 public class HmacGenerater {
-    public static String generate(String strDomain, String strOmk){
+    public static String generate(String strDomain){
         String token = "";
         try {
             JSONObject header = new JSONObject();
@@ -27,12 +27,7 @@ public class HmacGenerater {
             payload.put("iss", "www.condo24.com");
             payload.put("sub", strDomain);
             payload.put("aud", "sa.esmplus.com");
-
-            if(strOmk.equals("G")){
-                payload.put("ssi", "G:" + Constants.gmkEsmMasterID);
-            }else if(strOmk.equals("A")){
-                payload.put("ssi", "A:" + Constants.gmkEsmMasterID);
-            }
+            payload.put("ssi", "G:" + Constants.gmkEsmMasterID);
 
             String strHeader = Base64.getEncoder().withoutPadding().encodeToString(header.toJSONString().getBytes());
             String strPayload = Base64.getEncoder().withoutPadding().encodeToString(payload.toJSONString().getBytes());
