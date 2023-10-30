@@ -19,13 +19,14 @@ public interface CommonMapper {
 
     StockDto getStockInfo(int intStockIdx, int intOmkIdx);
 
-    int getMinPrice(int intAID, String strDate);
+    int getMinPrice(int intAID, String strDate); // 수정하면 지우기
+    int getMinPrice(int intAID, String strDate, int intOmkIdx);
 
     List<CancelRulesDto> getCancelRuleList(int intAID);
 
     RoomTypeDto getRmtpeInfo(int intRmIdx, int intOmkIdx);
 
-    String insertAcmOmk(int intAID, int intOmkIdx, String strUsageYn, String strPdtSubject, String strPdtCode, String strOmkSiteCode, String strDetailInfo);
+    String insertAcmOmk(int intAID, int intOmkIdx, String strUsageYn, String strPdtSubject, String strPdtCode, String strDetailInfo, String strOmkSiteCode);
 
     String getStrPdtCode(int intAID, int intOmkIdx);
 

@@ -1,10 +1,10 @@
-package com.example.stay.openMarket.gmarket.service;
+package com.example.stay.openMarket.auction.service;
 
 import com.example.stay.common.util.CommonFunction;
 import com.example.stay.common.util.Constants;
 import com.example.stay.common.util.LogWriter;
-import com.example.stay.openMarket.gmarket.GmkUtil.GmkApi;
-import com.example.stay.openMarket.gmarket.GmkUtil.HmacGenerator;
+import com.example.stay.openMarket.auction.aucUtil.AuctionApi;
+import com.example.stay.openMarket.auction.aucUtil.HmacGenerator;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -15,7 +15,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 @Service
-public class GmkCustomerService {
+public class AucCustomerService {
 
     CommonFunction commonFunction = new CommonFunction();
 
@@ -38,7 +38,7 @@ public class GmkCustomerService {
 
             // api 호출
             String authorization = HmacGenerator.generate("sell");
-            JSONArray resultJsonArr = GmkApi.callGmkArrApi(Constants.gmkUrl + "item/v1/communications/customer/bulletin-board", "POST", authorization, requestJson);
+            JSONArray resultJsonArr = AuctionApi.callAucArrApi(Constants.gmkUrl + "item/v1/communications/customer/bulletin-board", "POST", authorization, requestJson);
 
             for(Object arr : resultJsonArr){
                 JSONObject resultJson = (JSONObject) arr;
@@ -85,7 +85,7 @@ public class GmkCustomerService {
 
             // api 호출
             String authorization = HmacGenerator.generate("sell");
-            JSONObject resultJson = GmkApi.callGmkApi(Constants.gmkUrl + "item/v1/communications/customer/bulletin-board/qna", "POST", authorization, requestJson);
+            JSONObject resultJson = AuctionApi.callAucApi(Constants.gmkUrl + "item/v1/communications/customer/bulletin-board/qna", "POST", authorization, requestJson);
 
             if(resultJson.get("resultCode").toString() == null) {
                 message = "판매자문의 답변 완료";
@@ -125,7 +125,7 @@ public class GmkCustomerService {
 
             // api 호출
             String authorization = HmacGenerator.generate("sell");
-            JSONObject resultJson = GmkApi.callGmkApi(Constants.gmkUrl + "assist/v1/Selling/GetEmergencyInformList", "POST", authorization, requestJson);
+            JSONObject resultJson = AuctionApi.callAucApi(Constants.gmkUrl + "assist/v1/Selling/GetEmergencyInformList", "POST", authorization, requestJson);
 
             String code = resultJson.get("ResultCode").toString();
             String resultMsg = resultJson.get("Message").toString();
@@ -169,7 +169,7 @@ public class GmkCustomerService {
 
             // api 호출
             String authorization = HmacGenerator.generate("sell");
-            JSONObject resultJson = GmkApi.callGmkApi(Constants.gmkUrl + "assist/v1/Selling/AddEmergencyInformReply", "POST", authorization, requestJson);
+            JSONObject resultJson = AuctionApi.callAucApi(Constants.gmkUrl + "assist/v1/Selling/AddEmergencyInformReply", "POST", authorization, requestJson);
 
             String code = resultJson.get("ResultCode").toString();
 
@@ -219,7 +219,7 @@ public class GmkCustomerService {
 
             // api 호출
             String authorization = HmacGenerator.generate("sell");
-            JSONArray resultJsonArr = GmkApi.callGmkArrApi(Constants.gmkUrl + "item/v1/communications/notices", "POST", authorization, requestJson);
+            JSONArray resultJsonArr = AuctionApi.callAucArrApi(Constants.gmkUrl + "item/v1/communications/notices", "POST", authorization, requestJson);
 
             for(Object arr : resultJsonArr){
                 JSONObject resultJson = (JSONObject) arr;
@@ -248,7 +248,4 @@ public class GmkCustomerService {
 
         return commonFunction.makeReturn(dataType, statusCode, message, resultArr);
     }
-
-
-
 }

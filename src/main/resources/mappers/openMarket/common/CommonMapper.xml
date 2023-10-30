@@ -26,7 +26,7 @@
     </select>
 
     <select id="getMinPrice" resultType="int">
-        EXEC PLNDSTAY.dbo.spOMK_STOCK_MIN_PRICE ${intAID}, #{strDate}
+        EXEC PLNDSTAY.dbo.spOMK_STOCK_MIN_PRICE ${intAID}, #{strDate}, ${intOmkIdx}
     </select>
 
     <select id="getCancelRuleList" parameterType="int" resultType="CancelRulesDto">

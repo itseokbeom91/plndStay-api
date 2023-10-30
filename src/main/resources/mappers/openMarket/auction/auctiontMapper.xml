@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.example.stay.openMarket.auction.mapper.AucMapper">
+<!--    <select id="getBrandCodeList" resultType="map">-->
+<!--        SELECT strCode, strName-->
+<!--        FROM CODE_OMK WITH(NOLOCK)-->
+<!--        WHERE strCateCode = 'GMK_BRAND'-->
+<!--            AND intIdx != 349-->
+<!--    </select>-->
+
+    <select id="getCategories" parameterType="int" resultType="map">
+        SELECT strAucCate3
+            , strESMCate3
+        FROM PLNDSTAY.dbo.ACCOMM_OMK_INFO WITH(NOLOCK)
+        WHERE intAID = ${intAID}
+    </select>
+
+    <select id="getOmkSiteCode" parameterType="int" resultType="String">
+        SELECT strOmkSiteCode
+        FROM PLNDSTAY.dbo.ACCOMM_OMK
+        WHERE intAID = ${intAID}
+          AND intOMKIdx = ${intOmkIdx}
+    </select>
+
+</mapper>

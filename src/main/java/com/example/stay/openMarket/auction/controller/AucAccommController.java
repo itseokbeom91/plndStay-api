@@ -1,7 +1,6 @@
-package com.example.stay.openMarket.gmarket.controller;
+package com.example.stay.openMarket.auction.controller;
 
-import com.example.stay.openMarket.gmarket.GmkUtil.HmacGenerator;
-import com.example.stay.openMarket.gmarket.service.GmkAccommService;
+import com.example.stay.openMarket.auction.service.AucAccommService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -11,11 +10,11 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import javax.servlet.http.HttpServletRequest;
 
 @Controller
-@RequestMapping("/gmk/accomm/*")
-public class GmkAccommController {
+@RequestMapping("/auc/accomm/*")
+public class AucAccommController {
 
     @Autowired
-    private GmkAccommService gmkAccommService;
+    private AucAccommService aucAccommService;
 
     /**
      * 숙박상품 생성
@@ -23,7 +22,7 @@ public class GmkAccommController {
     @GetMapping("/createAccomm")
     @ResponseBody
     public String createAccomm(String dataType, int intAID, HttpServletRequest httpServletRequest){
-        return gmkAccommService.createAccomm(dataType, intAID, httpServletRequest);
+        return aucAccommService.createAccomm(dataType, intAID, httpServletRequest);
     }
 
     /**
@@ -32,7 +31,7 @@ public class GmkAccommController {
     @GetMapping("/updateAccomm")
     @ResponseBody
     public String updateAccomm(String dataType, int intAID, HttpServletRequest httpServletRequest){
-        return gmkAccommService.updateAccomm(dataType, intAID, httpServletRequest);
+        return aucAccommService.updateAccomm(dataType, intAID, httpServletRequest);
     }
 
     /**
@@ -41,7 +40,7 @@ public class GmkAccommController {
     @GetMapping("/deleteAccomm")
     @ResponseBody
     public String deleteAccomm(String dataType, int intAID, HttpServletRequest httpServletRequest){
-        return gmkAccommService.deleteAccomm(dataType, intAID, httpServletRequest);
+        return aucAccommService.deleteAccomm(dataType, intAID, httpServletRequest);
     }
 
     /**
@@ -50,7 +49,7 @@ public class GmkAccommController {
     @GetMapping("/updatePriceStockStatus")
     @ResponseBody
     public String updatePriceStockStatus(String dataType, int intAID, HttpServletRequest httpServletRequest){
-        return gmkAccommService.updatePriceStockStatus(dataType, intAID, httpServletRequest);
+        return aucAccommService.updatePriceStockStatus(dataType, intAID, httpServletRequest);
     }
 
     /**
@@ -59,7 +58,7 @@ public class GmkAccommController {
     @GetMapping("/updateProductName")
     @ResponseBody
     public String updateProductName(String dataType, int intAID, HttpServletRequest httpServletRequest){
-        return gmkAccommService.updateProductName(dataType, intAID, httpServletRequest);
+        return aucAccommService.updateProductName(dataType, intAID, httpServletRequest);
     }
 
     /**
@@ -68,7 +67,7 @@ public class GmkAccommController {
     @GetMapping("/updateAccommImages")
     @ResponseBody
     public String updateAccommImages(String dataType, int intAID, HttpServletRequest httpServletRequest){
-        return gmkAccommService.updateAccommImages(dataType, intAID, httpServletRequest);
+        return aucAccommService.updateAccommImages(dataType, intAID, httpServletRequest);
     }
 
     /**
@@ -77,7 +76,7 @@ public class GmkAccommController {
     @GetMapping("/updateAccommDesc")
     @ResponseBody
     public String updateAccommDesc(String dataType, int intAID, HttpServletRequest httpServletRequest){
-        return gmkAccommService.updateAccommDesc(dataType, intAID, httpServletRequest);
+        return aucAccommService.updateAccommDesc(dataType, intAID, httpServletRequest);
     }
 
     /**
@@ -86,7 +85,7 @@ public class GmkAccommController {
     @GetMapping("/updateAccommOption")
     @ResponseBody
     public String updateAccommOption(String dataType, int intAID, HttpServletRequest httpServletRequest){
-        return gmkAccommService.updateAccommOption(dataType, intAID, httpServletRequest);
+        return aucAccommService.updateAccommOption(dataType, intAID, httpServletRequest);
     }
 
 
@@ -97,21 +96,16 @@ public class GmkAccommController {
 
 
 
-
-    @GetMapping("/testHmac")
-    public void testHmac(){
-        HmacGenerator.generate("");
-    }
+//
+//    @GetMapping("/testHmac")
+//    public void testHmac(){
+//        HmacGenerater.generate("sell");
+//    }
 
     @GetMapping("/getPriceNStock")
     public String getPriceNStock(HttpServletRequest httpServletRequest){
-        return gmkAccommService.getPriceNStock(httpServletRequest);
+        return aucAccommService.getPriceNStock(httpServletRequest);
     }
-
-//    @GetMapping("/getRecommendOpts")
-//    public void getRecommendOpts(){
-//        gmkAccommService.getRecommendOpts();
-//    }
 
 
 
@@ -120,56 +114,56 @@ public class GmkAccommController {
     @GetMapping("/getPriceStockStatus")
     @ResponseBody
     public String getPriceStockStatus(String dataType, int intAID, HttpServletRequest httpServletRequest){
-        return gmkAccommService.getPriceStockStatus(dataType, intAID, httpServletRequest);
+        return aucAccommService.getPriceStockStatus(dataType, intAID, httpServletRequest);
     }
 
     // 숙박상품 조회
     @GetMapping("/getAccommInfo")
     @ResponseBody
     public String getAccommInfo(String dataType, int intAID, HttpServletRequest httpServletRequest){
-        return gmkAccommService.getAccommInfo(dataType, intAID, httpServletRequest);
+        return aucAccommService.getAccommInfo(dataType, intAID, httpServletRequest);
     }
 
     // 옵션 조회
     @GetMapping("/getAccommOption")
     @ResponseBody
     public String getAccommOption(String dataType, int intAID, HttpServletRequest httpServletRequest){
-        return gmkAccommService.getAccommOption(dataType, intAID, httpServletRequest);
+        return aucAccommService.getAccommOption(dataType, intAID, httpServletRequest);
     }
 
     // 판매자할인(사이트별 판매자부담 할인) 등록/수정
     @GetMapping("/updateSellerDiscount")
     @ResponseBody
     public String updateSellerDiscount(String dataType, int intAID, HttpServletRequest httpServletRequest){
-        return gmkAccommService.updateSellerDiscount(dataType, intAID, httpServletRequest);
+        return aucAccommService.updateSellerDiscount(dataType, intAID, httpServletRequest);
     }
 
     // 판매자할인(사이트별 판매자부담 할인) 해제
     @GetMapping("/deleteSellerDiscount")
     @ResponseBody
     public String deleteSellerDiscount(String dataType, int intAID, HttpServletRequest httpServletRequest){
-        return gmkAccommService.deleteSellerDiscount(dataType, intAID, httpServletRequest);
+        return aucAccommService.deleteSellerDiscount(dataType, intAID, httpServletRequest);
     }
 
     // 판매자할인(사이트별 판매자부담 할인) 조회
     @GetMapping("/getSellerDiscount")
     @ResponseBody
     public String getSellerDiscount(String dataType, int intAID, HttpServletRequest httpServletRequest){
-        return gmkAccommService.getSellerDiscount(dataType, intAID, httpServletRequest);
+        return aucAccommService.getSellerDiscount(dataType, intAID, httpServletRequest);
     }
 
     // 상품번호 조회 - 마스터번호 기준으로 site번호 조회
     @GetMapping("/getOmkSiteCode")
     @ResponseBody
     public String getOmkSiteCode(String dataType, int intAID, HttpServletRequest httpServletRequest){
-        return gmkAccommService.getOmkSiteCode(dataType, intAID, httpServletRequest);
+        return aucAccommService.getOmkSiteCode(dataType, intAID, httpServletRequest);
     }
 
     // 상품번호 조회 - site번호 기준으로 마스터번호 조회
     @GetMapping("/getPdtCode")
     @ResponseBody
     public String getPdtCode(String dataType, int intAID, HttpServletRequest httpServletRequest){
-        return gmkAccommService.getPdtCode(dataType, intAID, httpServletRequest);
+        return aucAccommService.getPdtCode(dataType, intAID, httpServletRequest);
     }
 
 
@@ -183,76 +177,76 @@ public class GmkAccommController {
     @GetMapping("/getGmkCategory")
     @ResponseBody
     public String getGmkCategory(){
-        return gmkAccommService.getGmkCategory();
+        return aucAccommService.getGmkCategory();
     }
 
     // 지마켓 카테고리 조회
     @ResponseBody
     @GetMapping("/getEsmCategory")
     public String getEsmCategory(){
-        return gmkAccommService.getEsmCategory();
+        return aucAccommService.getEsmCategory();
     }
 
     // Stie-ESM 카테고리 매칭조회
     @ResponseBody
     @GetMapping("/getSiteEsmCategory")
     public String getSiteEsmCategory(){
-        return gmkAccommService.getSiteEsmCategory();
+        return aucAccommService.getSiteEsmCategory();
     }
 
     // 미니샵 카테고리 조회
     @ResponseBody
     @GetMapping("/getMiniShopCategory")
     public String getMiniShopCategory(){
-        return gmkAccommService.getMiniShopCategory();
+        return aucAccommService.getMiniShopCategory();
     }
 
     // 브랜드코드 조회 - 브랜드명으로 조회
     @ResponseBody
     @GetMapping("/getBrandCodeCategory")
     public String getBrandCodeCategory(String strBrandName){
-        return gmkAccommService.getBrandCodeCategory(strBrandName);
+        return aucAccommService.getBrandCodeCategory(strBrandName);
     }
 
     // 판매자주소록 등록
     @ResponseBody
     @GetMapping("/sellerAddrRegist")
     public String sellerAddrRegist(){
-        return gmkAccommService.sellerAddrRegist();
+        return aucAccommService.sellerAddrRegist();
     }
 
     // 판매자주소록 수정
     @ResponseBody
     @GetMapping("/sellerAddrUpdate")
     public String sellerAddrUpdate(){
-        return gmkAccommService.sellerAddrUpdate();
+        return aucAccommService.sellerAddrUpdate();
     }
 
     // 판매자주소록 조회
     @ResponseBody
     @GetMapping("/getSellerAddr")
     public String getSellerAddr(){
-        return gmkAccommService.getSellerAddr();
+        return aucAccommService.getSellerAddr();
     }
 
     // 판매자주소록 전체조회
     @ResponseBody
     @GetMapping("/getSellerAddrList")
     public String getSellerAddrList(){
-        return gmkAccommService.getSellerAddrList();
+        return aucAccommService.getSellerAddrList();
     }
 
     // 카테고리별 추천옵션 조회
     @ResponseBody
     @GetMapping("/getRecOption")
     public String getRecOption(){
-        return gmkAccommService.getRecOption();
+        return aucAccommService.getRecOption();
     }
 
     // 추천옵션별 선택항목 조회
     @ResponseBody
     @GetMapping("/getSelectOption")
     public String getSelectOption(){
-        return gmkAccommService.getSelectOption();
+        return aucAccommService.getSelectOption();
     }
 }

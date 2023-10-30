@@ -1,5 +1,6 @@
 package com.example.stay.openMarket.common.service;
 
+import com.example.stay.common.util.Constants;
 import com.example.stay.openMarket.common.dto.AccommDto;
 import com.example.stay.openMarket.common.dto.RoomTypeDto;
 import com.example.stay.openMarket.common.dto.StockDto;
@@ -54,9 +55,9 @@ public class CommonService {
     }
 
     // 재고 최소값 가져오기
-    public int getMinPrice(int intAID, String strDate){
+    public int getMinPrice(int intAID, String strDate, int intOmkIdx){
 
-        int intMinPrice = commonMapper.getMinPrice(intAID, strDate);
+        int intMinPrice = commonMapper.getMinPrice(intAID, strDate, intOmkIdx);
 
         return intMinPrice;
     }

@@ -14,7 +14,7 @@ import java.util.Base64;
 import java.util.Date;
 import java.util.TimeZone;
 
-public class HmacGenerater {
+public class HmacGenerator {
     public static String generate(String strDomain){
         String token = "";
         try {
