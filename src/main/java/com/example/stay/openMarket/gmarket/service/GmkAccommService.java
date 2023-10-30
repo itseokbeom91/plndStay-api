@@ -5,12 +5,11 @@ import com.example.stay.common.util.Constants;
 import com.example.stay.common.util.LogWriter;
 import com.example.stay.common.util.XmlUtility;
 import com.example.stay.openMarket.common.dto.AccommDto;
-import com.example.stay.openMarket.common.dto.ContentsPhotoDto;
-import com.example.stay.openMarket.common.dto.RoomTypeDto;
 import com.example.stay.openMarket.common.dto.StockDto;
 import com.example.stay.openMarket.common.mapper.CommonMapper;
 import com.example.stay.openMarket.common.service.CommonService;
-import com.example.stay.openMarket.gmarket.hmac.HmacGenerater;
+import com.example.stay.openMarket.gmarket.GmkUtil.GmkApi;
+import com.example.stay.openMarket.gmarket.GmkUtil.HmacGenerater;
 import com.example.stay.openMarket.gmarket.mapper.GmkMapper;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.google.gson.Gson;
@@ -29,12 +28,10 @@ import javax.servlet.http.HttpServletRequest;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import java.io.BufferedReader;
-import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.net.URLDecoder;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -57,23 +54,6 @@ public class GmkAccommService {
     private XmlUtility xmlUtility;
 
     CommonFunction commonFunction = new CommonFunction();
-
-    public String getCategory(){
-        String result = "";
-        try{
-            String authorization = HmacGenerater.generate("sell", "G");
-            JsonNode jsonNode = commonFunction.callJsonApi("gmk", authorization, new JSONObject(), Constants.gmkUrl + "item/v1/categories/sd-cats/00250002000000000000", "GET");
-//            JsonNode jsonNode = commonFunction.callJsonApi("gmk", authorization, new JSONObject(), Constants.gmkUrl + "item/v1/categories/site-cats", "GET");
-
-//            String catCode = jsonNode.get("catCode").toString();
-//            String catName = jsonNode.get("catName").toString();
-
-            result = jsonNode.toPrettyString();
-        }catch (Exception e){
-            e.printStackTrace();
-        }
-        return result;
-    }
 
     // 숙박상품 생성
     public String createAccomm(String dataType, int intAID, HttpServletRequest httpServletRequest){
@@ -204,7 +184,9 @@ public class GmkAccommService {
 
                         JSONObject recommendedOptValue2 = new JSONObject();
                         recommendedOptValue2.put("koreanText", stock.getStrRmtypeName()); // 객실타입명
+
                         detailJson.put("recommendedOptValue2", recommendedOptValue2);
+                        detailJson.put("manageCode", stock.getIntRmIdx());
 
                         detailJson.put("isSoldOut", false); // 옵션의 품절여부 제어(옵션 재고 수량으로 제어하지 않음) true : 품절, false : 판매
                         detailJson.put("isDisplay", true); // 옵션의 노출여부 제어
@@ -462,7 +444,7 @@ public class GmkAccommService {
 
                         // api 호출
                         String authorization = HmacGenerater.generate("sell", "G");
-                        JSONObject resultJson = callGmkApi(Constants.gmkUrl + "item/v1/goods", "POST", authorization, requestJson);
+                        JSONObject resultJson = GmkApi.callGmkApi(Constants.gmkUrl + "item/v1/goods", "POST", authorization, requestJson);
 
                         String resultCode = resultJson.get("resultCode").toString();
                         if(resultCode.equals("0")) {
@@ -637,6 +619,7 @@ public class GmkAccommService {
                         JSONObject recommendedOptValue2 = new JSONObject();
                         recommendedOptValue2.put("koreanText", stock.getStrRmtypeName()); // 객실타입명
                         detailJson.put("recommendedOptValue2", recommendedOptValue2);
+                        detailJson.put("manageCode", stock.getIntRmIdx());
 
                         detailJson.put("isSoldOut", false); // 옵션의 품절여부 제어(옵션 재고 수량으로 제어하지 않음) true : 품절, false : 판매
                         detailJson.put("isDisplay", true); // 옵션의 노출여부 제어
@@ -905,7 +888,7 @@ public class GmkAccommService {
 
                         // api 호출
                         String authorization = HmacGenerater.generate("sell", "G");
-                        JSONObject resultJson = callGmkApi(Constants.gmkUrl + "item/v1/goods/" + accommDto.getStrPdtCode(), "PUT", authorization, requestJson);
+                        JSONObject resultJson = GmkApi.callGmkApi(Constants.gmkUrl + "item/v1/goods/" + accommDto.getStrPdtCode(), "PUT", authorization, requestJson);
 
                         String resultCode = resultJson.get("resultCode").toString();
                         if(resultCode.equals("0")) {
@@ -947,7 +930,7 @@ public class GmkAccommService {
 
             // api 호출
             String authorization = HmacGenerater.generate("sell", "G");
-            JSONObject resultJson = callGmkApi(Constants.gmkUrl + "item/v1/goods/" + strPdtCode, "DELETE", authorization, null);
+            JSONObject resultJson = GmkApi.callGmkApi(Constants.gmkUrl + "item/v1/goods/" + strPdtCode, "DELETE", authorization, null);
 
             String resultCode = resultJson.get("resultCode").toString();
             if(resultCode.equals("0")) {
@@ -1018,7 +1001,7 @@ public class GmkAccommService {
 
             // api 호출
             String authorization = HmacGenerater.generate("sell", "G");
-            JSONObject resultJson = callGmkApi(Constants.gmkUrl + "item/v1/goods/" + strPdtCode + "/sell-status", "PUT", authorization, requestJson);
+            JSONObject resultJson = GmkApi.callGmkApi(Constants.gmkUrl + "item/v1/goods/" + strPdtCode + "/sell-status", "PUT", authorization, requestJson);
 
             String resultCode = resultJson.get("resultCode").toString();
             if(resultCode.equals("0")) {
@@ -1063,7 +1046,7 @@ public class GmkAccommService {
 
                 // api 호출
                 String authorization = HmacGenerater.generate("", "G");
-                JSONObject resultJson = callGmkApi(Constants.gmkUrl + "item/v1/goods/" + strPdtCode + "/goods-name", "PUT", authorization, requestJson);
+                JSONObject resultJson = GmkApi.callGmkApi(Constants.gmkUrl + "item/v1/goods/" + strPdtCode + "/goods-name", "PUT", authorization, requestJson);
                 String resultCode = resultJson.get("resultCode").toString();
 
                 if(resultCode.equals("0")){
@@ -1120,7 +1103,7 @@ public class GmkAccommService {
 
             // api 호출
             String authorization = HmacGenerater.generate("sell", "G");
-            JSONObject resultJson = callGmkApi(Constants.gmkUrl + "item/v1/goods/" + strPdtCode + "/images", "POST", authorization, requestJson);
+            JSONObject resultJson = GmkApi.callGmkApi(Constants.gmkUrl + "item/v1/goods/" + strPdtCode + "/images", "POST", authorization, requestJson);
 
             String resultCode = resultJson.get("resultCode").toString();
             if(resultCode.equals("0")){
@@ -1168,7 +1151,7 @@ public class GmkAccommService {
 
             // api 호출
             String authorization = HmacGenerater.generate("sell", "G");
-            JSONObject resultJson = callGmkApi(Constants.gmkUrl + "item/v1/goods/" + strPdtCode + "/descriptions", "POST", authorization, requestJson);
+            JSONObject resultJson = GmkApi.callGmkApi(Constants.gmkUrl + "item/v1/goods/" + strPdtCode + "/descriptions", "POST", authorization, requestJson);
 
             if(resultJson.get("resultCode").toString().equals("0")){
                 message = "상세설명 수정 완료";
@@ -1237,6 +1220,8 @@ public class GmkAccommService {
 
                 JSONObject recommendedOptValue2 = new JSONObject();
                 recommendedOptValue2.put("koreanText", stock.getStrRmtypeName()); // 객실타입명
+                detailJson.put("manageCode", stock.getIntRmIdx());
+
                 detailJson.put("recommendedOptValue2", recommendedOptValue2);
 
                 detailJson.put("isSoldOut", false); // 옵션의 품절여부 제어(옵션 재고 수량으로 제어하지 않음) true : 품절, false : 판매
@@ -1268,7 +1253,7 @@ public class GmkAccommService {
                 String authorization = HmacGenerater.generate("sell", "G");
 
                 String strPdtCode = commonMapper.getStrPdtCode(intAID, Constants.intGmkOmkIdx);
-                JSONObject resultJson = callGmkApi(Constants.gmkUrl + "item/v1/goods/" + strPdtCode + "/recommended-options", "PUT", authorization, requestJson);
+                JSONObject resultJson = GmkApi.callGmkApi(Constants.gmkUrl + "item/v1/goods/" + strPdtCode + "/recommended-options", "PUT", authorization, requestJson);
 
                 if(resultJson.get("resultCode").toString().equals("0")){
                     message = "옵션 등록/수정 완료";
@@ -1292,67 +1277,6 @@ public class GmkAccommService {
         return commonFunction.makeReturn(dataType, statusCode, message);
     }
 
-    public JSONObject callGmkApi(String strUrl, String method, String authorization, JSONObject requestJson){
-        LogWriter logWriter = new LogWriter(method, strUrl, System.currentTimeMillis());
-        Gson gson = new GsonBuilder().setPrettyPrinting().create();
-        JSONObject responseJson = new JSONObject();
-        try{
-            URL url = new URL(strUrl);
-
-            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-            conn.setRequestMethod(method);
-            conn.setRequestProperty("Content-Type", "application/json");
-            conn.setRequestProperty("Accept-Charset", "UTF-8");
-            conn.setRequestProperty("Authorization", authorization);
-            conn.setConnectTimeout(10000);
-            conn.setReadTimeout(10000);
-
-            if(requestJson != null){
-                conn.setDoOutput(true);
-
-                OutputStreamWriter writer = new OutputStreamWriter(conn.getOutputStream(), "utf-8");
-                writer.write(requestJson.toJSONString());
-                writer.close();
-
-                logWriter.addRequest(gson.toJson(requestJson));
-            }
-
-            String strJson = "";
-            BufferedReader br = null;
-            if(conn.getResponseCode() == HttpURLConnection.HTTP_OK){
-                br = new BufferedReader(new InputStreamReader(conn.getInputStream(), "utf-8"));
-            }else{
-                logWriter.add("responseCode : " + conn.getResponseCode());
-                if(conn.getErrorStream() == null){
-                    br = new BufferedReader(new InputStreamReader(conn.getInputStream(), "utf-8"));
-                }else{
-                    br = new BufferedReader(new InputStreamReader(conn.getErrorStream(), "utf-8"));
-                }
-            }
-            StringBuilder sb = new StringBuilder();
-            String line = "";
-            while ((line = br.readLine()) != null) {
-                sb.append(line);
-            }
-            strJson = sb.toString();
-
-            JSONParser jsonParser = new JSONParser();
-            Object obj = jsonParser.parse(strJson);
-            responseJson = (JSONObject) obj;
-
-            conn.disconnect();
-
-            logWriter.add(gson.toJson(responseJson));
-            logWriter.log(0);
-        }catch (Exception e){
-            e.printStackTrace();
-            logWriter.add("error : " + e.getMessage());
-            logWriter.log(0);
-        }
-
-        return responseJson;
-    }
-
     // 상품 조회
     public String getAccommInfo(String dataType, int intAID, HttpServletRequest httpServletRequest){
         LogWriter logWriter = new LogWriter(httpServletRequest.getMethod(), httpServletRequest.getServletPath(),
@@ -1365,7 +1289,7 @@ public class GmkAccommService {
 
             // api 호출
             String authorization = HmacGenerater.generate("sell", "G");
-            JSONObject resultJson = callGmkApi(Constants.gmkUrl + "item/v1/goods/" + strPdtCode, "GET", authorization, null);
+            JSONObject resultJson = GmkApi.callGmkApi(Constants.gmkUrl + "item/v1/goods/" + strPdtCode, "GET", authorization, null);
 
             if(resultJson.get("resultCode") == null){
                 message = "상품 조회 완료";
@@ -1398,7 +1322,7 @@ public class GmkAccommService {
 
             // api 호출
             String authorization = HmacGenerater.generate("sell", "G");
-            JSONObject resultJson = callGmkApi(Constants.gmkUrl + "item/v1/goods/" + strPdtCode + "/sell-status", "GET", authorization, null);
+            JSONObject resultJson = GmkApi.callGmkApi(Constants.gmkUrl + "item/v1/goods/" + strPdtCode + "/sell-status", "GET", authorization, null);
 
             if(resultJson.get("resultCode") == null){
                 message = "가격/재고/판매상태 조회 완료";
@@ -1434,7 +1358,7 @@ public class GmkAccommService {
 
             // api 호출
             String authorization = HmacGenerater.generate("sell", "G");
-            JSONObject resultJson = callGmkApi(Constants.gmkUrl + "item/v1/goods/" + strPdtCode + "/recommended-options", "GET", authorization, null);
+            JSONObject resultJson = GmkApi.callGmkApi(Constants.gmkUrl + "item/v1/goods/" + strPdtCode + "/recommended-options", "GET", authorization, null);
 
             if(resultJson.get("resultCode") == null){
                 message = "옵션 조회 완료";
@@ -1486,7 +1410,7 @@ public class GmkAccommService {
 
             // api 호출
             String authorization = HmacGenerater.generate("sell", "G");
-            JSONObject resultJson = callGmkApi(Constants.gmkUrl + "item/v1/goods/" + strPdtCode + "/seller-discounts", "POST", authorization, requestJson);
+            JSONObject resultJson = GmkApi.callGmkApi(Constants.gmkUrl + "item/v1/goods/" + strPdtCode + "/seller-discounts", "POST", authorization, requestJson);
 
             if(resultJson.get("resultCode").toString().equals("0")){
                 message = "판매자할인 등록/수정 완료";
@@ -1520,7 +1444,7 @@ public class GmkAccommService {
 
             // api 호출
             String authorization = HmacGenerater.generate("sell", "G");
-            JSONObject resultJson = callGmkApi(Constants.gmkUrl + "item/v1/goods/" + strPdtCode + "/seller-discounts", "DELETE", authorization, null);
+            JSONObject resultJson = GmkApi.callGmkApi(Constants.gmkUrl + "item/v1/goods/" + strPdtCode + "/seller-discounts", "DELETE", authorization, null);
 
             if(resultJson.get("resultCode").toString().equals("0")){
                 message = "판매자할인 해제 완료";
@@ -1554,7 +1478,7 @@ public class GmkAccommService {
 
             // api 호출
             String authorization = HmacGenerater.generate("sell", "G");
-            JSONObject resultJson = callGmkApi(Constants.gmkUrl + "item/v1/goods/" + strPdtCode + "/seller-discounts", "GET", authorization, null);
+            JSONObject resultJson = GmkApi.callGmkApi(Constants.gmkUrl + "item/v1/goods/" + strPdtCode + "/seller-discounts", "GET", authorization, null);
 
             if(resultJson.get("resultCode") == null){
                 message = "판매자할인 조회 완료";
@@ -1577,8 +1501,75 @@ public class GmkAccommService {
         return commonFunction.makeReturn(dataType, statusCode, message, result);
     }
 
+    // 상품번호 조회 - 마스터번호 기준으로 site번호 조회
+    public String getOmkSiteCode(String dataType, int intAID, HttpServletRequest httpServletRequest){
+        LogWriter logWriter = new LogWriter(httpServletRequest.getMethod(), httpServletRequest.getServletPath(),
+                httpServletRequest.getQueryString(), System.currentTimeMillis());
+        String statusCode = "200";
+        String message = "";
+        JSONObject result = new JSONObject();
+        try{
+            String strPdtCode = commonMapper.getStrPdtCode(intAID, Constants.intGmkOmkIdx);
 
+            // api 호출
+            String authorization = HmacGenerater.generate("sell", "G");
+            JSONObject resultJson = GmkApi.callGmkApi(Constants.gmkUrl + "item/v1/goods/" + strPdtCode + "/status", "GET", authorization, null);
 
+            if(resultJson.get("resultCode") == null){
+                message = "상품 site번호 조회 완료";
+                result = resultJson;
+            }else{
+                String resultMsg = resultJson.get("message").toString();
+                logWriter.add(resultMsg);
+                message = "지마켓 api 호출 실패";
+            }
+
+            logWriter.add(message);
+            logWriter.log(0);
+        }catch (Exception e){
+            e.printStackTrace();
+            message = "상품 site번호 조회 실패";
+            statusCode = "500";
+            logWriter.add("error : " + e.getMessage());
+            logWriter.log(0);
+        }
+        return commonFunction.makeReturn(dataType, statusCode, message, result);
+    }
+
+    // 상품번호 조회 - site번호 기준으로 마스터번호 조회
+    public String getPdtCode(String dataType, int intAID, HttpServletRequest httpServletRequest){
+        LogWriter logWriter = new LogWriter(httpServletRequest.getMethod(), httpServletRequest.getServletPath(),
+                httpServletRequest.getQueryString(), System.currentTimeMillis());
+        String statusCode = "200";
+        String message = "";
+        JSONObject result = new JSONObject();
+        try{
+            String strOmkSiteCode = gmkMapper.getOmkSiteCode(intAID, Constants.intGmkOmkIdx);
+
+            // api 호출
+            String authorization = HmacGenerater.generate("sell", "G");
+            JSONObject resultJson = GmkApi.callGmkApi(Constants.gmkUrl + "item/v1/site-goods/" + strOmkSiteCode + "/goods-no", "GET", authorization, null);
+
+            if(resultJson.get("resultCode") == null){
+                message = "상품 마스터번호 조회 완료";
+                result = resultJson;
+            }else{
+                String resultMsg = resultJson.get("message").toString();
+                logWriter.add(resultMsg);
+                message = "지마켓 api 호출 실패";
+            }
+
+            logWriter.add(message);
+            logWriter.log(0);
+        }catch (Exception e){
+            e.printStackTrace();
+            message = "상품 마스터번호 조회 실패";
+            statusCode = "500";
+            logWriter.add("error : " + e.getMessage());
+            logWriter.log(0);
+        }
+        return commonFunction.makeReturn(dataType, statusCode, message, result);
+    }
 
 
 
@@ -1608,7 +1599,7 @@ public class GmkAccommService {
 //
 //            // api 호출
 //            String authorization = HmacGenerater.generate("sell", "G");
-//            JSONObject resultJson = callGmkApi(Constants.gmkUrl + "item/v1/options/recommended-opts?catCode=" + , "GET", authorization, null);
+//            JSONObject resultJson = GmkApi.callGmkApi(Constants.gmkUrl + "item/v1/options/recommended-opts?catCode=" + , "GET", authorization, null);
 //
 //            if(resultJson.get("resultCode") == null){
 //                message = "카테고리별 추천옵션 조회 완료";
@@ -1738,5 +1729,99 @@ public class GmkAccommService {
 
         return commonFunction.makeReturn(dataType, statusCode, message);
     }
+
+
+    //==================================================================================================================
+
+    // 지마켓 카테고리조회
+    public String getGmkCategory(){
+        String result = "";
+        try{
+            String authorization = HmacGenerater.generate("sell", "G");
+            JSONObject resultJson = GmkApi.callGmkApi(Constants.gmkUrl + "item/v1/categories/site-cats", "GET", authorization, null);
+
+            if(resultJson.get("resultCode") == null){
+                result = resultJson.toString();
+            }else{
+                result = resultJson.get("message").toString();
+            }
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+        return result;
+    }
+
+    // 지마켓 카테고리조회
+    public String getEsmCategory(){
+        String result = "";
+        try{
+            String authorization = HmacGenerater.generate("sell", "G");
+            JSONObject resultJson = GmkApi.callGmkApi(Constants.gmkUrl + "item/v1/categories/sd-cats/0", "GET", authorization, null);
+
+            if(resultJson.get("resultCode") == null){
+                result = resultJson.toString();
+            }else{
+                result = resultJson.get("message").toString();
+            }
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+        return result;
+    }
+
+    // Stie-ESM 카테고리 매칭조회
+    public String getSiteEsmCategory(){
+        String result = "";
+        try{
+            String authorization = HmacGenerater.generate("sell", "G");
+            JSONObject resultJson = GmkApi.callGmkApi(Constants.gmkUrl + "item/v1/categories/sd-cats/00320005000000000000/site-cats", "GET", authorization, null);
+
+            if(resultJson.get("resultCode") == null){
+                result = resultJson.toString();
+            }else{
+                result = resultJson.get("message").toString();
+            }
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+        return result;
+    }
+    
+    // 미니샵 카테고리 조회
+    public String getMiniShopCategory(){
+        String result = "";
+        try{
+            String authorization = HmacGenerater.generate("sell", "G");
+            JSONObject resultJson = GmkApi.callGmkApi(Constants.gmkUrl + "item/v1/categories/shop-cats/", "GET", authorization, null);
+
+            if(resultJson.get("resultCode") == null){
+                result = resultJson.toString();
+            }else{
+                result = resultJson.get("message").toString();
+            }
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+        return result;
+    }
+
+    // 브랜드코드 카테고리 조회 - 브랜드명으로 조회
+    public String getBrandCodeCategory(String strBrandName){
+        String result = "";
+        try{
+            String authorization = HmacGenerater.generate("sell", "G");
+            JSONObject resultJson = GmkApi.callGmkApi(Constants.gmkUrl + "item/v1/categories/shop-cats/", "GET", authorization, null);
+
+            if(resultJson.get("resultCode") == null){
+                result = resultJson.toString();
+            }else{
+                result = resultJson.get("message").toString();
+            }
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+        return result;
+    }
+
 
 }

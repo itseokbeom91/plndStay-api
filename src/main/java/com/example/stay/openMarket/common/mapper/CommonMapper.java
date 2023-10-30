@@ -32,4 +32,7 @@ public interface CommonMapper {
     double getOmkSales(int intAID, int intOmkIdx);
 
     RsvStayDto getBookingInfo(int intRsvID);
+
+    List<Map<String, Object>> getBookingInfo(String intRsvID);
+    String getTypeCode (String intRsvID);
 }
