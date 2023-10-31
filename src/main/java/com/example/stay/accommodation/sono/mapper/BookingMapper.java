@@ -18,4 +18,8 @@ public interface BookingMapper {
 
     String updateRsvState(String intRsvID, String strStatusCode, String strRsvRmNumDatas, String strPenaltyDatas);
 
+    String updateRsvCode(String comRsvNo, String intRsvID);
+
+
+
 }

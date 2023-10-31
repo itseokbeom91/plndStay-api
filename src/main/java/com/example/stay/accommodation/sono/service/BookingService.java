@@ -448,6 +448,7 @@ public class BookingService {
                 JSONObject responseJson = (JSONObject) jsonParser.parse(responseBody);
 
                 bookingMapper.updateRsvState(intRsvID, "4", responseJson.get("roomRsvNo").toString(), ""); //strstatuscode : 4 예약
+                bookingMapper.updateRsvCode(responseJson.get("comRsvNo").toString(), intRsvID);
 
 
                 return commonFunction.makeReturn(dataType, "200","OK", responseJson);
@@ -917,7 +918,7 @@ public class BookingService {
 //            System.out.println(packageStockDatas);
 //            System.out.println(packStatusList);
             System.out.println(packageStockDatas);
-            String insertResult = bookingMapper.insertRoom("", "", packageStockDatas, "", strType);
+//            String insertResult = bookingMapper.insertRoom("", "", packageStockDatas, "", strType);
 //            stockResultJson.put("insertResult", insertResult);
             return commonFunction.makeReturn(dataType, "200", "OK", stockResultJson);
 

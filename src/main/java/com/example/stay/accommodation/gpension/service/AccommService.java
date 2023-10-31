@@ -377,7 +377,7 @@ public class AccommService {
         String strStockData = "";
         Calendar cal = Calendar.getInstance();
         Date nowDate = new Date(cal.getTimeInMillis());
-        cal.add(Calendar.MONTH, 1);
+        cal.add(Calendar.DATE, 90);
         Date eDate = new Date(cal.getTimeInMillis());
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
         try {
@@ -394,8 +394,8 @@ public class AccommService {
                 String longi = (String) map.get("longi");
 
 
-                String roomData = getPensionStatus("jsonp", map.get("pension_id").toString(), dateFormat.format(nowDate), dateFormat.format(eDate));
-                String pensionInfo = getPensionInfo("jsonp", map.get("pension_id").toString());
+                String roomData = getPensionStatus("jsonp", pensionId, dateFormat.format(nowDate), dateFormat.format(eDate));
+                String pensionInfo = getPensionInfo("jsonp", pensionId);
                 roomData = roomData.substring(5, roomData.length() - 1);
                 JSONObject roomJson = (JSONObject) jsonParser.parse(roomData);
                 roomJson = (JSONObject) roomJson.get("result");
@@ -406,16 +406,17 @@ public class AccommService {
                     String adultPrice = (String) roomMap.get("adult_price");
                     List<Map<String, Object>> roomPriceList = (List<Map<String, Object>>) roomMap.get("price_data");
                     if(roomPriceList == null) {
-                        strStockData += pensionId + "|^|" + roomId + "|^||^||^||^||^|" + childPrice + "|^|" + adultPrice + "{{|}}";
+//                        strStockData += pensionId + "|^|" + roomId + "|^|0|^|0|^|0|^|0|^|" + childPrice + "|^|" + adultPrice + "{{|}}";
                         continue;
                     }
                     for (Map<String, Object> roomPriceMap : roomPriceList) {
                         String date = (String) roomPriceMap.get("date");
                         String basicPrice = (String) roomPriceMap.get("basic_price");
                         String price = (String) roomPriceMap.get("price");
+                        int sales = (int) (Integer.parseInt(price) * 1.11);
                         String stock = ("Y".equals(roomPriceMap.get("open_yn"))) ? "1" : "0";
 
-                        strStockData += pensionId + "|^|" + roomId + "|^|" + date + "|^|" + basicPrice + "|^|" + price + "|^|" + stock + "|^|" + childPrice + "|^|" + adultPrice + "{{|}}";
+                        strStockData += pensionId + "|^|" + roomId + "|^|" + date + "|^|" + basicPrice + "|^|" + sales + "|^|" + stock + "|^|" + childPrice + "|^|" + adultPrice + "{{|}}";
                     }
 
                 }
@@ -431,7 +432,7 @@ public class AccommService {
                 String pensionTheme = (String) pensionInfoJson.get("theme");
                 String pensionWebsite = (String) pensionInfoJson.get("homepage");
                 String pensionRoomCnt = (String) pensionInfoJson.get("room_cnt");
-                String pensionZip = commonFunction.getZipcodeByParcelAddress(pensionAddr);
+                String pensionZip = "";//commonFunction.getZipcodeByParcelAddress(pensionAddr);
 
                 List<Map<String, Object>> facImgList = (List<Map<String, Object>>) pensionInfoJson.get("fac_img");
                 List<Map<String, Object>> extImgList = (List<Map<String, Object>>) pensionInfoJson.get("ext_img");
@@ -512,15 +513,17 @@ public class AccommService {
 
             strAccommData = strAccommData.substring(0, strAccommData.length()-5);
             strRoomData = strRoomData.substring(0, strRoomData.length()-5);
+            strStockData = strStockData.substring(0, strStockData.length()-5);
 
             System.out.println(strAccommData);
             System.out.println(strRoomData);
 
 //            String insertResult = accommMapper.insertAccommTotal("", "", "", "GP");
-            String insertResult = accommMapper.insertAccommTotal(strAccommData, strRoomData, "", "GP");
+            String insertAcmResult = accommMapper.insertAccommTotal(strAccommData, strRoomData, "", "GP");
+            String insertStockResult = accommMapper.insertAccommTotal("", "", strStockData, "GP");
 //            System.out.println("insertResult");
 //
-            return commonFunction.makeReturn(dataType, "200","OK", "insertResult");
+            return commonFunction.makeReturn(dataType, "200","OK", insertAcmResult+"   "+insertStockResult);
         } catch (Exception e) {
             return commonFunction.makeReturn(dataType,"500", String.valueOf(e), e.getMessage());
         }

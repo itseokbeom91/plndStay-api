@@ -17,4 +17,6 @@ public interface BookingMapper {
     int getMaxpeopleByroomId(String pensionID, String roomID);
     String updateStock(String pensionID, String roomID);
     String updateBooking(String orderID, String intRsvID);
+
+    String getMoneyByintRsvID(String intRmIdx, String dateCheckIn);
 }

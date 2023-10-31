@@ -32,7 +32,7 @@ public class MailService {
                 }
             }
 
-            message.setText(serContext(content, rsvStatus), "UTF-8", "html");
+            message.setText(content, "UTF-8", "html");
             message.addRecipients(MimeMessage.RecipientType.TO, "woonbeom.lee@plnd.co.kr");
             message.setFrom("sender@condo24.com");
             javaMailSender.send(message);

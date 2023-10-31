@@ -47,8 +47,8 @@ public class BookingService {
         String hp3 = hp.substring(7, hp.length());
         String adult_num = bookingMap.get("intQuantityA").toString();
         String child_num = bookingMap.get("intQuantityC").toString();
-        String room_price = "69000";//(String) bookingMap.get("room_price");
-        String total_price = "100000";//(String) bookingMap.get("total_price");
+        String room_price = bookingMapper.getMoneyByintRsvID(bookingMap.get("intRmIdx").toString(), bookingMap.get("dateCheckin").toString());;//(String) bookingMap.get("room_price");
+        String total_price = "0";//(String) bookingMap.get("total_price");
         String intAID = bookingMap.get("intAID").toString();
 //        String email = (String) bookingMap.get("email");                //필수 X
 //        String birthday = "";//(String) bookingMap.get("birthday");     //필수 X

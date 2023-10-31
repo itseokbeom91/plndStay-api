@@ -84,4 +84,16 @@
         WHERE intRsvID = #{intRsvID}
     </select>
 
+    <select id="getInformMoney" resultType="string">
+        SELECT strInformMoney
+        FROM PLNDSTAY.dbo.ACCOMM_INFO
+        WHERE intAID = ${intAID}
+    </select>
+
+    <select id="getAcmNmByintAID" resultType="string">
+        SELECT strSubject
+        FROM PLNDSTAY.dbo.ACCOMM
+        WHERE intAID = ${intAID}
+    </select>
+
 </mapper>

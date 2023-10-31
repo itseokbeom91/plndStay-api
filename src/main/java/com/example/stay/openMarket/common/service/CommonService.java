@@ -15,11 +15,13 @@ import com.example.stay.openMarket.common.mapper.CommonMapper;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
+import org.jsoup.Jsoup;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import javax.servlet.http.HttpServletRequest;
+import java.io.File;
 import java.util.List;
 import java.util.Map;
 
@@ -625,32 +627,59 @@ public class CommonService {
         if(mailYn.equals("Y")){
 
             StringBuffer sb = new StringBuffer();
-            sb.append("안녕하세요. (주)동무해피데이즈 여행사입니다.\r\n");
+            File file = new File("/static/mail.html");
+            String test = String.valueOf(Jsoup.parse(String.valueOf(file)));
+            sb.append("<div style=\"width:600px;max-width:100%;padding:0;margin:0 auto;\">");
+            sb.append("	<a href=\"https:// style=\"display:block;width:26.666667%;text-decoration:none;padding:0;margin:0 0 5px;\">");
+            sb.append("<img src=\"https://www.condo24.com/img/main_logo.png\" alt=\"https://condo24.com\" style=\"border:0;padding:0;margin:0;\"/></a>");
+			sb.append("	<div style=\"line-height:1.6;font-size:13px;font-family:'Malgun Gothic','Nanum Gothic','NanumGothic','NG','Dotum','Gulim';padding:12px 7px;margin:0;border:3px solid #ff831d;\">");
+            sb.append("안녕하세요. (주)동무해피데이즈 여행사입니다.<br/>");
             if (rsvStatus.equals("0")){
                 //예약
-                sb.append("예약 건 확인 부탁드립니다.\r\n");
+                sb.append("예약 건 확인 부탁드립니다.<br/>");
             }else if(rsvStatus.equals("5")){
                 //에약취소
-                sb.append("예약 취소 부탁드립니다.\r\n");
-                sb.append("객실예약번호 : "+rsvStayDto.getStrRsvRmNum());
+                sb.append("예약 취소 부탁드립니다.<br/>");
+                sb.append("객실예약번호 : "+rsvStayDto.getStrRsvRmNum()+"<br/>");
             }
 
-            sb.append("숙소명 : "+rsvStayDto.getStrRmtypeName()+"\r\n");
-            sb.append("룸타입 : "+rsvStayDto.getStrRmtypeName()+"\r\n");
-            sb.append("입실일 : " + rsvStayDto.getDateCheckIn() + " ~ " + rsvStayDto.getDateCheckOut() + "/ 1박 / "+rsvStayDto.getIntRmCnt()+"실\r\n");
-            sb.append("입금가 : "+rsvStayDto.getMoneyCost()+"원\r\n");
-            if (rsvStayDto.getIntAID()==10015){
-                //휘닉스호텔앤리조트 판매가
-                sb.append("입금가 : "+rsvStayDto.getMoneySales()+"원\r\n");
+            sb.append("<strong>숙소명 :</strong> "+commonMapper.getAcmNmByintAID(String.valueOf(rsvStayDto.getIntAID()))+"<br/>");
+            sb.append("<strong>룸타입 :</strong> "+rsvStayDto.getStrRmtypeName()+"<br/>");
+            sb.append("<strong>입실일 :</strong> " + rsvStayDto.getDateCheckIn() + " ~ " + rsvStayDto.getDateCheckOut() + "/ 1박 / "+rsvStayDto.getIntRmCnt()+"실<br/>");
+            sb.append("<strong>입금가 :</strong> "+rsvStayDto.getMoneyCost()+"원<br/>");
+            String informMoney = commonMapper.getInformMoney(String.valueOf(rsvStayDto.getIntAID()));
+            //C, S, C|S, null
+
+            if (informMoney.equals("S")){
+                //판매가 포함 원하는 시설
+                sb.append("<strong>판매가 :</strong> "+rsvStayDto.getMoneySales()+"원<br/>");
             }
-            sb.append("이용자 : "+rsvStayDto.getStrRcvName()+" / "+rsvStayDto.getStrRcvPhone()+"\r\n");
-            sb.append(" \r\n");
-            sb.append(" \r\n");
+            sb.append("<strong>이용자 :</strong> "+rsvStayDto.getStrRcvName()+" / "+rsvStayDto.getStrRcvPhone()+"<br/>");
+            sb.append(" <br/>");
+            sb.append(" <br/>");
             if(!(rsvStayDto.getStrRemark() ==null)){
-                sb.append("-- 별도 요청사항 --\r\n");
+                sb.append("-- 별도 요청사항 --<br/>");
                 sb.append(rsvStayDto.getStrRemark());
             }
+            if (rsvStatus.equals("0")){
+                //예약
+                sb.append("		<p style=\"padding:15px 0 0;margin:0;\">하단의 버튼을 눌러 가능여부를 알려주시기 부탁드립니다.</p>");
+                sb.append("		<p style=\"padding:10px 0 0;margin:0;\"><a href=\"https://condo24/supplier/accom/?s=\" title=\"숙박 가능 처리 새창열림\" style=\"display:block;width:100%;color:#fff;font-size:13px;text-align:center;text-decoration:none;padding:8px 0;margin:0;border:1px solid #357ebd;background:#428bca;\">O 숙박 가능합니다.</a></p>");
+                sb.append("		<p style=\"padding:10px 0 0;margin:0;\"><a href=\"https://condo24/supplier/accom/?s=\" title=\"숙박 불가능 처리 새창열림\" style=\"display:block;width:100%;color:#fff;font-size:13px;text-align:center;text-decoration:none;padding:8px 0;margin:0;border:1px solid #d43f3a;background:#d9534f;\">X 숙박이 불가능합니다.</a></p>");
+            }else if(rsvStatus.equals("5")){
+                //에약취소
+                sb.append("		<p style=\"padding:15px 0 0;margin:0;\">예약취소 후 하단의 버튼을 눌러 취소여부를 알려주시기 부탁드립니다.</p>");
+                sb.append("		<p style=\"padding:10px 0 0;margin:0;\"><a href=\"https://condo24/supplier/cancel/?s=\" title=\"취소 완료 처리 새창열림\" style=\"display:block;width:100%;color:#fff;font-size:13px;text-align:center;text-decoration:none;padding:8px 0;margin:0;border:1px solid #454545;background:#343434;\">... 취소 완료 ...</a></p>");
 
+            }
+
+            sb.append("	</div>");
+            sb.append("	<div style=\"line-height:1.5;color:#333;font-size:11px;font-family:'Dotum','Gulim';padding:10px 5px 20px;margin:0;\">");
+            sb.append("		<p style=\"padding:0;margin:0;\"><a href=\"https://condo24.com\" style=\"color:#333;text-decoration:none;\"></a> | </p>");
+			sb.append("		<p style=\"padding:0;margin:0;\">TEL:  FAX:  E-mail: <a href=\"mailto:\"condo24.condo24.com\" style=\"color:#333;text-decoration:none;\">condo24@condo24.com</a></p>");
+            sb.append("		<p style=\"padding:0;margin:0;\">★ 콘도24 비상연락망 : (24시간대기) ★</p>");
+            sb.append("	</div>");
+            sb.append("</div>");
 
             mailService.sendEmail(sb.toString(), rsvStatus);
         }
