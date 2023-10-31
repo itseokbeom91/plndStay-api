@@ -51,6 +51,12 @@ public class SsgService {
     }
 
 
+    public String getTest(){
+
+        return "";
+    }
+
+
     /**
      * 배송지시목록조회
      * @param strStarteDate

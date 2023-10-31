@@ -25,4 +25,8 @@
           AND intOMKIdx = ${intOmkIdx}
     </select>
 
+    <select id="insertBooking" resultType="string">
+        EXEC spGMK_RSV_REGIST #{strRsvDatas}, ''
+    </select>
+
 </mapper>

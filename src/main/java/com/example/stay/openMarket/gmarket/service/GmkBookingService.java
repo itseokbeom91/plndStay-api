@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 
 import javax.servlet.http.HttpServletRequest;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 
 @Service
@@ -50,6 +51,8 @@ public class GmkBookingService {
                 JSONArray orderArr = (JSONArray) dataJson.get("RequestOrders");
                 for(Object order : orderArr){
                     JSONObject orderJson = (JSONObject) order;
+
+                    //System.out.println(orderJson);
 
 //                    String payNo = orderJson.get("PayNo").toString(); // 장바구니 번호(결제번호)
                     String strOrderCode = orderJson.get("OrderNo").toString(); // 주문번호
@@ -115,58 +118,63 @@ public class GmkBookingService {
 //                    String sellerFundingDiscountPrice = orderJson.get("SellerFundingDiscountPrice").toString(); // 판매자 펀딩할인
 
                     // strRsvCode -> 주문번호 형식 어케?
-                    // intOrderSeq -> 순번 어케 따지는?
+                    String strRsvCode = "GMKtest";
+                    // intOrderSeq -> 순번 어케 따지는? => default 값 사용
                     // strOrderStatus -> 뭐로 해야됨? 신규주문 조회로 할거니까 무조건 신규조회로 나올텐데 값을 뭐라고 넣음?
-//                    String strRsvDatas = Constants.intGmkConnID + "|^|" + strRsvCode + "|^|" + intAID + "|^|"
-//                            + strOrdName + "|^|" + strOrdPhone  + "|^|" + strRcvName + "|^|" + strRcvPhone + "|^|" + strIP + "|^|"
-//                            + strRemark + "|^|" + strOrderCode + "|^|" + intOrderSeq + "|^|" + strOrderStatus + "|^|" + strProductID + "|^|";
-//
-//                    JSONArray optionArr = (JSONArray) orderJson.get("ItemOptionSelectList");
-//                    for(Object opt : optionArr){
-//                        JSONObject optJson = (JSONObject) opt;
-//                        String itemOptionValue = optJson.get("ItemOptionValue").toString(); // 주문옵션명 ex) 10월07일(일):숙박세일/로얄(디럭스단층 취사/파크뷰/침대) / 24년10월07일(일)
-//                        String[] optionValueArr = itemOptionValue.split(":");
-//                        String strCheckIn = optionValueArr[0];
-//                        String strRmtypeName = optionValueArr[1];
-//                        strCheckIn = strCheckIn.substring(0, strCheckIn.length()-3);
-//
-//                        Date dateCheckIn = new Date();
-//                        if(strCheckIn.length() == 9){ // 년도까지 붙어있는 경우(연말에 내년 예약인 경우) ex) 24년10월07일
-//                            dateCheckIn = sdf.parse(strCheckIn);
-//
-//                        }else{ // 당해 예약인 경우 ex) 10월07일
-//
-//                            // 올해 year구해서 적용
-//                            String year = simpleDateFormat.format(dateCheckIn).substring(2,4);
-//
-//                            strCheckIn = year + "년" + strCheckIn;
-//                            dateCheckIn = sdf.parse(strCheckIn);
-//                        }
-//
-//                        Calendar calendar = Calendar.getInstance();
-//                        calendar.setTime(dateCheckIn);
-//
-//                        // 체크아웃일자 = 체크인일자+1
-//                        calendar.add(Calendar.DATE, 1);
-//                        String strCheckOut = simpleDateFormat.format(calendar.getTime());
-//
-//                        strCheckIn = simpleDateFormat.format(dateCheckIn);
-//
-//                        int intRmIdx = Integer.parseInt(optJson.get("ItemOptionCode").toString()); // 주문옵션코드
-//
-//                        int intRmCnt = Integer.parseInt(optJson.get("ItemOptionOrderCnt").toString()); // 주문옵션개수
-//
-//                        strRsvDatas += strRmtypeName + "|^|" + strCheckIn + "|^|" + strCheckOut + "|^|" + intRmIdx + "|^|" + intRmCnt + "{{|}}";
-//                    }
-//                    strRsvDatas = strRsvDatas.substring(0, strRsvDatas.length()-5);
-//
-//                    // procedure insert
-//                    String insertResult = gmkMapper.insertBooking(strRsvDatas);
-//                    if(insertResult.equals("")){
-//
-//                    }else{
-//
-//                    }
+                    String strOrderStatus = "0";
+                    String strIP = "211.242.129.51";
+                    String strRsvDatas = Constants.intGmkConnID + "|^|" + strRsvCode + "|^|" + intAID + "|^|"
+                            + strOrdName + "|^|" + strOrdPhone  + "|^|" + strRcvName + "|^|" + strRcvPhone + "|^|" + strIP + "|^|"
+                            + strRemark + "|^|" + strOrderCode + "|^|" +  strOrderStatus + "|^|" + strProductID + "|^|";
+
+                    JSONArray optionArr = (JSONArray) orderJson.get("ItemOptionSelectList");
+                    for(Object opt : optionArr){
+                        JSONObject optJson = (JSONObject) opt;
+                        String itemOptionValue = optJson.get("ItemOptionValue").toString(); // 주문옵션명 ex) 10월07일(일):숙박세일/로얄(디럭스단층 취사/파크뷰/침대) / 24년10월07일(일)
+                        String[] optionValueArr = itemOptionValue.split(":");
+                        String strCheckIn = optionValueArr[0];
+                        String strRmtypeName = optionValueArr[1];
+                        strCheckIn = strCheckIn.substring(0, strCheckIn.length()-3);
+
+                        Date dateCheckIn = new Date();
+                        if(strCheckIn.length() == 9){ // 년도까지 붙어있는 경우(연말에 내년 예약인 경우) ex) 24년10월07일
+                            dateCheckIn = sdf.parse(strCheckIn);
+
+                        }else{ // 당해 예약인 경우 ex) 10월07일
+
+                            // 올해 year구해서 적용
+                            String year = simpleDateFormat.format(dateCheckIn).substring(2,4);
+
+                            strCheckIn = year + "년" + strCheckIn;
+                            dateCheckIn = sdf.parse(strCheckIn);
+                        }
+
+                        Calendar calendar = Calendar.getInstance();
+                        calendar.setTime(dateCheckIn);
+
+                        // 체크아웃일자 = 체크인일자+1
+                        calendar.add(Calendar.DATE, 1);
+                        String strCheckOut = simpleDateFormat.format(calendar.getTime());
+
+                        strCheckIn = simpleDateFormat.format(dateCheckIn);
+
+                        //int intRmIdx = Integer.parseInt(optJson.get("ItemOptionCode").toString()); // 주문옵션코드
+                        int intRmIdx = 15302; // 일단 test data
+
+                        int intRmCnt = Integer.parseInt(optJson.get("ItemOptionOrderCnt").toString()); // 주문옵션개수
+
+                        strRsvDatas += strRmtypeName + "|^|" + strCheckIn + "|^|" + strCheckOut + "|^|" + intRmIdx + "|^|" + intRmCnt + "{{|}}";
+                    }
+                    strRsvDatas = strRsvDatas.substring(0, strRsvDatas.length()-5);
+
+                    // procedure insert
+                    System.out.println(strRsvDatas);
+                    String insertResult = gmkMapper.insertBooking(strRsvDatas);
+                    if(insertResult.equals("sucess")){
+                        System.out.println("완");
+                    }else{
+                        System.out.println("실패");
+                    }
 
                 }
             }else{
