@@ -53,6 +53,13 @@
         EXEC spSSG_ELAND_RSV_REGIST ${intSeller}, #{strRsvCode}, ${intAID}, ${intRmIdx}, ${intRmCnt}, #{strCheckIn}, #{strCheckOut}, #{strRmtypeName}, #{strOrdName}, #{strOrdPhone}, #{strRcvName}, #{strRcvPhone}, '211.242.129.51', #{strRemark}, #{strOrderCode}, ${intOrderSeq}, '0', #{strProductID}, '', ''
     </select>
 
+    <select id="getShppNoInfo" resultType="map">
+        SELECT RO.strOrderCode, RO.intOrderSeq, RS.intRmCnt
+        FROM RSV_STAY_OMK RO WITH(NOLOCK)
+        INNER JOIN RSV_STAY RS WITH(NOLOCK) ON RO.intRsvID = RS.intRsvID
+        WHERE RO.intRsvID = ${intRsvID}
+    </select>
+
     <select id="getTestStockList" resultType="StockDto">
         SELECT
             SR.intIdx

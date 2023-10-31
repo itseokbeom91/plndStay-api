@@ -138,7 +138,7 @@ public class ElandService {
     }
 
     // 예약 완료 처리
-    public String approveBooking(HttpServletRequest request, HttpServletResponse response, int intRsvID){
+    public String approveBooking(HttpServletRequest request, HttpServletResponse response, int intRsvID, String dataType){
         String statusCode = "200";
         String message = "";
         String result = "";
@@ -179,11 +179,11 @@ public class ElandService {
             e.printStackTrace();
         }
 
-        return commonFunction.makeReturn("jsonp", statusCode, message);
+        return commonFunction.makeReturn(dataType, statusCode, message);
     }
 
     // 반품 완료 처리
-    public String CancelBooking(HttpServletRequest request, HttpServletResponse response, int intRsvID){
+    public String cancelBooking(HttpServletRequest request, HttpServletResponse response, int intRsvID, String dataType){
         String statusCode = "200";
         String message = "";
         String result = "";
@@ -226,7 +226,7 @@ public class ElandService {
             e.printStackTrace();
         }
 
-        return commonFunction.makeReturn("jsonp", statusCode, message);
+        return commonFunction.makeReturn(dataType, statusCode, message);
     }
 
 

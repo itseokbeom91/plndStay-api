@@ -216,7 +216,12 @@ public class SsgService {
     }
 
 
-
+    /**
+     * 예약처리
+     * @param dataType
+     * @param intRsvID
+     * @return
+     */
     public String apporveBooking(String dataType, int intRsvID){
 
         String statusCode = "200";
@@ -225,7 +230,63 @@ public class SsgService {
 
         try {
 
-            //RsvStayDto rsvStayDto =
+            Map<String, String> map = ssgMapper.getShppNoInfo(intRsvID);
+            String strShppNo = map.get("strOrderCode").toString();
+            String strShppSeq = String.valueOf(map.get("intOrderSeq"));
+            int intProcItemQty = Integer.parseInt(String.valueOf(map.get("intRmCnt")));
+
+            // 주문확인
+            JSONObject mainObject0 = new JSONObject();
+            JSONObject object0 = new JSONObject();
+            // 출고처리
+            JSONObject mainObject1 = new JSONObject();
+            JSONObject object1 = new JSONObject();
+            // 배송완료 처리
+            JSONObject mainObject2 = new JSONObject();
+            JSONObject object2 = new JSONObject();
+
+            object0.put("shppNo",strShppNo);
+            object0.put("shppSeq",strShppSeq);
+            mainObject0.put("requestOrderSubjectManage",object0);
+            JsonNode jsonNode0 = commonFunction.callJsonApi("SSG","", mainObject0, "https://eapi.ssgadm.com/api/pd/1/updateOrderSubjectManage.ssg","POST");
+            String resultCode0 = jsonNode0.get("result").get("resultCode").toString();
+
+            // 주문확인 완료되면
+            if(resultCode0.equals("00")){
+                // 출고 처리
+                object1.put("shppNo",strShppNo);
+                object1.put("shppSeq",strShppSeq);
+                object1.put("procItemQty",intProcItemQty);
+                mainObject1.put("requestWhOutCompleteProcess",object1);
+
+
+                JsonNode jsonNode1 = commonFunction.callJsonApi("SSG","", mainObject1, "https://eapi.ssgadm.com/api/pd/1/saveWhOutCompleteProcess.ssg","POST");
+                String resultCode1 = jsonNode1.get("result").get("resultCode").toString();
+
+                // 출고처리되면
+                if(resultCode1.equals("00")){
+                    // 배송완료 처리
+                    object2.put("shppNo",strShppNo);
+                    object2.put("shppSeq",strShppSeq);
+                    mainObject2.put("requestDeliveryEnd",object2);
+
+                    JsonNode jsonNode2 = commonFunction.callJsonApi("SSG","", mainObject2, "https://eapi.ssgadm.com/api/pd/1/saveDeliveryEnd.ssg","POST");
+                    String resultCode2 = jsonNode2.get("result").get("resultCode").toString();
+                    if(resultCode2.equals("00")){
+                        // 성공이니 프로시저 적용
+                        message = "배송완료";
+                        statusCode = "200";
+                    }else{
+                        message = "배송완료 실패";
+                        statusCode = "500";
+                    }
+
+                }else{
+                    message = "츨고처리 실패";
+                    statusCode = "500";
+                }
+
+            }
 
         }catch (Exception e){
             message = " 실패";
@@ -235,6 +296,67 @@ public class SsgService {
 
         return commonFunction.makeReturn(dataType, statusCode, message);
 
+    }
+
+
+    /**
+     * 취소처리
+     * @param dataType
+     * @param intRsvID
+     * @return
+     */
+    public String cancelBooking(String dataType, int intRsvID){
+
+        String statusCode = "200";
+        String message = "";
+        String result = "";
+
+        try {
+            Map<String, String> map = ssgMapper.getShppNoInfo(intRsvID);
+            String strShppNo = map.get("strOrderCode").toString();
+            String strShppSeq = String.valueOf(map.get("intOrderSeq"));
+            int intProcItemQty = Integer.parseInt(String.valueOf(map.get("intRmCnt")));
+
+            JSONObject mainObject = new JSONObject();
+            JSONObject object = new JSONObject();
+
+            object.put("shppNo",strShppNo);
+            object.put("shppSeq",strShppSeq);
+            object.put("procItemQty",intProcItemQty);
+            object.put("shppTypeDtlCd","14"); // 업체 자사배송
+            object.put("delicoVenId","콘도24");
+            object.put("wblNo","000000000");
+            object.put("resellPsblYn","Y"); // 재판매 가능 구분
+            object.put("retImptMainCd","10"); // 귀책사유 10:고객, 20:판매자, 30:택배사
+            mainObject.put("requestConfirmRcov",object);
+
+            JsonNode jsonNode0 = commonFunction.callJsonApi("SSG","", mainObject, "https://eapi.ssgadm.com/api/pd/1/saveConfirmRcov.ssg","POST");
+            String resultCode0 = jsonNode0.get("result").get("resultCode").toString();
+            if(resultCode0.equals("00")){
+                // 성공이니 프로시저 적용
+                JsonNode jsonNode1 = commonFunction.callJsonApi("SSG","", mainObject, "https://eapi.ssgadm.com/api/pd/1/saveCompleteRcov.ssg","POST");
+                String resultCode1 = jsonNode1.get("result").get("resultCode").toString();
+
+                if(resultCode1.equals("00")){
+                    message = "취소완료";
+                    statusCode = "200";
+                }else{
+                    message = "회수완료처리 실패";
+                    statusCode = "500";
+                }
+
+            }else{
+                message = "회수확인 실패";
+                statusCode = "500";
+            }
+
+        }catch (Exception e){
+            message = " 실패";
+            statusCode = "500";
+            e.printStackTrace();
+        }
+
+        return commonFunction.makeReturn(dataType, statusCode, message);
     }
 
     /**

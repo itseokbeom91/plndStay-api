@@ -60,6 +60,22 @@ public class SsgController {
         ssgService.getReleaseList(startDate, endDate);
     }
 
+    // 주문 완료처리
+    @GetMapping("/approveBooking")
+    @ResponseBody
+    public String apporveBooking(String dataType, int intRsvID){
+
+        return ssgService.apporveBooking(dataType, intRsvID);
+    }
+
+    // 취소처리
+    @GetMapping("/cancelBooking")
+    @ResponseBody
+    public String cancelBooking(String dataType, int intRsvID){
+
+        return ssgService.cancelBooking(dataType, intRsvID);
+    }
+
     // 배송완료관리
     @GetMapping("/getFinishList")
     @ResponseBody

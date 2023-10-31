@@ -32,5 +32,8 @@ public interface SsgMapper {
     // 예약 등록하기
     String createBooking(int intSeller, String strRsvCode, int intAID, int  intRmIdx, int  intRmCnt, String strCheckIn, String strCheckOut, String strRmtypeName, String strOrdName, String strOrdPhone, String strRcvName, String strRcvPhone, String strRemark, String strOrderCode, int intOrderSeq, String strProductID);
 
+    // 배송번호, 배송순번 가져오기
+    Map<String, String> getShppNoInfo(int intRsvID);
+
     List<StockDto> getTestStockList();
 }

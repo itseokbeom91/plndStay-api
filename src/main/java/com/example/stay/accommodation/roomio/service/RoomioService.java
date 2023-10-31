@@ -13,10 +13,16 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.GetMapping;
 
+import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
+import java.util.stream.Collectors;
 
 @Service
 public class RoomioService {
@@ -197,6 +203,65 @@ public class RoomioService {
         return commonFunction.makeReturn("json", statusCode, message);
     }
 
+
+    public String getStockData(String dataType){
+
+        String statusCode = "200";
+        String message = "";
+        String result = "";
+
+        try {
+            SimpleDateFormat dateDBFormat = new SimpleDateFormat("yyyyMMdd");
+            DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyyMMdd");
+
+            // 현재 날짜
+            LocalDate currentDate = LocalDate.now();
+            String strStartDate = currentDate.format(dateFormatter);
+
+            // 100일 추가
+            LocalDate date100DaysLater = currentDate.plusDays(100);
+            String strEndDate = date100DaysLater.format(dateFormatter);
+
+            List<Integer> ACMList = roomioMapper.getRMOIntAID();
+//            for (int intAID : ACMList){
+//                List<Integer> RMList = roomioMapper.getRmIdx(intAID);
+//                for(int intRmIdx : RMList){
+//
+//                    getStock(intAID, intRmIdx, strStartDate, strEndDate, dataType);
+//
+//                }
+//            }
+            // CompletableFuture 리스트를 생성
+            List<CompletableFuture<Void>> futures = ACMList.stream()
+                    .map(intAID -> {
+                        // ACMList의 각 요소에 대한 CompletableFuture 생성
+                        List<Integer> RMList = roomioMapper.getRmIdx(intAID);
+                        return CompletableFuture.allOf(RMList.stream()
+                                .map(intRmIdx ->
+                                        CompletableFuture.runAsync(() ->
+                                                getStock(intAID, intRmIdx, strStartDate, strEndDate, dataType))
+                                )
+                                .toArray(CompletableFuture[]::new)
+                        );
+                    })
+                    .collect(Collectors.toList());
+
+            // 모든 CompletableFuture 작업이 완료될 때까지 대기
+            CompletableFuture<Void> allOf = CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
+            allOf.join();
+
+
+
+        }catch (Exception e){
+            message = " 실패";
+            statusCode = "500";
+            e.printStackTrace();
+        }
+
+        return commonFunction.makeReturn(dataType, statusCode, message);
+
+    }
+
     /**
      * 일자별 가격조회
      * @param strHotelId
@@ -243,13 +308,13 @@ public class RoomioService {
                     String strCheckIndate = listObject.get("check_in").toString();
                     String strSeason = listObject.get("season").toString(); // 1:비수기, 2:준성수기, 3:성수기, 4:극성수기
                     String strPrice = listObject.get("a_price").toString();
-                    String strRoomCnt = listObject.get("room_cnt").toString();
+                    String strRoomCnt = String.valueOf(listObject.get("room_cnt"));
                     String strAddAdult = listObject.get("add_adult").toString();
                     String strAddChild = listObject.get("add_child").toString();
                     String strAddBaby = listObject.get("add_baby").toString();
                     String strFreeCancel = listObject.get("cancel_able").toString(); // 무료취소여부 1:입실 1일전 무료취소, 2:입실 2일전 무료취소
                     String strRoomState = listObject.get("room_state").toString(); // ??
-                    String strSPrice = listObject.get("s_price").toString(); // ??
+                    //String strSPrice = listObject.get("s_price").toString(); // ??
 
                     // 날짜 포맷
                     String date = strCheckIndate.trim();

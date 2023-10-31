@@ -14,12 +14,21 @@ public class RoomioController {
     @Autowired
     RoomioService roomioService;
 
+    // 시설, 룸타입 저장
     @GetMapping("/getAccommInfo")
     @ResponseBody
     public String getAccomm(String dataType){
 
         return roomioService.getAccomm(dataType);
 
+    }
+
+    // stock 인입
+    @GetMapping("/getStock")
+    @ResponseBody
+    public String getStockData(String dataType){
+
+        return roomioService.getStockData(dataType);
     }
 
     @GetMapping("/getRoomInfo")
