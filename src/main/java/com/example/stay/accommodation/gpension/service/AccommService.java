@@ -518,9 +518,9 @@ public class AccommService {
 
 //            String insertResult = accommMapper.insertAccommTotal("", "", "", "GP");
             String insertResult = accommMapper.insertAccommTotal(strAccommData, strRoomData, "", "GP");
-            System.out.println(insertResult);
+//            System.out.println("insertResult");
 //
-            return commonFunction.makeReturn(dataType, "200","OK", insertResult);
+            return commonFunction.makeReturn(dataType, "200","OK", "insertResult");
         } catch (Exception e) {
             return commonFunction.makeReturn(dataType,"500", String.valueOf(e), e.getMessage());
         }

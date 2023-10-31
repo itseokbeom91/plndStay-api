@@ -288,11 +288,15 @@ public class CommonFunction<T> {
                 JSONParser jsonParser = new JSONParser();
                 JSONObject responseJson = (JSONObject) jsonParser.parse(responseBody);
                 responseJson = ( JSONObject ) responseJson.get("response");
-                responseJson = ( JSONObject ) responseJson.get("result");
-                List<Map<String, Object>> itemList = ( List<Map<String, Object> > ) responseJson.get("items");
-                JSONObject address = ( JSONObject ) itemList.get(0).get("address");
-                System.out.println(address.get("zipcode").toString());
-                return address.get("zipcode").toString();
+                if(responseJson.containsKey("result")){
+                    responseJson = ( JSONObject ) responseJson.get("result");
+                    List<Map<String, Object>> itemList = ( List<Map<String, Object> > ) responseJson.get("items");
+                    JSONObject address = ( JSONObject ) itemList.get(0).get("address");
+                    System.out.println(address.get("zipcode").toString());
+                    return address.get("zipcode").toString();
+                }else {
+                    return "";
+                }
 
 
             } else {
