@@ -6,7 +6,7 @@ import java.util.Map;
 
 @Repository("gpension.BookingMapper")
 public interface BookingMapper {
-    Map<String , Object> getBookingInfoFromBookingIdx(String BookingIdx);
+    Map<String , Object> getBookingInfoFromBookingIdx(String intRsvID);
     /**
      * 해당하는 객실의 최대인원을 반환합니다
      *
