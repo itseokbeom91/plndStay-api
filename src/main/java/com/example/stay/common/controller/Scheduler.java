@@ -69,7 +69,7 @@ public class Scheduler {
         }
     }
 
-    @Scheduled(cron = "0 0/3 * * * *")
+    //@Scheduled(cron = "0 0/3 * * * *")
     public void bookingGMK(){
         try {
             System.out.println("scheduler booking GMK");
