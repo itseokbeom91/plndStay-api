@@ -30,8 +30,8 @@ public class AucCustomerService {
         JSONArray resultArr = new JSONArray();
         try{
             JSONObject requestJson = new JSONObject();
-            requestJson.put("qnaType", 3); // 3 : G마켓 게시판
-            requestJson.put("status", "1"); // 1 : 전체, 2 : 미처리, 3 : 처리완료, 4 : 처리중, 5 : 중복문의
+            requestJson.put("qnaType", 1); // 1 : 옥션 게시판
+            requestJson.put("status", 1); // 1 : 전체, 2 : 미처리, 3 : 처리완료, 4 : 처리중, 5 : 중복문의
             requestJson.put("type", 1); // 조회 기준 구분 1 : 접수일
             requestJson.put("startDate", startDate);
             requestJson.put("endDate", endDate); // 당일 조회시 시작일 +1일로 조회
@@ -49,7 +49,7 @@ public class AucCustomerService {
                     if(resultJson.get("resultCode").toString().equals("1000")){
                         message = resultJson.get("message").toString();
                     }else{
-                        message = "지마켓 api 호출 실패";
+                        message = "옥션 api 호출 실패";
                     }
                 }
             }
@@ -91,7 +91,7 @@ public class AucCustomerService {
                 message = "판매자문의 답변 완료";
 
             }else{
-                message = "지마켓 api 호출 실패";
+                message = "옥션 api 호출 실패";
                 logWriter.add(resultJson.get("message").toString());
             }
             logWriter.add(message);
@@ -137,7 +137,7 @@ public class AucCustomerService {
                     message = "긴급알리미 조회 완료";
                 }
             }else{
-                message = "지마켓 api 호출 실패";
+                message = "옥션 api 호출 실패";
                 logWriter.add(resultMsg);
             }
             logWriter.add(message);
@@ -177,7 +177,7 @@ public class AucCustomerService {
                 message = "긴급알리미 답변 완료";
 
             }else{
-                message = "지마켓 api 호출 실패";
+                message = "옥션 api 호출 실패";
                 logWriter.add(resultJson.get("message").toString());
             }
             logWriter.add(message);
@@ -204,7 +204,7 @@ public class AucCustomerService {
         JSONArray resultArr = new JSONArray();
         try{
             JSONObject requestJson = new JSONObject();
-            requestJson.put("SiteType", 3); // 1 : ESM+(전체), 2 : dhrtus, 3 : 지마켓
+            requestJson.put("SiteType", 2); // 1 : ESM+(전체), 2 : 옥션, 3 : 지마켓
 
             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
             Date dateStart = sdf.parse(startDate);
@@ -231,7 +231,7 @@ public class AucCustomerService {
                     if(resultJson.get("resultCode").toString().equals("1000")){
                         message = "조회된 기간에 공지사항이 없습니다";
                     }else{
-                        message = "지마켓 api 호출 실패";
+                        message = "옥션 api 호출 실패";
                     }
                 }
             }

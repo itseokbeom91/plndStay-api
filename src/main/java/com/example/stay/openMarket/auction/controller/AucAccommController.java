@@ -89,24 +89,16 @@ public class AucAccommController {
     }
 
 
-
-
-
-
-
-
-
 //
 //    @GetMapping("/testHmac")
 //    public void testHmac(){
 //        HmacGenerater.generate("sell");
 //    }
 
-    @GetMapping("/getPriceNStock")
-    public String getPriceNStock(HttpServletRequest httpServletRequest){
-        return aucAccommService.getPriceNStock(httpServletRequest);
-    }
-
+//    @GetMapping("/getPriceNStock")
+//    public String getPriceNStock(HttpServletRequest httpServletRequest){
+//        return aucAccommService.getPriceNStock(httpServletRequest);
+//    }
 
 
 

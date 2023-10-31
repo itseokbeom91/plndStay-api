@@ -15,6 +15,7 @@ import org.json.simple.parser.ParseException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.webservices.client.WebServiceTemplateBuilder;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import javax.servlet.http.HttpServletRequest;
@@ -133,7 +134,7 @@ public class BookingService {
                 }
                 logWriter.log(0);
 //                String updateResult = bookingMapper.insertRoom(pkgData, "", "", "", "01");
-                return commonFunction.makeReturn(dataType, statusCode, msg, responseJson);
+                return commonFunction.makeReturn(dataType, "200", "OK", responseJson);
             } else {
                 logWriter.add("ResponseCode :: " + response.code());
                 logWriter.add("ResponseMsg :: " + response.message());
@@ -519,6 +520,7 @@ public class BookingService {
 
     }
     //예약
+    @Async
     public String createBookingRoom(String dataType, String intRsvID, String rsvDate ,HttpServletRequest httpServletRequest) {
         long startTime = System.currentTimeMillis();
         OkHttpClient client = new OkHttpClient().newBuilder().build();
@@ -537,8 +539,8 @@ public class BookingService {
         Date out = (Date) bookingMap.get("dateCheckOut");
         long diffDays;
         diffDays = (out.getTime() - in.getTime()) / 1000 / (24*60*60);
-        requestJson.put("storeCd", bookingMap.get("strStoreCode"));
-        if (rsvDate!=""){
+        requestJson.put("storeCd", bookingMap.get("strStoreCode")); //02
+        if (rsvDate==""){
             requestJson.put("ciYmd", bookingMap.get("dateCheckIn").toString().replaceAll("-", ""));
             requestJson.put("nights", diffDays);
 
@@ -546,7 +548,7 @@ public class BookingService {
             requestJson.put("ciYmd", rsvDate.replaceAll("-", ""));
             requestJson.put("nights", "1");
         }
-        requestJson.put("rmTypeCd", bookingMap.get("strRmtypeID"));
+        requestJson.put("rmTypeCd", bookingMap.get("strRmtypeID")); //00B23
         requestJson.put("rmCnt", bookingMap.get("intRmCnt"));
         requestJson.put("comRsvNo", intRsvID); //우리만의 예약번호가 필요함
         requestJson.put("userName", bookingMap.get("strRcvName"));//bookingMap.get("strRcvName"));
@@ -571,18 +573,18 @@ public class BookingService {
 
         try {
             Response response = client.newCall(request).execute();
+            //response 파싱
+            String responseBody = response.body().string();
+
+            JSONParser jsonParser = new JSONParser();
+            JSONObject responseJson = (JSONObject) jsonParser.parse(responseBody);
 
             if(response.isSuccessful()) {
-                //response 파싱
-                String responseBody = response.body().string();
-
-                JSONParser jsonParser = new JSONParser();
-                JSONObject responseJson = (JSONObject) jsonParser.parse(responseBody);
-
-
-
 
                 return commonFunction.makeReturn(dataType, "200","OK", responseJson);
+            }
+            else {
+                return commonFunction.makeReturn(dataType, "400", msg, responseJson);
             }
 
         } catch (Exception e) {
@@ -592,7 +594,7 @@ public class BookingService {
             return commonFunction.makeReturn(dataType, "500", e.getMessage(), result);
         }
 
-        return commonFunction.makeReturn(dataType, statusCode, msg, result);
+
 
     }
 
@@ -629,16 +631,18 @@ public class BookingService {
 
         try {
             Response response = client.newCall(request).execute();
+            //response 파싱
+            String responseBody = response.body().string();
+
+            JSONParser jsonParser = new JSONParser();
+            JSONObject responseJson = (JSONObject) jsonParser.parse(responseBody);
 
             if(response.isSuccessful()) {
-                //response 파싱
-                String responseBody = response.body().string();
-
-                JSONParser jsonParser = new JSONParser();
-                JSONObject responseJson = (JSONObject) jsonParser.parse(responseBody);
 
 
                 return commonFunction.makeReturn(dataType, "200","OK", responseJson);
+            } else {
+                return commonFunction.makeReturn(dataType, "203","err", responseJson);
             }
 
         } catch (Exception e) {
@@ -648,7 +652,7 @@ public class BookingService {
             return commonFunction.makeReturn(dataType, "500", e.getMessage(), result);
         }
 
-        return commonFunction.makeReturn(dataType, statusCode, msg, result);
+
 
     }
     //영업장 목록조회

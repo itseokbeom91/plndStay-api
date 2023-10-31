@@ -197,7 +197,7 @@ public class GmkBookingService {
 
     // 취소주문 목록 조회
     // 일주일 단위 조회 가능
-    public String getCancelList(String dataType, String strDateFrom, String strDateTo, HttpServletRequest httpServletRequest){
+    public String getCancelList(String dataType, String startDate, String endDate, HttpServletRequest httpServletRequest){
         LogWriter logWriter = new LogWriter(httpServletRequest.getMethod(), httpServletRequest.getServletPath(),
                 httpServletRequest.getQueryString(), System.currentTimeMillis());
         String statusCode = "200";
@@ -208,8 +208,8 @@ public class GmkBookingService {
             requestJson.put("SiteType", 3);
             requestJson.put("CancelStatus", 0); // 0 : 전체
             requestJson.put("Type", 2); // 조회기준 구분 - 2: 취소신청일
-            requestJson.put("StartDate", strDateFrom);
-            requestJson.put("EndDate", strDateTo);
+            requestJson.put("StartDate", startDate);
+            requestJson.put("EndDate", endDate);
 
             // api 호출
             String authorization = HmacGenerator.generate("sell");
@@ -324,12 +324,14 @@ public class GmkBookingService {
         String message = "";
 
         try{
+            String strOrderNo = "";
+
             Date now = new Date();
-            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
             SimpleDateFormat sdf2 = new SimpleDateFormat("yyyy-MM-dd");
 
             JSONObject requestJson = new JSONObject();
-            requestJson.put("orderNo", "");
+            requestJson.put("orderNo", strOrderNo);
             requestJson.put("ShippingDate", sdf.format(now)); // 현재 일시?
             requestJson.put("DeliveryCompanyCode", Constants.gmk_delivery_compnay_code);
             requestJson.put("InvoiceNo", sdf2.format(now)); // 날짜?

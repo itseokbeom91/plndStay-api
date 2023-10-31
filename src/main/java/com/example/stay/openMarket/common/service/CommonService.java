@@ -1,15 +1,25 @@
 package com.example.stay.openMarket.common.service;
 
 import com.example.stay.common.util.Constants;
+import com.example.stay.common.util.MailService;
 import com.example.stay.openMarket.common.dto.AccommDto;
 import com.example.stay.openMarket.common.dto.RoomTypeDto;
 import com.example.stay.openMarket.common.dto.StockDto;
 import com.example.stay.openMarket.common.dto.ToconDto;
+import com.example.stay.accommodation.hanwha.service.HanwhaService;
+import com.example.stay.accommodation.kumho.service.SpavisService;
+import com.example.stay.accommodation.sono.service.BookingService;
+import com.example.stay.accommodation.yongpyong_beache.service.YPBService;
+import com.example.stay.openMarket.common.dto.*;
 import com.example.stay.openMarket.common.mapper.CommonMapper;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 import java.util.Map;
 
@@ -18,6 +28,25 @@ public class CommonService {
 
     @Autowired
     private CommonMapper commonMapper;
+
+    //시설사 예약 API
+    @Autowired private BookingService sonoBoking;
+    @Autowired private com.example.stay.accommodation.resom.service.BookingService resomBoking;
+    @Autowired private HanwhaService hanhwaBoking;
+    @Autowired private com.example.stay.accommodation.kumho.service.BookingService kumhoBoking;
+    @Autowired private com.example.stay.accommodation.wellihilli.service.BookingService weliBoking;
+    @Autowired private YPBService YPBooking;
+    @Autowired private com.example.stay.accommodation.elysian_gangchon.service.BookingService elysianBoking;
+    @Autowired private SpavisService spavisBoking;
+
+    //공급사 예약 API
+    @Autowired private com.example.stay.accommodation.hotelPass.service.BookingService hpBooking;
+    @Autowired private com.example.stay.accommodation.gpension.service.BookingService gpBooking;
+    @Autowired private com.example.stay.accommodation.onda.service.BookingService ondaBooking;
+    @Autowired private com.example.stay.accommodation.roomio.service.RoomioService rmoBooking;
+
+    @Autowired private MailService mailService;
+
 
 
     // 시설 정보 가져오기 test 중
@@ -304,7 +333,7 @@ public class CommonService {
      * @param rsvState : 변경코자 하는 예약상태
      */
     @Async
-    public void rsvAuto(String intRsvID, String rsvState){
+    public void rsvAuto(String intRsvID, HttpServletRequest httpServletRequest){
         /*
         TODO 예약 생성시 시설/공급사여부 => 예약생성(RSV_STAY_EM_NUM 기록) => 팩스,이메일
         ACCOMM 테이블에서 strType이 C면 시설 나머지는 공급사
@@ -313,25 +342,26 @@ public class CommonService {
 
         Map<String, Object> typeFlag = commonMapper.getTypeCode(intRsvID);//플래그값 받아오기 시설일때를위해서 카테고리값까지
         String rsvResult = ""; //예약결과 저장용
+        RsvStayDto rsvStayDto = commonMapper.getBookingInfo(Integer.parseInt(intRsvID));
+        String rsvState = rsvStayDto.getStrStatusCode();
+        //예약
+        if(rsvState.equals("0")){
+            if(!typeFlag.containsKey("strCateCode")){
+                //공급사 예약
+                createBookingSupplier(intRsvID, typeFlag.get("strApiFlag").toString(), httpServletRequest);
+            }else {
+                //시설사 예약
+                createBookingAccomm(intRsvID, typeFlag.get("strCateCode").toString(), httpServletRequest);
+            }
 
-        if(typeFlag==null){
-            //공급사 예약
-            rsvResult = createBookingSupplier(intRsvID, typeFlag.get("strApiFlag").toString());
-        }else {
-            //시설사 예약
-            rsvResult = createBookingAccomm(intRsvID, typeFlag.get("strCateCode").toString());
-        }
-
-        if(rsvResult=="SUCCES"){
-            //예약 성공했으니 RSV_STAY, RSV_STAY_RM_NUM 기록해주고 팩스,이메일
-        } else {
-            //예약 실패 실패했다는거 저장하고 알리고 끝맺음
-
-        }
-        //TODO 팩스, 이메일 DTO만들어서 안에다가 집어넣고 보낼수만 있으면 됨 두개 따로 빈을 만들던가 합쳐서 만들던가 해야함
-        if(rsvResult=="SUCCESS"){
-            createInform(intRsvID, rsvState);
-        }else{
+        } else if (rsvState.equals("5")) {
+            if(!typeFlag.containsKey("strCateCode")){
+                //공급사 예약
+                cancelBookingSupplier(intRsvID, typeFlag.get("strApiFlag").toString(), httpServletRequest);
+            }else {
+                //시설사 예약
+                cancelBookingAccomm(intRsvID, typeFlag.get("strCateCode").toString(), httpServletRequest);
+            }
 
         }
 
@@ -346,7 +376,7 @@ public class CommonService {
      * @param accommCateCode : 시설분류코드 (CODE_SYSTEM)
      * @return
      */
-    private String createBookingAccomm(String intRsvID, String accommCateCode){
+    public void createBookingAccomm(String intRsvID, String accommCateCode, HttpServletRequest httpServletRequest) {
         /*
         소노 01
         리솜 RE
@@ -359,39 +389,71 @@ public class CommonService {
         웰리힐리 18
          */
         String result = "";
-        switch (accommCateCode){
-            case "01":
-                //소노예약
-                break;
-            case "RE":
-                //리솜예약
-                break;
-            case "37":
-                //용평예약
-                break;
-            case "48":
-                //비체예약
-                break;
-            case "04":
-                //금호예약
-                break;
-            case "02":
-                //한호예약
-                break;
-            case "49":
-                //엘리시안
-                break;
-            case "35":
-                //스파비스
-                break;
-            case "18":
-                //웰리힐리
-                break;
+        try{
+            switch (accommCateCode){
+                case "01":
+                    //소노예약 소노는 패키지예약 룸온리 예약이 다르니 분기처리 해줘라!
+                    result = sonoBoking.createBooking("json", intRsvID, "", httpServletRequest);
+                    break;
+                case "RE":
+                    //리솜예약
+                    result = resomBoking.createBooking("json", intRsvID, "", httpServletRequest);
+                    break;
+                case "37":
+                    //용평예약
+                    result = YPBooking.booking(Integer.parseInt(intRsvID), "json");
+                    break;
+                case "48":
+                    //비체예약
+                    result = YPBooking.booking(Integer.parseInt(intRsvID), "json");
+                    break;
+                case "04":
+                    //금호예약
+                    result = kumhoBoking.createBooking("json", Integer.parseInt(intRsvID), httpServletRequest);
+                    break;
+                case "02":
+                    //한화예약
+                    result = hanhwaBoking.booking(Integer.parseInt(intRsvID), "json");
+                    break;
+                case "49":
+                    //엘리시안
+                    result = elysianBoking.createBooking("json", Integer.parseInt(intRsvID), httpServletRequest);
+                    break;
+                case "35":
+                    //스파비스
+                    result = spavisBoking.orderTicket("json", httpServletRequest, Integer.parseInt(intRsvID));
+                    break;
+                case "18":
+                    //웰리힐리
+                    result = weliBoking.createBooking("json", Integer.parseInt(intRsvID), httpServletRequest);
+                    break;
+            }
+            System.out.println(result);
+            JSONParser jsonParser = new JSONParser();
+            JSONObject responseJson = (JSONObject) jsonParser.parse(result);
+            String rsvResult = responseJson.get("code").toString();
+            if(rsvResult.equals("200")){
+                //예약 성공했으니 RSV_STAY, RSV_STAY_RM_NUM 기록해주고 팩스,이메일
+                commonMapper.updateRsv(intRsvID);
+            } else {
+                //예약 실패 실패했다는거 저장하고 알리고 끝맺음
+
+            }
+
+            //TODO 팩스, 이메일 DTO만들어서 안에다가 집어넣고 보낼수만 있으면 됨 두개 따로 빈을 만들던가 합쳐서 만들던가 해야함 ACCOMM_AUTO_FAX
+            if(!rsvResult.equals("200")){
+                createInform(intRsvID);
+            }else{
+
+            }
+
+        }catch (Exception e){
+            e.printStackTrace();
         }
-        return result;
+
     }
 
-    private String createBookingSupplier (String intRsvID, String typeSupplier){
+    public void createBookingSupplier (String intRsvID, String typeSupplier, HttpServletRequest httpServletRequest){
         /*
         호텔패스 -- 얘는 실시간이라 안해도될지...도?
         지펜션
@@ -401,12 +463,198 @@ public class CommonService {
 
          */
         String result = "";
+        try{
+            switch (typeSupplier){
+                case "HP":
+                    //호텔패스
+//                hpBooking.createBooking()
+                    break;
+                case "RMO":
+                    //루미오
+                    result = rmoBooking.booking(Integer.parseInt(intRsvID));
+                    break;
+                case "OND":
+                    //온다
+                    result = ondaBooking.createBooking("json", Integer.parseInt(intRsvID), httpServletRequest);
+                    break;
+                case "GP":
+                    //지펜션
+                    result = gpBooking.createBooking("json", intRsvID);
+                    break;
+            }
+            JSONParser jsonParser = new JSONParser();
+            JSONObject responseJson = (JSONObject) jsonParser.parse(result);
+            String rsvResult = responseJson.get("code").toString();
+            if(rsvResult.equals("200")){
+                //예약 성공했으니 RSV_STAY, RSV_STAY_RM_NUM 기록해주고 팩스,이메일
+                commonMapper.updateRsv(intRsvID);
+            } else {
+                //예약 실패 실패했다는거 저장하고 알리고 끝맺음
 
-        return result;
+            }
+
+            //TODO 팩스, 이메일 DTO만들어서 안에다가 집어넣고 보낼수만 있으면 됨 두개 따로 빈을 만들던가 합쳐서 만들던가 해야함 ACCOMM_AUTO_FAX
+            if(!rsvResult.equals("200")){
+                createInform(intRsvID);
+            }else{
+
+            }
+        } catch (Exception e){
+            e.printStackTrace();
+        }
     }
 
-    private String createInform(String intRsvID, String rsvState){
+    public void cancelBookingSupplier(String intRsvID, String typeSupplier, HttpServletRequest httpServletRequest){
 
-        return "";
+        String result ="";
+        try{
+            switch (typeSupplier){
+                case "HP":
+                    //호텔패스
+                    hpBooking.cancelBooking("json", intRsvID);
+                    break;
+                case "RMO":
+                    //루미오
+                    rmoBooking.bookingCancel();
+                    break;
+                case "OND":
+                    //온다
+                    ondaBooking.cancelBooking("json", Integer.parseInt(intRsvID), httpServletRequest);
+                    break;
+                case "GP":
+                    //지펜션
+                    gpBooking.cancelBooking("json", intRsvID);
+                    break;
+            }
+            JSONParser jsonParser = new JSONParser();
+            JSONObject responseJson = (JSONObject) jsonParser.parse(result);
+            String rsvResult = responseJson.get("code").toString();
+            if(rsvResult.equals("200")){
+                //예약 성공했으니 RSV_STAY, RSV_STAY_RM_NUM 기록해주고 팩스,이메일
+                commonMapper.updateRsv(intRsvID);
+            } else {
+                //예약 실패 실패했다는거 저장하고 알리고 끝맺음
+
+            }
+
+            //TODO 팩스, 이메일 DTO만들어서 안에다가 집어넣고 보낼수만 있으면 됨 두개 따로 빈을 만들던가 합쳐서 만들던가 해야함 ACCOMM_AUTO_FAX
+            if(!rsvResult.equals("200")){
+                createInform(intRsvID);
+            }else{
+
+            }
+
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+    }
+
+    public void cancelBookingAccomm(String intRsvID, String accommCateCode, HttpServletRequest httpServletRequest){
+        String result="";
+        try {
+
+            switch (accommCateCode){
+                case "01":
+                    //소노예약 소노는 패키지예약 룸온리 예약이 다르니 분기처리 해줘라!
+                    result = sonoBoking.cancelBooking("json", intRsvID, httpServletRequest);
+                    break;
+                case "RE":
+                    //리솜예약
+                    result = resomBoking.cancelBooking("json", intRsvID);
+                    break;
+                case "37":
+                    //용평예약
+                    result = YPBooking.bookingCancel(Integer.parseInt(intRsvID), "json");
+                    break;
+                case "48":
+                    //비체예약
+                    result = YPBooking.bookingCancel(Integer.parseInt(intRsvID), "json");
+                    break;
+                case "04":
+                    //금호예약
+                    result = kumhoBoking.cancelBooking("json", Integer.parseInt(intRsvID), httpServletRequest);
+                    break;
+                case "02":
+                    //한화예약
+                    result = hanhwaBoking.bookingCancel(Integer.parseInt(intRsvID), "json");
+                    break;
+                case "49":
+                    //엘리시안
+                    result = elysianBoking.cancelBooking("json", Integer.parseInt(intRsvID), httpServletRequest);
+                    break;
+                case "35":
+                    String ticketNo = commonMapper.getSpavisTicketNo(intRsvID);
+                    result = spavisBoking.cancelTicket("json", httpServletRequest, Integer.parseInt(intRsvID), ticketNo);
+                    break;
+                case "18":
+                    //웰리힐리
+                    result = weliBoking.cancelBooking("json", Integer.parseInt(intRsvID), httpServletRequest);
+                    break;
+            }
+            JSONParser jsonParser = new JSONParser();
+            JSONObject responseJson = (JSONObject) jsonParser.parse(result);
+            String rsvResult = responseJson.get("code").toString();
+            if(rsvResult.equals("200")){
+                //예약취소 성공했으니 RSV_STAY, RSV_STAY_RM_NUM 기록해주고 팩스,이메일
+                commonMapper.updateRsv(intRsvID);
+            } else {
+                //예약취소 실패 실패했다는거 저장하고 알리고 끝맺음
+
+            }
+
+            //TODO 팩스, 이메일 DTO만들어서 안에다가 집어넣고 보낼수만 있으면 됨 두개 따로 빈을 만들던가 합쳐서 만들던가 해야함 ACCOMM_AUTO_FAX
+            if(!rsvResult.equals("200")){
+                createInform(intRsvID);
+            }else{
+
+            }
+        } catch (Exception e){
+            e.printStackTrace();
+        }
+    }
+
+    public void createInform(String intRsvID){
+        //상품명, 투숙일자, 박, 객실수, 평형(룸타입), 이용자명, 이용자연락처, 구분(변경, 예약, 취소), 예약번호, 입금가, 주문번호(시설측), 내용(변경시 변경내용), 시설담당자, 시설명, 시설팩스번호
+
+        RsvStayDto rsvStayDto = commonMapper.getBookingInfo(Integer.parseInt(intRsvID));
+        //ACCOMM_CONTACT intAID로 조회해서 strRsvMailYn=Y 인 경우에만 메일 발송
+        String mailYn = commonMapper.getMailYn(String.valueOf(rsvStayDto.getIntAID()));
+        //TEST 배포시 삭제
+        mailYn="Y";
+        String rsvStatus = rsvStayDto.getStrStatusCode();
+        if(mailYn.equals("Y")){
+
+            StringBuffer sb = new StringBuffer();
+            sb.append("안녕하세요. (주)동무해피데이즈 여행사입니다.\r\n");
+            if (rsvStatus.equals("0")){
+                //예약
+                sb.append("예약 건 확인 부탁드립니다.\r\n");
+            }else if(rsvStatus.equals("5")){
+                //에약취소
+                sb.append("예약 취소 부탁드립니다.\r\n");
+                sb.append("객실예약번호 : "+rsvStayDto.getStrRsvRmNum());
+            }
+
+            sb.append("숙소명 : "+rsvStayDto.getStrRmtypeName()+"\r\n");
+            sb.append("룸타입 : "+rsvStayDto.getStrRmtypeName()+"\r\n");
+            sb.append("입실일 : " + rsvStayDto.getDateCheckIn() + " ~ " + rsvStayDto.getDateCheckOut() + "/ 1박 / "+rsvStayDto.getIntRmCnt()+"실\r\n");
+            sb.append("입금가 : "+rsvStayDto.getMoneyCost()+"원\r\n");
+            if (rsvStayDto.getIntAID()==10015){
+                //휘닉스호텔앤리조트 판매가
+                sb.append("입금가 : "+rsvStayDto.getMoneySales()+"원\r\n");
+            }
+            sb.append("이용자 : "+rsvStayDto.getStrRcvName()+" / "+rsvStayDto.getStrRcvPhone()+"\r\n");
+            sb.append(" \r\n");
+            sb.append(" \r\n");
+            if(!(rsvStayDto.getStrRemark() ==null)){
+                sb.append("-- 별도 요청사항 --\r\n");
+                sb.append(rsvStayDto.getStrRemark());
+            }
+
+
+            mailService.sendEmail(sb.toString(), rsvStatus);
+        }
+
+
     }
 }

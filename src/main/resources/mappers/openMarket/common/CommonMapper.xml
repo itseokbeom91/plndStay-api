@@ -66,4 +66,22 @@
         WHERE intRsvID=#{intRsvID}
     </select>
 
+    <select id="getTypeCode" resultType="map">
+        SELECT strCateCode, strApiFlag
+        FROM PLNDSTAY.dbo.ACCOMM
+        WHERE intAID = (SELECT intAID FROM PLNDSTAY.dbo.RSV_STAY WHERE intRsvID = ${intRsvID})
+    </select>
+
+    <select id="getMailYn" resultType="string">
+        SELECT strRsvMailYn
+        FROM PLNDSTAY.dbo.ACCOMM_CONTACT
+        WHERE intAID = ${intRsvID}
+    </select>
+
+    <select id="getSpavisTicketNo">
+        SELECT strTicketNo
+        FROM PLNDSTAY.dbo.ASAN_SPAVIS_TICKET
+        WHERE intRsvID = #{intRsvID}
+    </select>
+
 </mapper>

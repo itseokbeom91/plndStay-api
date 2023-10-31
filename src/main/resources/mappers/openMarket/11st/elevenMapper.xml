@@ -29,19 +29,13 @@
     </select>
 
     <update id="updateSeq" >
-        UPDATE
-        SELECT SR.intIdx
-             , SR.intAID
-             , SR.intRMIdx
-             , SR.dateSales
-             , SR.moneyCost
-             , SR.moneySales
-             , R.strRmtypeName
+        UPDATE [PLNDSTAY].[dbo].[STOCK_REAL] SET intElevenSeq = #{prdStockNo}
+        WHERE intRmidx = (
+        SELECT SR.intRmIdx
         FROM [PLNDSTAY].[dbo].[STOCK_REAL] SR
             LEFT OUTER JOIN RMTYPE R with(nolock) on R.intIdx = intRmIdx
-        SET
-            SR.int11stSeq = #{prdStockNo}
-        WHERE R.strRmtypeName = #{strRmtypeNm} AND SR.intAID = #{intAID} AND SR.dateSales = #{strDate}
+            WHERE R.strRmtypeName = #{strRmtypeNm} )
+        AND intAID = #{intAID} AND dateSales = #{strDate}
     </update>
 
     <select id="getMinPrice" resultType="int">
