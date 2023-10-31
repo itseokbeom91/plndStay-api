@@ -71,7 +71,21 @@ public class ElandController {
     @Autowired
     private ElandService elandService;
 
+    // 예약완료하기
+    @GetMapping("approveBooking")
+    @ResponseBody
+    public String createBooking(HttpServletRequest request, HttpServletResponse response, int intRsvID, String dataType){
+        return elandService.approveBooking(request,response,intRsvID,dataType);
+    }
 
+    // 예약취소
+    @GetMapping("cancelBooking")
+    @ResponseBody
+    public String cancelBooking(HttpServletRequest request, HttpServletResponse response, int intRsvID, String dataType){
+        return elandService.cancelBooking(request,response,intRsvID,dataType);
+    }
+
+    // 상품생성
     @GetMapping("createAccomm")
     @ResponseBody
     public String insertAccomm(HttpServletRequest request, HttpServletResponse response, String dataType, int intAID){
@@ -79,6 +93,7 @@ public class ElandController {
         return result;
     }
 
+    // 예약 가져오기 테스트
     @GetMapping("getRsvListTest")
     @ResponseBody
     public String getReserveListTest(HttpServletRequest request, HttpServletResponse response, String startDate, String endDate, String dataType){
@@ -89,6 +104,7 @@ public class ElandController {
 
     }
 
+    // 예약 가져오기 스케줄러
     @GetMapping("getRsvList")
     @ResponseBody
     public String getReserveList(HttpServletRequest request, HttpServletResponse response){
@@ -103,6 +119,7 @@ public class ElandController {
 
     }
 
+    // 상품 수정
     @GetMapping("updateAccomm")
     @ResponseBody
     public String updateAccomm(HttpServletRequest request, HttpServletResponse response, String dataType, int intAID, String strType, @Nullable String strStockIdx){

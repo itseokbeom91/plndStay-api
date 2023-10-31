@@ -24,4 +24,11 @@
     <select id="insertStock" resultType="String">
         EXEC dbo.spRMO_STOCK_REGIST ${intAID}, ${intRmIdx}, #{strStockDatas}, ''
     </select>
+
+    <select id="getRMOIntAID" resultType="int">
+        select intAID from ACCOMM with(nolock) where strApiFlag = 'RMO'
+    </select>
+    <select id="getRmIdx" resultType="int">
+        select intIdx from RMTYPE with(nolock) where intAID = ${intAID} and intDepth = 1
+    </select>
 </mapper>

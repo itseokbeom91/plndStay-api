@@ -68,27 +68,27 @@ public class AucBookingService {
 //                    String settlementPrice = orderJson.get("SettlementPrice").toString(); // 정산예정금액
 //                    String outsidePrice = orderJson.get("OutsidePrice").toString(); // 판매자 공제금액 - 제휴수수료 등 정산금액에서 추가 공제될 금액
 
-//                    String serviceFee = "";
-//                    if(orderJson.get("ServiceFee") != null){
-//                        serviceFee = orderJson.get("ServiceFee").toString(); // 서비스 이용료 금액
-//                    }
-//
-//                    String basicServiceFee = "";
-//                    if(orderJson.get("BasicServiceFee") != null){
-//                        basicServiceFee = orderJson.get("BasicServiceFee").toString(); // 기본수수료
-//                    }
-//
-//                    String sellerCashBackMoney = "";
-//                    if(orderJson.get("SellerCashBackMoney") != null){
-//                        sellerCashBackMoney = orderJson.get("SellerCashBackMoney").toString(); // 판매자 지급 스마일캐시 적용금액
-//                    }
-//
-//                    String singlePayDcAmmnt = "";
-//                    if(orderJson.get("singlePayDcAmmnt") != null){
-//                        singlePayDcAmmnt = orderJson.get("singlePayDcAmmnt").toString(); // 일시불 할인
-//                    }
+                    String serviceFee = "";
+                    if(orderJson.get("ServiceFee") != null){
+                        serviceFee = orderJson.get("ServiceFee").toString(); // 서비스 이용료 금액
+                    }
 
-//                    String OptSelPrice = orderJson.get("OptSelPrice").toString(); // 옵션 추가금액(옵션단가 * 수량)
+                    String basicServiceFee = "";
+                    if(orderJson.get("BasicServiceFee") != null){
+                        basicServiceFee = orderJson.get("BasicServiceFee").toString(); // 기본수수료
+                    }
+
+                    String sellerCashBackMoney = "";
+                    if(orderJson.get("SellerCashBackMoney") != null){
+                        sellerCashBackMoney = orderJson.get("SellerCashBackMoney").toString(); // 판매자 지급 스마일캐시 적용금액
+                    }
+
+                    String singlePayDcAmmnt = "";
+                    if(orderJson.get("singlePayDcAmmnt") != null){
+                        singlePayDcAmmnt = orderJson.get("singlePayDcAmmnt").toString(); // 일시불 할인
+                    }
+
+                    String OptSelPrice = orderJson.get("OptSelPrice").toString(); // 옵션 추가금액(옵션단가 * 수량)
 
                     String strOrdName = orderJson.get("BuyerName").toString(); // 구매자명
 //                    String buyerID = orderJson.get("BuyerID").toString(); // 구매자ID
