@@ -120,7 +120,6 @@ public class GmkBookingService {
                     // strRsvCode -> 주문번호 형식 어케?
                     // TODO 얘도 담에 바꿔야함
                     String strRsvCode = "GMKtest";
-                    // intOrderSeq -> 순번 어케 따지는? => default 값 사용
                     // strOrderStatus -> 뭐로 해야됨? 신규주문 조회로 할거니까 무조건 신규조회로 나올텐데 값을 뭐라고 넣음?
                     String strOrderStatus = "0";
                     String strIP = "211.242.129.51";
@@ -258,6 +257,7 @@ public class GmkBookingService {
 
                     // 취소요청 상태
                     if(cancelStatus.equals("1")){
+                        // 주문상태값 취소대기로 변경 필요
 
                     }else if(cancelStatus.equals("4")){ // 취소 철회
 
@@ -324,14 +324,12 @@ public class GmkBookingService {
         String message = "";
 
         try{
-            String strOrderNo = "";
-
             Date now = new Date();
-            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
             SimpleDateFormat sdf2 = new SimpleDateFormat("yyyy-MM-dd");
 
             JSONObject requestJson = new JSONObject();
-            requestJson.put("orderNo", strOrderNo);
+            requestJson.put("orderNo", "");
             requestJson.put("ShippingDate", sdf.format(now)); // 현재 일시?
             requestJson.put("DeliveryCompanyCode", Constants.gmk_delivery_compnay_code);
             requestJson.put("InvoiceNo", sdf2.format(now)); // 날짜?

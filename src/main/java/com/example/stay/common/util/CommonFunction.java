@@ -13,11 +13,14 @@ import org.apache.axis.client.Service;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 import org.w3c.dom.Document;
 import org.xhtmlrenderer.simple.Graphics2DRenderer;
 import org.xml.sax.InputSource;
 
 import javax.imageio.ImageIO;
+import javax.servlet.http.HttpServletRequest;
 import javax.xml.namespace.QName;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -288,11 +291,15 @@ public class CommonFunction<T> {
                 JSONParser jsonParser = new JSONParser();
                 JSONObject responseJson = (JSONObject) jsonParser.parse(responseBody);
                 responseJson = ( JSONObject ) responseJson.get("response");
-                responseJson = ( JSONObject ) responseJson.get("result");
-                List<Map<String, Object>> itemList = ( List<Map<String, Object> > ) responseJson.get("items");
-                JSONObject address = ( JSONObject ) itemList.get(0).get("address");
-                System.out.println(address.get("zipcode").toString());
-                return address.get("zipcode").toString();
+                if(responseJson.containsKey("result")){
+                    responseJson = ( JSONObject ) responseJson.get("result");
+                    List<Map<String, Object>> itemList = ( List<Map<String, Object> > ) responseJson.get("items");
+                    JSONObject address = ( JSONObject ) itemList.get(0).get("address");
+                    System.out.println(address.get("zipcode").toString());
+                    return address.get("zipcode").toString();
+                }else {
+                    return "";
+                }
 
 
             } else {
@@ -440,6 +447,37 @@ public class CommonFunction<T> {
         }
 
         return strProcedure;
+    }
+
+    // ip가져오기
+    public String getClientIP() {
+        HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest();
+        String ip = request.getHeader("X-Forwarded-For");
+        //System.out.println("> X-FORWARDED-FOR : " + ip);
+
+        if (ip == null) {
+            ip = request.getHeader("Proxy-Client-IP");
+            //System.out.println("> Proxy-Client-IP : " + ip);
+        }
+        if (ip == null) {
+            ip = request.getHeader("WL-Proxy-Client-IP");
+            //System.out.println(">  WL-Proxy-Client-IP : " + ip);
+        }
+        if (ip == null) {
+            ip = request.getHeader("HTTP_CLIENT_IP");
+            //System.out.println("> HTTP_CLIENT_IP : " + ip);
+        }
+        if (ip == null) {
+            ip = request.getHeader("HTTP_X_FORWARDED_FOR");
+            //System.out.println("> HTTP_X_FORWARDED_FOR : " + ip);
+        }
+        if (ip == null) {
+            ip = request.getRemoteAddr();
+            //System.out.println("> getRemoteAddr : "+ip);
+        }
+        System.out.println("> Result : IP Address : "+ip);
+
+        return ip;
     }
 
 }

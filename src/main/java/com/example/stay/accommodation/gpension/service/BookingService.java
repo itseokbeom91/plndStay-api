@@ -26,11 +26,11 @@ public class BookingService {
 
     CommonFunction commonFunction = new CommonFunction();
 
-    public String createBooking(String dataType, String BookingIdx) {
+    public String createBooking(String dataType, String intRsvID) {
         // request parameter 중 예약자명, 고객요청사항은 base64 encoding하여 전송
         // 펜션ID, 객실ID, 결제여부 (O, X), 입실일(yyyy-mm-dd), 숙박일 수, 예약자명, hp1, hp2, hp3, 이메일, 생년월일(yyyy-mm-dd), 성인수, 아동수, 픽업신청여부(O, X), 도착시간구분(AM, PM), 도착시간, 객실요금, 총 요금(추가인원 금액을 포함한), 요청사항, 캐릭터셋
         // pension_id, room_id, charge_flag, startdate, daytype, name, hp1, hp2, hp3, email, birthday, adult_num, child_num, pickup, ampm, ar_time, room_price, total_price, memo, char
-        Map<String, Object> bookingMap = bookingMapper.getBookingInfoFromBookingIdx(BookingIdx);
+        Map<String, Object> bookingMap = bookingMapper.getBookingInfoFromBookingIdx(intRsvID);
         OkHttpClient client = new OkHttpClient().newBuilder().build();
         String requestURI = "?";
         //아래는 임시DATA임 예약테이블 생성시 추가작업 필요
@@ -101,7 +101,7 @@ public class BookingService {
                     //예약 성공 재고UPDATE
                     resultJson.put("order_no", bookResult.split("::")[2]);
 //                    예약테이블에 예약번호 꼭 집어넣기!
-                    bookingMapper.updateBooking((String) resultJson.get("order_no"), BookingIdx);
+                    bookingMapper.updateBooking((String) resultJson.get("order_no"), intRsvID);
 
                 } else {
                     //예약 실패
@@ -129,9 +129,9 @@ public class BookingService {
 
     }
 
-    public String confirmBooking(String dataType, String BookingIdx) {
+    public String confirmBooking(String dataType, String intRsvID) {
         //order_no (예약번호) 만 태움
-        Map<String, Object> bookingMap = bookingMapper.getBookingInfoFromBookingIdx(BookingIdx);
+        Map<String, Object> bookingMap = bookingMapper.getBookingInfoFromBookingIdx(intRsvID);
         String orderNo = (String) bookingMap.get("strRsvCode");
         OkHttpClient client = new OkHttpClient().newBuilder().build();
         String requestURI = "?";
@@ -210,9 +210,9 @@ public class BookingService {
         }
     }
 
-    public String searchOrder(String dataType, String BookingIdx) {
+    public String searchOrder(String dataType, String intRsvID) {
         //order_no (예약번호) 만 태움
-        Map<String, Object> bookingMap = bookingMapper.getBookingInfoFromBookingIdx(BookingIdx);
+        Map<String, Object> bookingMap = bookingMapper.getBookingInfoFromBookingIdx(intRsvID);
         String orderNo = (String) bookingMap.get("strRsvCode");
         OkHttpClient client = new OkHttpClient().newBuilder().build();
         String requestURI = "?";
@@ -236,9 +236,9 @@ public class BookingService {
         }
     }
 
-    private String getCancelFee(String dataType, String BookingIdx) {
+    private String getCancelFee(String dataType, String intRsvID) {
         //order_no (예약번호) 만 태움
-        Map<String, Object> bookingMap = bookingMapper.getBookingInfoFromBookingIdx(BookingIdx);
+        Map<String, Object> bookingMap = bookingMapper.getBookingInfoFromBookingIdx(intRsvID);
         String orderNo = (String) bookingMap.get("strRsvCode");
         OkHttpClient client = new OkHttpClient().newBuilder().build();
         String requestURI = "?";
