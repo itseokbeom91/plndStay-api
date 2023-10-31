@@ -78,4 +78,10 @@
         WHERE intAID = ${intRsvID}
     </select>
 
+    <select id="getSpavisTicketNo">
+        SELECT strTicketNo
+        FROM PLNDSTAY.dbo.ASAN_SPAVIS_TICKET
+        WHERE intRsvID = #{intRsvID}
+    </select>
+
 </mapper>

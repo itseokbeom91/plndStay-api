@@ -462,47 +462,90 @@ public class CommonService {
         호텔스토리
 
          */
-        switch (typeSupplier){
-            case "HP":
-                //호텔패스
-//                hpBooking.createBooking()
-                break;
-            case "RMO":
-                //루미오
-                rmoBooking.booking(Integer.parseInt(intRsvID));
-                break;
-            case "OND":
-                //온다
-                ondaBooking.createBooking("json", Integer.parseInt(intRsvID), httpServletRequest);
-                break;
-            case "GP":
-                //지펜션
-                gpBooking.createBooking("json", intRsvID);
-                break;
-        }
         String result = "";
+        try{
+            switch (typeSupplier){
+                case "HP":
+                    //호텔패스
+//                hpBooking.createBooking()
+                    break;
+                case "RMO":
+                    //루미오
+                    result = rmoBooking.booking(Integer.parseInt(intRsvID));
+                    break;
+                case "OND":
+                    //온다
+                    result = ondaBooking.createBooking("json", Integer.parseInt(intRsvID), httpServletRequest);
+                    break;
+                case "GP":
+                    //지펜션
+                    result = gpBooking.createBooking("json", intRsvID);
+                    break;
+            }
+            JSONParser jsonParser = new JSONParser();
+            JSONObject responseJson = (JSONObject) jsonParser.parse(result);
+            String rsvResult = responseJson.get("code").toString();
+            if(rsvResult.equals("200")){
+                //예약 성공했으니 RSV_STAY, RSV_STAY_RM_NUM 기록해주고 팩스,이메일
+                commonMapper.updateRsv(intRsvID);
+            } else {
+                //예약 실패 실패했다는거 저장하고 알리고 끝맺음
 
+            }
+
+            //TODO 팩스, 이메일 DTO만들어서 안에다가 집어넣고 보낼수만 있으면 됨 두개 따로 빈을 만들던가 합쳐서 만들던가 해야함 ACCOMM_AUTO_FAX
+            if(!rsvResult.equals("200")){
+                createInform(intRsvID);
+            }else{
+
+            }
+        } catch (Exception e){
+            e.printStackTrace();
+        }
     }
 
     public void cancelBookingSupplier(String intRsvID, String typeSupplier, HttpServletRequest httpServletRequest){
 
-        switch (typeSupplier){
-            case "HP":
-                //호텔패스
-                hpBooking.cancelBooking("json", intRsvID);
-                break;
-            case "RMO":
-                //루미오
-                rmoBooking.bookingCancel();
-                break;
-            case "OND":
-                //온다
-                ondaBooking.cancelBooking("json", Integer.parseInt(intRsvID), httpServletRequest);
-                break;
-            case "GP":
-                //지펜션
-                gpBooking.cancelBooking("json", intRsvID);
-                break;
+        String result ="";
+        try{
+            switch (typeSupplier){
+                case "HP":
+                    //호텔패스
+                    hpBooking.cancelBooking("json", intRsvID);
+                    break;
+                case "RMO":
+                    //루미오
+                    rmoBooking.bookingCancel();
+                    break;
+                case "OND":
+                    //온다
+                    ondaBooking.cancelBooking("json", Integer.parseInt(intRsvID), httpServletRequest);
+                    break;
+                case "GP":
+                    //지펜션
+                    gpBooking.cancelBooking("json", intRsvID);
+                    break;
+            }
+            JSONParser jsonParser = new JSONParser();
+            JSONObject responseJson = (JSONObject) jsonParser.parse(result);
+            String rsvResult = responseJson.get("code").toString();
+            if(rsvResult.equals("200")){
+                //예약 성공했으니 RSV_STAY, RSV_STAY_RM_NUM 기록해주고 팩스,이메일
+                commonMapper.updateRsv(intRsvID);
+            } else {
+                //예약 실패 실패했다는거 저장하고 알리고 끝맺음
+
+            }
+
+            //TODO 팩스, 이메일 DTO만들어서 안에다가 집어넣고 보낼수만 있으면 됨 두개 따로 빈을 만들던가 합쳐서 만들던가 해야함 ACCOMM_AUTO_FAX
+            if(!rsvResult.equals("200")){
+                createInform(intRsvID);
+            }else{
+
+            }
+
+        }catch (Exception e){
+            e.printStackTrace();
         }
     }
 
@@ -540,13 +583,30 @@ public class CommonService {
                     result = elysianBoking.cancelBooking("json", Integer.parseInt(intRsvID), httpServletRequest);
                     break;
                 case "35":
-                    //TODO 스파비스 티켓번호 요구하는데 확인 필요
-//                    result = spavisBoking.cancelTicket("json", httpServletRequest, Integer.parseInt(intRsvID));
+                    String ticketNo = commonMapper.getSpavisTicketNo(intRsvID);
+                    result = spavisBoking.cancelTicket("json", httpServletRequest, Integer.parseInt(intRsvID), ticketNo);
                     break;
                 case "18":
                     //웰리힐리
                     result = weliBoking.cancelBooking("json", Integer.parseInt(intRsvID), httpServletRequest);
                     break;
+            }
+            JSONParser jsonParser = new JSONParser();
+            JSONObject responseJson = (JSONObject) jsonParser.parse(result);
+            String rsvResult = responseJson.get("code").toString();
+            if(rsvResult.equals("200")){
+                //예약취소 성공했으니 RSV_STAY, RSV_STAY_RM_NUM 기록해주고 팩스,이메일
+                commonMapper.updateRsv(intRsvID);
+            } else {
+                //예약취소 실패 실패했다는거 저장하고 알리고 끝맺음
+
+            }
+
+            //TODO 팩스, 이메일 DTO만들어서 안에다가 집어넣고 보낼수만 있으면 됨 두개 따로 빈을 만들던가 합쳐서 만들던가 해야함 ACCOMM_AUTO_FAX
+            if(!rsvResult.equals("200")){
+                createInform(intRsvID);
+            }else{
+
             }
         } catch (Exception e){
             e.printStackTrace();

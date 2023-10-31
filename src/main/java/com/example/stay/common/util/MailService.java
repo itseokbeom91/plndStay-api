@@ -8,8 +8,6 @@ import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.mail.javamail.MimeMessagePreparator;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.thymeleaf.context.Context;
-import org.thymeleaf.spring5.SpringTemplateEngine;
 
 import javax.mail.internet.MimeMessage;
 import java.io.InputStream;
@@ -21,8 +19,6 @@ public class MailService {
     @Autowired
     private  JavaMailSender javaMailSender;
 
-    @Autowired
-    private SpringTemplateEngine springTemplateEngine;
 
     public void sendEmail(String content, String rsvStatus){
         MimeMessage message = javaMailSender.createMimeMessage();
@@ -47,9 +43,10 @@ public class MailService {
 
     public String serContext(String content, String rsvStatus){
 
-        Context context = new Context();
-        context.setVariable("content", content);
-        context.setVariable("rsvStatus", rsvStatus);
-        return springTemplateEngine.process("mail", context);
+//        Context context = new Context();
+//        context.setVariable("content", content);
+//        context.setVariable("rsvStatus", rsvStatus);
+//        return springTemplateEngine.process("mail", context);
+        return "";
     }
 }

@@ -40,4 +40,6 @@ public interface CommonMapper {
     String updateRsv(String intRsvID);
 
     String getMailYn(String intAID);
+
+    String getSpavisTicketNo(String intRsvID);
 }
