@@ -24,12 +24,19 @@ public class MailService {
     @Autowired
     private SpringTemplateEngine springTemplateEngine;
 
-    public void sendEmail(String content){
+    public void sendEmail(String content, String rsvStatus){
         MimeMessage message = javaMailSender.createMimeMessage();
 
         try{
-            message.setSubject("이메일 테스트중입니다~");
-            message.setText(serContext(content), "UTF-8", "html");
+            if(!rsvStatus.equals("")){
+                if(rsvStatus.equals("0")){
+                    message.setSubject("예약과입니다. [예약접수]");
+                } else if (rsvStatus.equals("5") || rsvStatus.equals("14")) {
+                    message.setSubject("예약과입니다. [예약취소]");
+                }
+            }
+
+            message.setText(serContext(content, rsvStatus), "UTF-8", "html");
             message.addRecipients(MimeMessage.RecipientType.TO, "woonbeom.lee@plnd.co.kr");
             message.setFrom("sender@condo24.com");
             javaMailSender.send(message);
@@ -38,10 +45,11 @@ public class MailService {
         }
     }
 
-    public String serContext(String content){
+    public String serContext(String content, String rsvStatus){
 
         Context context = new Context();
         context.setVariable("content", content);
+        context.setVariable("rsvStatus", rsvStatus);
         return springTemplateEngine.process("mail", context);
     }
 }

@@ -342,7 +342,8 @@ public class CommonService {
 
         Map<String, Object> typeFlag = commonMapper.getTypeCode(intRsvID);//플래그값 받아오기 시설일때를위해서 카테고리값까지
         String rsvResult = ""; //예약결과 저장용
-        String rsvState = typeFlag.get("strStatusCode").toString();
+        RsvStayDto rsvStayDto = commonMapper.getBookingInfo(Integer.parseInt(intRsvID));
+        String rsvState = rsvStayDto.getStrStatusCode();
         //예약
         if(rsvState.equals("0")){
             if(!typeFlag.containsKey("strCateCode")){
@@ -558,19 +559,40 @@ public class CommonService {
         RsvStayDto rsvStayDto = commonMapper.getBookingInfo(Integer.parseInt(intRsvID));
         //ACCOMM_CONTACT intAID로 조회해서 strRsvMailYn=Y 인 경우에만 메일 발송
         String mailYn = commonMapper.getMailYn(String.valueOf(rsvStayDto.getIntAID()));
+        //TEST 배포시 삭제
+        mailYn="Y";
+        String rsvStatus = rsvStayDto.getStrStatusCode();
         if(mailYn.equals("Y")){
 
             StringBuffer sb = new StringBuffer();
             sb.append("안녕하세요. (주)동무해피데이즈 여행사입니다.\r\n");
-            sb.append("예약 건 확인 부탁드립니다.\r\n");
+            if (rsvStatus.equals("0")){
+                //예약
+                sb.append("예약 건 확인 부탁드립니다.\r\n");
+            }else if(rsvStatus.equals("5")){
+                //에약취소
+                sb.append("예약 취소 부탁드립니다.\r\n");
+                sb.append("객실예약번호 : "+rsvStayDto.getStrRsvRmNum());
+            }
+
             sb.append("숙소명 : "+rsvStayDto.getStrRmtypeName()+"\r\n");
             sb.append("룸타입 : "+rsvStayDto.getStrRmtypeName()+"\r\n");
             sb.append("입실일 : " + rsvStayDto.getDateCheckIn() + " ~ " + rsvStayDto.getDateCheckOut() + "/ 1박 / "+rsvStayDto.getIntRmCnt()+"실\r\n");
             sb.append("입금가 : "+rsvStayDto.getMoneyCost()+"원\r\n");
+            if (rsvStayDto.getIntAID()==10015){
+                //휘닉스호텔앤리조트 판매가
+                sb.append("입금가 : "+rsvStayDto.getMoneySales()+"원\r\n");
+            }
             sb.append("이용자 : "+rsvStayDto.getStrRcvName()+" / "+rsvStayDto.getStrRcvPhone()+"\r\n");
+            sb.append(" \r\n");
+            sb.append(" \r\n");
+            if(!(rsvStayDto.getStrRemark() ==null)){
+                sb.append("-- 별도 요청사항 --\r\n");
+                sb.append(rsvStayDto.getStrRemark());
+            }
 
 
-            mailService.sendEmail(sb.toString());
+            mailService.sendEmail(sb.toString(), rsvStatus);
         }
 
 
