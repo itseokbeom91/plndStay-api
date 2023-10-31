@@ -8,6 +8,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.servlet.http.HttpServletRequest;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 @Controller
 @RequestMapping("/gmk/booking/*")
@@ -22,6 +25,15 @@ public class GmkBookingController {
     @ResponseBody
     public String getBookingList(String dataType, String startDate, String endDate, HttpServletRequest httpServletRequest){
         return gmkBookingService.getBookingList(dataType, startDate, endDate, httpServletRequest);
+    }
+    // 스케줄러용
+    @GetMapping("/getRsvList")
+    @ResponseBody
+    public String getRsvList(HttpServletRequest httpServletRequest){
+        DateFormat dateDBFormat = new SimpleDateFormat("yyyy-MM-dd");
+        String strDate = dateDBFormat.format(new Date());
+        String dataType = "jsonp";
+        return gmkBookingService.getBookingList(dataType, strDate, strDate, httpServletRequest);
     }
 
     // 취소주문 목록 조회

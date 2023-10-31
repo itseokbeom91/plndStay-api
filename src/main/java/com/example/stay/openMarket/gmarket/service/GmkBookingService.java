@@ -34,7 +34,7 @@ public class GmkBookingService {
         try{
             JSONObject requestJson = new JSONObject();
             requestJson.put("siteType", 2); // 1: 옥션, 2 : 지마켓
-            requestJson.put("orderStatus", 4); // 1 : 결제완료(주문 확인 전)
+            requestJson.put("orderStatus", 1); // 1 : 결제완료(주문 확인 전)
             requestJson.put("requestDateType", 5); // 조회 기준 구분 1 : 주문일
             requestJson.put("requestDateFrom", startDate);
             requestJson.put("requestDateTo", endDate);
@@ -118,6 +118,7 @@ public class GmkBookingService {
 //                    String sellerFundingDiscountPrice = orderJson.get("SellerFundingDiscountPrice").toString(); // 판매자 펀딩할인
 
                     // strRsvCode -> 주문번호 형식 어케?
+                    // TODO 얘도 담에 바꿔야함
                     String strRsvCode = "GMKtest";
                     // intOrderSeq -> 순번 어케 따지는? => default 값 사용
                     // strOrderStatus -> 뭐로 해야됨? 신규주문 조회로 할거니까 무조건 신규조회로 나올텐데 값을 뭐라고 넣음?
@@ -158,6 +159,7 @@ public class GmkBookingService {
 
                         strCheckIn = simpleDateFormat.format(dateCheckIn);
 
+                        // TODO 나중에 바꾸기
                         //int intRmIdx = Integer.parseInt(optJson.get("ItemOptionCode").toString()); // 주문옵션코드
                         int intRmIdx = 15302; // 일단 test data
 

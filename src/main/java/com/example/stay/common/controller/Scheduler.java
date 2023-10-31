@@ -37,7 +37,7 @@ public class Scheduler {
 
     CommonFunction commonFunction = new CommonFunction();
 
-    //@Scheduled(cron = "0 0/3 * * * *")
+    @Scheduled(cron = "0 0/3 * * * *")
     public void bookingEland(){
         try {
             System.out.println("scheduler booking ELAND");
@@ -53,13 +53,29 @@ public class Scheduler {
         }
     }
 
-    //@Scheduled(cron = "0 0/3 * * * *")
+    @Scheduled(cron = "0 0/3 * * * *")
     public void bookingSSG(){
         try {
             System.out.println("scheduler booking SSG");
 
             //URL url = new URL("http://localhost:8080/SSG/getRsvList");
             URL url = new URL("https://dmapi.condo24.com/SSG/getRsvList");
+            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+
+            new BufferedReader(new InputStreamReader(conn.getInputStream(), "UTF-8"));
+
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+    }
+
+    @Scheduled(cron = "0 0/3 * * * *")
+    public void bookingGMK(){
+        try {
+            System.out.println("scheduler booking GMK");
+
+//            URL url = new URL("http://localhost:8080/gmk/booking/getBookingList?dataType=json&startDate=2023-10-11&endDate=2023-10-30");
+            URL url = new URL("https://dmapi.condo24.com/gmk/booking/getRsvList");
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
 
             new BufferedReader(new InputStreamReader(conn.getInputStream(), "UTF-8"));
