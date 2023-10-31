@@ -18,7 +18,7 @@
     </select>
 
     <select id="insertStock" resultType="String">
-        EXEC PLNDSTAY.dbo.spGW_STOCK_TEMP_REGIST ${intAID}, ${intRmIdx}, #{strPackageCode}, #{strStockData}, ''
+        EXEC PLNDSTAY.dbo.spGW_STOCK_REAL_REGIST ${intAID}, ${intRmIdx}, #{strStockData}, ''
     </select>
 
     <select id="getLcdCode" resultType="map">

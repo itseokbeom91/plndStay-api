@@ -641,7 +641,7 @@ public class HanwhaService {
                         strStockDatas = strStockDatas.substring(0, strStockDatas.length() - 5);
                     }
 
-                    result = hanwhaMapper.insertStock(intAID, intRmIdx, strPackageCode, strStockDatas);
+                    result = hanwhaMapper.insertStock(intAID, intRmIdx, strStockDatas);
 
                     String strResult = result.substring(result.length() - 4);
                     if (strResult.equals("저장완료")) {

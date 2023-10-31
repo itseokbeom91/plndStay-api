@@ -67,7 +67,8 @@ public class RoomioService {
 
                     String strResult = roomioMapper.insertAccomm(strHotelId, strHotelName, strRoomDatas);
                     System.out.println(strResult);
-                    result = forObject.toJSONString();
+                    message = "success";
+                    //result = forObject.toJSONString();
                 }
             }
 //            System.out.println(result);
@@ -78,7 +79,7 @@ public class RoomioService {
             e.printStackTrace();
         }
 
-        return commonFunction.makeReturn(dataType, statusCode, message, result);
+        return commonFunction.makeReturn(dataType, statusCode, message);
     }
 
 

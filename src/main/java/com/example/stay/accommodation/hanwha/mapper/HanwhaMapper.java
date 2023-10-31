@@ -15,7 +15,7 @@ public interface HanwhaMapper {
 
     Map<String, String> getPkgLcdID(int intPkgIdx);
 
-    String insertStock(int intAID, int intRmIdx, String strPackageCode, String strStockData);
+    String insertStock(int intAID, int intRmIdx, String strStockData);
 
     List<Map<String, String>> getLcdCode(int intAID);
 

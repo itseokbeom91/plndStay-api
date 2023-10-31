@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 @Controller
 @RequestMapping("/roomio/*")
@@ -14,9 +15,10 @@ public class RoomioController {
     RoomioService roomioService;
 
     @GetMapping("/getAccommInfo")
-    public void getAccomm(String dataType){
+    @ResponseBody
+    public String getAccomm(String dataType){
 
-        roomioService.getAccomm(dataType);
+        return roomioService.getAccomm(dataType);
 
     }
 
@@ -31,9 +33,10 @@ public class RoomioController {
     public void bookingState(){}
 
     @GetMapping("/getRoomStock")
-    public void getStock(int intAID, int intRmIdx, String startDate, String endDate, String dataType){
+    @ResponseBody
+    public String getStock(int intAID, int intRmIdx, String startDate, String endDate, String dataType){
 
-        roomioService.getStock(intAID, intRmIdx, startDate, endDate, dataType);
+        return roomioService.getStock(intAID, intRmIdx, startDate, endDate, dataType);
 
     }
 

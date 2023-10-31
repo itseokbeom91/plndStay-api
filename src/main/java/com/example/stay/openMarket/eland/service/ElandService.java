@@ -109,7 +109,7 @@ public class ElandService {
                         String strRcvName = jsonObject.get("recvr_nm").toString();
                         String strRcvPhone = jsonObject.get("recvr_cell_no").toString();
                         String strRemark = (jsonObject.get("deli_memo_cont").toString().equals("미입력") || jsonObject.get("deli_memo_cont").toString().equals("미입력"))? "" : jsonObject.get("deli_memo_cont").toString();
-                        String strOrderCode = jsonObject.get("ord_no").toString();
+                        String strOrderCode = jsonObject.get("deli_no").toString();
                         int intOrderSeq = Integer.parseInt(jsonObject.get("deli_seq").toString());
                         String strOrderPackage = jsonObject.get("deli_no").toString();
 
@@ -150,7 +150,7 @@ public class ElandService {
 
             // 파라미터
             Map<String, String> map = elandMapper.getDeliInfo(intRsvID);
-            String strDeliNo = map.get("strOrderPackage");
+            String strDeliNo = map.get("strOrderCode");
             String strDeliSeq = map.get("intOrderSeq");
 
             Map<String, String> parameters = new HashMap<>();

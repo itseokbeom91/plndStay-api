@@ -1,6 +1,7 @@
 package com.example.stay.openMarket.ssg.service;
 
 import com.example.stay.common.util.CommonFunction;
+import com.example.stay.openMarket.common.dto.RsvStayDto;
 import com.example.stay.openMarket.ssg.mapper.SsgMapper;
 import com.fasterxml.jackson.databind.JsonNode;
 import org.json.simple.JSONArray;
@@ -213,6 +214,28 @@ public class SsgService {
                 }
             }
          */
+    }
+
+
+
+    public String apporveBooking(String dataType, int intRsvID){
+
+        String statusCode = "200";
+        String message = "";
+        String result = "";
+
+        try {
+
+            //RsvStayDto rsvStayDto =
+
+        }catch (Exception e){
+            message = " 실패";
+            statusCode = "500";
+            e.printStackTrace();
+        }
+
+        return commonFunction.makeReturn(dataType, statusCode, message);
+
     }
 
     /**

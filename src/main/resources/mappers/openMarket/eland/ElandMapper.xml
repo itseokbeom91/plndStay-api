@@ -90,7 +90,7 @@
     </select>
 
     <select id="getDeliInfo" resultType="map">
-        SELECT strOrderPackage, intOrderSeq FROM RSV_STAY_OMK WITH(NOLOCK) WHERE intRsvID = ${intRsvID}
+        SELECT strOrderCode, intOrderSeq FROM RSV_STAY_OMK WITH(NOLOCK) WHERE intRsvID = ${intRsvID}
     </select>
 
 
