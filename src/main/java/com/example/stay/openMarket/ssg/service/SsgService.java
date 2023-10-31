@@ -119,11 +119,10 @@ public class SsgService {
                         String strRcvName = jsonObject.get("rcptpeNm").toString();
                         String strRcvPhone = jsonObject.get("rcptpeHpno").toString();
                         String strRemark = (jsonObject.get("ordMemoCntt").toString().equals("미입력") || jsonObject.get("ordMemoCntt").toString().equals("미입력"))? "" : jsonObject.get("ordMemoCntt").toString();
-                        String strOrderCode = jsonObject.get("ordNo").toString();
-                        int intOrderSeq = Integer.parseInt(jsonObject.get("ordItemSeq").toString());
-                        String strOrderPackage = jsonObject.get("orordNo").toString();
+                        String strOrderCode = jsonObject.get("shppNo").toString();
+                        int intOrderSeq = Integer.parseInt(jsonObject.get("shppSeq").toString());
 
-                        //result = ssgMapper.createBooking(42,strRsvCode,intAID, intRmIdx, intRmCnt,strCheckIn,strCheckOut,strRmtypeName,strOrdName,strOrdPhone,strRcvName,strRcvPhone,strRemark,strOrderCode,intOrderSeq,strProductID,strOrderPackage);
+                        result = ssgMapper.createBooking(42,strRsvCode,intAID, intRmIdx, intRmCnt,strCheckIn,strCheckOut,strRmtypeName,strOrdName,strOrdPhone,strRcvName,strRcvPhone,strRemark,strOrderCode,intOrderSeq,strProductID);
                         System.out.println(result);
 
 

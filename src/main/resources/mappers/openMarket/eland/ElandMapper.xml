@@ -86,7 +86,7 @@
     </select>
 
     <select id="createBooking" resultType="String">
-        EXEC spOMK_RSV_REGIST ${intSeller}, #{strRsvCode}, ${intAID}, ${intRmIdx}, ${intRmCnt}, #{strCheckIn}, #{strCheckOut}, #{strRmtypeName}, '', #{strOrdName}, #{strOrdPhone}, '', #{strRcvName}, #{strRcvPhone}, '','', '', '211.242.129.51', #{strRemark}, #{strOrderCode}, ${intOrderSeq}, '0', #{strProductID}, #{strOrderPackage}, ''
+        EXEC spSSG_ELAND_RSV_REGIST ${intSeller}, #{strRsvCode}, ${intAID}, ${intRmIdx}, ${intRmCnt}, #{strCheckIn}, #{strCheckOut}, #{strRmtypeName}, #{strOrdName}, #{strOrdPhone}, #{strRcvName}, #{strRcvPhone}, '211.242.129.51', #{strRemark}, #{strOrderCode}, ${intOrderSeq}, '0', #{strProductID}, #{strOrderPackage}, ''
     </select>
 
     <select id="getDeliInfo" resultType="map">
