@@ -52,9 +52,51 @@ public class SsgService {
     }
 
 
-    public String getTest(){
+    public String getCancelList(String strStarteDate, String strEndDate, String dataType){
 
-        return "";
+        String statusCode = "200";
+        String message = "";
+        String result = "";
+
+        try {
+
+            JSONObject mainObject = new JSONObject();
+            JSONObject innerObject = new JSONObject();
+
+            innerObject.put("perdStrDts",strStarteDate);
+            innerObject.put("perdEndDts",strEndDate);
+
+            mainObject.put("request",innerObject);
+
+            JsonNode jsonNode = commonFunction.callJsonApi("SSG","", mainObject, "https://eapi.ssgadm.com/api/clm/cncl/ord/inquiry.ssg","POST");
+            int intCnt = jsonNode.get("result").get("shppDirections").get(0).size();
+            if(intCnt > 0) {
+                JSONArray jsonArray = (JSONArray) new JSONParser().parse(jsonNode.get("result").get("resultDesc").get("data").toString());
+                System.out.println(jsonArray);
+                for (Object object : jsonArray) {
+                    JSONObject dataObject = (JSONObject) JSONValue.parse(object.toString());
+                    String strOrderPackage = dataObject.get("ordNo").toString();
+
+                    int intRsvID = ssgMapper.getIntRsvID(strOrderPackage);
+                    ssgMapper.updateRsvStay(intRsvID);
+                    ssgMapper.updateRsvStayOmk(intRsvID);
+                    statusCode = "200";
+                    message = "주문취소 대기 ";
+
+                }
+            }else{
+                statusCode = "500";
+                message = "주문취소 없음";
+            }
+
+        }catch (Exception e){
+            message = " 실패";
+            statusCode = "500";
+            e.printStackTrace();
+        }
+
+        return commonFunction.makeReturn(dataType, statusCode, message);
+
     }
 
 
@@ -121,8 +163,9 @@ public class SsgService {
                         String strRemark = (jsonObject.get("ordMemoCntt").toString().equals("미입력") || jsonObject.get("ordMemoCntt").toString().equals("미입력"))? "" : jsonObject.get("ordMemoCntt").toString();
                         String strOrderCode = jsonObject.get("shppNo").toString();
                         int intOrderSeq = Integer.parseInt(jsonObject.get("shppSeq").toString());
+                        String strOrderPackage = jsonObject.get("ordNo").toString();
 
-                        result = ssgMapper.createBooking(42,strRsvCode,intAID, intRmIdx, intRmCnt,strCheckIn,strCheckOut,strRmtypeName,strOrdName,strOrdPhone,strRcvName,strRcvPhone,strRemark,strOrderCode,intOrderSeq,strProductID);
+                        result = ssgMapper.createBooking(42,strRsvCode,intAID, intRmIdx, intRmCnt,strCheckIn,strCheckOut,strRmtypeName,strOrdName,strOrdPhone,strRcvName,strRcvPhone,strRemark,strOrderCode,intOrderSeq,strProductID, strOrderPackage);
                         System.out.println(result);
 
 
@@ -449,6 +492,7 @@ public class SsgService {
      * @param endDate
      * @return
      */
+    /*
     public String getCancelList(String startDate, String endDate){
 
         String result = "";
@@ -464,6 +508,8 @@ public class SsgService {
 
         return result;
     }
+
+     */
 
 
     /**

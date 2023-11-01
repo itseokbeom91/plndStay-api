@@ -93,5 +93,24 @@
         SELECT strOrderCode, intOrderSeq FROM RSV_STAY_OMK WITH(NOLOCK) WHERE intRsvID = ${intRsvID}
     </select>
 
+    <select id="getIntRsvID" resultType="int">
+        select a.intRsvID from RSV_STAY_OMK a with(nolock)
+        inner join RSV_STAY b with(nolock) on a.intRsvID = b.intRsvID
+        where a.strOrderCode = #{strOrderCode}
+          and a.intOrderSeq = ${intOrderSeq}
+          and b.intSeller = 43
+    </select>
+
+    <update id="updateRsvStay">
+        update RSV_STAY set
+            strStatusCode = '14'
+        where intRsvID = ${intRsvID}
+    </update>
+
+    <update id="updateRsvStayOmk">
+        update RSV_STAY_OMK set
+            strStatusCode = '14'
+        where intRsvID = ${intRsvID}
+    </update>
 
 </mapper>

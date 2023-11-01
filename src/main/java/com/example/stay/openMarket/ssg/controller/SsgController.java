@@ -93,11 +93,13 @@ public class SsgController {
     }
 
     // 취소신청 목록조회
-    @GetMapping("/getcancelList")
+    @GetMapping("/getCancelList")
     @ResponseBody
-    public void getCancelList(String startDate, String endDate){
-
-        ssgService.getCancelList(startDate,endDate);
+    public void getCancelList(){
+        DateFormat dateDBFormat = new SimpleDateFormat("yyyyMMdd");
+        String strDate = dateDBFormat.format(new Date());
+        String dataType = "jsonp";
+        ssgService.getCancelList(strDate,strDate,dataType);
     }
 
 

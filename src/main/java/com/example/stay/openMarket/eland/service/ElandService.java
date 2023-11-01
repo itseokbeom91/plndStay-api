@@ -166,7 +166,16 @@ public class ElandService {
                     String strOrderCode = jsonObject.get("deli_no").toString();
                     int intOrderSeq = Integer.parseInt(jsonObject.get("deli_seq").toString());
 
+                    int intRsvID = elandMapper.getIntRsvID(strOrderCode, intOrderSeq);
+                    elandMapper.updateRsvStay(intRsvID);
+                    elandMapper.updateRsvStayOmk(intRsvID);
+
                 }
+                statusCode = "200";
+                message = "주문취소 대기";
+            }else{
+                statusCode = "200";
+                message = "주문취소신청 없음";
             }
 
 

@@ -50,7 +50,7 @@
     </select>
 
     <select id="createBooking" resultType="String">
-        EXEC spSSG_ELAND_RSV_REGIST ${intSeller}, #{strRsvCode}, ${intAID}, ${intRmIdx}, ${intRmCnt}, #{strCheckIn}, #{strCheckOut}, #{strRmtypeName}, #{strOrdName}, #{strOrdPhone}, #{strRcvName}, #{strRcvPhone}, '211.242.129.51', #{strRemark}, #{strOrderCode}, ${intOrderSeq}, '0', #{strProductID}, '', ''
+        EXEC spSSG_ELAND_RSV_REGIST ${intSeller}, #{strRsvCode}, ${intAID}, ${intRmIdx}, ${intRmCnt}, #{strCheckIn}, #{strCheckOut}, #{strRmtypeName}, #{strOrdName}, #{strOrdPhone}, #{strRcvName}, #{strRcvPhone}, '211.242.129.51', #{strRemark}, #{strOrderCode}, ${intOrderSeq}, '0', #{strProductID}, #{strOrderPackage}, ''
     </select>
 
     <select id="getShppNoInfo" resultType="map">
@@ -86,6 +86,25 @@
         WHERE SR.intAID = 101471
           AND SR.intSsgSeq IS NULL
     </select>
+
+    <select id="getIntRsvID" resultType="int">
+        select a.intRsvID from RSV_STAY_OMK a with(nolock)
+        inner join RSV_STAY b with(nolock) on a.intRsvID = b.intRsvID
+        where a.strOrderPackage = #{strOrderPackage}
+          and b.intSeller = 42
+    </select>
+
+    <update id="updateRsvStay">
+        update RSV_STAY set
+            strStatusCode = '14'
+        where intRsvID = ${intRsvID}
+    </update>
+
+    <update id="updateRsvStayOmk">
+        update RSV_STAY_OMK set
+            strStatusCode = '14'
+        where intRsvID = ${intRsvID}
+    </update>
 
 
 </mapper>

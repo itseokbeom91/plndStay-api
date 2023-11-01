@@ -122,8 +122,11 @@ public class ElandController {
     // 주문 취소 조회
     @GetMapping("getCancelList")
     @ResponseBody
-    public String getCancelList(){
-        return "";
+    public String getCancelList(HttpServletRequest request, HttpServletResponse response){
+        DateFormat dateDBFormat = new SimpleDateFormat("yyyyMMdd");
+        String strDate = dateDBFormat.format(new Date());
+        String dataType = "jsonp";
+        return elandService.getCancelList(request,response,dataType,strDate,strDate);
     }
 
     // 상품 수정
