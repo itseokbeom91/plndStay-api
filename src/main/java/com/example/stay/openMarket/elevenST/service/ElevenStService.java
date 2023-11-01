@@ -394,6 +394,11 @@ public class ElevenStService {
     public String updateDisplay (int intAID, String state) {
         try {
             String prdNo = commonMapper.getStrPdtCode(intAID, 1);
+            if(elevenStMapper.getUsgYn(String.valueOf(intAID)).equals("Y")){
+                state = "stopdisplay";
+            }else {
+                state = "restartdisplay";
+            }
             URL url = new URL(Constants.elevenUrl + "/rest/prodstatservice/stat/" + state + "/" + prdNo);
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             conn.setDoOutput(true);

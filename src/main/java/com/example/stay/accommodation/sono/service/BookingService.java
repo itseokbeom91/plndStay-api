@@ -241,16 +241,27 @@ public class BookingService {
         if(sDate != null) requestJson.put("sDate", sDate);
         if(rmTypeCd != null) requestJson.put("rmTypeCd", rmTypeCd);
         if(ciYmd != null) requestJson.put("ciYmd", ciYmd);
-        requestJson.put("language", Constants.sonoLanguage);
-        requestJson.put("businessId", Constants.sonoPackId);
+        String path = "";
+        String auth = "";
+        if(pkgNo.equals("")){
+            requestJson.put("businessId", Constants.sonoRoomId);
+            requestJson.put("language", Constants.sonoLanguage);
+            path=Constants.sonoRoomPath;
+            auth=Constants.sonoRoomAuth;
+        }else{
+            requestJson.put("businessId", Constants.sonoPackId);
+            requestJson.put("language", Constants.sonoLanguage);
+            path=Constants.sonoPackPath;
+            auth=Constants.sonoPackAuth;
+        }
         String contents = requestJson.toJSONString();
         MediaType mediaType = MediaType.parse("application/json");
         RequestBody body = RequestBody.create(mediaType, contents);
 
         Request request = new Request.Builder()
-                .url(Constants.sonoPackPath + "/statusList" + detailPath )
+                .url(path + "/statusList" + detailPath )
                 .method("POST", body)
-                .addHeader("X-AUTH-TOKEN", Constants.sonoPackAuth)
+                .addHeader("X-AUTH-TOKEN", auth)
                 .addHeader("Content-Type", "application/json")
                 .build();
 
@@ -339,16 +350,27 @@ public class BookingService {
         requestJson.put("ciYmd", ciYmd);
         requestJson.put("nights", nights);
         requestJson.put("rmCnt", rmCnt);
-        requestJson.put("businessId", Constants.sonoPackId);
-        requestJson.put("language", Constants.sonoLanguage);
+        String path = "";
+        String auth = "";
+        if(pkgNo.equals("")){
+            requestJson.put("businessId", Constants.sonoRoomId);
+            requestJson.put("language", Constants.sonoLanguage);
+            path=Constants.sonoRoomPath;
+            auth=Constants.sonoRoomAuth;
+        }else{
+            requestJson.put("businessId", Constants.sonoPackId);
+            requestJson.put("language", Constants.sonoLanguage);
+            path=Constants.sonoPackPath;
+            auth=Constants.sonoPackAuth;
+        }
         String contents = requestJson.toJSONString();
         MediaType mediaType = MediaType.parse("application/json");
         RequestBody body = RequestBody.create(mediaType, contents);
 
         Request request = new Request.Builder()
-                .url(Constants.sonoPackPath + "/amountList" + detailPath + "?businessId="+Constants.sonoPackId)
+                .url(path + "/amountList" + detailPath )
                 .method("POST", body)
-                .addHeader("X-AUTH-TOKEN", Constants.sonoPackAuth)
+                .addHeader("X-AUTH-TOKEN", auth)
                 .addHeader("Content-Type", "application/json")
                 .build();
 
@@ -780,7 +802,7 @@ public class BookingService {
     }
 
     //객실 현황 조회
-    public String getRoomStatus(String dataType, HttpServletRequest httpServletRequest, String storeCd, String sDate) {
+    public String getRoomStatus(String dataType, HttpServletRequest httpServletRequest, String storeCd, String sDate, String pkgNo) {
         long startTime = System.currentTimeMillis();
         OkHttpClient client = new OkHttpClient().newBuilder().build();
 
@@ -790,8 +812,19 @@ public class BookingService {
         String pkgData = "";
 
         JSONObject requestJson = new JSONObject();
-        requestJson.put("businessId", Constants.sonoRoomId);
-        requestJson.put("language", Constants.sonoLanguage);
+        String path = "";
+        String auth = "";
+        if(pkgNo.equals("")){
+            requestJson.put("businessId", Constants.sonoRoomId);
+            requestJson.put("language", Constants.sonoLanguage);
+            path=Constants.sonoRoomPath;
+            auth=Constants.sonoRoomAuth;
+        }else{
+            requestJson.put("businessId", Constants.sonoPackId);
+            requestJson.put("language", Constants.sonoLanguage);
+            path=Constants.sonoPackPath;
+            auth=Constants.sonoPackAuth;
+        }
         requestJson.put("storeCd", storeCd);
         requestJson.put("sDate", sDate);
         String contents = requestJson.toJSONString();
@@ -799,9 +832,9 @@ public class BookingService {
         RequestBody body = RequestBody.create(mediaType, contents);
 
         Request request = new Request.Builder()
-                .url(Constants.sonoRoomPath + "/statusList01")
+                .url(path + "/statusList01")
                 .method("POST", body)
-                .addHeader("X-AUTH-TOKEN", Constants.sonoRoomAuth)
+                .addHeader("X-AUTH-TOKEN", auth)
                 .addHeader("Content-Type", "application/json")
                 .build();
 

@@ -19,4 +19,6 @@ public interface ElevenStMapper {
     int getMinPrice(String intAID, String strDate);
 
     String updateRsv(String intRsvNo, String rsvState, RsvStayDto rsvStayDto);
+
+    String getUsgYn(String intAID);
 }

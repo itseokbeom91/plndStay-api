@@ -21,4 +21,9 @@ public class HomeController {
     public void ll(String intRsvID, HttpServletRequest httpServletRequest){
         commonService.rsvAuto(intRsvID, httpServletRequest);
     }
+
+    @GetMapping("/faxRtn")
+    public void faxRtn(String data, String Send_start, String Send_end, String ErrMsg, String toNumber){
+        commonService.faxRtn(data, Send_start, Send_end, ErrMsg, toNumber);
+    }
 }
