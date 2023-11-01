@@ -53,11 +53,8 @@ public class ElevenStController {
     @GetMapping("/modProduct")
     @ResponseBody
     public String modProduct(String intAID, @RequestParam(value = "prdNm", required = false, defaultValue = "" ) String prdNm, @RequestParam(value = "category", required = false, defaultValue = "0") int category){
-        if (prdNm.equals("") && category == 0){
-            return "수정할 내용이 없습니다.";
-        }else {
-            return elevenStService.modProduct(intAID, category, prdNm);
-        }
+
+        return elevenStService.modProduct(intAID, category, prdNm);
 
     }
 
