@@ -84,6 +84,15 @@ public class BookingController {
         return bookingService.updateRoomStock(dataType, httpServletRequest);
     }
 
+    /**
+     * 재고 등록 및 수정
+     */
+    @GetMapping("updateRoomStockByIntAID")
+    @ResponseBody
+    public String updateRoomStock(String dataType, int intAID, HttpServletRequest httpServletRequest){
+        return bookingService.updateRoomStockByIntAID(dataType, intAID, httpServletRequest);
+    }
+
 
 //    /**
 //     * 재고 등록 및 수정

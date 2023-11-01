@@ -550,9 +550,221 @@ public class BookingService extends CommonFunction{
 
                 strStockDatas = strStockDatas.substring(0, strStockDatas.length()-5);
 
-                System.out.println("strStockDatas : " + strStockDatas);
+//                String result = commonAcmMapper.updateGoods(intAID, intRmIdx, strStockDatas);
+                String result = kumhoMapper.updateStock(intAID, intRmIdx, strStockDatas);
+                String strResult = result.substring(result.length()-4);
+                if(!strResult.equals("저장완료")){
+                    intFailCnt ++;
+                    failRmIdx += intRmIdx + " ";
+                }
+            } // for문 끝
 
-                String result = commonAcmMapper.updateGoods(intAID, intRmIdx, strStockDatas);
+            if(intFailCnt == 0){
+                message = "재고 등록 및 수정 완료";
+            }else{
+                message = "재고 등록 및 수정 실패 : " + failRmIdx;
+            }
+
+            logWriter.add(message);
+            logWriter.log(0);
+        }catch (Exception e){
+            message = "재고 등록 및 수정 실패";
+            statusCode = "500";
+            logWriter.add("error : " + e.getMessage());
+            logWriter.log(0);
+            e.printStackTrace();
+        }
+        return commonFunction.makeReturn(dataType, statusCode, message);
+    }
+
+    // 재고 등록 및 수정
+    public String updateRoomStockByIntAID(String dataType, int intAID, HttpServletRequest httpServletRequest){
+        LogWriter logWriter = new LogWriter(httpServletRequest.getMethod(), httpServletRequest.getServletPath(),
+                httpServletRequest.getQueryString(), System.currentTimeMillis());
+        String statusCode = "200";
+        String message = "";
+        try{
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd");
+            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
+
+            List<Map<String, Object>> mappingMapList = kumhoMapper.getMappingInfoByIntAID(intAID);
+
+            int intRmIdx = 0;
+            String strMinDate = "";
+            String strMaxDate = "";
+            String strStockDatas = "";
+            int intFailCnt = 0;
+            String failRmIdx = "";
+            for(Map<String, Object> mappingMap : mappingMapList){
+                Map<String, Object> map = mappingMap;
+
+                intRmIdx = Integer.parseInt(map.get("intRmIdx").toString());
+                strMinDate = map.get("minDate").toString();
+                strMaxDate = map.get("maxDate").toString();
+                String strRmtypeID = map.get("strRmCode").toString();
+                String strLocalCode = map.get("strLocalCode").toString();
+
+                String kumhoUrl = "";
+
+                Date fromDate = simpleDateFormat.parse(strMinDate);
+                Date toDate = simpleDateFormat.parse(strMaxDate);
+
+                // 조회한 날짜의 기간 확인 (90일이 넘는지)
+                int diffDay = (int) (((toDate.getTime() - fromDate.getTime()) / 1000) / (24*60*60));
+
+                // 날짜 세팅
+                // 90일 이상일 경우
+                if(diffDay > 90){
+                    int roopCount = diffDay / 90;
+                    int remainder = diffDay % 90;
+                    if(remainder != 0){
+                        roopCount += 1;
+                    }
+
+                    Date dateStart = null;
+                    Date dateEnd = null;
+                    Loop1 :
+                    for(int i=0; i<roopCount; i++){
+                        Calendar cal = Calendar.getInstance();
+                        if(i == 0){
+                            cal.setTime(fromDate);
+                            cal.add(Calendar.DATE, 90); // fromDate + 90일로 세팅
+                            dateEnd = cal.getTime();
+
+                            strMinDate = sdf.format(fromDate);
+                            strMaxDate = sdf.format(dateEnd);
+                            kumhoUrl = "inter05.asp?groupid=" + Constants.groupId + "&fr_date=" + strMinDate + "&to_date=" + strMaxDate +
+                                    "&area=" + strLocalCode + "&site=" + site + "&room_type=" + strRmtypeID;
+
+                            // 새로운 날짜 세팅
+                            cal.setTime(fromDate);
+                            cal.add(Calendar.DATE, 90); // fromDate + 90일로 새로운 시작날짜 세팅
+                            dateStart = cal.getTime();
+
+                            long diff = toDate.getTime() - dateStart.getTime();
+                            TimeUnit time = TimeUnit.DAYS;
+                            long diffDays = time.convert(diff, TimeUnit.MILLISECONDS);
+
+                            if(diffDays > 90){ // 90일치 한 번 호출하고 난 후에도 maxDate까지 90일 이상 남았을 경우
+                                cal.setTime(dateStart);
+                                cal.add(Calendar.DATE, 90); // dateEnd = dateStart + 90일로 세팅
+                                dateEnd = cal.getTime();
+                            }else{
+                                cal.setTime(dateStart);
+                                cal.add(Calendar.DATE, (int) diffDays); // dateEnd = dateStart + toDate까지 남은일자로 세팅
+                                dateEnd = cal.getTime();
+                            }
+                        }else{
+                            strMinDate = sdf.format(dateStart);
+                            strMaxDate = sdf.format(dateEnd);
+                            kumhoUrl = "inter05.asp?groupid=" + Constants.groupId + "&fr_date=" + strMinDate + "&to_date=" + strMaxDate +
+                                    "&area=" + strLocalCode + "&site=" + site + "&room_type=" + strRmtypeID;
+
+                            // 새로운 날짜 세팅
+                            cal.setTime(dateStart);
+                            cal.add(Calendar.DATE, 90); // dateStart + 90일로 새로운 시작날짜 세팅
+                            dateStart = cal.getTime();
+
+                            long diff = toDate.getTime() - dateStart.getTime();
+                            TimeUnit time = TimeUnit.DAYS;
+                            long diffDays = time.convert(diff, TimeUnit.MILLISECONDS);
+
+                            if(diffDays > 90){
+                                cal.setTime(dateStart);
+                                cal.add(Calendar.DATE, 90); // dateEnd = 새로운 dateStart + 90일로 세팅
+                                dateEnd = cal.getTime();
+
+                            }else{
+                                cal.setTime(dateStart);
+                                cal.add(Calendar.DATE, (int) diffDays); // dateEnd = 새로운 dateStart + dateEnd까지 남은일자로 세팅
+                                dateEnd = cal.getTime();
+                            }
+                        }
+
+                        // API 호출
+                        Document document = callKumhoAPI(kumhoUrl);
+                        if(document != null){
+                            NodeList roomList = document.getElementsByTagName("room");
+                            for(int j=0; j< roomList.getLength(); j++) {
+                                Node node = roomList.item(j);
+                                if (node.getNodeType() == Node.ELEMENT_NODE) {
+                                    Element element = (Element) node;
+
+                                    String rdate = xmlUtility.getTagValue("rdate", element).trim();
+                                    String msg = URLDecoder.decode(xmlUtility.getTagValue("msg", element), "utf-8");
+                                    if(rdate.equals("F")){
+                                        message = URLDecoder.decode(msg, "utf-8");
+                                        break Loop1;
+                                    }else{
+                                        strRmtypeID = xmlUtility.getTagValue("roomtype", element);
+
+                                        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+                                        String dateSales = dateFormat.format(sdf.parse(rdate));
+
+                                        int intStock = Integer.parseInt(xmlUtility.getTagValue("remainCount", element));
+                                        if(intStock < 0){
+                                            intStock = 0;
+                                        }
+                                        int intOmkStock = intStock;
+
+                                        // 금호는 가격을 안줌
+                                        int intCost = 0, intSales = 0, intExtraA = 0, intExtraB = 0, intExtraC = 0;
+
+                                        strStockDatas += dateSales + "|^|" + intStock + "|^|" + intCost + "|^|" + intSales + "|^|"
+                                                + intExtraA + "|^|" + intExtraC + "|^|" + intExtraB + "|^|" + intOmkStock + "|^|" + "{{|}}";
+
+
+                                    }
+                                }
+                            }
+
+                        }else{
+                            message = "재고 조회 실패";
+                            logWriter.add(message);
+                        }
+                    }
+                }else{ // 90일 이상이 아닐 경우
+                    kumhoUrl = "inter05.asp?groupid=" + Constants.groupId + "&fr_date=" + strMinDate + "&to_date=" + strMaxDate +
+                            "&area=" + strLocalCode + "&site=" + site + "&room_type=" + strRmtypeID;
+                    // API 호출
+                    Document document = callKumhoAPI(kumhoUrl);
+                    if(document != null){
+                        NodeList roomList = document.getElementsByTagName("room");
+                        for(int j=0; j< roomList.getLength(); j++) {
+                            Node node = roomList.item(j);
+                            if (node.getNodeType() == Node.ELEMENT_NODE) {
+                                Element element = (Element) node;
+
+                                String rdate = xmlUtility.getTagValue("rdate", element).trim();
+                                String msg = URLDecoder.decode(xmlUtility.getTagValue("msg", element), "utf-8");
+                                if(rdate.equals("F")){
+                                    message = URLDecoder.decode(msg, "utf-8");
+                                    logWriter.add(message);
+                                    break;
+                                }else{
+                                    SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+                                    String dateSales = dateFormat.format(sdf.parse(rdate));
+
+                                    int intStock = Integer.parseInt(xmlUtility.getTagValue("remainCount", element));
+                                    int intOmkStock = intStock;
+
+                                    // 금호는 가격을 안줌
+                                    int intCost = 0, intSales = 0, intExtraA = 0, intExtraB = 0, intExtraC = 0;
+
+                                    strStockDatas += dateSales + "|^|" + intStock + "|^|" + intCost + "|^|" + intSales + "|^|"
+                                            + intExtraA + "|^|" + intExtraC + "|^|" + intExtraB + "|^|" + intOmkStock + "|^|" + "{{|}}";
+                                }
+                            }
+                        }
+                    }else{
+                        message = "재고 조회 실패";
+                    }
+                }
+
+                strStockDatas = strStockDatas.substring(0, strStockDatas.length()-5);
+
+//                String result = commonAcmMapper.updateGoods(intAID, intRmIdx, strStockDatas);
+                String result = kumhoMapper.updateStock(intAID, intRmIdx, strStockDatas);
                 String strResult = result.substring(result.length()-4);
                 if(!strResult.equals("저장완료")){
                     intFailCnt ++;
