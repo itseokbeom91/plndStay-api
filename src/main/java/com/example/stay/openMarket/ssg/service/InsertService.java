@@ -18,11 +18,11 @@ import org.springframework.stereotype.Service;
 import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Scanner;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
 
 @Service
 public class InsertService {
@@ -56,6 +56,11 @@ public class InsertService {
             String strKeywords = (accommDto.getStrKeywords() != null)? accommDto.getStrKeywords() : accommDto.getStrSubject();
 
             JSONObject mainObject = new JSONObject();
+
+            // 최저가
+            DateFormat dateDBFormat = new SimpleDateFormat("yyyyMMdd");
+            String strDBDate = dateDBFormat.format(new Date());
+            int intMinPrice = commonMapper.getMinPrice(intAID, strDBDate, 7);
 
             // =============================
             // 고정값
@@ -213,19 +218,21 @@ public class InsertService {
             // 메인사진 10장 DB에서 가져오기
 
             System.out.println(accommDto.getStrACMPhotos());
-            String[] photos = accommDto.getStrACMPhotos().split("\\|");
-            List<Object> dataPhotoList = new ArrayList<>();
-            for(int i=0; i<10; i++){
-                JSONObject imgObject = new JSONObject();
-                imgObject.put("dataSeq", (i+1));
-                imgObject.put("dataFileNm", "https://condo24.com"+photos[i]);
-                imgObject.put("rplcTextNm", "이미지"+(i+1));
-                dataPhotoList.add(imgObject);
+            if(accommDto.getStrACMPhotos() != null){
+                String[] photos = accommDto.getStrACMPhotos().split("\\|");
+                List<Object> dataPhotoList = new ArrayList<>();
+                for(int i=0; i<10; i++){
+                    JSONObject imgObject = new JSONObject();
+                    imgObject.put("dataSeq", (i+1));
+                    imgObject.put("dataFileNm", "https://condo24.com"+photos[i]);
+                    imgObject.put("rplcTextNm", "이미지"+(i+1));
+                    dataPhotoList.add(imgObject);
+                }
+                itemImgsObject.put("imgInfo",dataPhotoList);
+
             }
-
-            itemImgsObject.put("imgInfo",dataPhotoList);
-
             insertObject.put("itemImgs",itemImgsObject);
+
 
 
             // =============================
@@ -272,13 +279,17 @@ public class InsertService {
 //                String strDate = dto.getDateSales().substring(0, dto.getDateSales().lastIndexOf("."));
                 // 날짜 포맷
                 String strDate = dto.getDateSales().trim();
-                SimpleDateFormat dateDate = new SimpleDateFormat("yyyyMMdd");
-                Date dateStrDate = dateDate.parse(strDate);
-                SimpleDateFormat goodDate = new SimpleDateFormat("MM월dd일(E)"); // uitemOptnChoiTypeCd1 : 10일때
-//                SimpleDateFormat goodDate = new SimpleDateFormat("yyyy-MM-dd"); // uitemOptnChoiTypeCd1 : 30일때
-                String strGoodDate = goodDate.format(dateStrDate);
-                System.out.println(strGoodDate);
-                itemObject.put("uitemOptnNm1", strGoodDate);
+//                SimpleDateFormat dateDate = new SimpleDateFormat("yyyyMMdd");
+//                Date dateStrDate = dateDate.parse(strDate);
+//                SimpleDateFormat goodDate = new SimpleDateFormat("MM월dd일(E)"); // uitemOptnChoiTypeCd1 : 10일때
+////                SimpleDateFormat goodDate = new SimpleDateFormat("yyyy-MM-dd"); // uitemOptnChoiTypeCd1 : 30일때
+//                String strGoodDate = goodDate.format(dateStrDate);
+
+                LocalDate localDate = LocalDate.parse(strDate);
+                String formattedDate = localDate.format(DateTimeFormatter.ofPattern("MM월dd일(E)", Locale.KOREAN));
+
+
+                itemObject.put("uitemOptnNm1", formattedDate);
 
                 // 2번옵션명(타입)
                 itemObject.put("uitemOptnTypeNm2", "타입");
@@ -339,7 +350,7 @@ public class InsertService {
             JSONObject salesPrcInfoObject = new JSONObject();
 
 
-            int intSellprc = commonMapper.getMinPrice(intAID, strNow, 7);
+            int intSellprc = ssgMapper.getMinPrice(intAID, strNow);
             System.out.println(intSellprc);
             int intMrgrt = 8;
             int intSplprc = (intSellprc * (100-intMrgrt) / 100);

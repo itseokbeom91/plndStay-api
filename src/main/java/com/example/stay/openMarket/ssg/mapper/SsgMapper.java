@@ -46,5 +46,8 @@ public interface SsgMapper {
 
     // 판매 중지 재개 업데이트
     void updateStatus(String strStatus, int intAID);
+
+    // 최소값
+    int getMinPrice(int intAID, String strDate);
     List<StockDto> getTestStockList();
 }

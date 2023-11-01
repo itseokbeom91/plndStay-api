@@ -110,5 +110,14 @@
         update accomm set strViewYn = #{strStatus} where intAID = ${intAID}
     </update>
 
+    <select id="getMinPrice" resultType="int">
+        SELECT CONVERT(int, MIN(SR.moneySales)) AS minPrice
+        FROM STOCK_REAL SR WITH(NOLOCK)
+        WHERE SR.intAID = ${intAID}
+        AND NOT SR.moneySales &lt; 1
+        AND SR.dateSales >= #{strDate}
+        AND SR.dateSales &lt; DATEADD(DAY, 100, #{strDate})
+    </select>
+
 
 </mapper>
