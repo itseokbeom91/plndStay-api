@@ -17,7 +17,7 @@ public class HomeController {
         return "index";
     }
 
-    @GetMapping("testBooking")
+    @GetMapping("/rsvAuto")
     public void ll(String intRsvID, HttpServletRequest httpServletRequest){
         commonService.rsvAuto(intRsvID, httpServletRequest);
     }

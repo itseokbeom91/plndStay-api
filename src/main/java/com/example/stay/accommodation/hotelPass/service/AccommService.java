@@ -68,7 +68,7 @@ public class AccommService {
                             longitude = longitude.substring(0,3) + "." + longitude.substring(3);
                         }
                     }
-//                    address = commonFunction.getJusoByGeoCd(latitude, longitude);
+                    address = commonFunction.getJusoByGeoCd(latitude, longitude);
                     if(address==null){//좌표조회로 주소조회가 안될시 기존 영문주소 입력
                         address = hotelList.item(i).getChildNodes().item(9).getTextContent();
                     }
@@ -171,6 +171,7 @@ public class AccommService {
 
                     } else {
                         strDistrictCode1 = commonFunction.addressToDistrictCode(addressDetail[0]);
+                        if(addressDetail[1].equals("")){continue;}
                         strDistrictCode2 = accommMapper.getDistrictCode(addressDetail[1], strDistrictCode1);
                     }
                 }

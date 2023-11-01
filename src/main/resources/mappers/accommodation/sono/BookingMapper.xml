@@ -30,4 +30,8 @@
         EXEC PLNDSTAY.dbo.spGW_RSV_STAY_UPDATE_PROCESS #{intRsvID}, #{strRsvRmNumDatas}, #{strPenaltyDatas}, ''
     </select>
 
+    <update id="updateRsvCode">
+        UPDATE PLNDSTAY.dbo.RSV_STAY SET strRsvCode = ${comRsvNo} where intRsvID = ${intRsvID}
+    </update>
+
 </mapper>

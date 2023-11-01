@@ -42,4 +42,8 @@ public interface CommonMapper {
     String getMailYn(String intAID);
 
     String getSpavisTicketNo(String intRsvID);
+
+    String getInformMoney(String intAID);
+
+    String getAcmNmByintAID(String intAID);
 }

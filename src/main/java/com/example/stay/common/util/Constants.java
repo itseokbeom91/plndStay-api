@@ -129,10 +129,10 @@ public class Constants {
     public static final String sonoTicketId = "condo2400_api_2";
     public static final String sonoRoomAuth = "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJjb25kbzI0MDBfYXBpXzMiLCJpYXQiOjE2MDI1NjMxMDEsImV4cCI6MjUzNDAyMjY4Mzk5fQ.aSEfOsgMF4cey3NcY-rlTxcxsMQYVD86jCn6s2dJyFE";
     public static final String sonoRoomId = "condo2400_api_3";
-        public static final String sonoPackPath = "https://sonoapi.traveland.co.kr/api/ota/v1/test/pack";       // 패키지URL(테스트)
-    public static final String sonoRoomPath = "https://sonoadmin.traveland.co.kr/api/ota/v1/test/roomonly"; // 룸온리URL(테스트)
-//    public static final String sonoPackPath = "https://sonoapi.traveland.co.kr/api/ota/v1/real/pack";       // 패키지URL(운영)
-//    public static final String sonoRoomPath = "https://sonoadmin.traveland.co.kr/api/ota/v1/real/roomonly"; // 룸온리URL(운영)
+//        public static final String sonoPackPath = "https://sonoapi.traveland.co.kr/api/ota/v1/test/pack";       // 패키지URL(테스트)
+//    public static final String sonoRoomPath = "https://sonoadmin.traveland.co.kr/api/ota/v1/test/roomonly"; // 룸온리URL(테스트)
+    public static final String sonoPackPath = "https://sonoapi.traveland.co.kr/api/ota/v1/real/pack";       // 패키지URL(운영)
+    public static final String sonoRoomPath = "https://sonoadmin.traveland.co.kr/api/ota/v1/real/roomonly"; // 룸온리URL(운영)
     public static final String sonoLanguage = "kor";
 
     // ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━

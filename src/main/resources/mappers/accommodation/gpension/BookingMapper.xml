@@ -34,7 +34,7 @@
          FROM PLNDSTAY.dbo.RSV_STAY RS
          INNER JOIN PLNDSTAY.dbo.ACCOMM A with(nolock) on A.intAID = RS.intAID
         INNER JOIN PLNDSTAY.dbo.RMTYPE R with(nolock) on R.intIdx = RS.intRmIdx
-         WHERE RS.intRsvID = #{BookingIdx}
+         WHERE RS.intRsvID = #{intRsvID}
     </select>
 
     <select id="getMaxpeopleByroomId" resultType="int">
@@ -48,4 +48,8 @@
             strRmNum = #{orderID}
         WHERE intRsvID = #{intRsvID}
     </update>
+
+    <select id="getMoneyByintRsvID" resultType="string">
+        SELECT moneyCost FROM PLNDSTAY.dbo.STOCK_REAL WHERE intRmIdx = ${intRmIdx} AND dateSales = ${dateCheckIn}
+    </select>
 </mapper>
