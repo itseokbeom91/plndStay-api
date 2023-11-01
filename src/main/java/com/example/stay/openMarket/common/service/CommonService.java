@@ -225,7 +225,6 @@ public class CommonService {
             strRsvGuide = accommDto.getStrRsvGuide();
         }else{
             strRsvGuide =
-                    "           <!-- //이용안내가 없는 경우 -->\n" +
                     "           <p style=\"font-size: 30px; paddign: 0; margin:0;\">[예약시 주의사항]</p>\n" +
                     "           - 객실배정은 당일날 프런트에서 입실순서대로 배정합니다(사전배정불가).<br/>\n" +
                     "           - 입실시간이 밤10시가 넘을 경우 프런트로 사전에 도착시간을 통보하시기 바랍니다.<br/>\n" +
@@ -235,8 +234,7 @@ public class CommonService {
                     "           - 미성년자의 혼숙으로 발생하는 입실거부에 대한 취소 혹은 환불은 절대 불가능합니다.<br/>\n" +
                     "           - 노쇼(NO-SHOW 사전통보 없이 숙소를 이용하지 않음)의 경우 100% 청구됩니다.<br/>\n" +
                     "           - 취소 및 변경은 근무시간 안에 요청하셔야 합니다(휴일불가).<br/>\n" +
-                    "           - 객실별 기준인원을 확인하시기 바랍니다(정원초과 시 인원 추가비 필수).\n" +
-                    "           <!-- 이용안내가 없는 경우// -->\n";
+                    "           - 객실별 기준인원을 확인하시기 바랍니다(정원초과 시 인원 추가비 필수).\n";
         }
         String strFac = (accommDto.getStrFac() != null)? accommDto.getStrFac() : "";
 
@@ -279,7 +277,6 @@ public class CommonService {
                 "      </div>\n" +
                 "   </div>\n" +
                 "\n" +
-                "   <!-- //객실옵션 -->\n" +
                 "   <div style=\"padding: 0; margin: 55px 0 0;\">\n" +
                 "      <img src=\"https://www.condo24.com/data/images/omk/txt_rm_info.png\" alt=\"객실 안내\" style=\"display: block; padding: 0; margin: 0;\"/>\n" +
                 "      <div style=\"max-width: 800px; padding: 0; margin: 0 auto;\">\n" +
@@ -300,8 +297,7 @@ public class CommonService {
                 result +=
                 "         </div>\n" +
                 "      </div>\n" +
-                "   </div>\n" +
-                "   <!-- 객실옵션// -->\n";
+                "   </div>\n";
         // 예약시 주의사항
         if(strRsvGuide.length() > 0){
             result +=

@@ -86,12 +86,12 @@ public class ElandService {
 
                         String strRsvCode = "test";
                         String strProductID = jsonObject.get("goods_no").toString();
-//                    int intAID = elandMapper.getIntAID(strProductID);
-                        int intAID = 101471;
+                        int intAID = elandMapper.getIntAID(strProductID);
+//                        int intAID = 101471;
                         int intItemNo = Integer.parseInt(jsonObject.get("item_no").toString());
-                        //Map<String, String> map =  elandMapper.getRmIdxNChechIn(intAID, intItemNo);
-                        //int intRmIdx = Integer.parseInt(map.get("intRmIdx").toString());
-                        int intRmIdx = 15302;
+                        Map<String, String> map =  elandMapper.getRmIdxNChechIn(intAID, intItemNo);
+                        int intRmIdx = Integer.parseInt(map.get("intRmIdx").toString());
+//                        int intRmIdx = 15302;
                         int intRmCnt = Integer.parseInt(jsonObject.get("indi_qty").toString());
                         String strItemName = jsonObject.get("item_nm").toString();
 
@@ -391,7 +391,7 @@ public class ElandService {
             String strDBDate = dateDBFormat.format(new Date());
 
             // 상세설명
-            String strDesc = commonService.getStrPdtDtlInfo(accommDto, intAID, 9).replace("<", "&lt;").replace(">", "&gt;");
+            String strDesc = commonService.getStrPdtDtlInfo(accommDto, intAID, 9).replace("&quot;", "\"").replace("\n","");
 
             // 최저가
             int intMinPrice = commonMapper.getMinPrice(intAID, strDBDate, 9);
@@ -692,7 +692,8 @@ public class ElandService {
                 String strDBDate = dateDBFormat.format(new Date());
 
                 // 상세설명
-                String strDesc = commonService.getStrPdtDtlInfo(accommDto, intAID, 9).replace("<", "&lt;").replace(">", "&gt;");
+                String strDesc = commonService.getStrPdtDtlInfo(accommDto, intAID, 9).replace("&quot;", "\"").replace("\n","");
+
 
                 // 최저가
                 int intMinPrice = commonMapper.getMinPrice(intAID, strDBDate, 9);

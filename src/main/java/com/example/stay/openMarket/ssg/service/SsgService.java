@@ -138,12 +138,12 @@ public class SsgService {
 
                         String strRsvCode = "test";
                         String strProductID = jsonObject.get("itemId").toString();
-//                        int intAID = ssgMapper.getIntAID(strProductID);
-                        int intAID = 101471;
+                        int intAID = ssgMapper.getIntAID(strProductID);
+//                        int intAID = 101471;
                         int intStockIdx = Integer.parseInt(jsonObject.get("uSplVenItemId").toString());
-                        //Map<String, String> map = ssgMapper.getRmIdxNChechIn(intStockIdx);
-                        //int intRmIdx = Integer.parseInt(map.get("intRmIdx").toString());
-                        int intRmIdx = 15302;
+                        Map<String, String> map = ssgMapper.getRmIdxNChechIn(intStockIdx);
+                        int intRmIdx = Integer.parseInt(map.get("intRmIdx").toString());
+//                        int intRmIdx = 15302;
                         int intRmCnt = Integer.parseInt(jsonObject.get("ordQty").toString());
                         String strItemName = jsonObject.get("uitemNm").toString();
 

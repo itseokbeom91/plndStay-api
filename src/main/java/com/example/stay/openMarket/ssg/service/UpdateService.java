@@ -618,9 +618,10 @@ public class UpdateService {
 
             // HTTP POST 요청 생성
             HttpPost httpPost = new HttpPost(strUrl);
-            httpPost.setHeader("Content-Type", "application/json");
+            httpPost.setHeader("Content-Type", "application/json;charset=UTF-8");
             httpPost.setEntity(new StringEntity(jsonRequest));
             httpPost.setHeader("Authorization", Constants.SsgAuthorization);
+            httpPost.setHeader("Accept-Charset", "UTF-8");
 
             // HTTP 요청 보내기
             HttpResponse response = httpClient.execute(httpPost);
