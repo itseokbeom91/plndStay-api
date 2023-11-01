@@ -22,4 +22,10 @@ public interface HanwhaMapper {
     RsvStayDto getRsvInfo(int intRsvID);
 
     String updateRsv(int intRsvID, String strStatusCode, String strRsvRmNum);
+
+    List<Integer> getIntAID();
+
+    List<Map<String, String>> getRmMapCode(int intAID);
+
+    List<String> getLocalCode(int intAID);
 }

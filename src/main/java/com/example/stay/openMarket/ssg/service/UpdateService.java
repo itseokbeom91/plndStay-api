@@ -399,11 +399,168 @@ public class UpdateService {
                     return commonFunction.makeReturn(dataType, statusCode, message);
                 }
 
-            }else if(strType.equals("name")){
+            }else if(strType.equals("name")) {
 
                 String strSubject = accommDto.getStrSubject();
                 updateObject.put("itemNm", strSubject);
                 message = "상품명 변경 완료";
+
+            }else if(strType.equals("all")){
+
+                // 사진 10장
+                String[] photos = accommDto.getStrACMPhotos().split("\\|");
+                List<Object> dataPhotoList = new ArrayList<>();
+                for(int i=0; i<10; i++){
+                    JSONObject imgObject = new JSONObject();
+                    imgObject.put("dataSeq", (i+1));
+                    imgObject.put("dataFileNm", "https://condo24.com"+photos[i]);
+                    imgObject.put("rplcTextNm", "이미지"+(i+1));
+                    dataPhotoList.add(imgObject);
+                }
+
+                JSONObject itemImgsObject = new JSONObject();
+                itemImgsObject.put("imgInfo",dataPhotoList);
+                updateObject.put("itemImgs",itemImgsObject);
+
+                // desc
+                String strImgDesc = commonService.getStrPdtDtlInfo(accommDto, intAID, 7).replace("<", "&lt;").replace(">", "&gt;");
+                updateObject.put("itemDesc", strImgDesc);
+
+                // 재고
+                // 우선 채번으로 99999 넘을때 패스 시키기
+                // 현재 날짜
+                SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd 00:00:00");
+                Date date = new Date();
+                String strNow = dateFormat.format(date);
+
+                int intMaxNum = ssgMapper.getMaxSsgSeq(intAID); // 현재 DB에 등록되어있는 재고의 SSG Seq
+                int intCntTempStock = ssgMapper.getCntTempStock(intAID, strNow); // 현재 DB에 재고는 있지만 SSG 등록 안되어있는 재고 개수
+                System.out.println(intMaxNum + " / " + intCntTempStock);
+
+                if(intMaxNum + intCntTempStock > 99999){
+                    System.out.println("방지");
+                    statusCode = "500";
+                    message = "99999 넘어서 새로 만들어야함";
+                }else{
+
+                    // 현재 ssg api에 등록되어있는 재고 uitemId 가져와서 uitemIdList에 담기
+                    JSONArray uitemsArray = (JSONArray) new JSONParser().parse(object.get("uitems").toString());
+                    JSONObject uitemsObject = (JSONObject) new JSONParser().parse(uitemsArray.get(0).toString());
+                    JSONArray uitemArray = (JSONArray) new JSONParser().parse(uitemsObject.get("uitem").toString());
+                    List<String> uitemIdList = new ArrayList<>();
+                    for (Object array : uitemArray) {
+                        JSONObject arObject = (JSONObject) new JSONParser().parse(array.toString());
+                        uitemIdList.add(arObject.get("uitemId").toString());
+                        //System.out.println(uitemIdList);
+                    }
+
+
+                    List<StockDto> stockList = commonMapper.getStockList(intAID, 7, strNow);
+//                    List<StockDto> stockList = ssgMapper.getTestStockList();
+
+                    List<Object> uitemList = new ArrayList<>();
+                    List<Object> priceList = new ArrayList<>();
+                    for (StockDto dto : stockList) {
+                        JSONObject itemObject = new JSONObject();
+
+                        itemObject.put("uitemNm", object.get("itemNm"));
+
+                        // uitem
+                        String strUitemId = String.format("%05d", dto.getIntSsgSeq());
+
+                        // 있는 재고 update 새로운 재고 insert
+                        if (uitemIdList.contains(strUitemId)) {
+                            itemObject.put("uitemId", strUitemId);
+                        } else {
+                            intMaxNum += 1;
+                            String strTmepUitemId = String.format("%05d", intMaxNum);
+                            itemObject.put("tempUitemId", strTmepUitemId);
+                        }
+//                    itemObject.put("uitemId", uitemId);
+
+                        // 품절여부
+                        String strSellStatCd = "20";
+                        if (((dto.getStrRmtypeName().contains("2박") == true || dto.getStrRmtypeName().contains(" 연박") == true) & dto.getIntNextStock() == 0) || dto.getIntStock() == 0) {
+                            strSellStatCd = "80";
+                        }
+                        itemObject.put("sellStatCd", strSellStatCd);
+
+                        // 1번옵션명(입실일자)
+                        itemObject.put("uitemOptnTypeNm1", "일실입자");
+
+                        String strDate = dto.getDateSales().trim();
+                        SimpleDateFormat dateDate = new SimpleDateFormat("yyyyMMdd");
+                        Date dateStrDate = dateDate.parse(strDate);
+                        SimpleDateFormat goodDate = new SimpleDateFormat("MM월dd일(E)");
+                        // 캘린더형으로 할때 유형
+//                    SimpleDateFormat goodDate = new SimpleDateFormat("yyyy-MM-dd");
+                        String strGoodDate = goodDate.format(dateStrDate);
+                        itemObject.put("uitemOptnNm1", strGoodDate);
+
+                        // 2번옵션명(타입)
+                        itemObject.put("uitemOptnTypeNm2", "타입");
+                        String strTocode = dto.getStrRmtypeName();
+                        itemObject.put("uitemOptnNm2", strTocode);
+
+
+                        // 재고
+                        int intOMKStock = dto.getIntStock();
+                        if (((dto.getStrRmtypeName().contains("2박") == true || dto.getStrRmtypeName().contains(" 연박") == true) & dto.getIntNextStock() == 0) || dto.getIntStock() == 0) {
+                            intOMKStock = 0;
+                        }
+                        itemObject.put("baseInvQty", intOMKStock);
+
+                        itemObject.put("splVenItemId", dto.getIntIdx());
+                        itemObject.put("useYn", "Y");
+
+                        uitemList.add(itemObject);
+
+                        // 가격
+                        JSONObject priceObject = new JSONObject();
+
+                        int intPrice = dto.getMoneySales();
+
+                        int intSSGPrice = (intPrice * (100 - 8) / 100);
+                        if(uitemIdList.contains(strUitemId)){
+                            priceObject.put("uitemId", strUitemId);
+                        }else{
+                            String strTmepUitemId = String.format("%05d", intMaxNum);
+                            priceObject.put("tempUitemId", strTmepUitemId);
+                        }
+                        //priceObject.put("uitemId", uitemId);
+                        priceObject.put("splprc", intSSGPrice);
+                        priceObject.put("sellprc", intPrice);
+                        priceObject.put("mrgrt", 8);
+
+                        priceList.add(priceObject);
+                    }
+
+                    JSONObject itemObject = new JSONObject();
+                    itemObject.put("uitem", uitemList);
+                    updateObject.put("uitems", itemObject);
+
+                    JSONObject itemPriceObject = new JSONObject();
+                    itemPriceObject.put("uitemPrc", priceList);
+                    updateObject.put("uitemPluralPrcs", itemPriceObject);
+
+
+                    // attr
+                    JSONObject attrObject = new JSONObject();
+                    attrObject.put("uitemCacOptnYn", "N");
+                    attrObject.put("uitemOptnChoiTypeCd1", "10"); // 10: 텍스트, 30: 캘린더
+                    attrObject.put("uitemOptnExpsrTypeCd1", "10");
+                    attrObject.put("uitemOptnChoiTypeCd2", "10");
+                    attrObject.put("uitemOptnExpsrTypeCd2", "10");
+
+                    updateObject.put("uitemAttr", attrObject);
+
+                }
+
+                // 상품명 변경
+                String strSubject = accommDto.getStrSubject();
+                updateObject.put("itemNm", strSubject);
+                message = "상품명 변경 완료";
+
 
             }else{
                 statusCode = "500";

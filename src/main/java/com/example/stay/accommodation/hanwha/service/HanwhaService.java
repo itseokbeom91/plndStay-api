@@ -20,6 +20,7 @@ import org.w3c.dom.Node;
 import javax.servlet.http.HttpServletRequest;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -545,6 +546,64 @@ public class HanwhaService {
         }
 
         return commonFunction.makeReturn("json", statusCode, message);
+
+    }
+
+
+    public String mappingCapa(){
+        String statusCode = "200";
+        String message = "";
+        String result = "";
+
+        try {
+
+            DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyyMMdd");
+
+            // 현재 날짜
+            LocalDate currentDate = LocalDate.now();
+            String strStartDate = currentDate.format(dateFormatter);
+
+            // 100일 추가
+            LocalDate date100DaysLater = currentDate.plusDays(100);
+            String strEndDate = date100DaysLater.format(dateFormatter);
+            String dataType = "jsonp";
+
+            // intAID 구하기
+            List<Integer> intAIDList = hanwhaMapper.getIntAID();
+            for(int intAID : intAIDList){
+
+                // localCode 구하기
+                List<String> localCodeMap = hanwhaMapper.getLocalCode(intAID);
+
+                // intRmIdx, strMapCode 구하기
+                List<Map<String, String>> rmMap = hanwhaMapper.getRmMapCode(intAID);
+
+                for(String strLocalCode : localCodeMap){
+
+                    for(Map<String, String> map : rmMap){
+
+                        int intRmIdx = Integer.parseInt(String.valueOf(map.get("intRmIdx")));
+                        String strMapCode = map.get("strMapCode");
+                        String strIntPkgIdx = (strMapCode.equals("RMONLY"))? "" : strMapCode;
+
+                        System.out.println(intAID);
+                        System.out.println(strLocalCode);
+                        System.out.println(intRmIdx);
+                        System.out.println(strIntPkgIdx);
+                        getCapa(intAID,intRmIdx,strIntPkgIdx,strLocalCode, strStartDate, strEndDate, dataType);
+                    }
+
+                }
+
+            }
+
+        }catch (Exception e){
+            message = "재고 스케줄러 실패";
+            statusCode = "500";
+            e.printStackTrace();
+        }
+
+        return commonFunction.makeReturn("jsonp", statusCode, message);
 
     }
 

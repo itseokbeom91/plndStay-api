@@ -137,6 +137,49 @@ public class ElandService {
 
     }
 
+    // 주문 취소 조회
+    public String getCancelList(HttpServletRequest request, HttpServletResponse response, String dataType, String startdate, String endDate){
+
+        String statusCode = "200";
+        String message = "";
+        String result = "";
+
+        try {
+
+            String url = Constants.elandPath + "/order/searchCancelOrdList.action";
+            String accessToken = "Bearer " + elandCookieService.getCookie(request, response);
+
+            // 파라미터
+            Map<String, String> parameters = new HashMap<>();
+            parameters.put("start_date", startdate);
+            parameters.put("end_date", endDate);
+
+            JsonNode jsonNode = elandRequestService.callApi(url, parameters, accessToken);
+
+            JSONArray jsonArray = (JSONArray) new JSONParser().parse(jsonNode.get("data").toString());
+            System.out.println(jsonArray.size());
+
+            if(jsonArray.size() > 0) {
+                for (Object object : jsonArray) {
+                    JSONObject jsonObject = (JSONObject) JSONValue.parse(object.toString());
+
+                    String strOrderCode = jsonObject.get("deli_no").toString();
+                    int intOrderSeq = Integer.parseInt(jsonObject.get("deli_seq").toString());
+
+                }
+            }
+
+
+        }catch (Exception e){
+            statusCode = "500";
+            message = "호출 실패";
+            e.printStackTrace();
+        }
+
+        return commonFunction.makeReturn(dataType, statusCode, message);
+
+    }
+
     // 예약 완료 처리
     public String approveBooking(HttpServletRequest request, HttpServletResponse response, int intRsvID, String dataType){
         String statusCode = "200";
@@ -181,6 +224,7 @@ public class ElandService {
 
         return commonFunction.makeReturn(dataType, statusCode, message);
     }
+
 
     // 반품 완료 처리
     public String cancelBooking(HttpServletRequest request, HttpServletResponse response, int intRsvID, String dataType){
