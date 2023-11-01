@@ -512,14 +512,30 @@ public class ElandService {
             JSONObject jsonObject = (JSONObject) new JSONParser().parse(jsonNode.toString());
             System.out.println(jsonObject);
             result = jsonObject.get("error").toString();
+            if(result.equals("00")){
+                String strItemId = jsonObject.get("temp_goods_no").toString();
+                String strAcmOmk = commonMapper.insertAcmOmk(intAID, 9, "Y", accommDto.getStrSubject(), result, "", strDesc);
+                String strAcmOmkResult = strAcmOmk.substring(strAcmOmk.length()-4);
+
+                if(strAcmOmkResult.equals("저장완료")){
+                    message = " 상품 생성 성공";
+                    statusCode = "200";
+                    result = strItemId;
+                    System.out.println("success");
+                }else{
+                    message = " 상품 생성 / DB 인입 실패";
+                    statusCode = "200";
+                    System.out.println("procedure fail");
+                }
+            }
 
         }catch (Exception e){
-            message = "재고 등록 실패";
+            message = "상품 생성 실패";
             statusCode = "500";
             e.printStackTrace();
         }
 
-        return commonFunction.makeReturn(dataType, statusCode, message);
+        return commonFunction.makeReturn(dataType, statusCode, message, result);
     }
 
 
