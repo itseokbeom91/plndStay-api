@@ -81,8 +81,8 @@ public class ElevenStController {
 
     @GetMapping("/updatePrdDesc")
     @ResponseBody
-    public String updatePrdDesc(@RequestParam(value = "dataType", required = false, defaultValue = "jsonp") String dataType, String prdNo){
-        return elevenStService.updatePrdDesc(dataType, prdNo);
+    public String updatePrdDesc(@RequestParam(value = "dataType", required = false, defaultValue = "jsonp") String dataType, String intAID){
+        return elevenStService.updatePrdDesc(dataType, intAID);
     }
 
     @GetMapping("/getSettlement")

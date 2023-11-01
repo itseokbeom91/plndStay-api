@@ -876,9 +876,9 @@ public class ElevenStService {
      * @param prdNo 11번가 상품번호
      * @return
      */
-    public String updatePrdDesc(String dataType, String prdNo) {
+    public String updatePrdDesc(String dataType, String intAID) {
         try {
-            String intAID = elevenStMapper.getIntAID(prdNo);
+            String prdNo = commonMapper.getStrPdtCode(Integer.parseInt(intAID), 1);
 
             AccommDto accommDto = commonMapper.getAcmInfo(Integer.parseInt(intAID), 1);
             String strHtmlDesc = commonService.getStrPdtDtlInfo(accommDto, Integer.parseInt(intAID), 1);
