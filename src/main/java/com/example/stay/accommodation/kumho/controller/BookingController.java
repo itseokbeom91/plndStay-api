@@ -15,6 +15,7 @@ import javax.servlet.http.HttpServletRequest;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 
 @Controller("kumho.BookingController")
 @RequestMapping("/kumho/booking/*")
@@ -74,60 +75,66 @@ public class BookingController {
         return bookingService.getBookingList(dataType, startDate, endDate, httpServletRequest);
     }
 
+    /**
+     * 재고 등록 및 수정
+     */
+    @GetMapping("updateRoomStock")
+    @ResponseBody
+    public String updateRoomStock(String dataType, HttpServletRequest httpServletRequest){
+        return bookingService.updateRoomStock(dataType, httpServletRequest);
+    }
+
+
 //    /**
 //     * 재고 등록 및 수정
 //     */
 //    @GetMapping("updateRoomStock")
 //    @ResponseBody
 //    public String updateRoomStock(String dataType, String startDate, String endDate, int intRmIdx, HttpServletRequest httpServletRequest){
-//        return bookingService.updateRoomStock(dataType, startDate, endDate, intRmIdx, httpServletRequest);
+//        LogWriter logWriter = new LogWriter(httpServletRequest.getMethod(), httpServletRequest.getServletPath(),
+//                httpServletRequest.getQueryString(), System.currentTimeMillis());
+//        String statusCode = "200";
+//        String message = "";
+//
+//        try{
+//            Map<String, Object> idMap = kumhoMapper.getRmtypeInfo(intRmIdx);
+//            String strRmtypeID = idMap.get("strRmtypeID").toString();
+//            int intAID = Integer.parseInt(idMap.get("intAID").toString());
+//            String strLocalCode = idMap.get("strLocalCode").toString();
+//
+//            List<Map<String, Object>> strMapCodeList = commonAcmMapper.getStrPkgCodeList(intRmIdx, startDate, endDate);
+//
+//            int intFailCount = 0;
+//            for(Map map : strMapCodeList) {
+//                Map<String, Object> MapCodeMap = map;
+//                String strDateMapping = MapCodeMap.get("dateMapping").toString().replace("-","");
+//
+//                intFailCount += bookingService.updateRoomStock(intAID, intRmIdx, strLocalCode, strRmtypeID, strDateMapping);
+//            }
+//
+//            if(intFailCount == 0){
+//                message = "재고 등록 및 수정 완료";
+//            }else{
+//                message = "재고 등록 및 수정 " + intFailCount + "건 실패";
+//            }
+//        }catch (Exception e){
+//            message = "재고 등록 및 수정 실패";
+//            statusCode = "500";
+//            logWriter.add("error : " + e.getMessage());
+//            logWriter.log(0);
+//            e.printStackTrace();
+//        }
+//
+//        logWriter.add(message);
+//        logWriter.log(0);
+//
+//        CommonFunction commonFunction = new CommonFunction();
+//        return commonFunction.makeReturn(dataType, statusCode, message);
 //    }
 
 
-    /**
-     * 재고 등록 및 수정
-     */
-    @GetMapping("updateRoomStock")
-    @ResponseBody
-    public String updateRoomStock(String dataType, String startDate, String endDate, int intRmIdx, HttpServletRequest httpServletRequest){
-        LogWriter logWriter = new LogWriter(httpServletRequest.getMethod(), httpServletRequest.getServletPath(),
-                httpServletRequest.getQueryString(), System.currentTimeMillis());
-        String statusCode = "200";
-        String message = "";
 
-        try{
-            Map<String, Object> idMap = kumhoMapper.getRmtypeInfo(intRmIdx);
-            String strRmtypeID = idMap.get("strRmtypeID").toString();
-            int intAID = Integer.parseInt(idMap.get("intAID").toString());
-            String strLocalCode = idMap.get("strLocalCode").toString();
 
-            List<Map<String, Object>> strMapCodeList = commonAcmMapper.getStrPkgCodeList(intRmIdx, startDate, endDate);
 
-            int intFailCount = 0;
-            for(Map map : strMapCodeList) {
-                Map<String, Object> MapCodeMap = map;
-                String strDateMapping = MapCodeMap.get("dateMapping").toString().replace("-","");
 
-                intFailCount += bookingService.updateRoomStock(intAID, intRmIdx, strLocalCode, strRmtypeID, strDateMapping);
-            }
-
-            if(intFailCount == 0){
-                message = "재고 등록 및 수정 완료";
-            }else{
-                message = "재고 등록 및 수정 " + intFailCount + "건 실패";
-            }
-        }catch (Exception e){
-            message = "재고 등록 및 수정 실패";
-            statusCode = "500";
-            logWriter.add("error : " + e.getMessage());
-            logWriter.log(0);
-            e.printStackTrace();
-        }
-
-        logWriter.add(message);
-        logWriter.log(0);
-
-        CommonFunction commonFunction = new CommonFunction();
-        return commonFunction.makeReturn(dataType, statusCode, message);
-    }
 }
