@@ -131,9 +131,9 @@ public class SsgController {
     // 상품 정보 등록
     @GetMapping("insert")
     @ResponseBody
-    public String insertSSG(int intAID){
+    public String insertSSG(int intAID, String dataType){
 
-        return insertService.insert(intAID);
+        return insertService.insert(intAID,dataType);
 
     }
 

@@ -41,9 +41,12 @@ public class InsertService {
 
     CommonFunction commonFunction = new CommonFunction();
 
-    public String insert(int intAID){
+    public String insert(int intAID, String dataType){
 
+        String statusCode = "200";
+        String message = "";
         String result = "";
+
         try {
 
             AccommDto accommDto = commonService.getAcmInfo(intAID, 7); // 7이 내부 SSG 오픈마켓 idx 값
@@ -366,21 +369,30 @@ public class InsertService {
                 String strAcmOmkResult = strAcmOmk.substring(strAcmOmk.length()-4);
 
                 if(strAcmOmkResult.equals("저장완료")){
+                    message = " 상품 생성 성공";
+                    statusCode = "200";
+                    result = strItemId;
                     System.out.println("success");
                 }else{
+                    message = " 상품 생성 / DB 인입 실패";
+                    statusCode = "200";
                     System.out.println("procedure fail");
                 }
 
             }else{
+                message = " 상품 생성 실패";
+                statusCode = "500";
                 System.out.println("fail");
             }
 
             System.out.println(result);
 
         }catch (Exception e){
+            message = " 실패";
+            statusCode = "500";
             e.printStackTrace();
         }
 
-        return result;
+        return commonFunction.makeReturn(dataType, statusCode, message, result);
     }
 }
