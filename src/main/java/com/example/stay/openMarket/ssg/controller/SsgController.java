@@ -40,7 +40,8 @@ public class SsgController {
         String strDate = dateDBFormat.format(new Date());
         String dataType = "jsonp";
 
-        ssgService.getReserveList(strDate, strDate, dataType);
+        String result = ssgService.getReserveList(strDate, strDate, dataType);
+        System.out.println(result);
 
     }
 
@@ -93,11 +94,14 @@ public class SsgController {
     }
 
     // 취소신청 목록조회
-    @GetMapping("/getcancelList")
+    @GetMapping("/getCancelList")
     @ResponseBody
-    public void getCancelList(String startDate, String endDate){
-
-        ssgService.getCancelList(startDate,endDate);
+    public void getCancelList(){
+        DateFormat dateDBFormat = new SimpleDateFormat("yyyyMMdd");
+        String strDate = dateDBFormat.format(new Date());
+        String dataType = "jsonp";
+        String result = ssgService.getCancelList(strDate,strDate,dataType);
+        System.out.println(result);
     }
 
 

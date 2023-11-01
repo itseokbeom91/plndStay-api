@@ -55,4 +55,15 @@ public interface ElandMapper {
     // 배송번호, 배송순번 가져오기
     Map<String, String> getDeliInfo(int intRsvID);
 
+    // intRsvID 가져오기
+    int getIntRsvID(String strOrderCode, int intOrderSeq);
+
+    // rsv_stay 취소대기
+    void updateRsvStay(int intRsvID);
+
+    // rsv_stay_omk 취소대기
+    void updateRsvStayOmk(int intRsvID);
+
+    // 판매 중지 재개 업데이트
+    void updateStatus(String strStatus, int intAID);
 }

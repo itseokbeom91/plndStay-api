@@ -379,6 +379,7 @@ public class UpdateService {
             }else if(strType.equals("stop")) {
 
                 updateObject.put("sellStatCd", "80");
+                ssgMapper.updateStatus("N", intAID);
                 message = "판매 중지 완료";
 
             /**
@@ -386,6 +387,7 @@ public class UpdateService {
              */
             }else if(strType.equals("start")) {
                 updateObject.put("sellStatCd", "20");
+                ssgMapper.updateStatus("Y", intAID);
                 message = "판매 시작 완료";
 
             }else if(strType.equals("brand")) {

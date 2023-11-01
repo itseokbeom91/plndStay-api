@@ -37,13 +37,14 @@ public class Scheduler {
 
     CommonFunction commonFunction = new CommonFunction();
 
+    // 이랜드 예약 가져오기
     @Scheduled(cron = "0 0/3 * * * *")
     public void bookingEland(){
         try {
             System.out.println("scheduler booking ELAND");
 
-            //URL url = new URL("http://localhost:8080/eland/getRsvList");
-            URL url = new URL("https://dmapi.condo24.com/eland/getRsvList");
+            URL url = new URL("http://localhost:8080/eland/getRsvList");
+//            URL url = new URL("https://dmapi.condo24.com/eland/getRsvList");
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
 
             new BufferedReader(new InputStreamReader(conn.getInputStream(), "UTF-8"));
@@ -53,13 +54,48 @@ public class Scheduler {
         }
     }
 
+    // 이랜드 취소신청 가져오기
+    @Scheduled(cron = "0 0/3 * * * *")
+    public void bookingCancelEland(){
+        try {
+            System.out.println("scheduler booking cancel ELAND");
+
+//            URL url = new URL("http://localhost:8080/eland/getCancelList");
+            URL url = new URL("https://dmapi.condo24.com/eland/getCancelList");
+            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+
+            new BufferedReader(new InputStreamReader(conn.getInputStream(), "UTF-8"));
+
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+    }
+
+    // SSG 예약 가져오기
     @Scheduled(cron = "0 0/3 * * * *")
     public void bookingSSG(){
         try {
             System.out.println("scheduler booking SSG");
 
-            //URL url = new URL("http://localhost:8080/SSG/getRsvList");
+//            URL url = new URL("http://localhost:8080/SSG/getRsvList");
             URL url = new URL("https://dmapi.condo24.com/SSG/getRsvList");
+            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+
+            new BufferedReader(new InputStreamReader(conn.getInputStream(), "UTF-8"));
+
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+    }
+
+    // SSG 취소신청 가져오기
+    @Scheduled(cron = "0 0/3 * * * *")
+    public void bookingCancelSSG(){
+        try {
+            System.out.println("scheduler booking cancel SSG");
+
+//            URL url = new URL("http://localhost:8080/SSG/getCancelList");
+            URL url = new URL("https://dmapi.condo24.com/SSG/getCancelList");
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
 
             new BufferedReader(new InputStreamReader(conn.getInputStream(), "UTF-8"));

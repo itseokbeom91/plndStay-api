@@ -166,7 +166,16 @@ public class ElandService {
                     String strOrderCode = jsonObject.get("deli_no").toString();
                     int intOrderSeq = Integer.parseInt(jsonObject.get("deli_seq").toString());
 
+                    int intRsvID = elandMapper.getIntRsvID(strOrderCode, intOrderSeq);
+                    elandMapper.updateRsvStay(intRsvID);
+                    elandMapper.updateRsvStayOmk(intRsvID);
+
                 }
+                statusCode = "200";
+                message = "주문취소 대기";
+            }else{
+                statusCode = "200";
+                message = "주문취소신청 없음";
             }
 
 
@@ -530,10 +539,12 @@ public class ElandService {
 
             if(strType.equals("start")){
                 parameters.put("prgs_stat_cd", "10");
+                elandMapper.updateStatus("Y", intAID);
                 message = "상품 판매 개시";
                 statusCode = "200";
             }else if(strType.equals("stop")){
                 parameters.put("prgs_stat_cd", "20");
+                elandMapper.updateStatus("N", intAID);
                 message = "상품 판매 중지";
                 statusCode = "200";
             }else if(strType.equals("desc")){

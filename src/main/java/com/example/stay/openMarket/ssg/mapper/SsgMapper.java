@@ -30,10 +30,21 @@ public interface SsgMapper {
     Map<String, String> getRmIdxNChechIn(int intStockIdx);
 
     // 예약 등록하기
-    String createBooking(int intSeller, String strRsvCode, int intAID, int  intRmIdx, int  intRmCnt, String strCheckIn, String strCheckOut, String strRmtypeName, String strOrdName, String strOrdPhone, String strRcvName, String strRcvPhone, String strRemark, String strOrderCode, int intOrderSeq, String strProductID);
+    String createBooking(int intSeller, String strRsvCode, int intAID, int  intRmIdx, int  intRmCnt, String strCheckIn, String strCheckOut, String strRmtypeName, String strOrdName, String strOrdPhone, String strRcvName, String strRcvPhone, String strRemark, String strOrderCode, int intOrderSeq, String strProductID, String strOrderPackage);
 
     // 배송번호, 배송순번 가져오기
     Map<String, String> getShppNoInfo(int intRsvID);
 
+    // intRsvID 가져오기
+    int getIntRsvID(String strOrderPackage);
+
+    // rsv_stay 취소대기
+    void updateRsvStay(int intRsvID);
+
+    // rsv_stay_omk 취소대기
+    void updateRsvStayOmk(int intRsvID);
+
+    // 판매 중지 재개 업데이트
+    void updateStatus(String strStatus, int intAID);
     List<StockDto> getTestStockList();
 }
