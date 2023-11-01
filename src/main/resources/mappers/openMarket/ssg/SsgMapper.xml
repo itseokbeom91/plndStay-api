@@ -17,7 +17,7 @@
     </select>
 
     <select id="getMaxSsgSeq" resultType="int">
-        SELECT MAX(SR.intSsgSeq) FROM STOCK_REAL SR WITH(NOLOCK)
+        SELECT ISNULL(MAX(SR.intSsgSeq),0) FROM STOCK_REAL SR WITH(NOLOCK)
         INNER JOIN STOCK_OMK SO ON SR.intIdx = SO.intStockIdx
         WHERE SR.intAID = ${intAID}
           AND SO.intOMKIdx = 7

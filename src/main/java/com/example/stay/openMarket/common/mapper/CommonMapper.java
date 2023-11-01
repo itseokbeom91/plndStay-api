@@ -19,7 +19,7 @@ public interface CommonMapper {
 
     StockDto getStockInfo(int intStockIdx, int intOmkIdx);
 
-    int getMinPrice(int intAID, String strDate); // 수정하면 지우기
+    //int getMinPrice(int intAID, String strDate); // 수정하면 지우기
     int getMinPrice(int intAID, String strDate, int intOmkIdx);
 
     List<CancelRulesDto> getCancelRuleList(int intAID);

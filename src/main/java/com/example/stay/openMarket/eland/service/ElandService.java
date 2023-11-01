@@ -394,7 +394,7 @@ public class ElandService {
             String strDesc = commonService.getStrPdtDtlInfo(accommDto, intAID, 9).replace("<", "&lt;").replace(">", "&gt;");
 
             // 최저가
-            int intMinPrice = commonMapper.getMinPrice(intAID, strDBDate);
+            int intMinPrice = commonMapper.getMinPrice(intAID, strDBDate, 9);
 
             // 공급가(수수료 계산)
             int intRate = 7;
@@ -452,16 +452,19 @@ public class ElandService {
             url += "&clss_guide_cont=상세내용참조";
             url += "&goods_desc10=" + strDesc;
             // 사진 다섯장
-            String[] photos = accommDto.getStrACMPhotos().split("\\|");
-            for(int i=0; i<5; i++){
+            if(accommDto.getStrACMPhotos() != null){
+                String[] photos = accommDto.getStrACMPhotos().split("\\|");
+                for(int i=0; i<5; i++){
 
-                if(i>0){
-                    url += "&img_url"+i+"=" + "https://condo24.com"+photos[i];
-                }else{
-                    url += "&img_url=" + "https://condo24.com"+photos[i];
+                    if(i>0){
+                        url += "&img_url"+i+"=" + "https://condo24.com"+photos[i];
+                    }else{
+                        url += "&img_url=" + "https://condo24.com"+photos[i];
+                    }
+
                 }
-
             }
+
             url += "&disp_ctg_no=" + strCategoryCode;
             url += "&disp_ctg_no=2104515028"; // KIDIKIDI 전시 설정
 
@@ -692,7 +695,7 @@ public class ElandService {
                 String strDesc = commonService.getStrPdtDtlInfo(accommDto, intAID, 9).replace("<", "&lt;").replace(">", "&gt;");
 
                 // 최저가
-                int intMinPrice = commonMapper.getMinPrice(intAID, strDBDate);
+                int intMinPrice = commonMapper.getMinPrice(intAID, strDBDate, 9);
 
                 // 공급가(수수료 계산)
                 int intRate = 7;
@@ -714,16 +717,19 @@ public class ElandService {
 
 
                 // 사진 다섯장
-                String[] photos = accommDto.getStrACMPhotos().split("\\|");
-                for(int i=0; i<5; i++){
+                if(accommDto.getStrACMPhotos() != null){
+                    String[] photos = accommDto.getStrACMPhotos().split("\\|");
+                    for(int i=0; i<5; i++){
 
-                    if(i>0){
-                        parameters.put("img_url"+i, "https://condo24.com"+photos[i]);
-                    }else{
-                        parameters.put("img_url", "https://condo24.com"+photos[i]);
+                        if(i>0){
+                            parameters.put("img_url"+i, "https://condo24.com"+photos[i]);
+                        }else{
+                            parameters.put("img_url", "https://condo24.com"+photos[i]);
+                        }
+
                     }
-
                 }
+
 
                 JsonNode infoJsonNode = elandRequestService.callApi(Constants.elandPath + "/goods/searchGoodsView.action", parameters, "Bearer " + accessToken);
                 JSONArray stockArray = (JSONArray) new JSONParser().parse(infoJsonNode.get("itemList").toString());

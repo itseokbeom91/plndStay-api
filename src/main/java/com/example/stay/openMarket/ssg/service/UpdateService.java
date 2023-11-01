@@ -410,19 +410,22 @@ public class UpdateService {
             }else if(strType.equals("all")){
 
                 // 사진 10장
-                String[] photos = accommDto.getStrACMPhotos().split("\\|");
-                List<Object> dataPhotoList = new ArrayList<>();
-                for(int i=0; i<10; i++){
-                    JSONObject imgObject = new JSONObject();
-                    imgObject.put("dataSeq", (i+1));
-                    imgObject.put("dataFileNm", "https://condo24.com"+photos[i]);
-                    imgObject.put("rplcTextNm", "이미지"+(i+1));
-                    dataPhotoList.add(imgObject);
+                if(accommDto.getStrACMPhotos() != null){
+                    String[] photos = accommDto.getStrACMPhotos().split("\\|");
+                    List<Object> dataPhotoList = new ArrayList<>();
+                    for(int i=0; i<10; i++){
+                        JSONObject imgObject = new JSONObject();
+                        imgObject.put("dataSeq", (i+1));
+                        imgObject.put("dataFileNm", "https://condo24.com"+photos[i]);
+                        imgObject.put("rplcTextNm", "이미지"+(i+1));
+                        dataPhotoList.add(imgObject);
+                    }
+
+                    JSONObject itemImgsObject = new JSONObject();
+                    itemImgsObject.put("imgInfo",dataPhotoList);
+                    updateObject.put("itemImgs",itemImgsObject);
                 }
 
-                JSONObject itemImgsObject = new JSONObject();
-                itemImgsObject.put("imgInfo",dataPhotoList);
-                updateObject.put("itemImgs",itemImgsObject);
 
                 // desc
                 String strImgDesc = commonService.getStrPdtDtlInfo(accommDto, intAID, 7).replace("<", "&lt;").replace(">", "&gt;");
@@ -561,7 +564,8 @@ public class UpdateService {
                 // 상품명 변경
                 String strSubject = accommDto.getStrSubject();
                 updateObject.put("itemNm", strSubject);
-                message = "상품명 변경 완료";
+
+                message = "상품 전체 수정 완료";
 
 
             }else{
@@ -593,7 +597,7 @@ public class UpdateService {
 
 
         }catch (Exception e){
-            message = "재고 등록 실패";
+            message = "상품 수정 실패";
             statusCode = "500";
             e.printStackTrace();
         }

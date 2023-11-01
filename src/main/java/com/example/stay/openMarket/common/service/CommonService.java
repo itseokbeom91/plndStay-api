@@ -218,7 +218,7 @@ public class CommonService {
 
         String result = "";
 
-        String[] imgList = accommDto.getStrACMPhotos().split("\\|");
+        String[] imgList = (accommDto.getStrACMPhotos() == null)? new String[]{""} : accommDto.getStrACMPhotos().split("\\|");
         String strDescription = (accommDto.getStrDescription() != null)? accommDto.getStrDescription() : "";
         String strRsvGuide = "";
         if(accommDto.getStrRsvGuide() != null){
@@ -269,10 +269,12 @@ public class CommonService {
                 "   <div style=\"padding: 0; margin: 55px 0 0;\">\n" +
                 "      <img src=\"https://www.condo24.com/data/images/omk/txt_photo_gallery.png\" alt=\"Photo Gallery\" style=\"display: block; padding: 0; margin: 0;\"/>\n" +
                 "      <div style=\"display: flex; align-items: stretch; flex-wrap: wrap; padding: 5px; margin: 0;\">\n";
-                for(int i=2;i<imgList.length;i++){
+            if(imgList.length > 1) {
+                for (int i = 2; i < imgList.length; i++) {
                     result +=
-                            "<div style=\"width: calc(33.33% - 14px); width: -moz-calc(33.33% - 14px); margin: 0 7px 15px;\"><img style=\"display: block; max-width: 100%; padding: 0; margin: 0;\" alt=\"이미지 " + (i-1) + "\" src=\"https://www.condo24.com" + imgList[i] + "\"/></div>\n";
+                            "<div style=\"width: calc(33.33% - 14px); width: -moz-calc(33.33% - 14px); margin: 0 7px 15px;\"><img style=\"display: block; max-width: 100%; padding: 0; margin: 0;\" alt=\"이미지 " + (i - 1) + "\" src=\"https://www.condo24.com" + imgList[i] + "\"/></div>\n";
                 }
+            }
                 result +=
                 "      </div>\n" +
                 "   </div>\n" +
@@ -324,8 +326,13 @@ public class CommonService {
         }
 
         result +=
-                "   <div style=\"padding: 0; margin: 30px 0 0;\">\n" +
-                "      <img src=\"https://www.condo24.com" + imgList[1] + "\" alt=\"앱지콘도 이미지 하단\" style=\"display: block; width: 80%; max-width: 80%; padding: 0; margin: 15px auto 0;\"/>\n" +
+                "   <div style=\"padding: 0; margin: 30px 0 0;\">\n";
+        if (imgList.length > 1) {
+            result +=
+                    "      <img src=\"https://www.condo24.com" + imgList[1] + "\" alt=\"앱지콘도 이미지 하단\" style=\"display: block; width: 80%; max-width: 80%; padding: 0; margin: 15px auto 0;\"/>\n";
+        }
+
+        result +=
                 "   </div>\n" +
                 "</div>";
 

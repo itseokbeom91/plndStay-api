@@ -336,7 +336,7 @@ public class InsertService {
             JSONObject salesPrcInfoObject = new JSONObject();
 
 
-            int intSellprc = commonMapper.getMinPrice(intAID, strNow);
+            int intSellprc = commonMapper.getMinPrice(intAID, strNow, 7);
             System.out.println(intSellprc);
             int intMrgrt = 8;
             int intSplprc = (intSellprc * (100-intMrgrt) / 100);

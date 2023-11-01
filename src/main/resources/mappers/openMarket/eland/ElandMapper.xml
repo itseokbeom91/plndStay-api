@@ -59,7 +59,7 @@
     </select>
 
     <select id="getMaxElandSeq" resultType="int">
-        SELECT MAX(SR.intElandSeq) FROM STOCK_REAL SR WITH(NOLOCK)
+        SELECT ISNULL(MAX(SR.intElandSeq),0) FROM STOCK_REAL SR WITH(NOLOCK)
         INNER JOIN STOCK_OMK SO ON SR.intIdx = SO.intStockIdx
         WHERE SR.intAID = ${intAID}
           AND SO.intOMKIdx = 9
