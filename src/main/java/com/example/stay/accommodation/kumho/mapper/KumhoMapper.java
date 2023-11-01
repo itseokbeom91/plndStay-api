@@ -14,7 +14,7 @@ public interface KumhoMapper {
 
     String updateRsvStay(int intRsvID, String strStatusCode, String strRsvRmNum, String strPenaltyDatas);
 
-    Map<String, Object> getRmtypeInfo(int intRmIdx);
+    List<Map<String, Object>> getMappingInfo();
 
     int getBreakfastYn(int intRmIdx);
 
