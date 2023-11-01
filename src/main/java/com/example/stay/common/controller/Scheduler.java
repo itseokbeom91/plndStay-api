@@ -38,7 +38,7 @@ public class Scheduler {
     CommonFunction commonFunction = new CommonFunction();
 
     // 이랜드 예약 가져오기
-    //@Scheduled(cron = "0 0/3 * * * *")
+    @Scheduled(cron = "0 0/3 * * * *")
     public void bookingEland(){
         try {
             System.out.println("scheduler booking ELAND");
@@ -55,7 +55,7 @@ public class Scheduler {
     }
 
     // 이랜드 취소신청 가져오기
-    //@Scheduled(cron = "0 0/3 * * * *")
+    @Scheduled(cron = "0 0/3 * * * *")
     public void bookingCancelEland(){
         try {
             System.out.println("scheduler booking cancel ELAND");
@@ -72,7 +72,7 @@ public class Scheduler {
     }
 
     // SSG 예약 가져오기
-    //@Scheduled(cron = "0 0/3 * * * *")
+    @Scheduled(cron = "0 0/3 * * * *")
     public void bookingSSG(){
         try {
             System.out.println("scheduler booking SSG");
@@ -89,7 +89,7 @@ public class Scheduler {
     }
 
     // SSG 취소신청 가져오기
-    //@Scheduled(cron = "0 0/3 * * * *")
+    @Scheduled(cron = "0 0/3 * * * *")
     public void bookingCancelSSG(){
         try {
             System.out.println("scheduler booking cancel SSG");
