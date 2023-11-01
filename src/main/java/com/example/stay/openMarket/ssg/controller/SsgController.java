@@ -40,7 +40,8 @@ public class SsgController {
         String strDate = dateDBFormat.format(new Date());
         String dataType = "jsonp";
 
-        ssgService.getReserveList(strDate, strDate, dataType);
+        String result = ssgService.getReserveList(strDate, strDate, dataType);
+        System.out.println(result);
 
     }
 
@@ -99,7 +100,8 @@ public class SsgController {
         DateFormat dateDBFormat = new SimpleDateFormat("yyyyMMdd");
         String strDate = dateDBFormat.format(new Date());
         String dataType = "jsonp";
-        ssgService.getCancelList(strDate,strDate,dataType);
+        String result = ssgService.getCancelList(strDate,strDate,dataType);
+        System.out.println(result);
     }
 
 

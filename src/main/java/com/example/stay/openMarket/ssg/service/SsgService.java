@@ -69,9 +69,9 @@ public class SsgService {
             mainObject.put("request",innerObject);
 
             JsonNode jsonNode = commonFunction.callJsonApi("SSG","", mainObject, "https://eapi.ssgadm.com/api/clm/cncl/ord/inquiry.ssg","POST");
-            int intCnt = jsonNode.get("result").get("shppDirections").get(0).size();
+            int intCnt = jsonNode.get("result").get("data").size();
             if(intCnt > 0) {
-                JSONArray jsonArray = (JSONArray) new JSONParser().parse(jsonNode.get("result").get("resultDesc").get("data").toString());
+                JSONArray jsonArray = (JSONArray) new JSONParser().parse(jsonNode.get("result").get("data").toString());
                 System.out.println(jsonArray);
                 for (Object object : jsonArray) {
                     JSONObject dataObject = (JSONObject) JSONValue.parse(object.toString());
@@ -160,7 +160,8 @@ public class SsgService {
                         String strOrdPhone = jsonObject.get("ordpeHpno").toString();
                         String strRcvName = jsonObject.get("rcptpeNm").toString();
                         String strRcvPhone = jsonObject.get("rcptpeHpno").toString();
-                        String strRemark = (jsonObject.get("ordMemoCntt").toString().equals("미입력") || jsonObject.get("ordMemoCntt").toString().equals("미입력"))? "" : jsonObject.get("ordMemoCntt").toString();
+                        //String strRemark = (jsonObject.get("ordMemoCntt").toString().equals("미입력") || jsonObject.get("ordMemoCntt").toString().equals("미입력"))? "" : jsonObject.get("ordMemoCntt").toString();
+                        String strRemark = "";
                         String strOrderCode = jsonObject.get("shppNo").toString();
                         int intOrderSeq = Integer.parseInt(jsonObject.get("shppSeq").toString());
                         String strOrderPackage = jsonObject.get("ordNo").toString();

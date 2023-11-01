@@ -43,8 +43,8 @@ public class Scheduler {
         try {
             System.out.println("scheduler booking ELAND");
 
-            //URL url = new URL("http://localhost:8080/eland/getRsvList");
-            URL url = new URL("https://dmapi.condo24.com/eland/getRsvList");
+            URL url = new URL("http://localhost:8080/eland/getRsvList");
+//            URL url = new URL("https://dmapi.condo24.com/eland/getRsvList");
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
 
             new BufferedReader(new InputStreamReader(conn.getInputStream(), "UTF-8"));
@@ -60,8 +60,8 @@ public class Scheduler {
         try {
             System.out.println("scheduler booking cancel ELAND");
 
-            URL url = new URL("http://localhost:8080/eland/getCancelList");
-//            URL url = new URL("https://dmapi.condo24.com/eland/getCancelList");
+//            URL url = new URL("http://localhost:8080/eland/getCancelList");
+            URL url = new URL("https://dmapi.condo24.com/eland/getCancelList");
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
 
             new BufferedReader(new InputStreamReader(conn.getInputStream(), "UTF-8"));
@@ -77,8 +77,8 @@ public class Scheduler {
         try {
             System.out.println("scheduler booking SSG");
 
-            URL url = new URL("http://localhost:8080/SSG/getRsvList");
-//            URL url = new URL("https://dmapi.condo24.com/SSG/getRsvList");
+//            URL url = new URL("http://localhost:8080/SSG/getRsvList");
+            URL url = new URL("https://dmapi.condo24.com/SSG/getRsvList");
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
 
             new BufferedReader(new InputStreamReader(conn.getInputStream(), "UTF-8"));
@@ -94,8 +94,8 @@ public class Scheduler {
         try {
             System.out.println("scheduler booking cancel SSG");
 
-            URL url = new URL("http://localhost:8080/SSG/getCancelList");
-//            URL url = new URL("https://dmapi.condo24.com/SSG/getCancelList");
+//            URL url = new URL("http://localhost:8080/SSG/getCancelList");
+            URL url = new URL("https://dmapi.condo24.com/SSG/getCancelList");
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
 
             new BufferedReader(new InputStreamReader(conn.getInputStream(), "UTF-8"));

@@ -114,19 +114,21 @@ public class ElandController {
         String dataType = "jsonp";
 
         String result = elandService.getReserveList(request, response, strDate, strDate, dataType);
-
+        System.out.println(result);
         return result;
 
     }
 
-    // 주문 취소 조회
+    // 주문 취소 조회 스케줄러
     @GetMapping("getCancelList")
     @ResponseBody
     public String getCancelList(HttpServletRequest request, HttpServletResponse response){
         DateFormat dateDBFormat = new SimpleDateFormat("yyyyMMdd");
         String strDate = dateDBFormat.format(new Date());
         String dataType = "jsonp";
-        return elandService.getCancelList(request,response,dataType,strDate,strDate);
+        String result = elandService.getCancelList(request,response,dataType,strDate,strDate);
+        System.out.println(result);
+        return result;
     }
 
     // 상품 수정
