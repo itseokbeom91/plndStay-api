@@ -64,4 +64,6 @@ public interface ElandMapper {
     // rsv_stay_omk 취소대기
     void updateRsvStayOmk(int intRsvID);
 
+    // 판매 중지 재개 업데이트
+    void updateStatus(String strStatus, int intAID);
 }

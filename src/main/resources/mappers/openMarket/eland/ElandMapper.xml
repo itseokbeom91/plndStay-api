@@ -113,4 +113,8 @@
         where intRsvID = ${intRsvID}
     </update>
 
+    <update id="updateStatus">
+        update accomm set strViewYn = #{strStatus} where intAID = ${intAID}
+    </update>
+
 </mapper>
