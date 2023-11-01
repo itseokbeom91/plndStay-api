@@ -15,6 +15,18 @@ public class HanwhaController {
     @Autowired
     private HanwhaService hanwhaService;
 
+
+    // 스케줄러 재고 가져오기
+    @GetMapping("/getStock")
+    @ResponseBody
+    public String mappingCapa(){
+
+        String result = hanwhaService.mappingCapa();
+        System.out.println(result);
+
+        return result;
+    }
+
     @GetMapping("/getRoomStock")
     @ResponseBody
     public String getCapa(int intAID, int intRmIdx, String strPkgIdx, String strLocalCode, String startDate, String endDate, String dataType){

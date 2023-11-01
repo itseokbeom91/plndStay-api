@@ -119,6 +119,13 @@ public class ElandController {
 
     }
 
+    // 주문 취소 조회
+    @GetMapping("getCancelList")
+    @ResponseBody
+    public String getCancelList(){
+        return "";
+    }
+
     // 상품 수정
     @GetMapping("updateAccomm")
     @ResponseBody

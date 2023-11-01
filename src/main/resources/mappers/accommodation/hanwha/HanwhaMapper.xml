@@ -36,4 +36,24 @@
     <select id="updateRsv" resultType="String">
         EXEC PLNDSTAY.dbo.spGW_RSV_STAY_UPDATE_PROCESS ${intRsvID}, #{strStatusCode}, #{strRsvRmNum}, '', ''
     </select>
+
+    <select id="getIntAID" resultType="int">
+        select intAID from ACCOMM with(nolock) where strCateCode = '02' and strDeleteYn = 'N' and strViewYn ='Y'
+    </select>
+
+    <select id="getRmMapCode" resultType="map">
+        select intRmIdx, strMapCode from RM_PACKAGE_MAPPING with(nolock) where intAID = ${intAID}
+        and dateMapping &gt; getdate()
+        and dateMapping &lt; DATEADD(day, 100, GETDATE())
+        and strDeleteYn = 'N'
+        group by intRmIdx, strMapCode
+    </select>
+
+    <select id="getLocalCode" resultType="String">
+        select a.strLocalCode from ACM_LOCAL_INFO a with(nolock)
+        inner join ACCOMM_ACM_LOCAL b with(nolock) on a.intIdx = b.intALIIdx
+        where intAID = ${intAID}
+        group by a.strLocalCode
+    </select>
+
 </mapper>
