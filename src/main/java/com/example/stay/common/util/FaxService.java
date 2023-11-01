@@ -13,6 +13,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class FaxService {
@@ -20,7 +21,7 @@ public class FaxService {
     @Autowired
     private CommonMapper commonMapper;
 
-    public String faxSend(int intRsvID) {
+    public String faxSend(Map<String ,Object> faxMap, RsvStayDto rsvStayDto) {
         /*
         숙소명, 팩스번호, 예약번호(어디쪽인지는 확인 못함),
         한화( 담당자, 지역, 입실일, 박수, 객실타입, 객실수, 사용자명, 사용자연락처, 예약번호, 원가, 객실요청타입)
@@ -30,12 +31,6 @@ public class FaxService {
 
         try {
             StringBuffer sb = new StringBuffer();
-            String contents = "";
-            List<BookingDto> bookingDtoList;
-            String OrderID = String.valueOf(intRsvID); //Split(Trim(Request('OrderID')),', ')
-            List<String> strTemp = List.of(String.valueOf(intRsvID).split(","));
-            RsvStayDto RsvStayDto = commonMapper.getBookingInfo(intRsvID);
-            String strRtnUrl = "https://seahorse-game-blindly.ngrok-free.app/";
 
             sb.append("*Shtml*E*Shead*E*S/head*E*Sbody*E*Sp style=\"font-size:13px;padding:5px 5px 15px;margin:0;\"*E※ 발송시간 : 2023-10-27 13:16:20*S/p*E");
             sb.append("*Sbr*E");
@@ -161,7 +156,7 @@ public class FaxService {
             sb.append("*S/body*E*S/html*E");
 
             URL url = new URL("http://biz.moashot.com/EXT/URLASP/faxsendUTF.asp?uid=" + Constants.faxId + "&pwd=" + Constants.faxPwd
-            + "&sendType=1&toNumber=" + Constants.faxId + "&fromNumber=" + Constants.faxId + "&contents=" + sb.toString() +"&rtnUrl=https://dmapi.condo24.com&nType="+3+"&startTime=20231010090000");
+            + "&sendType=1&toNumber=02-6952-2353&fromNumber=" + Constants.faxId + "&contents=" + sb.toString() +"&rtnUrl=https://dmapi.condo24.com&nType="+3);
 
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
 

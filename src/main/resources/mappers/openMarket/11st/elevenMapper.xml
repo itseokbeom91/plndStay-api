@@ -12,6 +12,12 @@
         WHERE A.intAID = #{accommID}
     </select>
 
+    <select id="getUsgYn" resultType="string">
+        SELECT strUsageYn
+        FROM PLNDSTAY.dbo.ACCOMM_OMK
+        WHERE intAID = #{intAID} AND intOMKIdx='1'
+    </select>
+
     <update id="updateUsg">
         UPDATE PLNDSTAY.dbo.ACCOMM_OMK SET
             strUsageYn = #{usageYn}

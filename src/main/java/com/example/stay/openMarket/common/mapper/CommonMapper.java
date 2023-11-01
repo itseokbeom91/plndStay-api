@@ -41,9 +41,13 @@ public interface CommonMapper {
 
     String getMailYn(String intAID);
 
+    Map<String, Object> getFaxYn(String intAID);
+
     String getSpavisTicketNo(String intRsvID);
 
     String getInformMoney(String intAID);
 
     String getAcmNmByintAID(String intAID);
+
+    Map<String, Object> getOmkSeqNStock(String prdNo, int omkIdx);
 }

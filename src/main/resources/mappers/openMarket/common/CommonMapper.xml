@@ -96,4 +96,15 @@
         WHERE intAID = ${intAID}
     </select>
 
+    <select id="getFaxYn" resultType="map">
+        SELECT strSendType
+             , intRsvDays
+                ,strCompFax
+                ,strLocalFax
+                ,strCompPerson
+                ,strLocalPerson
+        FROM PLNDSTAY.dbo.ACCOMM_AUTO_FAX
+        WHERE intAID = ${intAID}
+    </select>
+
 </mapper>

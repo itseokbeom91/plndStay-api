@@ -1,6 +1,7 @@
 package com.example.stay.openMarket.common.service;
 
 import com.example.stay.common.util.Constants;
+import com.example.stay.common.util.FaxService;
 import com.example.stay.common.util.MailService;
 import com.example.stay.openMarket.common.dto.AccommDto;
 import com.example.stay.openMarket.common.dto.RoomTypeDto;
@@ -48,6 +49,7 @@ public class CommonService {
     @Autowired private com.example.stay.accommodation.roomio.service.RoomioService rmoBooking;
 
     @Autowired private MailService mailService;
+    @Autowired private FaxService faxService;
 
 
 
@@ -621,7 +623,11 @@ public class CommonService {
         RsvStayDto rsvStayDto = commonMapper.getBookingInfo(Integer.parseInt(intRsvID));
         //ACCOMM_CONTACT intAID로 조회해서 strRsvMailYn=Y 인 경우에만 메일 발송
         String mailYn = commonMapper.getMailYn(String.valueOf(rsvStayDto.getIntAID()));
+        Map<String, Object> faxMap = commonMapper.getFaxYn(String.valueOf(rsvStayDto.getIntAID()));
         //TEST 배포시 삭제
+        if (faxMap.get("strSendType").toString().equals("AC")){
+            faxService.faxSend(faxMap, rsvStayDto);
+        }
         mailYn="Y";
         String rsvStatus = rsvStayDto.getStrStatusCode();
         if(mailYn.equals("Y")){
@@ -685,5 +691,14 @@ public class CommonService {
         }
 
 
+    }
+
+    public void faxRtn(String data, String sendStart, String sendEnd, String errMsg, String toNumber){
+        if(data.split(",")[1].equals("1")){
+            //FAX 전송 성공
+
+        }else {
+            //FAX 전송 실패
+        }
     }
 }
