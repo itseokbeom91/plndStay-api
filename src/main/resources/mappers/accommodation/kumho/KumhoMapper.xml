@@ -16,9 +16,22 @@
             LEFT OUTER JOIN PLNDSTAY.dbo.ACM_LOCAL_INFO ALI WITH(NOLOCK) ON ALI.intIdx = AAL.intALIIdx AND ALI.strDeleteYn = 'N'
         WHERE RPM.strDeleteYn = 'N'
           AND RPM.intAID IN(SELECT intAID FROM ACCOMM WITH(NOLOCK) WHERE strCateCode = '04')
-          AND RPM.dateMapping BETWEEN '2023-11-01' AND '2023-11-30'
         GROUP BY RPM.intAID, RPM.intRmIdx, RPM.strRmCode, RPM.strMapCode, ALI.strLocalCode
+    </select>
 
+    <select id="getMappingInfoByIntAID" resultType="map">
+        SELECT RPM.intAID, RPM.intRmIdx, RPM.strRmCode, RPM.strMapCode, ALI.strLocalCode, MIN(RPM.dateMapping) AS minDate, MAX(RPM.dateMapping) AS maxDate
+        FROM PLNDSTAY.dbo.RM_PACKAGE_MAPPING RPM WITH(NOLOCK)
+            LEFT OUTER JOIN PLNDSTAY.dbo.ACM_PACKAGE_INFO API WITH(NOLOCK) ON RPM.strMapCode = API.strPkgCode
+            LEFT OUTER JOIN PLNDSTAY.dbo.ACCOMM_ACM_LOCAL AAL WITH(NOLOCK) ON AAL.intAID = RPM.intAID
+            LEFT OUTER JOIN PLNDSTAY.dbo.ACM_LOCAL_INFO ALI WITH(NOLOCK) ON ALI.intIdx = AAL.intALIIdx AND ALI.strDeleteYn = 'N'
+        WHERE RPM.strDeleteYn = 'N'
+          AND RPM.intAID = ${intAID}
+        GROUP BY RPM.intAID, RPM.intRmIdx, RPM.strRmCode, RPM.strMapCode, ALI.strLocalCode
+    </select>
+
+    <select id="updateStock" resultType="String">
+        EXEC PLNDSTAY.dbo.spKH_STOCK_REAL_UPDATE ${intAID}, ${intRmIdx}, #{strStockDatas}, ''
     </select>
 
     <select id="getReservation" resultType="RsvStayDto">

@@ -45,7 +45,7 @@
     </update>
 
     <select id="getMinPrice" resultType="int">
-        EXEC spOMK_STOCK_MIN_PRICE #{intAID}, #{strDate}
+        EXEC spOMK_STOCK_MIN_PRICE #{intAID}, #{strDate}, '1'
     </select>
 
 </mapper>

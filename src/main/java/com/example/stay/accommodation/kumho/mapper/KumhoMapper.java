@@ -16,8 +16,12 @@ public interface KumhoMapper {
 
     List<Map<String, Object>> getMappingInfo();
 
+    List<Map<String, Object>> getMappingInfoByIntAID(int intAID);
+
     int getBreakfastYn(int intRmIdx);
 
     Map<String, Integer> getPrice(int intAID, int intRmIdx, String dateSales);
+
+    String updateStock(int intAID, int intRmIdx, String strStockDatas);
 
 }

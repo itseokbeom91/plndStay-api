@@ -64,6 +64,8 @@ public class ElevenStService {
             } else {
                 url = new URL(Constants.elevenUrl + "/rest/prodservices/product");
             }
+            bgnDay = "2023/11/01";
+            endDay = "2024/04/10";
             int selprc = elevenStMapper.getMinPrice(intAID, bgnDay);
             Map<String, Object>map = elevenStMapper.getAccomm(intAID);
 //            String pricet = String.valueOf(commonMapper.getOmkSales(Integer.parseInt(accommID), 1));
@@ -89,14 +91,13 @@ public class ElevenStService {
             }else {
                 sb.append("<prdNm><![CDATA[" + map.get("strSubject") + "[TEST상품/주문불가]]]></prdNm>"); //상품명 추후 배포시 TEST관련 문구 제거
             }
-            sb.append("<intAID>" + map.get("intAID") + "</intAID>");
             sb.append("<sellerPrdCd>" + map.get("intAID") + "33</sellerPrdCd>");
             sb.append("<prdImage01>" + map.get("prdImage01") + "</prdImage01>");
 //            sb.append("<prdImage02>" + map.get("prdImage02") + "</prdImage02>");
 //            sb.append("<prdImage03>" + map.get("prdImage03") + "</prdImage03>");
             sb.append("<htmlDetail><![CDATA[" + /*map.get("strDescription")*/ "TEST" + "]]></htmlDetail>");
-            sb.append("<selTermUseYn>Y</selTermUseYn>"); //판매기간 (N: 즉시 영구판매)
-//            sb.append("<selPrdClfFpCd>107</selPrdClfFpCd>"); //판매기간 (N: 즉시 영구판매)
+//            sb.append("<selTermUseYn>N</selTermUseYn>"); //판매기간 (N: 즉시 영구판매)selPrdClfCd
+            sb.append("<selPrdClfCd>120:108</selPrdClfCd>"); //판매기간 (N: 즉시 영구판매)
             sb.append("<brand>febHotel</brand>"); //브랜드명
             sb.append("<ProductNotification>"); //상품정보고시 호텔/펜션예약(891037) 고정값
             sb.append("<type>891037</type>");
@@ -136,7 +137,7 @@ public class ElevenStService {
             sb.append("<txtColCnt>1</txtColCnt>");
             sb.append("<optionAllQty>9999</optionAllQty>"); // 각 옵션별 재고 수량 전체 더해서 입력
             sb.append("<optionAllAddPrc>0</optionAllAddPrc>");
-            sb.append("<prdExposeClfCd>01</prdExposeClfCd>");
+            sb.append("<prdExposeClfCd>00</prdExposeClfCd>");
             sb.append("<optMixYn>N</optMixYn>");
             //AS-IS 기준
             sb.append("<ProductOptionExt>");
@@ -171,7 +172,6 @@ public class ElevenStService {
             sb.append("</ProductOptionExt>");
 
 
-            sb.append("<selPrdClfCd>0:100</selPrdClfCd>");//판매기간코드
             sb.append("<orgnTypCd>03</orgnTypCd>"); //원산지코드 03:기타, 01:국내, 02:해외 국내나 해외선택시 원산지지역코드 입력해야함
             sb.append("<prdStatCd>01</prdStatCd>");
             sb.append("<orgnNmVal>TEST</orgnNmVal>"); //원산지 명
@@ -185,25 +185,25 @@ public class ElevenStService {
             }
             sb.append("<selPrc>" + map.get("selPrc") + "</selPrc>"); //판매가 (원가)
             sb.append("<prcCmpExpYn>Y</prcCmpExpYn>"); // 가격비교
-            sb.append("<dtldDescTyp>H</dtldDescTyp>"); // 모바일 노출타입
-            sb.append("<prdTypCd>30</prdTypCd>"); // 29:openAPI사용시 여행상품은 29
-            sb.append("<drcStlYn>Y</drcStlYn>"); // 즉시결제여부
-            sb.append("<htmlDetailIframeYn>N</htmlDetailIframeYn>"); // 숙박은 N : iframe으로 노출여부
-            sb.append("<penaltyAppyYn>Y</penaltyAppyYn>"); // 취소수수료 사용여부
-            sb.append("<directStlYn>Y</directStlYn>"); // 바로결제 여부
-            sb.append("<hotelBaseAddr><![CDATA[" + map.get("strAddr1") + "]]></hotelBaseAddr>");
-            sb.append("<hotelDtlsAddr><![CDATA[" + map.get("strAddr2") + "]]></hotelDtlsAddr>");
-            sb.append("<addrTypCd>02</addrTypCd>"); //주소 타입 01:지번, 02:도로명
-            sb.append("<mailNo>" + map.get("strZipCode") + "</mailNo>");
-            sb.append("<hotelPhoneNumber>" + map.get("strPhone") + "</hotelPhoneNumber>");
-            sb.append("<roomSeatCount>" + map.get("intRoomCnt") + "</roomSeatCount>");
-            sb.append("<checkInTime>" + map.get("strCheckIn") + "</checkInTime>");
-            sb.append("<checkOutTime>" + map.get("strCheckOut") + "</checkOutTime>");
-            sb.append("<hotelType><![CDATA[" + map.get("strType") + "]]></hotelType>");
-            sb.append("<hotelGrade>" + map.get("intGrade") + "</hotelGrade>");
-            sb.append("<geoPointX>" + map.get("decLat") + "</geoPointX>");
-            sb.append("<geoPointY>" + map.get("decLon") + "</geoPointY>");
-            sb.append("<tourNationType>국내</tourNationType>");
+//            sb.append("<dtldDescTyp>H</dtldDescTyp>"); // 모바일 노출타입
+            sb.append("<prdTypCd>26</prdTypCd>"); // 29:openAPI사용시 여행상품은 29
+//            sb.append("<drcStlYn>Y</drcStlYn>"); // 즉시결제여부
+//            sb.append("<htmlDetailIframeYn>N</htmlDetailIframeYn>"); // 숙박은 N : iframe으로 노출여부
+//            sb.append("<penaltyAppyYn>Y</penaltyAppyYn>"); // 취소수수료 사용여부
+//            sb.append("<directStlYn>Y</directStlYn>"); // 바로결제 여부
+//            sb.append("<hotelBaseAddr><![CDATA[" + map.get("strAddr1") + "]]></hotelBaseAddr>");
+//            sb.append("<hotelDtlsAddr><![CDATA[" + map.get("strAddr2") + "]]></hotelDtlsAddr>");
+//            sb.append("<addrTypCd>02</addrTypCd>"); //주소 타입 01:지번, 02:도로명
+//            sb.append("<mailNo>" + map.get("strZipCode") + "</mailNo>");
+//            sb.append("<hotelPhoneNumber>" + map.get("strPhone") + "</hotelPhoneNumber>");
+//            sb.append("<roomSeatCount>" + map.get("intRoomCnt") + "</roomSeatCount>");
+//            sb.append("<checkInTime>" + map.get("strCheckIn") + "</checkInTime>");
+//            sb.append("<checkOutTime>" + map.get("strCheckOut") + "</checkOutTime>");
+//            sb.append("<hotelType><![CDATA[" + map.get("strType") + "]]></hotelType>");
+//            sb.append("<hotelGrade>" + map.get("intGrade") + "</hotelGrade>");
+//            sb.append("<geoPointX>" + map.get("decLat") + "</geoPointX>");
+//            sb.append("<geoPointY>" + map.get("decLon") + "</geoPointY>");
+//            sb.append("<tourNationType>국내</tourNationType>");
             sb.append("</Product>");
 
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
@@ -881,6 +881,7 @@ public class ElevenStService {
             String prdNo = commonMapper.getStrPdtCode(Integer.parseInt(intAID), 1);
 
             AccommDto accommDto = commonMapper.getAcmInfo(Integer.parseInt(intAID), 1);
+//            if(accommDto.getStrACMPhotos()==null)accommDto.setStrACMPhotos("0|0");
             String strHtmlDesc = commonService.getStrPdtDtlInfo(accommDto, Integer.parseInt(intAID), 1);
             URL url = new URL(Constants.elevenUrl + "/rest/prodservices/updateProductDetailCont/" + prdNo);
 //            elevenStMapper.insertAccomm(intAID);
