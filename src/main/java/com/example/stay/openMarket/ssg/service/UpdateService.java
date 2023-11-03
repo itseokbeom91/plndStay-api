@@ -622,6 +622,7 @@ public class UpdateService {
             httpPost.setEntity(new StringEntity(jsonRequest));
             httpPost.setHeader("Authorization", Constants.SsgAuthorization);
             httpPost.setHeader("Accept-Charset", "UTF-8");
+            httpPost.setHeader("Accept", "application/json");
 
             // HTTP 요청 보내기
             HttpResponse response = httpClient.execute(httpPost);

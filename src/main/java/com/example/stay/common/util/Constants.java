@@ -100,7 +100,7 @@ public class Constants {
     public static final String ypUrl = "https://api.iyes.biz:17004/yobiss-api/api/cr/rmsrv/RmsrvAgencyApi/";
     public static final String ypTokenKey = "VHKeffdhb+rSUWzqsLO7ivkwKnsXhw39AYzw/yTtChA=";
     public static final String yongpyongCode = "1199719";
-    public static final String beacheCode = "1178413";
+    public static final String beacheCode = "1199723"; //1178413 : 기존 비체 코드
 
     // ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
     // ┃ wellihilli

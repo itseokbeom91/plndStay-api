@@ -65,10 +65,10 @@ public class GmkBookingService {
 
 //                    String salePrice = orderJson.get("SalePrice").toString(); // 해당 주문시점 판매단가
 //                    int contrAmount = Integer.parseInt(orderJson.get("ContrAmount").toString()); // 주문수량
-//                    String orderAmount = orderJson.get("OrderAmount").toString(); // 판매단가 * 수량
+                      String orderAmount = orderJson.get("OrderAmount").toString(); // 판매단가 * 수량
 //                    String acntMoney = orderJson.get("AcntMoney").toString(); // 결제금액
 //                    String directDiscountPrice = orderJson.get("DirectDiscountPrice").toString(); // 지마켓 할인 지원 금액
-//                    String costPrice = orderJson.get("CostPrice").toString(); // 공급원가
+                      String costPrice = orderJson.get("CostPrice").toString(); // 공급원가
 //                    String settlementPrice = orderJson.get("SettlementPrice").toString(); // 정산예정금액
 //                    String outsidePrice = orderJson.get("OutsidePrice").toString(); // 판매자 공제금액 - 제휴수수료 등 정산금액에서 추가 공제될 금액
 
@@ -164,7 +164,7 @@ public class GmkBookingService {
 
                         int intRmCnt = Integer.parseInt(optJson.get("ItemOptionOrderCnt").toString()); // 주문옵션개수
 
-                        strRsvDatas += strRmtypeName + "|^|" + strCheckIn + "|^|" + strCheckOut + "|^|" + intRmIdx + "|^|" + intRmCnt + "{{|}}";
+                        strRsvDatas += strRmtypeName + "|^|" + strCheckIn + "|^|" + strCheckOut + "|^|" + intRmIdx + "|^|" + intRmCnt + "|^|" + costPrice + "{{|}}";
                     }
                     strRsvDatas = strRsvDatas.substring(0, strRsvDatas.length()-5);
 
@@ -173,8 +173,12 @@ public class GmkBookingService {
                     String insertResult = gmkMapper.insertBooking(strRsvDatas);
                     if(insertResult.equals("sucess")){
                         System.out.println("완");
+                        message = "DB 저장 성공";
+                        statusCode = "200";
                     }else{
                         System.out.println("실패");
+                        message = "DB 저장 실패";
+                        statusCode = "500";
                     }
 
                 }

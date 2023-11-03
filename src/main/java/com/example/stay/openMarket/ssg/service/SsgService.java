@@ -136,14 +136,14 @@ public class SsgService {
                     JSONObject jsonObject = (JSONObject) dataObject.get("shppDirection");
                     if(jsonObject.get("shppStatCd").toString().equals("30")){
 
-                        String strRsvCode = "test";
+                        String strRsvCode = "SSGtest";
                         String strProductID = jsonObject.get("itemId").toString();
-                        int intAID = ssgMapper.getIntAID(strProductID);
-//                        int intAID = 101471;
+//                        int intAID = ssgMapper.getIntAID(strProductID);
+                        int intAID = 101471;
                         int intStockIdx = Integer.parseInt(jsonObject.get("uSplVenItemId").toString());
                         Map<String, String> map = ssgMapper.getRmIdxNChechIn(intStockIdx);
-                        int intRmIdx = Integer.parseInt(map.get("intRmIdx").toString());
-//                        int intRmIdx = 15302;
+//                        int intRmIdx = Integer.parseInt(map.get("intRmIdx").toString());
+                        int intRmIdx = 15302;
                         int intRmCnt = Integer.parseInt(jsonObject.get("ordQty").toString());
                         String strItemName = jsonObject.get("uitemNm").toString();
 
@@ -165,8 +165,10 @@ public class SsgService {
                         String strOrderCode = jsonObject.get("shppNo").toString();
                         int intOrderSeq = Integer.parseInt(jsonObject.get("shppSeq").toString());
                         String strOrderPackage = jsonObject.get("ordNo").toString();
+                        int moneyCost = Integer.parseInt(String.valueOf(jsonObject.get("splprc")));
+                        int moneySales = Integer.parseInt(String.valueOf(jsonObject.get("sellprc")));
 
-                        result = ssgMapper.createBooking(42,strRsvCode,intAID, intRmIdx, intRmCnt,strCheckIn,strCheckOut,strRmtypeName,strOrdName,strOrdPhone,strRcvName,strRcvPhone,strRemark,strOrderCode,intOrderSeq,strProductID, strOrderPackage);
+                        result = ssgMapper.createBooking(42,strRsvCode,intAID, intRmIdx, intRmCnt,strCheckIn,strCheckOut,strRmtypeName,strOrdName,strOrdPhone,strRcvName,strRcvPhone,strRemark,strOrderCode,intOrderSeq,strProductID,strOrderPackage,moneyCost,moneySales);
                         System.out.println(result);
 
 

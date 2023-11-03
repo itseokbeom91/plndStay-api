@@ -50,7 +50,7 @@ public interface ElandMapper {
     Map<String, String> getRmIdxNChechIn(int intAID, int intItemNo);
 
     // 예약 등록하기
-    String createBooking(int intSeller, String strRsvCode, int intAID, int  intRmIdx, int  intRmCnt, String strCheckIn, String strCheckOut, String strRmtypeName, String strOrdName, String strOrdPhone, String strRcvName, String strRcvPhone, String strRemark, String strOrderCode, int intOrderSeq, String strProductID, String strOrderPackage);
+    String createBooking(int intSeller, String strRsvCode, int intAID, int  intRmIdx, int  intRmCnt, String strCheckIn, String strCheckOut, String strRmtypeName, String strOrdName, String strOrdPhone, String strRcvName, String strRcvPhone, String strRemark, String strOrderCode, int intOrderSeq, String strProductID, String strOrderPackage, int moneyCost, int moneySales);
 
     // 배송번호, 배송순번 가져오기
     Map<String, String> getDeliInfo(int intRsvID);

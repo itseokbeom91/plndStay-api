@@ -84,14 +84,14 @@ public class ElandService {
                     String isSell = jsonObject.get("deli_divi_cd").toString();
                     if(isSell.equals("10")){
 
-                        String strRsvCode = "test";
+                        String strRsvCode = "ELANDtest";
                         String strProductID = jsonObject.get("goods_no").toString();
-                        int intAID = elandMapper.getIntAID(strProductID);
-//                        int intAID = 101471;
+//                        int intAID = elandMapper.getIntAID(strProductID);
+                        int intAID = 101471;
                         int intItemNo = Integer.parseInt(jsonObject.get("item_no").toString());
                         Map<String, String> map =  elandMapper.getRmIdxNChechIn(intAID, intItemNo);
-                        int intRmIdx = Integer.parseInt(map.get("intRmIdx").toString());
-//                        int intRmIdx = 15302;
+//                        int intRmIdx = Integer.parseInt(map.get("intRmIdx").toString());
+                        int intRmIdx = 15302;
                         int intRmCnt = Integer.parseInt(jsonObject.get("indi_qty").toString());
                         String strItemName = jsonObject.get("item_nm").toString();
 
@@ -112,8 +112,10 @@ public class ElandService {
                         String strOrderCode = jsonObject.get("deli_no").toString();
                         int intOrderSeq = Integer.parseInt(jsonObject.get("deli_seq").toString());
                         String strOrderPackage = jsonObject.get("ord_dtl_no").toString();
+                        int moneyCost = Integer.parseInt(String.valueOf(jsonObject.get("supply_price")));
+                        int moneySales = Integer.parseInt(String.valueOf(jsonObject.get("sale_price")));
 
-                        result = elandMapper.createBooking(43,strRsvCode,intAID, intRmIdx, intRmCnt,strCheckIn,strCheckOut,strRmtypeName,strOrdName,strOrdPhone,strRcvName,strRcvPhone,strRemark,strOrderCode,intOrderSeq,strProductID,strOrderPackage);
+                        result = elandMapper.createBooking(43,strRsvCode,intAID, intRmIdx, intRmCnt,strCheckIn,strCheckOut,strRmtypeName,strOrdName,strOrdPhone,strRcvName,strRcvPhone,strRemark,strOrderCode,intOrderSeq,strProductID,strOrderPackage,moneyCost,moneySales);
                         System.out.println(result);
 
 
