@@ -47,12 +47,12 @@ public class BookingController {
     }
     @GetMapping("/getBookingInfo")
     @ResponseBody
-    public String getBookingDetail(@RequestParam(required = false, defaultValue="jsonp") String dataType, String bookingNo){
-        return bookingService.getBookingDetail(dataType, bookingNo);
+    public String getBookingDetail(@RequestParam(required = false, defaultValue="jsonp") String dataType, int intRsvID){
+        return bookingService.getBookingDetail(dataType, intRsvID);
     }
     @GetMapping("/cancelBooking")
     @ResponseBody
-    public String cancelBooking(@RequestParam(required = false, defaultValue="jsonp") String dataType, String bookingNo){
-        return bookingService.cancelBooking(dataType, bookingNo);
+    public String cancelBooking(@RequestParam(required = false, defaultValue="jsonp") String dataType, int intRsvID){
+        return bookingService.cancelBooking(dataType, intRsvID);
     }
 }

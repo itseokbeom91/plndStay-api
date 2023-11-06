@@ -345,7 +345,7 @@ public class CommonService {
      * @param rsvState : 변경코자 하는 예약상태
      */
     @Async
-    public void rsvAuto(String intRsvID, HttpServletRequest httpServletRequest){
+    public void rsvAuto(int intRsvID, HttpServletRequest httpServletRequest){
         /*
         TODO 예약 생성시 시설/공급사여부 => 예약생성(RSV_STAY_EM_NUM 기록) => 팩스,이메일
         ACCOMM 테이블에서 strType이 C면 시설 나머지는 공급사
@@ -354,7 +354,7 @@ public class CommonService {
 
         Map<String, Object> typeFlag = commonMapper.getTypeCode(intRsvID);//플래그값 받아오기 시설일때를위해서 카테고리값까지
         String rsvResult = ""; //예약결과 저장용
-        RsvStayDto rsvStayDto = commonMapper.getBookingInfo(Integer.parseInt(intRsvID));
+        RsvStayDto rsvStayDto = commonMapper.getBookingInfo(intRsvID);
         String rsvState = rsvStayDto.getStrStatusCode();
         //예약
         if(rsvState.equals("0")){
@@ -388,7 +388,7 @@ public class CommonService {
      * @param accommCateCode : 시설분류코드 (CODE_SYSTEM)
      * @return
      */
-    public void createBookingAccomm(String intRsvID, String accommCateCode, HttpServletRequest httpServletRequest) {
+    public void createBookingAccomm(int intRsvID, String accommCateCode, HttpServletRequest httpServletRequest) {
         /*
         소노 01
         리솜 RE
@@ -413,31 +413,31 @@ public class CommonService {
                     break;
                 case "37":
                     //용평예약
-                    result = YPBooking.booking(Integer.parseInt(intRsvID), "json");
+                    result = YPBooking.booking(intRsvID, "json");
                     break;
                 case "48":
                     //비체예약
-                    result = YPBooking.booking(Integer.parseInt(intRsvID), "json");
+                    result = YPBooking.booking(intRsvID, "json");
                     break;
                 case "04":
                     //금호예약
-                    result = kumhoBoking.createBooking("json", Integer.parseInt(intRsvID), httpServletRequest);
+                    result = kumhoBoking.createBooking("json", intRsvID, httpServletRequest);
                     break;
                 case "02":
                     //한화예약
-                    result = hanhwaBoking.booking(Integer.parseInt(intRsvID), "json");
+                    result = hanhwaBoking.booking(intRsvID, "json");
                     break;
                 case "49":
                     //엘리시안
-                    result = elysianBoking.createBooking("json", Integer.parseInt(intRsvID), httpServletRequest);
+                    result = elysianBoking.createBooking("json", intRsvID, httpServletRequest);
                     break;
                 case "35":
                     //스파비스
-                    result = spavisBoking.orderTicket("json", httpServletRequest, Integer.parseInt(intRsvID));
+                    result = spavisBoking.orderTicket("json", httpServletRequest, intRsvID);
                     break;
                 case "18":
                     //웰리힐리
-                    result = weliBoking.createBooking("json", Integer.parseInt(intRsvID), httpServletRequest);
+                    result = weliBoking.createBooking("json", intRsvID, httpServletRequest);
                     break;
             }
             System.out.println(result);
@@ -465,7 +465,7 @@ public class CommonService {
 
     }
 
-    public void createBookingSupplier (String intRsvID, String typeSupplier, HttpServletRequest httpServletRequest){
+    public void createBookingSupplier (int intRsvID, String typeSupplier, HttpServletRequest httpServletRequest){
         /*
         호텔패스 -- 얘는 실시간이라 안해도될지...도?
         지펜션
@@ -483,11 +483,11 @@ public class CommonService {
                     break;
                 case "RMO":
                     //루미오
-                    result = rmoBooking.booking(Integer.parseInt(intRsvID));
+                    result = rmoBooking.booking(intRsvID);
                     break;
                 case "OND":
                     //온다
-                    result = ondaBooking.createBooking("json", Integer.parseInt(intRsvID), httpServletRequest);
+                    result = ondaBooking.createBooking("json", intRsvID, httpServletRequest);
                     break;
                 case "GP":
                     //지펜션
@@ -516,7 +516,7 @@ public class CommonService {
         }
     }
 
-    public void cancelBookingSupplier(String intRsvID, String typeSupplier, HttpServletRequest httpServletRequest){
+    public void cancelBookingSupplier(int intRsvID, String typeSupplier, HttpServletRequest httpServletRequest){
 
         String result ="";
         try{
@@ -531,7 +531,7 @@ public class CommonService {
                     break;
                 case "OND":
                     //온다
-                    ondaBooking.cancelBooking("json", Integer.parseInt(intRsvID), httpServletRequest);
+                    ondaBooking.cancelBooking("json", intRsvID, httpServletRequest);
                     break;
                 case "GP":
                     //지펜션
@@ -561,7 +561,7 @@ public class CommonService {
         }
     }
 
-    public void cancelBookingAccomm(String intRsvID, String accommCateCode, HttpServletRequest httpServletRequest){
+    public void cancelBookingAccomm(int intRsvID, String accommCateCode, HttpServletRequest httpServletRequest){
         String result="";
         try {
 
@@ -576,31 +576,31 @@ public class CommonService {
                     break;
                 case "37":
                     //용평예약
-                    result = YPBooking.bookingCancel(Integer.parseInt(intRsvID), "json");
+                    result = YPBooking.bookingCancel(intRsvID, "json");
                     break;
                 case "48":
                     //비체예약
-                    result = YPBooking.bookingCancel(Integer.parseInt(intRsvID), "json");
+                    result = YPBooking.bookingCancel(intRsvID, "json");
                     break;
                 case "04":
                     //금호예약
-                    result = kumhoBoking.cancelBooking("json", Integer.parseInt(intRsvID), httpServletRequest);
+                    result = kumhoBoking.cancelBooking("json", intRsvID, httpServletRequest);
                     break;
                 case "02":
                     //한화예약
-                    result = hanhwaBoking.bookingCancel(Integer.parseInt(intRsvID), "json");
+                    result = hanhwaBoking.bookingCancel(intRsvID, "json");
                     break;
                 case "49":
                     //엘리시안
-                    result = elysianBoking.cancelBooking("json", Integer.parseInt(intRsvID), httpServletRequest);
+                    result = elysianBoking.cancelBooking("json", intRsvID, httpServletRequest);
                     break;
                 case "35":
                     String ticketNo = commonMapper.getSpavisTicketNo(intRsvID);
-                    result = spavisBoking.cancelTicket("json", httpServletRequest, Integer.parseInt(intRsvID), ticketNo);
+                    result = spavisBoking.cancelTicket("json", httpServletRequest, intRsvID, ticketNo);
                     break;
                 case "18":
                     //웰리힐리
-                    result = weliBoking.cancelBooking("json", Integer.parseInt(intRsvID), httpServletRequest);
+                    result = weliBoking.cancelBooking("json", intRsvID, httpServletRequest);
                     break;
             }
             JSONParser jsonParser = new JSONParser();
@@ -625,13 +625,13 @@ public class CommonService {
         }
     }
 
-    public void createInform(String intRsvID){
+    public void createInform(int intRsvID){
         //상품명, 투숙일자, 박, 객실수, 평형(룸타입), 이용자명, 이용자연락처, 구분(변경, 예약, 취소), 예약번호, 입금가, 주문번호(시설측), 내용(변경시 변경내용), 시설담당자, 시설명, 시설팩스번호
 
-        RsvStayDto rsvStayDto = commonMapper.getBookingInfo(Integer.parseInt(intRsvID));
+        RsvStayDto rsvStayDto = commonMapper.getBookingInfo(intRsvID);
         //ACCOMM_CONTACT intAID로 조회해서 strRsvMailYn=Y 인 경우에만 메일 발송
-        String mailYn = commonMapper.getMailYn(String.valueOf(rsvStayDto.getIntAID()));
-        Map<String, Object> faxMap = commonMapper.getFaxYn(String.valueOf(rsvStayDto.getIntAID()));
+        String mailYn = commonMapper.getMailYn(rsvStayDto.getIntAID());
+        Map<String, Object> faxMap = commonMapper.getFaxYn(rsvStayDto.getIntAID());
         //TEST 배포시 삭제
         if (faxMap.get("strSendType").toString().equals("AC")){
             faxService.faxSend(faxMap, rsvStayDto);
@@ -657,11 +657,11 @@ public class CommonService {
                 sb.append("객실예약번호 : "+rsvStayDto.getStrRsvRmNum()+"<br/>");
             }
 
-            sb.append("<strong>숙소명 :</strong> "+commonMapper.getAcmNmByintAID(String.valueOf(rsvStayDto.getIntAID()))+"<br/>");
+            sb.append("<strong>숙소명 :</strong> "+commonMapper.getAcmNmByintAID(rsvStayDto.getIntAID())+"<br/>");
             sb.append("<strong>룸타입 :</strong> "+rsvStayDto.getStrRmtypeName()+"<br/>");
             sb.append("<strong>입실일 :</strong> " + rsvStayDto.getDateCheckIn() + " ~ " + rsvStayDto.getDateCheckOut() + "/ 1박 / "+rsvStayDto.getIntRmCnt()+"실<br/>");
             sb.append("<strong>입금가 :</strong> "+rsvStayDto.getMoneyCost()+"원<br/>");
-            String informMoney = commonMapper.getInformMoney(String.valueOf(rsvStayDto.getIntAID()));
+            String informMoney = commonMapper.getInformMoney(rsvStayDto.getIntAID());
             //C, S, C|S, null
 
             if (informMoney.equals("S")){

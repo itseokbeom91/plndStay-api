@@ -6,7 +6,7 @@ import java.util.Map;
 
 @Repository("gpension.BookingMapper")
 public interface BookingMapper {
-    Map<String , Object> getBookingInfoFromBookingIdx(String intRsvID);
+    Map<String , Object> getBookingInfoFromBookingIdx(int intRsvID);
     /**
      * 해당하는 객실의 최대인원을 반환합니다
      *
@@ -16,7 +16,7 @@ public interface BookingMapper {
      */
     int getMaxpeopleByroomId(String pensionID, String roomID);
     String updateStock(String pensionID, String roomID);
-    String updateBooking(String orderID, String intRsvID);
+    String updateBooking(String orderID, int intRsvID);
 
     String getMoneyByintRsvID(String intRmIdx, String dateCheckIn);
 }

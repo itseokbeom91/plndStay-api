@@ -13,6 +13,7 @@ import com.example.stay.openMarket.elevenST.mapper.ElevenStMapper;
 import org.jetbrains.annotations.NotNull;
 import org.json.simple.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -59,46 +60,111 @@ public class ElevenStService {
     public String regProduct(String intAID, String bgnDay, String endDay, boolean isUpdate, String prdNm, int category){
         try {
             URL url;
+            isUpdate=true;
             if (isUpdate){
-                url = new URL(Constants.elevenUrl + "/rest/prodservices/product/"+commonMapper.getStrPdtCode(Integer.parseInt(intAID), 1));
+                url = new URL(Constants.elevenUrl + "/rest/prodservices/product/6442491590");//+commonMapper.getStrPdtCode(Integer.parseInt(intAID), 1));
             } else {
                 url = new URL(Constants.elevenUrl + "/rest/prodservices/product");
             }
-            bgnDay = "2023/11/01";
-            endDay = "2024/04/10";
+//            bgnDay = "2023/11/01";
+//            endDay = "2025/04/10";
             int selprc = elevenStMapper.getMinPrice(intAID, bgnDay);
             Map<String, Object>map = elevenStMapper.getAccomm(intAID);
 //            String pricet = String.valueOf(commonMapper.getOmkSales(Integer.parseInt(accommID), 1));
             map.put("aplBgnDy", bgnDay);
             map.put("aplEndDy", endDay);
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd");
+            Date current = new Date();
+            Calendar c = Calendar.getInstance();
+            c.setTime(current);
+            bgnDay = sdf.format(c.getTime());
+            c.add(Calendar.DATE, 119); //현재시각 - 1일 11번가는 3분마다 스케쥴링
+            endDay = sdf.format(c.getTime());
             map.put("selPrc", selprc); // 대표가이니 가장 낮은가격이 되련지 아님 상품매칭시 대표가격이 등록되는건지 확인 필요
             map.put("prdImage01", "https://cdn.pixabay.com/photo/2023/03/12/21/05/egg-7847875_1280.png"); //
 //            map.put("prdImage01", "https://cdn.imweb.me/thumbnail/20221018/2fa9b7c3276c7.png");
             StringBuffer sb = new StringBuffer();
-            sb.append("<?xml version=\"1.0\" encoding=\"utf-8\" standalone=\"yes\"?>");
+            sb.append("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>");
             sb.append("<Product>");
-            sb.append("<selMnbdNckNm>condo24</selMnbdNckNm>"); //닉네임 필수항목은 아님
             sb.append("<selMthdCd>01</selMthdCd>"); //판매방식 01:고정가판매, 04:예약판매, 05:중고판매 이 외의 코드는 사용 X
-
             if (isUpdate && category!=0){
-                sb.append("<dispCtgrNo>" + category + "</dispCtgrNo>");
+                sb.append("<dispCtgrNo></dispCtgrNo>");
             } else {
-                sb.append("<dispCtgrNo>1018106</dispCtgrNo>"); //카테고리 넘버는 소카테고리 넘버 (2878 => 1017895(국내숙박) => 1017904(리조트) => 지역 (ex: 경인 1018106)  //호텔, 리조트, 모텔, 펜션, 게스트하우스등 있음
+                sb.append("<dispCtgrNo>1018070</dispCtgrNo>"); //카테고리 넘버는 소카테고리 넘버 (2878 => 1017895(국내숙박) => 1017904(리조트) => 지역 (ex: 경인 1018106)  //호텔, 리조트, 모텔, 펜션, 게스트하우스등 있음
             }
-//            sb.append("<prdNm>" + map.get("prdNm") + "</prdNm>");
+            sb.append("<prdTypCd>01</prdTypCd>"); // 29:openAPI사용시 여행상품은 29
+            sb.append("<selMnbdNckNm>condo24</selMnbdNckNm>"); //닉네임 필수항목은 아님
+            sb.append("<sellerPrdCd>" + map.get("intAID") + "</sellerPrdCd>");
             if (isUpdate && !prdNm.equals("")){
-                sb.append("<prdNm><![CDATA[" + prdNm + "]]></prdNm>");
+                sb.append("<prdNm><![CDATA[[test/주문불가]앱지콘도]]></prdNm>");
             }else {
                 sb.append("<prdNm><![CDATA[" + map.get("strSubject") + "[TEST상품/주문불가]]]></prdNm>"); //상품명 추후 배포시 TEST관련 문구 제거
             }
-            sb.append("<sellerPrdCd>" + map.get("intAID") + "33</sellerPrdCd>");
-            sb.append("<prdImage01>" + map.get("prdImage01") + "</prdImage01>");
-//            sb.append("<prdImage02>" + map.get("prdImage02") + "</prdImage02>");
-//            sb.append("<prdImage03>" + map.get("prdImage03") + "</prdImage03>");
-            sb.append("<htmlDetail><![CDATA[" + /*map.get("strDescription")*/ "TEST" + "]]></htmlDetail>");
-//            sb.append("<selTermUseYn>N</selTermUseYn>"); //판매기간 (N: 즉시 영구판매)selPrdClfCd
-            sb.append("<selPrdClfCd>120:108</selPrdClfCd>"); //판매기간 (N: 즉시 영구판매)
             sb.append("<brand>febHotel</brand>"); //브랜드명
+            sb.append("<rmaterialTypCd>04</rmaterialTypCd>"); //원재료 유형코드 04: 표시대상 아님
+            sb.append("<orgnTypCd>03</orgnTypCd>"); //원산지코드 03:기타, 01:국내, 02:해외 국내나 해외선택시 원산지지역코드 입력해야함
+            sb.append("<suplDtyfrPrdClfCd>01</suplDtyfrPrdClfCd>"); //부가세 / 면세상품 코드 01:과세상품
+            sb.append("<prdStatCd>01</prdStatCd>"); //새상품
+            sb.append("<minorSelCnYn>Y</minorSelCnYn>"); //미성년자 구매 가능 여부
+            sb.append("<prdImage01>" + map.get("prdImage01") + "</prdImage01>");
+            sb.append("<htmlDetail><![CDATA[" + /*map.get("strDescription")*/ "TEST" + "]]></htmlDetail>");
+            sb.append("<ProductCertGroup>"); //인증정보그룹
+            sb.append("<crtfGrpTypCd></crtfGrpTypCd>"); //새상품
+            sb.append("<crtfGrpObjClfCd></crtfGrpObjClfCd>"); //새상품
+            sb.append("<crtfGrpExptTypCd></crtfGrpExptTypCd>"); //새상품
+            sb.append("<ProductCert>"); //새상품
+            sb.append("<certTypeCd>131</certTypeCd>"); //새상품
+            sb.append("<certKey></certKey>"); //새상품
+            sb.append("</ProductCert>"); //새상품
+            sb.append("</ProductCertGroup>"); //인증정보그룹
+            sb.append("<selPrc>" + map.get("selPrc") + "</selPrc>"); //판매가 (원가)
+            //옵션 설정
+            sb.append("<optSelectYn>Y</optSelectYn>");
+            sb.append("<txtColCnt>1</txtColCnt>");
+            sb.append("<optionAllQty>9999</optionAllQty>"); // 각 옵션별 재고 수량 전체 더해서 입력
+            sb.append("<optionAllAddPrc>0</optionAllAddPrc>");
+            sb.append("<prdExposeClfCd>00</prdExposeClfCd>");
+            sb.append("<optMixYn>N</optMixYn>");
+            //AS-IS 기준
+            sb.append("<ProductOptionExt>");
+
+            // 재고 가져오기
+            List<StockDto> stockList = commonMapper.getStockList(Integer.parseInt(intAID), 1, bgnDay.replaceAll("/", "-"));
+
+            System.out.println(stockList);
+            for (StockDto dto : stockList) {
+
+                String strStockSubject = dto.getStrRmtypeName();
+                int intStockCnt = dto.getIntStock();
+                String strStockdate = dto.getDateSales();
+                int intStockSalePrice = dto.getMoneySales(); // 판매가
+                intStockSalePrice = intStockSalePrice-selprc; //판매가 - 최저가 = 추가금액
+                int intStockCost = dto.getMoneyCost(); // 공급가
+                int intIdx = dto.getIntIdx();
+                String strPkgName = dto.getStrPkgName();
+                if(intStockCnt == 0){
+                    intStockCnt=1;
+                }
+                sb.append("<ProductOption>");
+                sb.append("<colOptPrice>" + intStockSalePrice + "</colOptPrice>");
+                sb.append("<colOptCount>" + intStockCnt + "</colOptCount>");
+                sb.append("<colCount/>");
+                sb.append("<optWght/>");
+//                sb.append("<useYn>Y</useYn>");
+                sb.append("<colSellerStockCd>"+intIdx+"</colSellerStockCd>");//셀러가 사용할 재고번호
+                sb.append("<optionMappingKey><![CDATA[투숙일자:" + strStockdate + "†" + "객실타입:" + strStockSubject +" / " + strPkgName + " ]]></optionMappingKey>");
+                sb.append("</ProductOption>");
+            }
+            sb.append("</ProductOptionExt>");
+            sb.append("<dlvCnAreaCd>01</dlvCnAreaCd>");
+            sb.append("<dlvWyCd>05</dlvWyCd>");
+//            sb.append("<dlvSendCloseTmpltNo>01</dlvSendCloseTmpltNo>");//필수라고 적혀있는데 뭔지는 모르겠음
+            sb.append("<dlvCstInstBasiCd>01</dlvCstInstBasiCd>");
+            sb.append("<bndlDlvCnYn>N</bndlDlvCnYn>"); //묶음배송 여부 불가
+            sb.append("<dlvCstPayTypCd>03</dlvCstPayTypCd>"); //결제방법 03 선결제
+            sb.append("<dlvCnAreaCd>01</dlvCnAreaCd>");
+            sb.append("<asDetail>.</asDetail>"); //A/S 안내 필수항목으로 .이라도 입력하라 함
+            sb.append("<rtngExchDetail>불가</rtngExchDetail>"); //반품/교환 안내 필수항목으로 .이라도 입력하라 함
             sb.append("<ProductNotification>"); //상품정보고시 호텔/펜션예약(891037) 고정값
             sb.append("<type>891037</type>");
             sb.append("<item>");
@@ -132,89 +198,46 @@ public class ElevenStService {
             sb.append("</ProductNotification>");
 
 
-            //옵션 설정
-            sb.append("<optSelectYn>Y</optSelectYn>");
-            sb.append("<txtColCnt>1</txtColCnt>");
-            sb.append("<optionAllQty>9999</optionAllQty>"); // 각 옵션별 재고 수량 전체 더해서 입력
-            sb.append("<optionAllAddPrc>0</optionAllAddPrc>");
-            sb.append("<prdExposeClfCd>00</prdExposeClfCd>");
-            sb.append("<optMixYn>N</optMixYn>");
-            //AS-IS 기준
-            sb.append("<ProductOptionExt>");
-
-            // 재고 가져오기
-            List<StockDto> stockList = commonMapper.getStockList(Integer.parseInt(intAID), 1, bgnDay);
-
-            System.out.println(stockList);
-            for (StockDto dto : stockList) {
-
-                String strStockSubject = dto.getStrRmtypeName();
-                int intStockCnt = dto.getIntStock();
-                String strStockdate = dto.getDateSales();
-                int intStockSalePrice = dto.getMoneySales(); // 판매가
-                intStockSalePrice = intStockSalePrice-selprc; //판매가 - 최저가 = 추가금액
-                int intStockCost = dto.getMoneyCost(); // 공급가
-                int intIdx = dto.getIntIdx();
-                String strPkgName = dto.getStrPkgName();
-                if(intStockCnt == 0){
-                    intStockCnt=1;
-                }
-                sb.append("<ProductOption>");
-                sb.append("<colOptPrice>" + intStockSalePrice + "</colOptPrice>");
-                sb.append("<colOptCount>" + intStockCnt + "</colOptCount>");
-                sb.append("<colCount/>");
-                sb.append("<optWght/>");
-                sb.append("<useYn>Y</useYn>");
-                sb.append("<colSellerStockCd>"+intIdx+"</colSellerStockCd>");//셀러가 사용할 재고번호
-                sb.append("<optionMappingKey><![CDATA[투숙일자:" + strStockdate + "†" + "객실타입:" + strStockSubject +" / " + strPkgName + " ]]></optionMappingKey>");
-                sb.append("</ProductOption>");
-            }
-            sb.append("</ProductOptionExt>");
 
 
-            sb.append("<orgnTypCd>03</orgnTypCd>"); //원산지코드 03:기타, 01:국내, 02:해외 국내나 해외선택시 원산지지역코드 입력해야함
-            sb.append("<prdStatCd>01</prdStatCd>");
-            sb.append("<orgnNmVal>TEST</orgnNmVal>"); //원산지 명
-            sb.append("<asDetail>.</asDetail>"); //A/S 안내 필수항목으로 .이라도 입력하라 함
-            sb.append("<prdSelQty>1</prdSelQty>");// 재고수량 필수항목
-            sb.append("<rtngExchDetail>불가</rtngExchDetail>"); //반품/교환 안내 필수항목으로 .이라도 입력하라 함
-            sb.append("<dlvCstInstBasiCd>01</dlvCstInstBasiCd>"); //H.S코드
-            if(bgnDay !=""){
-                sb.append("<aplBgnDy>" + map.get("aplBgnDy") + "</aplBgnDy>"); //판매 시작일
-                sb.append("<aplEndDy>" + map.get("aplEndDy") + "</aplEndDy>"); //판매 종료일
-            }
-            sb.append("<selPrc>" + map.get("selPrc") + "</selPrc>"); //판매가 (원가)
-            sb.append("<prcCmpExpYn>Y</prcCmpExpYn>"); // 가격비교
-//            sb.append("<dtldDescTyp>H</dtldDescTyp>"); // 모바일 노출타입
-            sb.append("<prdTypCd>26</prdTypCd>"); // 29:openAPI사용시 여행상품은 29
+
+
+
+//            sb.append("<prdImage02>" + map.get("prdImage02") + "</prdImage02>");
+//            sb.append("<prdImage03>" + map.get("prdImage03") + "</prdImage03>");
+//            sb.append("<useLimitClfCd>Y</useLimitClfCd>"); //판매기간 (N: 즉시 영구판매)selPrdClfCd
+//            sb.append("<aplBgnDy>" + map.get("aplBgnDy") + "</aplBgnDy>"); //판매 시작일
+//            sb.append("<selPrdClfCd>90:407</selPrdClfCd>"); //판매기간 (N: 즉시 영구판매)
+//            sb.append("<setFpSelTermYn>Y</setFpSelTermYn>");
+//            sb.append("<selPrdClfFpCd>120:108</selPrdClfFpCd>");
+//
+//
+//
+//
+//            sb.append("<orgnNmVal>TEST</orgnNmVal>"); //원산지 명
+//            sb.append("<prdSelQty>1</prdSelQty>");// 재고수량 필수항목
+//            sb.append("<dlvCstInstBasiCd>01</dlvCstInstBasiCd>"); //H.S코드
+//            if(bgnDay !=""){
+//                sb.append("<aplBgnDy>" + map.get("aplBgnDy") + "</aplBgnDy>"); //판매 시작일
+//                sb.append("<aplEndDy>" + map.get("aplEndDy") + "</aplEndDy>"); //판매 종료일
+//            }
+//            sb.append("<prcCmpExpYn>Y</prcCmpExpYn>"); // 가격비교
 //            sb.append("<drcStlYn>Y</drcStlYn>"); // 즉시결제여부
-//            sb.append("<htmlDetailIframeYn>N</htmlDetailIframeYn>"); // 숙박은 N : iframe으로 노출여부
-//            sb.append("<penaltyAppyYn>Y</penaltyAppyYn>"); // 취소수수료 사용여부
-//            sb.append("<directStlYn>Y</directStlYn>"); // 바로결제 여부
-//            sb.append("<hotelBaseAddr><![CDATA[" + map.get("strAddr1") + "]]></hotelBaseAddr>");
-//            sb.append("<hotelDtlsAddr><![CDATA[" + map.get("strAddr2") + "]]></hotelDtlsAddr>");
-//            sb.append("<addrTypCd>02</addrTypCd>"); //주소 타입 01:지번, 02:도로명
-//            sb.append("<mailNo>" + map.get("strZipCode") + "</mailNo>");
-//            sb.append("<hotelPhoneNumber>" + map.get("strPhone") + "</hotelPhoneNumber>");
-//            sb.append("<roomSeatCount>" + map.get("intRoomCnt") + "</roomSeatCount>");
-//            sb.append("<checkInTime>" + map.get("strCheckIn") + "</checkInTime>");
-//            sb.append("<checkOutTime>" + map.get("strCheckOut") + "</checkOutTime>");
-//            sb.append("<hotelType><![CDATA[" + map.get("strType") + "]]></hotelType>");
-//            sb.append("<hotelGrade>" + map.get("intGrade") + "</hotelGrade>");
-//            sb.append("<geoPointX>" + map.get("decLat") + "</geoPointX>");
-//            sb.append("<geoPointY>" + map.get("decLon") + "</geoPointY>");
-//            sb.append("<tourNationType>국내</tourNationType>");
+//            sb.append("<directStlYn>Y</directStlYn>"); // 바로결제여부
+//            sb.append("<dtldDescTyp>H</dtldDescTyp>"); // 모바일 노출타입
             sb.append("</Product>");
 
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             conn.setDoOutput(true);
             conn.setInstanceFollowRedirects(false);
+
             conn.setRequestMethod("POST");
             if(isUpdate){
                 conn.setRequestMethod("PUT");
             }
             conn.addRequestProperty("Content-Type", "text/xml; charset=utf-8");
             conn.setRequestProperty("openapikey", Constants.elevenApiKey);
+            System.out.println(conn.getRequestMethod());
 
             OutputStreamWriter wr = new OutputStreamWriter(conn.getOutputStream());
             wr.write(sb.toString());
@@ -223,7 +246,7 @@ public class ElevenStService {
 
             String inputLine = null;
             String returnStr = "";
-            BufferedReader in = new BufferedReader(new InputStreamReader(conn.getInputStream(), "EUC-KR"));
+            BufferedReader in = new BufferedReader(new InputStreamReader(conn.getInputStream()));
             while ((inputLine = in.readLine()) != null) {
 //                System.out.println(inputLine);
                 String decoder = URLDecoder.decode(inputLine, "euc-kr");
@@ -651,6 +674,7 @@ public class ElevenStService {
      * 주문 목록 조회
      * @return
      */
+
     public String getOrderList() {
         //YYYYMMDDHHmm 형식으로 전달되어야함
         try {
@@ -678,7 +702,7 @@ public class ElevenStService {
             while ((inputLine = in.readLine()) != null) {
                 returnStr += inputLine;
             }
-            System.out.println(returnStr);
+//            System.out.println(returnStr);
 
             DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
             DocumentBuilder db = dbf.newDocumentBuilder();
@@ -689,6 +713,7 @@ public class ElevenStService {
             List<Map<String, Object>>listMap = new ArrayList<>(); //
             String ordNo = "";
             SimpleDateFormat oldDateFormat = new SimpleDateFormat("MM월dd일(E)");
+            SimpleDateFormat nextYearDateFormat = new SimpleDateFormat("YY년MM월dd일(E)");
             SimpleDateFormat newDateFormat = new SimpleDateFormat("yyyy-MM-dd");
 
             for (int i = 0 ; i<nl.getLength();i++){
@@ -702,9 +727,14 @@ public class ElevenStService {
                 map.put("prdNo", xmlUtility.getTagValue("prdNo", (Element) nl.item(i)));
                 map.put("prdStckNo", xmlUtility.getTagValue("prdStckNo", (Element) nl.item(i)));
                 map.put("slctPrdOptNm", xmlUtility.getTagValue("slctPrdOptNm", (Element) nl.item(i)));
+                String sellerStockCd = nl.item(0).getChildNodes().item(45).getNodeValue();
+                map.put("sellerStockCd",sellerStockCd == null ? "" : sellerStockCd);
+                String lsls = map.get("slctPrdOptNm").toString();
+//                System.out.println(lsls.length());
                 String [] test = map.get("slctPrdOptNm").toString().split(",");
                 String dateCheckIn = "";
                 String strRmTypeName = "";
+
 
                 if(test.length>2){
                     dateCheckIn = test[1].substring(test[1].indexOf(':')+1);
@@ -713,24 +743,21 @@ public class ElevenStService {
                     dateCheckIn = test[0].substring(test[0].indexOf(':')+1);
                     strRmTypeName = test[1].substring(test[1].indexOf(':')+1, test[1].lastIndexOf('-'));
                 }
-                Date formatDate = oldDateFormat.parse(dateCheckIn);
-                Date today = new Date();
-                String localDate = oldDateFormat.format(today);
-                // Date타입의 변수를 새롭게 지정한 포맷으로 변환
-                Date strNewDtFormat = oldDateFormat.parse(localDate);
-                if(formatDate.after(strNewDtFormat)){
-                    //동일년도
-                    String ll = newDateFormat.format(today).toString().substring(0, 4) + newDateFormat.format(formatDate).toString().substring(4);
-                }else{
-                    //내년
-                    String ll = String.valueOf(Integer.parseInt(newDateFormat.format(today).toString().substring(0, 4)) + 1) + newDateFormat.format(formatDate).toString().substring(4);
+                Date formatDate = new Date();
+                String lkDate = "";
+                System.out.println(dateCheckIn + "   :   "+dateCheckIn.length());
+//                Date formatDate = oldDateFormat.parse(dateCheckIn);
+
+                if(dateCheckIn.length() > 9){
+                    lkDate ="20" + dateCheckIn.toString().replaceAll("월", "-").replaceAll("년", "-").substring(0, 4);
+                } else {
+                    lkDate ="2023-" + dateCheckIn.toString().replaceAll("월", "-").substring(0, 5);
                 }
 
 //                Date newformatDate = newDateFormat.parse(strNewDtFormat);
 
 
 //                map.put("sellerStockCd", xmlUtility.getTagValue("sellerStockCd", (Element) nl.item(i)));
-                map.put("prdStckNo", xmlUtility.getTagValue("prdStckNo", (Element) nl.item(i)));
                 map.put("prdStckNo", xmlUtility.getTagValue("prdStckNo", (Element) nl.item(i)));
                 map.put("ordNo", ordNo);
 //                elevenStMapper.updateRsv(map.get("dlvNo").toString(), "", rsvStayDto);
@@ -845,26 +872,103 @@ public class ElevenStService {
         }
     }
 
-    public String updateStock(int intAID, String Stock) {
+    /**
+     *  11번가에 등록된 상품 옵션 등록 및 수정(STOCK_REAL 기반)
+     * @param intAID        시설ID
+     * @param bgnDay        시작일자(입실가능한)
+     * @return
+     */
+    public String updateStock(int intAID, String bgnDay) {
         try {
             String prdNo = commonMapper.getStrPdtCode(intAID, 1);
-            URL url = new URL(Constants.elevenUrl + "/rest/prodservice/stockqty/" + prdNo);
+            URL url = new URL(Constants.elevenUrl + "/rest/prodservices/updateProductOption/" + prdNo);
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             StringBuffer sb = new StringBuffer();
-            sb.append("<?xml version=\"1.0\" encoding=\"euc-kr\" standalone=\"yes\"?>");
-            sb.append("<ProductStock>");
-            sb.append("<prdNo>" + prdNo + "</prdNo>");
-            sb.append("<prdStockNo></prdStockNo>");
-            sb.append("<stckQty>" + Stock + "</stckQty>");
-            sb.append("</ProductStock>");
+            int selprc = commonMapper.getMinPrice(intAID, bgnDay, 1);
+            sb.append("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>");
+            sb.append("<Product>");
+            //옵션 설정
+            sb.append("<optSelectYn/>");
+            sb.append("<txtColCnt/>");
+            sb.append("<optionAllQty/>"); // 각 옵션별 재고 수량 전체 더해서 입력
+            sb.append("<optionAllAddPrc/>");
+            sb.append("<prdExposeClfCd/>");
+            sb.append("<optMixYn>N</optMixYn>");
+            //AS-IS 기준
+            sb.append("<ProductOptionExt>");
+
+            sb.append("<ProductOption>");
+            sb.append("<colOptPrice>0</colOptPrice>");
+            sb.append("<colOptCount>2</colOptCount>");
+            sb.append("<colCount/>");
+            sb.append("<optWght/>");
+//                sb.append("<useYn>Y</useYn>");
+            sb.append("<colSellerStockCd>z</colSellerStockCd>");//셀러가 사용할 재고번호
+            sb.append("<optionMappingKey><![CDATA[투숙일자:2†" + "객실타입:3]]></optionMappingKey>");
+            sb.append("</ProductOption>");
+
+            // 재고 가져오기
+            List<StockDto> stockList = commonMapper.getStockList(intAID, 1, bgnDay.replaceAll("/", "-"));
+
+            System.out.println(stockList);
+            for (StockDto dto : stockList) {
+
+                String strStockSubject = dto.getStrRmtypeName();
+                int intStockCnt = dto.getIntStock();
+                String strStockdate = dto.getDateSales();
+                int intStockSalePrice = dto.getMoneySales(); // 판매가
+                intStockSalePrice = intStockSalePrice-selprc; //판매가 - 최저가 = 추가금액
+                int intStockCost = dto.getMoneyCost(); // 공급가
+                int intIdx = dto.getIntIdx();
+                String strPkgName = dto.getStrPkgName();
+                if(intStockCnt == 0){
+                    intStockCnt=1;
+                }
+                sb.append("<ProductOption>");
+                sb.append("<colOptPrice>" + intStockSalePrice + "</colOptPrice>");
+                sb.append("<colOptCount>" + intStockCnt + "</colOptCount>");
+                sb.append("<colCount/>");
+                sb.append("<optWght/>");
+//                sb.append("<useYn>Y</useYn>");
+                sb.append("<colSellerStockCd>"+intIdx+"</colSellerStockCd>");//셀러가 사용할 재고번호
+                sb.append("<optionMappingKey><![CDATA[투숙일자:" + strStockdate + "†" + "객실타입:" + strStockSubject +" / " + strPkgName + " ]]></optionMappingKey>");
+                sb.append("</ProductOption>");
+            }
+            sb.append("</ProductOptionExt>");
+            sb.append("</Product>");
+            String returnStr = "";
             conn.setDoOutput(true);
             conn.setInstanceFollowRedirects(false);
-            conn.setRequestMethod("PUT");
+            conn.setRequestMethod("POST");
             conn.setRequestProperty("openapikey", Constants.elevenApiKey);
-            conn.setRequestProperty("Content-Type", "text/xml; charset=euc-kr");
-            conn.getResponseCode();
-            LogWriter lw = new LogWriter("POST", url.toString(), System.currentTimeMillis());
-            return commonFunction.makeReturn("jsonp", "200", "OK", "OK");
+            conn.setRequestProperty("Content-Type", "text/xml; charset=utf-8");
+            OutputStreamWriter wr = new OutputStreamWriter(conn.getOutputStream());
+            wr.write(sb.toString());
+            wr.flush();
+            String inputLine = null;
+            BufferedReader in = new BufferedReader(new InputStreamReader(conn.getInputStream(), "EUC-KR"));
+            while ((inputLine = in.readLine()) != null) {
+                String decoder = URLDecoder.decode(inputLine, "euc-kr");
+                decoder = URLDecoder.decode(decoder, "euc-kr");
+                returnStr += decoder;
+//                returnStr += inputLine;
+            }
+            System.out.println(returnStr);
+
+//            LogWriter lw = new LogWriter("POST", url.toString(), System.currentTimeMillis());
+//            lw.log(2);
+
+            DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+            DocumentBuilder db = dbf.newDocumentBuilder();
+            StringReader sr = new StringReader(returnStr);
+            InputSource is = new InputSource(sr);
+            Document dc = db.parse(is);
+
+            NodeList nl = dc.getElementsByTagName("message");
+
+            insertStockNo(prdNo);
+
+            return commonFunction.makeReturn("jsonp", "500", returnStr);
         } catch (Exception e) {
             return commonFunction.makeReturn("jsonp", "500", e.getMessage());
         }
@@ -935,7 +1039,6 @@ public class ElevenStService {
             conn.setRequestMethod("GET");
             conn.setRequestProperty("openapikey", Constants.elevenApiKey);
 
-            LogWriter lw = new LogWriter("GET", url.toString(), System.currentTimeMillis());
 
             BufferedReader in = new BufferedReader(new InputStreamReader(conn.getInputStream(), "EUC-KR"));
             String inputLine = null;
@@ -962,7 +1065,7 @@ public class ElevenStService {
 
     public String insertStockNo(String prdNo) {
         try{
-            URL url = new URL(Constants.elevenUrl + "/rest/prodmarketservice/prodmarket/stocks/"+prdNo);
+            URL url = new URL(Constants.elevenUrl + "/rest/prodmarketservice/prodmarket/stck/"+prdNo);
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             conn.setDoOutput(true);
             conn.setInstanceFollowRedirects(false);
@@ -983,6 +1086,33 @@ public class ElevenStService {
             InputSource is = new InputSource(sr);
             Document dc = db.parse(is);
             NodeList nl = dc.getElementsByTagName("ns2:ProductStock");
+            List<Map<String, Object>> listMap = new ArrayList<>();
+            String prcd="";
+            String intAID = "";
+            for (int i = 0 ; i< nl.getLength();i++){
+                Map<String, Object> stockMap = new HashMap<>();
+                String [] mixOpt = xmlUtility.getTagValue("mixDtlOptNm", (Element) nl.item(i)).toString().split(",");
+                if (mixOpt.length > 2){
+                    stockMap.put("accommName", xmlUtility.getTagValue("mixDtlOptNm", (Element) nl.item(i)).toString().split(",")[0]);
+                    stockMap.put("dateSales", xmlUtility.getTagValue("mixDtlOptNm", (Element) nl.item(i)).toString().split(",")[1]);
+                    stockMap.put("strRmName", xmlUtility.getTagValue("mixDtlOptNm", (Element) nl.item(i)).toString().split(",")[2]);
+                }else {
+                    stockMap.put("dateSales", xmlUtility.getTagValue("mixDtlOptNm", (Element) nl.item(i)).toString().split(",")[0]);
+                    stockMap.put("strRmName", xmlUtility.getTagValue("mixDtlOptNm", (Element) nl.item(i)).toString().split(",")[1]);
+                }
+                stockMap.put("sellerStockCd", xmlUtility.getTagValue("sellerStockCd", (Element) nl.item(i)).toString());
+                intAID = xmlUtility.getTagValue("sellerPrdCd", (Element) nl.item(i)).toString(); //sellerPrdCd
+                stockMap.put("prdStckNo", xmlUtility.getTagValue("prdStckNo", (Element) nl.item(i)).toString());
+                stockMap.put("prdStckStatCd", xmlUtility.getTagValue("prdStckStatCd", (Element) nl.item(i)).toString());
+                listMap.add(stockMap);
+                prcd += stockMap.get("sellerStockCd") + "|^|" + stockMap.get("prdStckNo") + "|^|" + stockMap.get("dateSales") + "|^|" + stockMap.get("strRmName") + "{{|}}";
+            }
+            prcd = prcd.substring(0, prcd.length()-5);
+            elevenStMapper.updateElevenSeq(Integer.parseInt(intAID), prcd);
+            System.out.println(listMap);
+
+
+
             if (!xmlUtility.getTagValue( "resultCode", (Element) nl.item(0)).equals("200")) {
                 return commonFunction.makeReturn("jsonp", "500", "ERROR", xmlUtility.getTagValue( "message", (Element) nl.item(0)));
             }

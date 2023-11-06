@@ -72,8 +72,8 @@ public class ElevenStController {
 
     @GetMapping("/updateQuantity")
     @ResponseBody
-    public String updateQuantity(int intAID, String quantity){
-        return elevenStService.updateStock(intAID, quantity);
+    public String updateQuantity(int intAID, String sDate){
+        return elevenStService.updateStock(intAID, sDate);
     }
 
     @GetMapping("/updatePrdDesc")

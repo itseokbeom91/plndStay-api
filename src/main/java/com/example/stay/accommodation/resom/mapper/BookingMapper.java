@@ -10,9 +10,9 @@ import java.util.Map;
 public interface BookingMapper {
     String localInsert(String data);
 
-    String updateBooking(String intRsvID, String strStatusCode, String strRsvRmNum);
+    String updateBooking(int intRsvID, String strStatusCode, String strRsvRmNum);
 
-    Map<String , Object> getBookingInfoFromBookingIdx(String intRsvID);
+    Map<String , Object> getBookingInfoFromBookingIdx(int intRsvID);
     String insertRoom(String strPackageDatas, String strRoomDatas, String strStockDatas, String strAccommDatas, String strType);
 
     Map<String, Object> getPackageCodeAndStoreCode(String type);

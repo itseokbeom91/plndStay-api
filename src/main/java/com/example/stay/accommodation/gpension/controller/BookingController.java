@@ -29,17 +29,17 @@ public class BookingController {
 
     @GetMapping("/createBooking")
     @ResponseBody
-    public String createBooking(@RequestParam(required = false, defaultValue="jsonp") String dataType, String intRsvID) {
+    public String createBooking(@RequestParam(required = false, defaultValue="jsonp") String dataType, int intRsvID) {
         return bookingService.createBooking(dataType, intRsvID);
     }
     @GetMapping("/checkBooking")
     @ResponseBody
-    public String confirmBooking(@RequestParam(required = false, defaultValue="jsonp") String dataType, String intRsvID) {
+    public String confirmBooking(@RequestParam(required = false, defaultValue="jsonp") String dataType, int intRsvID) {
         return bookingService.confirmBooking(dataType,intRsvID);
     }
     @GetMapping("/cancelBooking")
     @ResponseBody
-    public String cancelBooking(@RequestParam(required = false, defaultValue="jsonp") String dataType, String intRsvID) {
+    public String cancelBooking(@RequestParam(required = false, defaultValue="jsonp") String dataType, int intRsvID) {
         return bookingService.cancelBooking(dataType,intRsvID);
     }
     @GetMapping("/getRoomStock")
@@ -49,7 +49,7 @@ public class BookingController {
     }
     @GetMapping("/getBookingInfo")
     @ResponseBody
-    public String searchOrder(@RequestParam(required = false, defaultValue="jsonp") String dataType, String intRsvID) {
+    public String searchOrder(@RequestParam(required = false, defaultValue="jsonp") String dataType, int intRsvID) {
         return bookingService.searchOrder(dataType,intRsvID);
     }
 }
