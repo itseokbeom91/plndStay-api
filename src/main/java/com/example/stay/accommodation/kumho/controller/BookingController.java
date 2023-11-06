@@ -85,7 +85,7 @@ public class BookingController {
     }
 
     /**
-     * 재고 등록 및 수정
+     * 재고 등록 및 수정 - intAID 받아서
      */
     @GetMapping("updateRoomStockByIntAID")
     @ResponseBody
