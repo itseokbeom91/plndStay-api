@@ -13,7 +13,9 @@ public class StockDto {
     private int intRmIdx;
     private int moneyCost;
     private int moneySales;
+    private int moneyOMKSales;
     private int intStock;
+    private int intOMKStock;
     private int intSsgSeq;
     private int intGsshopSeq;
     private int intElandSeq;

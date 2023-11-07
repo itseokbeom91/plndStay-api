@@ -34,20 +34,19 @@ public interface CommonMapper {
 
     RsvStayDto getBookingInfo(int intRsvID);
 
-    List<Map<String, Object>> getBookingInfo(String intRsvID);
-    Map<String, Object> getTypeCode (String intRsvID);
+    Map<String, Object> getTypeCode (int intRsvID);
 
-    String updateRsv(String intRsvID);
+    String updateRsv(int intRsvID);
 
-    String getMailYn(String intAID);
+    String getMailYn(int intAID);
 
-    Map<String, Object> getFaxYn(String intAID);
+    Map<String, Object> getFaxYn(int intAID);
 
-    String getSpavisTicketNo(String intRsvID);
+    String getSpavisTicketNo(int intRsvID);
 
-    String getInformMoney(String intAID);
+    String getInformMoney(int intAID);
 
-    String getAcmNmByintAID(String intAID);
+    String getAcmNmByintAID(int intAID);
 
-    Map<String, Object> getOmkSeqNStock(String prdNo, int omkIdx);
+    Map<String, Object> getOmkSeqNStock(int prdNo, int omkIdx);
 }

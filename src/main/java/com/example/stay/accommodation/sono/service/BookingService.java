@@ -415,7 +415,7 @@ public class BookingService {
 
     }
     //예약
-    public String createBooking(String dataType, String intRsvID, String rsvDate ,HttpServletRequest httpServletRequest) {
+    public String createBooking(String dataType, int intRsvID, String rsvDate ,HttpServletRequest httpServletRequest) {
         long startTime = System.currentTimeMillis();
         OkHttpClient client = new OkHttpClient().newBuilder().build();
 
@@ -487,7 +487,7 @@ public class BookingService {
 
     }
 
-    public String cancelBooking(String dataType, String intRsvID ,HttpServletRequest httpServletRequest) {
+    public String cancelBooking(String dataType, int intRsvID ,HttpServletRequest httpServletRequest) {
         long startTime = System.currentTimeMillis();
         OkHttpClient client = new OkHttpClient().newBuilder().build();
 
@@ -544,7 +544,7 @@ public class BookingService {
     }
     //예약
     @Async
-    public String createBookingRoom(String dataType, String intRsvID, String rsvDate ,HttpServletRequest httpServletRequest) {
+    public String createBookingRoom(String dataType, int intRsvID, String rsvDate ,HttpServletRequest httpServletRequest) {
         long startTime = System.currentTimeMillis();
         OkHttpClient client = new OkHttpClient().newBuilder().build();
 
@@ -621,7 +621,7 @@ public class BookingService {
 
     }
 
-    public String cancelBookingRoom(String dataType, String intRsvID ,HttpServletRequest httpServletRequest) {
+    public String cancelBookingRoom(String dataType, int intRsvID ,HttpServletRequest httpServletRequest) {
         long startTime = System.currentTimeMillis();
         OkHttpClient client = new OkHttpClient().newBuilder().build();
 
@@ -883,27 +883,32 @@ public class BookingService {
         //패키지 리스트에서 패키지번호, 영업장번호 빼오고(strPkgCode, strStoreCode)
         //조회 시작일자는 오늘부터 하면 될듯!
         String pkgNo = "";
-        String storeCd = "";
+        String rmTypeCd = "";
+        String dateMapping="";
         String strType = "01";
+        String storeCd="";
         String packageStockDatas = "";
         Date nowDate = new Date();
-        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMdd");
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
         String sDate = dateFormat.format(nowDate);
         List<Map<String, Object>> stockList = new ArrayList<>();
         JSONObject stockResultJson = new JSONObject();
 
-        List<Map<String, Object>> pkgcdAndStorecd = bookingMapper.getPackageCodeAndStoreCode("01", sDate.toString());
+        List<Map<String, Object>> rmPackageMap = bookingMapper.getRmPackageMap();
 
         //ResponseResult roomStatus = getRoomStatus(httpServletRequest, storeCd, sDate);
         //ResponseResult roomAmount = getRoomAmount(httpServletRequest, storeCd, sDate);
 
         try {
-            for (int i = 0 ; i < pkgcdAndStorecd.size() ; i++){
+            for (int i = 0 ; i < rmPackageMap.size() ; i++){
                 int oldStockListsize = stockList.size();
-                pkgNo = (String) pkgcdAndStorecd.get(i).get("strPkgCode");
-                storeCd = (String) pkgcdAndStorecd.get(i).get("strStoreCode");
-                String packStatus = getPackageStatus("jsonp", pkgNo, storeCd, sDate, null, null, httpServletRequest);
-                String packAmount = getPackageAmount("jsonp", pkgNo, storeCd, sDate, null, null, "1", "1", httpServletRequest);
+                pkgNo = (String) rmPackageMap.get(i).get("strMapCode");
+                if(pkgNo.equals("RMONLY")) pkgNo=null;
+                rmTypeCd = (String) rmPackageMap.get(i).get("strRmCode");
+                storeCd = (String) rmPackageMap.get(i).get("strStoreCode");
+                dateMapping = rmPackageMap.get(i).get("startDate").toString();
+                String packStatus = getPackageStatus("jsonp", pkgNo, storeCd, sDate, rmTypeCd, dateMapping, httpServletRequest);
+                String packAmount = getPackageAmount("jsonp", pkgNo, storeCd, sDate, rmTypeCd, dateMapping, "1", "1", httpServletRequest);
                 JSONParser jsonParser = new JSONParser();
                 JSONObject packStatusJson = (JSONObject) jsonParser.parse(packStatus.substring(5, packStatus.length()-1));
                 JSONObject packAmountJson = (JSONObject) jsonParser.parse(packAmount.substring(5, packAmount.length()-1));
@@ -925,7 +930,6 @@ public class BookingService {
 
                 for (int j = 0 ; j < packStatusList.size() ; j++) {
                     String dateSales = (String) packStatusList.get(j).get("ciYmd");
-                    String rmTypeCd = (String) packStatusList.get(j).get("rmTypeCd");
                     String intStock = packStatusList.get(j).get("leaveCnt").toString();
                     String moneyCost = "";
                     String moneySales = "";
@@ -936,7 +940,7 @@ public class BookingService {
                             break;
                         }
                     }
-                    packageStockDatas += dateSales + "|^|" + intStock + "|^|" + moneyCost + "|^|" + moneySales + "|^|" + pkgNo + "|^|" + rmTypeCd;
+                    packageStockDatas += dateSales + "|^|" + intStock + "|^|" + moneyCost + "|^|" + moneySales + "|^|" + "|^|" + "|^|" + "|^|" + intStock;
                     if (j != packStatusList.size()-1) {
                         packageStockDatas += "{{^}}";
                     }

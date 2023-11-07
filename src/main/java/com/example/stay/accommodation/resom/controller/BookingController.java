@@ -72,19 +72,19 @@ public class BookingController {
 
     @GetMapping("/cancelBooking")
     @ResponseBody
-    public String cancelBooking(@RequestParam(required = false, defaultValue="jsonp") String dataType, String intRsvID) throws ParseException {
+    public String cancelBooking(@RequestParam(required = false, defaultValue="jsonp") String dataType, int intRsvID) throws ParseException {
         return bookingService.cancelBooking(dataType, intRsvID);
     }
 
     @GetMapping("/updateBooking")
     @ResponseBody
-    public String updateGuest(@RequestParam(required = false, defaultValue="jsonp") String dataType, String intRsvID, String mpNo, String guestNm) throws ParseException {
+    public String updateGuest(@RequestParam(required = false, defaultValue="jsonp") String dataType, int intRsvID, String mpNo, String guestNm) throws ParseException {
         return bookingService.updateGuest(dataType, intRsvID, mpNo, guestNm);
     }
 
     @GetMapping("/getPackageBookingInfo")
     @ResponseBody
-    public String getPackageBookingInfo(@RequestParam(required = false, defaultValue="jsonp") String dataType, String intRsvID) {
+    public String getPackageBookingInfo(@RequestParam(required = false, defaultValue="jsonp") String dataType, int intRsvID) {
         return bookingService.getPackageBookingInfo(dataType, intRsvID);
     }
 
@@ -98,7 +98,7 @@ public class BookingController {
     //연박 예약
     @GetMapping("/createBooking")
     @ResponseBody
-    public String createBooking2(@RequestParam(required = false, defaultValue="jsonp") String dataType, String intRsvID, @RequestParam(required = false, defaultValue = "")String rsvDate, HttpServletRequest httpServletRequest) {
+    public String createBooking2(@RequestParam(required = false, defaultValue="jsonp") String dataType, int intRsvID, @RequestParam(required = false, defaultValue = "")String rsvDate, HttpServletRequest httpServletRequest) {
         return bookingService.createBooking(dataType, intRsvID, rsvDate, httpServletRequest);
     }
 

@@ -21,4 +21,6 @@ public interface ElevenStMapper {
     String updateRsv(String intRsvNo, String rsvState, RsvStayDto rsvStayDto);
 
     String getUsgYn(String intAID);
+
+    String updateElevenSeq(int intAID, String strDatas);
 }

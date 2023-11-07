@@ -64,4 +64,6 @@ public class RsvStayDto {
 
     private double moneyCost;
     private double moneySales;
+
+    private int intOMKIdx;
 }

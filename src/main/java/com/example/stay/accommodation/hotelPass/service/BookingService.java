@@ -718,9 +718,10 @@ public class BookingService {
         }
 
     }
-    public String getBookingDetail(String dataType, String bookingNo){
+    public String getBookingDetail(String dataType, int intRsvID){
 
         List<Map<String, Object>> hotelRateList = new ArrayList<Map<String, Object>>();
+        String bookingNo = "";//TODO intRsvID로 가져오든가
         try {
 
             //보낼 메시지
@@ -832,7 +833,7 @@ public class BookingService {
         }
 
     }
-    public String cancelBooking(String dataType, String bookingNo){
+    public String cancelBooking(String dataType, int intRsvID){
 
         List<Map<String, Object>> hotelRateList = new ArrayList<Map<String, Object>>();
         try {
@@ -852,7 +853,7 @@ public class BookingService {
 
                     "<BookingInfo>" +
                     "<CancelKind>01</CancelKind>" + //처리종류 01 : 취소처리 (고정값)
-                    "<BKNo>" + bookingNo + "</BKNo>" +
+                    "<BKNo>" + intRsvID + "</BKNo>" +
                     "</BookingInfo>" +
                     "</CancelRequest>";
 //                    "</astrRequestXML>";

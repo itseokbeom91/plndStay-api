@@ -10,6 +10,7 @@ public class Constants {
     public static final String faxPwd = "red01341234";
 
     public static final String rsv_history_rsv = "예약 -> 완료";
+    public static final String rsv_history_cancel= "완료 -> 취소";
     public static final String rsv_history_rsv_to_cancel = "예약상태 변경 : ";
 
     // 예약 상태값

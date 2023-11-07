@@ -584,7 +584,7 @@ public class BookingService {
     }
 
     //패키지 예약
-    public String createBooking(String dataType,String intRsvID, String rsvDate, HttpServletRequest httpServletRequest) {
+    public String createBooking(String dataType,int intRsvID, String rsvDate, HttpServletRequest httpServletRequest) {
         long startTime = System.currentTimeMillis();
 
         OkHttpClient client = new OkHttpClient().newBuilder().build();
@@ -719,7 +719,7 @@ public class BookingService {
     }
 
     //예약 취소
-    public String cancelBooking(String dataType, String intRsvID) throws ParseException {
+    public String cancelBooking(String dataType, int intRsvID) throws ParseException {
         long startTime = System.currentTimeMillis();
 
         OkHttpClient client = new OkHttpClient().newBuilder().build();
@@ -834,7 +834,7 @@ public class BookingService {
     }
 
     //이용자 정보 변경
-    public String updateGuest(String dataType, String intRsvID, String mpNo, String guestNm) throws ParseException {
+    public String updateGuest(String dataType, int intRsvID, String mpNo, String guestNm) throws ParseException {
         long startTime = System.currentTimeMillis();
 
         OkHttpClient client = new OkHttpClient().newBuilder().build();
@@ -891,7 +891,7 @@ public class BookingService {
     }
 
     //패키지 예약조회
-    public String getPackageBookingInfo(String dataType, String intRsvID) {
+    public String getPackageBookingInfo(String dataType, int intRsvID) {
         long startTime = System.currentTimeMillis();
 
         Map<String, Object> bookingMap = bookingMapper.getBookingInfoFromBookingIdx(intRsvID);
@@ -1002,7 +1002,7 @@ public class BookingService {
         //조회 시작일자는 오늘부터!
         String pkgNo = "";
         String storeCd = "";
-        String strType = "01";
+        String strType = "RE";
         String packageStockDatas = "";
         Date nowDate = new Date();
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMdd");
@@ -1010,7 +1010,7 @@ public class BookingService {
         List<Map<String, Object>> stockList = new ArrayList<>();
         JSONObject stockResultJson = new JSONObject();
 
-        List<Map<String, Object>> pkgcdAndStorecd = (List<Map<String, Object>>) bookingMapper.getPackageCodeAndStoreCode("01");
+        List<Map<String, Object>> pkgcdAndStorecd = (List<Map<String, Object>>) bookingMapper.getPackageCodeAndStoreCode("RE");
 
         try {
             for (int i = 0 ; i < pkgcdAndStorecd.size() ; i++){
