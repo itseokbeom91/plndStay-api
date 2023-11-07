@@ -609,7 +609,7 @@ public class ElandService {
                         int intItmeNo = dto.getIntElandSeq();
 
                         if(intItemNoList.contains(intItmeNo)){
-                            parameters.put("item", intItmeNo + "," + strStockSubject + "/" + strStockdate + "," + intStockCnt + ",Y," + strStockdate + "," + strStockSubject + ",^,^,^," + strElandDate + "," + intStockSalePrice + "," + intStockCost + ",^");
+                            parameters.put("item", intItmeNo + "," + strStockSubject + "_test/" + strStockdate + "," + intStockCnt + ",Y," + strStockdate + "," + strStockSubject + ",^,^,^," + strElandDate + "," + intStockSalePrice + "," + intStockCost + ",^");
                         }else{
                             intMaxElandSeq += 1;
                             parameters.put("item", intMaxElandSeq + "," + strStockSubject + "/" + strStockdate + "," + intStockCnt + ",Y," + strStockdate + "," + strStockSubject + ",^,^,^," + strElandDate + "," + intStockSalePrice + "," + intStockCost + ",^");

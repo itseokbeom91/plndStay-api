@@ -105,6 +105,7 @@ public class Scheduler {
         }
     }
 
+    // 지마켓 예약 가져오기
     //@Scheduled(cron = "0 0/3 * * * *")
     public void bookingGMK(){
         try {

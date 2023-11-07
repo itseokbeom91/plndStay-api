@@ -51,8 +51,8 @@ public class Constants {
     public static final String elandClientSecret = "p1586262E!"; // 상용? : p33846938!
     // client_id:client_secret Base64인코딩
     public static final String base64EncodedAuth = "Basic " + Base64.getEncoder().encodeToString((elandClientId + ":" + elandClientSecret).getBytes());
-//    public static final String elandPath = "https://int-api.elandmall.co.kr"; // 테스트 서버
-    public static final String elandPath = "https://api.elandmall.com"; // 상용 서버
+    public static final String elandPath = "https://int-api.elandmall.co.kr"; // 테스트 서버
+//    public static final String elandPath = "https://api.elandmall.com"; // 상용 서버
 
     // ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
     // ┃ onda

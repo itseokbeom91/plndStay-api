@@ -114,7 +114,7 @@
     </update>
 
     <update id="updateStatus">
-        update accomm set strViewYn = #{strStatus} where intAID = ${intAID}
+        update accomm_omk set strUsageYn = #{strStatus} where intAID = ${intAID} and intOMKIdx = 9
     </update>
 
 </mapper>
