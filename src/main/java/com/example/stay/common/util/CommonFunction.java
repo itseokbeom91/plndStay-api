@@ -369,18 +369,20 @@ public class CommonFunction<T> {
 
             // 해당 취소규정 조회
             int intAID = rsvStayDto.getIntAID();
-            intAID = 11149;
+            int intRmIdx = rsvStayDto.getIntRmIdx();
             List<CancelRulesDto> cancelRuleList = commonAcmMapper.getCancelRules(intAID, strFlag);
+            if(cancelRuleList.size() == 0){
+                cancelRuleList = commonAcmMapper.getCancelRules(0, strFlag);
+            }
 
             String strRateFlag = "P";
-
-            int intRsvID = rsvStayDto.getIntRsvID();
 
             // 판매금액 조회
             double sales = 0;
             if(rsvStayDto.getStrRsvSite().equals("OMK")){
                 // 오픈마켓별 판매금액 조회
-                sales = commonAcmMapper.getOmkSales(intRsvID);
+                int intOmkIdx = rsvStayDto.getIntOMKIdx();
+                 sales = commonAcmMapper.getOmkSales(intAID, intRmIdx, intOmkIdx, strCheckIn);
             }else{
                 sales = rsvStayDto.getMoneySales();
             }

@@ -1580,88 +1580,28 @@ public class GmkAccommService {
         return commonFunction.makeReturn(dataType, statusCode, message, result);
     }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    // 실시간 가격, 재고 체크(지마켓에서 호출)
-    public String getPriceNStock(HttpServletRequest httpServletRequest){
-        LogWriter logWriter = new LogWriter(httpServletRequest.getMethod(), httpServletRequest.getServletPath(),
-                httpServletRequest.getQueryString(), System.currentTimeMillis());
+    // 1.0상품 -> 2.0전환
+//    public String convertProduct(String dataType, HttpServletRequest httpServletRequest){
+//        LogWriter logWriter = new LogWriter(httpServletRequest.getMethod(), httpServletRequest.getServletPath(),
+//                httpServletRequest.getQueryString(), System.currentTimeMillis());
 //        String statusCode = "200";
 //        String message = "";
-        String strXml = "";
-        try{
-//            InputStream inputStream = httpServletRequest.getInputStream();
-//            BufferedReader br = null;
-//            StringBuilder stringBuilder = new StringBuilder();
-//            String line = "";
-//            if (inputStream != null) {
-//                br = new BufferedReader(new InputStreamReader(inputStream));
-//                while ((line = br.readLine()) != null) {
-//                    stringBuilder.append(line);
-//                }
 //
-//                String strBody = stringBuilder.toString();
-//            }else{
+//        try{
 //
-//            }
-
-            DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
-            DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
-            Document document = dBuilder.parse(httpServletRequest.getInputStream());
-            document.getDocumentElement().normalize();
-
-            System.out.println("1 : " + xmlUtility.parsingXml(document));
-
-            NodeList orderInfo = document.getElementsByTagName("ORDER_INFO");
-            Node node = orderInfo.item(0);
-            Element element = (Element) node;
-            System.out.println("2 : " + xmlUtility.getTagValue("PRODUCT", element));
-
-//            NodeList nlList = element.getElementsByTagName(tag).item(0).getChildNodes();
-//            Node nValue = (Node) nlList.item(0);
-//            return nValue.getNodeValue();
-
-            String responseXml =
-                "<STOCK_REMAIN_INFO>\n" +
-//                "    <PRODUCT NO="123456789" REMAIN_YN="Y" />\n" +
-                "    <PRODUCT NO='123456789' REMAIN_YN='Y'/>\n" +
-                "    <ORDER_OPTION>\n" +
-                "        <OPTION_INFO>\n" +
-                "            <NAME><![CDATA[사이즈]]></NAME>\n" +
-                "            <VALUE><![CDATA[55]]></VALUE>\n" +
-                "            <REMAIN_YN>Y</REMAIN_YN>\n" +
-                "            <STOCK_NO>00001</STOCK_NO>\n" +
-                "        </OPTION_INFO>\n" +
-                "    </ORDER_OPTION>\n" +
-                "</STOCK_REMAIN_INFO>\n";
-
-            System.out.println("responseXml : \n" + responseXml);
-
-        }catch (Exception e){
-            e.printStackTrace();
-//            message = "실시간 가격 재고 조회 실패";
+//
+//            logWriter.add(message);
+//            logWriter.log(0);
+//        }catch (Exception e){
+//            e.printStackTrace();
+//            message = "2.0상품으로 전환 완료";
 //            statusCode = "500";
-            logWriter.add("error : " + e.getMessage());
-            logWriter.log(0);
-        }
-        return strXml;
-    }
+//            logWriter.add("error : " + e.getMessage());
+//            logWriter.log(0);
+//        }
+//        return commonFunction.makeReturn(dataType, statusCode, message);
+//    }
+
 
 
     //==================================================================================================================
@@ -1896,6 +1836,8 @@ public class GmkAccommService {
         }
         return result;
     }
+
+
 
 
 }

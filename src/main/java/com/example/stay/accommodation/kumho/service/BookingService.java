@@ -111,6 +111,7 @@ public class BookingService extends CommonFunction{
 //                    String kumhoUrl = "inter01.asp?ipark_resno=INT2015081804&area=4&site=1&arrive_date=20230915&leave_date=20230917&nights_count=2&groupid=210010&event_div=0&morning_aqua=0&use_name=KMK-%EB%A3%B8%EC%98%A8%EB%A6%AC&use_phone=7469&use_cell_phone=01071050426&morning_div=N&room_type=27A&room_count=1&person_count=5&coupon_year=*&coupon_number=0&ipark_goodsno=0129O01";
 
             Document document = callKumhoAPI(kumhoUrl);
+
             // response 처리
             int apiFail = 0;
             String strRsvRmNum = "";
@@ -155,8 +156,7 @@ public class BookingService extends CommonFunction{
             strRmNumDatas = strRmNumDatas.substring(0, strRmNumDatas.length()-5);
 
             // 위약금 규정 생성
-//            String strPenaltyDatas = makeCancelRules(rsvStayDto);
-            String strPenaltyDatas = "";
+            String strPenaltyDatas = makeCancelRules(rsvStayDto);
 
             Map<String, Object> dataMap = new HashMap<>();
             dataMap.put("intRsvID", intRsvID);
@@ -347,7 +347,7 @@ public class BookingService extends CommonFunction{
                 }
             }
             // api history
-            commonAcmMapper.insertRsvStayHistory(intRsvID, "C24", "[" + strContentCode +"]" + Constants.rsv_history_rsv, strProcedure, "", 148);
+            commonAcmMapper.insertRsvStayHistory(intRsvID, "C24", "[" + strContentCode +"]" + Constants.rsv_history_rsv, strProcedure, commonFunction.getClientIP(), 148);
 
             logWriter.add(message);
             logWriter.log(0);
@@ -361,7 +361,93 @@ public class BookingService extends CommonFunction{
         return commonFunction.makeReturn(dataType, statusCode, message);
     }
 
+    // 예약 취소
+    public String cancelBooking(String dataType, int intRsvID, HttpServletRequest httpServletRequest){
+        LogWriter logWriter = new LogWriter(httpServletRequest.getMethod(), httpServletRequest.getServletPath(),
+                httpServletRequest.getQueryString(), System.currentTimeMillis());
+        String statusCode = "200";
+        String message = "";
+        try{
+            List<String> rsvRmNumList = commonAcmMapper.getStrRsvRmNum(intRsvID);
+            RsvStayDto rsvStayDto = kumhoMapper.getReservation(intRsvID);
 
+            String strRmNumDatas = "";
+            int apiFail = 0;
+            for(String strRsvRmNum : rsvRmNumList) {
+                String area = rsvStayDto.getStrLocalCode(); // 사업장(통영, 화순, 설악, 제주)
+
+                SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd");
+                String arrive_date = sdf.format(rsvStayDto.getDateCheckIn()); // 도착일자
+
+                String reserv_year = arrive_date.substring(0, 4);
+
+                String kumhoUrl = "inter02.asp?area=" + area + "&site=" + site + "&reserv_year=" + reserv_year
+                        + "&reserv_number=" + strRsvRmNum;
+
+                Document document = callKumhoAPI(kumhoUrl);
+
+                if(document != null){
+                    String resultCode = document.getElementsByTagName("resultCode").item(0).getChildNodes().item(0).getNodeValue();
+                    String resultMsg = document.getElementsByTagName("resultMsg").item(0).getChildNodes().item(0).getNodeValue();
+                    if(resultCode.equals("S")){
+                        // TODO : intSID 수정
+                        strRmNumDatas += strRsvRmNum + "|^|C24|^|" + 148 + "{{|}}";
+                    }else{
+                        apiFail ++;
+                        logWriter.add(URLDecoder.decode(resultMsg, "utf-8"));
+                    }
+                }else{
+                    apiFail ++;
+                    logWriter.add("금호 API 호출 실패");
+                }
+            }
+            strRmNumDatas = strRmNumDatas.substring(0, strRmNumDatas.length()-5);
+
+            Map<String, Object> dataMap = new HashMap<>();
+            dataMap.put("intRsvID", intRsvID);
+            dataMap.put("strStatusCode", Constants.rsvStatus_rsv_complete);
+            dataMap.put("strRmNumDatas", strRmNumDatas);
+            dataMap.put("strPenaltyDatas", "");
+
+            String strProcedure = commonFunction.makeStrProcedure("spGW_RSV_STAY_UPDATE_PROCESS", dataMap);
+
+            // 예약 테이블 상태값 업데이트
+            String result = kumhoMapper.updateRsvStay(intRsvID, Constants.rsvStatus_cancel_complete, strRmNumDatas, "");
+
+            String strContentCode = "200";
+            // 예약취소 api 실패 있는 경우
+            if(apiFail != 0) {
+                strContentCode = "500";
+                message = "예약취소 " + apiFail + "건 실패";
+
+                if (result.equals("저장완료")) {
+                    message += "\nDB 저장 완료";
+
+                } else {
+                    message += "\nDB 저장 실패";
+                }
+            }else{ // 예약취소 api 실패 없는 경우
+                if (result.equals("저장완료")) {
+                    message = "예약취소 완료";
+                } else {
+                    message = "DB 저장 실패";
+                }
+            }
+
+            // api history
+            commonAcmMapper.insertRsvStayHistory(intRsvID, "C24", "[" + strContentCode +"]" + Constants.rsvStatus_cancel_complete, strProcedure, commonFunction.getClientIP(), 148);
+
+            logWriter.add(message);
+            logWriter.log(0);
+        }catch (Exception e){
+            message = "예약 취소 실패";
+            statusCode = "500";
+            logWriter.add("error : " + e.getMessage());
+            logWriter.log(0);
+            e.printStackTrace();
+        }
+        return commonFunction.makeReturn(dataType, statusCode, message);
+    }
 
     // 재고 등록 및 수정
     public String updateRoomStock(String dataType, HttpServletRequest httpServletRequest){
@@ -577,7 +663,7 @@ public class BookingService extends CommonFunction{
         return commonFunction.makeReturn(dataType, statusCode, message);
     }
 
-    // 재고 등록 및 수정
+    // 재고 등록 및 수정 - intAID 받아서
     public String updateRoomStockByIntAID(String dataType, int intAID, HttpServletRequest httpServletRequest){
         LogWriter logWriter = new LogWriter(httpServletRequest.getMethod(), httpServletRequest.getServletPath(),
                 httpServletRequest.getQueryString(), System.currentTimeMillis());
@@ -713,7 +799,6 @@ public class BookingService extends CommonFunction{
                                         strStockDatas += dateSales + "|^|" + intStock + "|^|" + intCost + "|^|" + intSales + "|^|"
                                                 + intExtraA + "|^|" + intExtraC + "|^|" + intExtraB + "|^|" + intOmkStock + "|^|" + "{{|}}";
 
-
                                     }
                                 }
                             }
@@ -846,95 +931,6 @@ public class BookingService extends CommonFunction{
 //        return strFail;
 //    }
 
-
-
-    // 예약 취소
-    public String cancelBooking(String dataType, int intRsvID, HttpServletRequest httpServletRequest){
-        LogWriter logWriter = new LogWriter(httpServletRequest.getMethod(), httpServletRequest.getServletPath(),
-                httpServletRequest.getQueryString(), System.currentTimeMillis());
-        String statusCode = "200";
-        String message = "";
-        try{
-            List<String> rsvRmNumList = commonAcmMapper.getStrRsvRmNum(intRsvID);
-            RsvStayDto rsvStayDto = kumhoMapper.getReservation(intRsvID);
-
-            String strRmNumDatas = "";
-            int apiFail = 0;
-            for(String strRsvRmNum : rsvRmNumList) {
-                String area = rsvStayDto.getStrLocalCode(); // 사업장(통영, 화순, 설악, 제주)
-
-                SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd");
-                String arrive_date = sdf.format(rsvStayDto.getDateCheckIn()); // 도착일자
-
-                String reserv_year = arrive_date.substring(0, 4);
-
-                String kumhoUrl = "inter02.asp?area=" + area + "&site=" + site + "&reserv_year=" + reserv_year
-                        + "&reserv_number=" + strRsvRmNum;
-
-                Document document = callKumhoAPI(kumhoUrl);
-
-                if(document != null){
-                    String resultCode = document.getElementsByTagName("resultCode").item(0).getChildNodes().item(0).getNodeValue();
-                    String resultMsg = document.getElementsByTagName("resultMsg").item(0).getChildNodes().item(0).getNodeValue();
-                    if(resultCode.equals("S")){
-                        // TODO : intSID 수정
-                        strRmNumDatas += strRsvRmNum + "|^|C24|^|" + 148 + "{{|}}";
-                    }else{
-                        apiFail ++;
-                        logWriter.add(URLDecoder.decode(resultMsg, "utf-8"));
-                    }
-                }else{
-                    apiFail ++;
-                    logWriter.add("금호 API 호출 실패");
-                }
-            }
-            strRmNumDatas = strRmNumDatas.substring(0, strRmNumDatas.length()-5);
-
-            Map<String, Object> dataMap = new HashMap<>();
-            dataMap.put("intRsvID", intRsvID);
-            dataMap.put("strStatusCode", Constants.rsvStatus_rsv_complete);
-            dataMap.put("strRmNumDatas", strRmNumDatas);
-            dataMap.put("strPenaltyDatas", "");
-
-            String strProcedure = commonFunction.makeStrProcedure("spGW_RSV_STAY_UPDATE_PROCESS", dataMap);
-
-            // 예약 테이블 상태값 업데이트
-            String result = kumhoMapper.updateRsvStay(intRsvID, Constants.rsvStatus_cancel_complete, strRmNumDatas, "");
-
-            String strContentCode = "200";
-            // 예약취소 api 실패 있는 경우
-            if(apiFail != 0) {
-                strContentCode = "500";
-                message = "예약취소 " + apiFail + "건 실패";
-
-                if (result.equals("저장완료")) {
-                    message += "\nDB 저장 완료";
-
-                } else {
-                    message += "\nDB 저장 실패";
-                }
-            }else{ // 예약취소 api 실패 없는 경우
-                if (result.equals("저장완료")) {
-                    message = "예약취소 완료";
-                } else {
-                    message = "DB 저장 실패";
-                }
-            }
-
-            // api history
-            commonAcmMapper.insertRsvStayHistory(intRsvID, "C24", "[" + strContentCode +"]" + Constants.rsvStatus_cancel_complete, strProcedure, "", 148);
-
-            logWriter.add(message);
-            logWriter.log(0);
-        }catch (Exception e){
-            message = "예약 취소 실패";
-            statusCode = "500";
-            logWriter.add("error : " + e.getMessage());
-            logWriter.log(0);
-            e.printStackTrace();
-        }
-        return commonFunction.makeReturn(dataType, statusCode, message);
-    }
 
     // 예약현황 조회
     public String getBookingInfo(String dataType, int intRsvID, HttpServletRequest httpServletRequest){

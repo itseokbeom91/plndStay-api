@@ -12,7 +12,7 @@ public interface CommonAcmMapper {
 
     List<CancelRulesDto> getCancelRules(int intAID, String strFlag);
 
-    double getOmkSales(int intRsvID);
+    double getOmkSales(int intAID, int intRmIdx, int intOMKIdx, String strDate);
 
     List<Map<String, Object>> getStrPkgCodeList(int intRmIdx, String startDate, String endDate);
 

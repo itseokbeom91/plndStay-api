@@ -22,13 +22,18 @@
         ORDER BY intIdx ASC
     </select>
 
-    <select id="getOmkSales" parameterType="int" resultType="double">
-        SELECT SO.moneySales
-        FROM PLNDSTAY.dbo.RSV_STAY RS WITH(NOLOCK)
-            INNER JOIN PLNDSTAY.dbo.CONNECTION C WITH(NOLOCK) ON RS.intSeller = C.intConnID
-            INNER JOIN PLNDSTAY.dbo.STOCK_REAL SR WITH(NOLOCK) ON RS.intRmIdx = SR.intRmIdx AND RS.dateCheckIn = SR.dateSales
-            INNER JOIN PLNDSTAY.dbo.STOCK_OMK SO WITH(NOLOCK) ON ST.intIdx = SO.intStockIdx AND SO.intOMKIdx = C.intOMKIdx
-        WHERE RS.intRsvID = ${intRsvID}
+    <select id="getBasicCancelRules" resultType="CancelRulesDto">
+        SELECT
+            intDay
+             , intPercent
+        FROM PLNDSTAY.dbo.ACCOMM_CANCEL_RULES
+        WHERE intAID = 0
+          AND strFlag = #{strFlag}
+        ORDER BY intIdx ASC
+    </select>
+
+    <select id="getOmkSales" resultType="double">
+        EXEC PLNDSTAY.dbo.spGW_OMKSALES_INFO ${intAID}, ${intRmIdx}, ${intOMKIdx}, #{strDate}
     </select>
 
     <select id="getStrPkgCodeList" resultType="map">
@@ -48,9 +53,10 @@
     </select>
 
     <select id="getStrRsvRmNum" parameterType="int" resultType="String">
-        SELECT DISTINCT(strRsvRmNum)
+        SELECT strRsvRmNum
         FROM PLNDSTAY.dbo.RSV_STAY_RM_NUM
         WHERE intRsvID = ${intRsvID}
+        GROUP BY strRsvRmNum
     </select>
 
 </mapper>
