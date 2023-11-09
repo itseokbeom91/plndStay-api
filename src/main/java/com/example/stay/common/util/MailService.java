@@ -1,5 +1,6 @@
 package com.example.stay.common.util;
 
+import com.example.stay.openMarket.common.mapper.CommonMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.MailException;
 import org.springframework.mail.SimpleMailMessage;
@@ -19,16 +20,22 @@ public class MailService {
     @Autowired
     private  JavaMailSender javaMailSender;
 
+    @Autowired
+    private CommonMapper commonMapper;
+
 
     public void sendEmail(String content, String rsvStatus){
         MimeMessage message = javaMailSender.createMimeMessage();
 
         try{
+            String subject = "";
             if(!rsvStatus.equals("")){
                 if(rsvStatus.equals("0")){
-                    message.setSubject("예약과입니다. [예약접수]");
+                    subject = "예약과입니다. [예약접수]";
+                    message.setSubject(subject);
                 } else if (rsvStatus.equals("5") || rsvStatus.equals("14")) {
-                    message.setSubject("예약과입니다. [예약취소]");
+                    subject = "예약과입니다. [예약취소]";
+                    message.setSubject(subject);
                 }
             }
 
@@ -36,6 +43,7 @@ public class MailService {
             message.addRecipients(MimeMessage.RecipientType.TO, "woonbeom.lee@plnd.co.kr");
             message.setFrom("sender@condo24.com");
             javaMailSender.send(message);
+//            commonMapper.insertSendHistory(intRsvID, "EMAIL", "200", subject, content, "212.142.23.23", "83");
         } catch (Exception e){
             e.printStackTrace();
         }

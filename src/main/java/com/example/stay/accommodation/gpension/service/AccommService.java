@@ -253,7 +253,21 @@ public class AccommService {
                 String responseBody = response.body().string();
                 JSONParser jsonParser = new JSONParser();
                 JSONObject responseJson = (JSONObject) jsonParser.parse(responseBody);
-                return commonFunction.makeReturn(dataType,"200", "OK", responseJson);
+                List<Map<String, Object>> dataList = (List<Map<String, Object>>) responseJson.get("data");
+                List<Map<String, Object>> dataTmp = new ArrayList<>();
+                for (Map<String, Object> map : dataList) {
+                    String pension_addr1 = (String) map.get("pension_addr1");
+                    String pension_name = (String) map.get("pension_name");
+                    String pension_addr2 = (String) map.get("pension_addr2");
+                    pension_addr1 = base64Decode(pension_addr1);
+                    pension_name = base64Decode(pension_name);
+                    pension_addr2 = base64Decode(pension_addr2);
+                    map.put("pension_addr1", pension_addr1);
+                    map.put("pension_name", pension_name);
+                    map.put("pension_addr2", pension_addr2);
+                    dataTmp.add(map);
+                }
+                return commonFunction.makeReturn(dataType,"200", "OK", dataTmp);
             } else {
                 return commonFunction.makeReturn(dataType,"500", response.message(), "");
             }

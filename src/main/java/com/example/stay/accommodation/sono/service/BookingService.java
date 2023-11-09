@@ -679,7 +679,7 @@ public class BookingService {
 
     }
     //영업장 목록조회
-    public String getRoomList(String dataType, HttpServletRequest httpServletRequest) {
+    public String getStoreList(String dataType, HttpServletRequest httpServletRequest) {
         long startTime = System.currentTimeMillis();
         OkHttpClient client = new OkHttpClient().newBuilder().build();
 
@@ -1030,7 +1030,7 @@ public class BookingService {
         String result = "";
 
         String packageResponseResult = getPackageList("jsonp", httpServletRequest);
-        String RoomResponseResult = getRoomList("jsonp", httpServletRequest);
+        String RoomResponseResult = getStoreList("jsonp", httpServletRequest);
 
 
 

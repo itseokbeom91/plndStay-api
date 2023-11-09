@@ -48,4 +48,8 @@
         EXEC spOMK_STOCK_MIN_PRICE #{intAID}, #{strDate}, '1'
     </select>
 
+    <select id="updateElevenSeq" resultType="int">
+        EXEC sp11ST_STOCK_NUMBERING ${intAID}, ${strDatas}, ''
+    </select>
+
 </mapper>

@@ -63,10 +63,10 @@ public class BookingController {
         return  bookingService.cancelBookingRoom(dataType, intRsvID ,httpServletRequest);
     }
 
-    @GetMapping("/getRoomList")
+    @GetMapping("/getStoreList")
     @ResponseBody
     public String getRoomList(@RequestParam(required = false, defaultValue="jsonp") String dataType,HttpServletRequest httpServletRequest){
-        return  bookingService.getRoomList(dataType, httpServletRequest);
+        return  bookingService.getStoreList(dataType, httpServletRequest);
     }
 
     @GetMapping("/getRoomPrice")

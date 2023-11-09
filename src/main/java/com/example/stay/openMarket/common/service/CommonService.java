@@ -704,9 +704,10 @@ public class CommonService {
     public void faxRtn(String data, String sendStart, String sendEnd, String errMsg, String toNumber){
         if(data.split(",")[1].equals("1")){
             //FAX 전송 성공
-
+            //TODO SEND_HISTORY 집어넣어줘야 함
         }else {
             //FAX 전송 실패
+            //TODO SEND_HISTORY 집어넣어줘야 함
         }
     }
 }

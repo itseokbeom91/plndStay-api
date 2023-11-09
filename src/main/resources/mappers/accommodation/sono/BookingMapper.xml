@@ -17,13 +17,15 @@
         EXEC PLNDSTAY.dbo.spSONO_ACCOMM_REGIST #{strPackageDatas},  #{strRoomDatas}, #{strStockDatas}, #{strAccommDatas}, #{strType}, ''
     </select>
 
-    <select id="getPackageCodeAndStoreCode" parameterType="String" resultType="hashmap">
-        SELECT strPkgCode
-             , strStoreCode
-            , dateStart
-            , dateEnd
-        FROM PLNDSTAY.dbo.ACM_PACKAGE_INFO
-        WHERE strFlag = '01' AND strUsageYn = 'Y'
+    <select id="getRmPackageMap" parameterType="String" resultType="hashmap">
+        SELECT intIdx
+            ,intAID
+             , intRmIdx
+            , dateMapping
+            , strRmCode
+            , strMapCode
+        FROM PLNDSTAY.dbo.RM_PACKAGE_MAPPING
+        WHERE intAID in (SELECT intAID FROM PLNDSTAY.dbo.ACCOMM WHERE strCateCode='01') AND strDeleteYn='N'
     </select>
 
     <select id="updateRsvState">

@@ -90,8 +90,8 @@ public class ElevenStController {
 
     @GetMapping("/getStockList2")
     @ResponseBody
-    public String getStockList(String prdNo){
-        return elevenStService.insertStockNo(prdNo);
+    public String insertStockNo(int intAID){
+        return elevenStService.insertStockNo(intAID);
     }
 
 
