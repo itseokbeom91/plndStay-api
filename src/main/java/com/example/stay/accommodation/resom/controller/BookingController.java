@@ -82,7 +82,7 @@ public class BookingController {
         return bookingService.updateGuest(dataType, intRsvID, mpNo, guestNm);
     }
 
-    @GetMapping("/getPackageBookingInfo")
+    @GetMapping("/getBookingInfo")
     @ResponseBody
     public String getPackageBookingInfo(@RequestParam(required = false, defaultValue="jsonp") String dataType, int intRsvID) {
         return bookingService.getPackageBookingInfo(dataType, intRsvID);

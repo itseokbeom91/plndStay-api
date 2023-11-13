@@ -78,7 +78,6 @@ public class FaxService {
             sb.append("                        *Sspan style=\"font-weight:bold;font-size:12px;\"*E숙박팀*S/span*E*Sbr*E");
             sb.append("                        강미영부장 070-5101-3208*Sbr*E");
             sb.append("                        문경부부장 070-5101-3209*Sbr*E");
-            sb.append("                        조은진차장 070-5101-3206*Sbr*E");
             sb.append("                      *S/td*E");
             sb.append("                      *Std bgcolor=\"#FFFFFF\" style=\"padding:5px 10px;font-size:11px;vertical-align:top;\"*E");
             sb.append("                        *Sspan style=\"font-weight:bold;font-size:12px;\"*E *S/span*E*Sbr*E");

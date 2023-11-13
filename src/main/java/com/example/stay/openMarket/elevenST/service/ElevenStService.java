@@ -285,7 +285,7 @@ public class ElevenStService {
             StringBuffer sb = new StringBuffer();
             sb.append("<?xml version=\"1.0\" encoding=\"euc-kr\" standalone=\"yes\"?>");
             sb.append("<SearchProduct>");
-            sb.append("<category1/>");
+            sb.append("<category1>1017895</category1>");
             sb.append("<category2/>");
             sb.append("<category3/>");
             sb.append("<category4/>");
@@ -296,7 +296,7 @@ public class ElevenStService {
             sb.append("<schDateType/>");
             sb.append("<schBgnDt/>");
             sb.append("<schEndDt/>");
-            sb.append("<limit/>");
+            sb.append("<limit>500</limit>");
             sb.append("<start/>");
             sb.append("<end/>");
             sb.append("</SearchProduct>");
@@ -711,6 +711,7 @@ public class ElevenStService {
             Document dc = db.parse(is);
             NodeList nl = dc.getElementsByTagName("ns2:order");
             List<Map<String, Object>>listMap = new ArrayList<>(); //
+            String insertData = "";
             String ordNo = "";
             SimpleDateFormat oldDateFormat = new SimpleDateFormat("MM월dd일(E)");
             SimpleDateFormat nextYearDateFormat = new SimpleDateFormat("YY년MM월dd일(E)");
@@ -749,21 +750,52 @@ public class ElevenStService {
 //                Date formatDate = oldDateFormat.parse(dateCheckIn);
 
                 if(dateCheckIn.length() > 9){
-                    lkDate ="20" + dateCheckIn.toString().replaceAll("월", "-").replaceAll("년", "-").substring(0, 4);
+                    lkDate ="20" + dateCheckIn.toString().replaceAll("월", "-").replaceAll("년", "-").substring(0, 8);
                 } else {
                     lkDate ="2023-" + dateCheckIn.toString().replaceAll("월", "-").substring(0, 5);
                 }
+                map.put("dateCheckIn", lkDate);
 
-//                Date newformatDate = newDateFormat.parse(strNewDtFormat);
+                Date newformatDate = newDateFormat.parse(lkDate);
 
+                c.setTime(newformatDate);
+
+                c.add(Calendar.DATE, 1); //현재시각 - 1일 11번가는 3분마다 스케쥴링
+                map.put("dateCheckOut",newDateFormat.format(c.getTime()));
 
 //                map.put("sellerStockCd", xmlUtility.getTagValue("sellerStockCd", (Element) nl.item(i)));
                 map.put("prdStckNo", xmlUtility.getTagValue("prdStckNo", (Element) nl.item(i)));
                 map.put("ordNo", ordNo);
+                insertData += map.get("ordNo") + "|^|" + map.get("prdNo") + "|^|" + map.get("ordQty") + "|^|" + map.get("dateCheckIn") + "|^|" + map.get("dateCheckOut") + "|^|" + map.get("prdStckNo") + "|^|" + map.get("sellerStockCd") + "|^|";
 //                elevenStMapper.updateRsv(map.get("dlvNo").toString(), "", rsvStayDto);
                 listMap.add(map);
             }
+            /*
+            RSV_STAY_OMK
+            strOrderCode - 오픈마켓 주문번호
+            intOrderSeq - 오픈마켓 주문 순번 (SEQ)
+            strOrderStatus - 주문상태
+            strProductID - 오픈마켓 상품번호
+            strOrderPackage - 주문일련번호?
 
+            RSV_STAY
+            intSettleID
+            strRsvCode
+            intSeller - 판매처 (11번가 : 32)
+            intAID - 숙소넘버
+            intRmIdx - 객실넘버(RMTYPE)
+            strRsvSite - 'OMK'
+            intRmCnt - 객실 수
+            dateCheckIn - 체크인
+            dateCheckOut - 체크아웃
+            strRmtypeName - 객실타입명
+            strOrdName - 주문자명
+            strOrdPhone - 주문자 전화번호
+            strRcvName - 예약자명
+            strRcvPhone - 예약자 전화번호
+            strIP - IP
+            strRemark - 요청사항
+             */
 
 
             return commonFunction.makeReturn("jsonp", "200", "OK", listMap);
@@ -897,41 +929,50 @@ public class ElevenStService {
             //AS-IS 기준
             sb.append("<ProductOptionExt>");
 
-            sb.append("<ProductOption>");
-            sb.append("<colOptPrice>0</colOptPrice>");
-            sb.append("<colOptCount>2</colOptCount>");
-            sb.append("<colCount/>");
-            sb.append("<optWght/>");
-//                sb.append("<useYn>Y</useYn>");
-            sb.append("<colSellerStockCd>z</colSellerStockCd>");//셀러가 사용할 재고번호
-            sb.append("<optionMappingKey><![CDATA[투숙일자:2†" + "객실타입:3]]></optionMappingKey>");
-            sb.append("</ProductOption>");
+//            sb.append("<ProductOption>");
+//            sb.append("<colOptPrice>0</colOptPrice>");
+//            sb.append("<colOptCount>2</colOptCount>");
+//            sb.append("<colCount/>");
+//            sb.append("<optWght/>");
+////                sb.append("<useYn>Y</useYn>");
+//            sb.append("<colSellerStockCd></colSellerStockCd>");//셀러가 사용할 재고번호
+//            sb.append("<optionMappingKey><![CDATA[투숙일자:2†" + "객실타입:3]]></optionMappingKey>");
+//            sb.append("</ProductOption>");
 
             // 재고 가져오기
             List<StockDto> stockList = commonMapper.getStockList(intAID, 1, bgnDay.replaceAll("/", "-"));
-
+            int testPrc = 999999999;
             System.out.println(stockList);
             for (StockDto dto : stockList) {
 
                 String strStockSubject = dto.getStrRmtypeName();
-                int intStockCnt = dto.getIntStock();
+                int intStockCnt = dto.getIntOMKStock();
                 String strStockdate = dto.getDateSales();
-                int intStockSalePrice = dto.getMoneySales(); // 판매가
+                int intStockSalePrice = dto.getMoneyOMKSales(); // 판매가
+                if(intStockSalePrice<testPrc)testPrc = intStockSalePrice;
                 intStockSalePrice = intStockSalePrice-selprc; //판매가 - 최저가 = 추가금액
                 int intStockCost = dto.getMoneyCost(); // 공급가
                 int intIdx = dto.getIntIdx();
                 String strPkgName = dto.getStrPkgName();
-                if(intStockCnt == 0){
-                    intStockCnt=1;
-                }
                 sb.append("<ProductOption>");
                 sb.append("<colOptPrice>" + intStockSalePrice + "</colOptPrice>");
-                sb.append("<colOptCount>" + intStockCnt + "</colOptCount>");
+                if(intStockCnt == 0){//재고 없을시 품절로 등록
+//                    sb.append("<useYn>N</useYn>");
+//                    sb.append("<colOptCount>" + intStockCnt + "</colOptCount>");
+                    sb.append("<colOptCount>1</colOptCount>");
+                }else {
+                    sb.append("<colOptCount>" + intStockCnt + "</colOptCount>");
+                }
                 sb.append("<colCount/>");
                 sb.append("<optWght/>");
 //                sb.append("<useYn>Y</useYn>");
                 sb.append("<colSellerStockCd>"+intIdx+"</colSellerStockCd>");//셀러가 사용할 재고번호
-                sb.append("<optionMappingKey><![CDATA[투숙일자:" + strStockdate + "†" + "객실타입:" + strStockSubject +" / " + strPkgName + " ]]></optionMappingKey>");
+                if(strPkgName!=null){
+                    sb.append("<optionMappingKey><![CDATA[투숙일자:" + strStockdate + "†" + "객실타입:" + strStockSubject + " / " + strPkgName.replaceAll("&", " and ").replaceAll(",", " ").substring(0,8) + ".. ]]></optionMappingKey>");
+                } else {
+                    sb.append("<optionMappingKey><![CDATA[투숙일자:" + strStockdate + "†" + "객실타입:" + strStockSubject + " ]]></optionMappingKey>");
+                }
+
                 sb.append("</ProductOption>");
             }
             sb.append("</ProductOptionExt>");
@@ -954,6 +995,7 @@ public class ElevenStService {
 //                returnStr += inputLine;
             }
             System.out.println(returnStr);
+            System.out.println("실제 최저가 ::: " + testPrc);
 
 //            LogWriter lw = new LogWriter("POST", url.toString(), System.currentTimeMillis());
 //            lw.log(2);
@@ -966,7 +1008,7 @@ public class ElevenStService {
 
             NodeList nl = dc.getElementsByTagName("message");
 
-            insertStockNo(prdNo);
+            insertStockNo(intAID);
 
             return commonFunction.makeReturn("jsonp", "500", returnStr);
         } catch (Exception e) {
@@ -1063,8 +1105,9 @@ public class ElevenStService {
 
     }
 
-    public String insertStockNo(String prdNo) {
+    public String insertStockNo(int intAID) {
         try{
+            String prdNo = commonMapper.getStrPdtCode(intAID, 1);
             URL url = new URL(Constants.elevenUrl + "/rest/prodmarketservice/prodmarket/stck/"+prdNo);
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             conn.setDoOutput(true);
@@ -1088,7 +1131,6 @@ public class ElevenStService {
             NodeList nl = dc.getElementsByTagName("ns2:ProductStock");
             List<Map<String, Object>> listMap = new ArrayList<>();
             String prcd="";
-            String intAID = "";
             for (int i = 0 ; i< nl.getLength();i++){
                 Map<String, Object> stockMap = new HashMap<>();
                 String [] mixOpt = xmlUtility.getTagValue("mixDtlOptNm", (Element) nl.item(i)).toString().split(",");
@@ -1101,14 +1143,13 @@ public class ElevenStService {
                     stockMap.put("strRmName", xmlUtility.getTagValue("mixDtlOptNm", (Element) nl.item(i)).toString().split(",")[1]);
                 }
                 stockMap.put("sellerStockCd", xmlUtility.getTagValue("sellerStockCd", (Element) nl.item(i)).toString());
-                intAID = xmlUtility.getTagValue("sellerPrdCd", (Element) nl.item(i)).toString(); //sellerPrdCd
                 stockMap.put("prdStckNo", xmlUtility.getTagValue("prdStckNo", (Element) nl.item(i)).toString());
                 stockMap.put("prdStckStatCd", xmlUtility.getTagValue("prdStckStatCd", (Element) nl.item(i)).toString());
                 listMap.add(stockMap);
                 prcd += stockMap.get("sellerStockCd") + "|^|" + stockMap.get("prdStckNo") + "|^|" + stockMap.get("dateSales") + "|^|" + stockMap.get("strRmName") + "{{|}}";
             }
             prcd = prcd.substring(0, prcd.length()-5);
-            elevenStMapper.updateElevenSeq(Integer.parseInt(intAID), prcd);
+            elevenStMapper.updateElevenSeq(intAID, prcd);
             System.out.println(listMap);
 
 
