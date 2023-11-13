@@ -107,4 +107,13 @@
         WHERE intAID = ${intAID}
     </select>
 
+    <select id="updateRsvStatus" resultType="String">
+        EXEC PLNDSTAY.dbo.spOMK_RSV_STAY_UPDATE_STATUS ${intRsvID}, ${intSID}, #{strStatusCode}, #{dateCanceled}, #{strCancelDatas}, #{strIP}, ''
+    </select>
+
+    <select id="getIntRsvID" parameterType="String" resultType="int">
+        SELECT intRsvID
+        FROM PLNDSTAY.dbo.RSV_STAY_OMK WITH(NOLOCK)
+        WHERE strOrderCode = #{strOrderCode}
+    </select>
 </mapper>

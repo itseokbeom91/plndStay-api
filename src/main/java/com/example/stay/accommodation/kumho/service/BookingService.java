@@ -189,7 +189,7 @@ public class BookingService extends CommonFunction{
                 }
             }
             // api history
-            commonAcmMapper.insertRsvStayHistory(intRsvID, "C24", "[" + strContentCode +"]" + Constants.rsv_history_rsv, strProcedure, "", 148);
+            commonAcmMapper.insertRsvStayHistory(intRsvID, "C24", "[" + strContentCode +"]" + Constants.rsv_history_rsv_to_cancel + Constants.rsv_history_rsv, strProcedure, "", 148);
 
             logWriter.add(message);
             logWriter.log(0);
@@ -347,7 +347,7 @@ public class BookingService extends CommonFunction{
                 }
             }
             // api history
-            commonAcmMapper.insertRsvStayHistory(intRsvID, "C24", "[" + strContentCode +"]" + Constants.rsv_history_rsv, strProcedure, commonFunction.getClientIP(), 148);
+            commonAcmMapper.insertRsvStayHistory(intRsvID, "C24", "[" + strContentCode +"]" + Constants.rsv_history_rsv_to_cancel + Constants.rsv_history_rsv, strProcedure, commonFunction.getClientIP(), 148);
 
             logWriter.add(message);
             logWriter.log(0);

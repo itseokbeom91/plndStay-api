@@ -37,7 +37,9 @@ public class BookingController {
         return bookingService.cancelBooking(dataType, intRsvID, httpServletRequest);
     }
 
-
+    /**
+     * 취소/환불 규정 조회
+     */
     @GetMapping("getCancelPolicy")
     @ResponseBody
     public void getCancelPolicy(String strPropertyID, String roomTypeId, String ratePlanId,

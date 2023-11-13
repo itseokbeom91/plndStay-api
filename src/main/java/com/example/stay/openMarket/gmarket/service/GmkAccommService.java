@@ -927,7 +927,7 @@ public class GmkAccommService {
         String statusCode = "200";
         String message = "";
         try{
-            String strPdtCode = commonMapper.getStrPdtCode(intAID, Constants.intGmkOmkIdx);
+            String strPdtCode = commonMapper.getStrPdtCode(intAID, Constants.intGmkOmkIdx); // 마스터 상품번호
 
             // api 호출
             String authorization = HmacGenerator.generate("sell");

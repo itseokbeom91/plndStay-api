@@ -328,7 +328,7 @@ public class BookingService extends CommonFunction{
                 }
 
                 // api history
-                commonAcmMapper.insertRsvStayHistory(intRsvID, "C24", "[" + strContentCode +"]" + Constants.rsv_history_rsv, strProcedure, "", 148);
+                commonAcmMapper.insertRsvStayHistory(intRsvID, "C24", "[" + strContentCode +"]" + Constants.rsv_history_rsv_to_cancel + Constants.rsv_history_rsv, strProcedure, "", 148);
 
             }else{
                 message = "예약 불가";
@@ -443,7 +443,7 @@ public class BookingService extends CommonFunction{
                 }
 
                 // api history
-                commonAcmMapper.insertRsvStayHistory(intRsvID, "C24", "[" + strContentCode +"]" + Constants.rsv_history_rsv, strProcedure, "", 148);
+                commonAcmMapper.insertRsvStayHistory(intRsvID, "C24", "[" + strContentCode +"]" + Constants.rsv_history_rsv_to_cancel + Constants.rsv_history_rsv, strProcedure, "", 148);
             }else{
                 message = "예약 불가";
             }

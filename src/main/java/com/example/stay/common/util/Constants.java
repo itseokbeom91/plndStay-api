@@ -15,10 +15,11 @@ public class Constants {
 
     // 예약 상태값
     public static final String rsvStatus_rsv = "0"; // 예약
+    public static final String rsvStatus_rsvNum_wait = "2"; // 번호 대기
     public static final String rsvStatus_rsv_complete = "4"; // 완료
+    public static final String rsvStatus_cancel_complete = "5"; // 취소
     public static final String rsvStatus_cancel_wait = "14"; // 취소 대기
-    public static final String rsvStatus_cancel_complete = "5"; // 취소 완료
-
+    public static final String rsvStatus_cancel_withdraw = "50"; // 취소 철회
 
 
     // ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━

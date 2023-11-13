@@ -19,7 +19,6 @@ public interface CommonMapper {
 
     StockDto getStockInfo(int intStockIdx, int intOmkIdx);
 
-    //int getMinPrice(int intAID, String strDate); // 수정하면 지우기
     int getMinPrice(int intAID, String strDate, int intOmkIdx);
 
     List<CancelRulesDto> getCancelRuleList(int intAID);
@@ -29,8 +28,6 @@ public interface CommonMapper {
     String insertAcmOmk(int intAID, int intOmkIdx, String strUsageYn, String strPdtSubject, String strPdtCode, String strDetailInfo, String strOmkSiteCode);
 
     String getStrPdtCode(int intAID, int intOmkIdx);
-
-    double getOmkSales(int intAID, int intOmkIdx);
 
     RsvStayDto getBookingInfo(int intRsvID);
 
@@ -49,4 +46,8 @@ public interface CommonMapper {
     String getAcmNmByintAID(int intAID);
 
     Map<String, Object> getOmkSeqNStock(int prdNo, int omkIdx);
+
+    String updateRsvStatus(int intRsvID, int intSID, String strStatusCode, String dateCanceled, String strCancelDatas, String strIP);
+
+    int getIntRsvID(String strOrderCode);
 }

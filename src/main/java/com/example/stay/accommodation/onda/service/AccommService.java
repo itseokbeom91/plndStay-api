@@ -43,34 +43,17 @@ public class AccommService {
         String message = "";
 
         // 전체 숙소 리스트 조회
-//        String accommListUrl = "properties?status=all";
-//        JSONObject accommListJson = callOndaAPI(accommListUrl);
-//
-//        List<JSONObject> accommList = new ArrayList<>();
-//        JSONArray accommArray = (JSONArray) accommListJson.get("properties");
-//        for(int i=0; i<accommArray.size(); i++){
-//            JSONObject jsonObject = (JSONObject) accommArray.get(i);
-//            accommList.add(jsonObject);
-//        }
+        String accommListUrl = "properties?status=all";
+        JSONObject accommListJson = callOndaAPI(accommListUrl);
+
+        List<JSONObject> accommList = new ArrayList<>();
+        JSONArray accommArray = (JSONArray) accommListJson.get("properties");
+        for(int i=0; i<accommArray.size(); i++){
+            JSONObject jsonObject = (JSONObject) accommArray.get(i);
+            accommList.add(jsonObject);
+        }
 
         try{
-
-
-            String testAccommList2 = "{\n" +
-                    "      \"id\": \"130517\",\n" +
-                    "      \"name\": \"에드워드호텔(거제 호텔상상)\",\n" +
-                    "      \"status\": \"enabled\",\n" +
-                    "      \"updated_at\": \"2023-06-09T02:05:27+09:00\"\n" +
-                    "    }";
-            JSONParser jsonParser = new JSONParser();
-
-            Object obj2 = jsonParser.parse(testAccommList2);
-            JSONObject jsonObj2 = (JSONObject) obj2;
-
-            List<JSONObject> accommList = new LinkedList<>();
-            accommList.add(jsonObj2);
-
-
             for(JSONObject accomm : accommList){
                 String strPropertyID = accomm.get("id").toString();
                 

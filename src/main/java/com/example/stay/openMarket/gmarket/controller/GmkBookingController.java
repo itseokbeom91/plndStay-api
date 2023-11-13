@@ -133,12 +133,12 @@ public class GmkBookingController {
 
 
 
-    // 입금확인중 주문조회
-    @GetMapping("/getBookingListBeforeDeposit")
-    @ResponseBody
-    public String getBookingListBeforeDeposit(String dataType, String startDate, String endDate, HttpServletRequest httpServletRequest){
-        return gmkBookingService.getBookingListBeforeDeposit(dataType, startDate, endDate, httpServletRequest);
-    }
+//    // 입금확인중 주문조회
+//    @GetMapping("/getBookingListBeforeDeposit")
+//    @ResponseBody
+//    public String getBookingListBeforeDeposit(String dataType, String startDate, String endDate, HttpServletRequest httpServletRequest){
+//        return gmkBookingService.getBookingListBeforeDeposit(dataType, startDate, endDate, httpServletRequest);
+//    }
 
     // 배송진행정보 조회
     @GetMapping("/getDeliveryProcess")

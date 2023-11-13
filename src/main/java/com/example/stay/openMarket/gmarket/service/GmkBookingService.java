@@ -3,6 +3,7 @@ package com.example.stay.openMarket.gmarket.service;
 import com.example.stay.common.util.CommonFunction;
 import com.example.stay.common.util.Constants;
 import com.example.stay.common.util.LogWriter;
+import com.example.stay.openMarket.common.mapper.CommonMapper;
 import com.example.stay.openMarket.gmarket.GmkUtil.GmkApi;
 import com.example.stay.openMarket.gmarket.GmkUtil.HmacGenerator;
 import com.example.stay.openMarket.gmarket.mapper.GmkMapper;
@@ -21,6 +22,9 @@ public class GmkBookingService {
 
     @Autowired
     private GmkMapper gmkMapper;
+
+    @Autowired
+    private CommonMapper commonMapper;
 
     CommonFunction commonFunction = new CommonFunction();
 
@@ -230,12 +234,38 @@ public class GmkBookingService {
                     String cancelStatus = cancelJson.get("CancelStatus").toString(); // 취소상태
 //                    String addShippingFee = cancelJson.get("AddShippingFee").toString(); // 취소배송비
                     String payNo = cancelJson.get("PayNo").toString(); // 장바구니번호(결제번호)
-                    String orderNo = cancelJson.get("OrderNo").toString(); // 주문번호
+                    String strOrderCode = cancelJson.get("OrderNo").toString(); // 주문번호
 //                    String goodsNo = cancelJson.get("GoodsNo").toString(); // ESM 상품번호 - 현재는 null, 추후 적용 예정
                     String siteGoodsNo = cancelJson.get("SiteGoodsNo").toString(); // 사이트 상품번호
-                    String reason = cancelJson.get("Reason").toString(); // 취소사유
+//                    String reason = cancelJson.get("Reason").toString(); // 취소사유
+
+                    String strCancelDatas = "";
                     String reasonCode = cancelJson.get("ReasonCode").toString(); // 취소요청사유코드
-                    String reasonDetail = cancelJson.get("ReasonDetail").toString(); // 상세취소사유
+                    if(reasonCode.equals("0")){
+                        strCancelDatas = "기타";
+                    }if(reasonCode.equals("1")){
+                        strCancelDatas = "단순변심";
+                    }if(reasonCode.equals("2")){
+                        strCancelDatas = "사이즈/색상 등 변경";
+                    }if(reasonCode.equals("3")){
+                        strCancelDatas = "오배송";
+                    }if(reasonCode.equals("4")){
+                        strCancelDatas = "상품미도착";
+                    }if(reasonCode.equals("5")){
+                        strCancelDatas = "상품불량";
+                    }if(reasonCode.equals("6")){
+                        strCancelDatas = "재고없음(판매자요청)";
+                    }if(reasonCode.equals("7")){
+                        strCancelDatas = "선물수락기한만료";
+                    }if(reasonCode.equals("8")){
+                        strCancelDatas = "선물거절";
+                    }
+
+                    // 상세취소사유
+                    if(cancelJson.get("ReasonDetail") != null){
+                        strCancelDatas += " - " + cancelJson.get("ReasonDetail").toString();
+                    }
+
                     String orderDate = cancelJson.get("OrderDate").toString(); // 주문일자
                     String payDate = cancelJson.get("PayDate").toString(); // 결제일자
 
@@ -261,7 +291,20 @@ public class GmkBookingService {
 
                     // 취소요청 상태
                     if(cancelStatus.equals("1")){
-                        // 주문상태값 취소대기로 변경 필요
+                        int intRsvID = commonMapper.getIntRsvID(strOrderCode);
+
+                        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssXXX");
+                        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ssxXXX");
+                        Date dateRequest = sdf.parse(requestDate);
+                        String dateCanceled = simpleDateFormat.format(dateRequest);
+
+                        String strIP = commonFunction.getClientIP();
+
+                        // TODO : intSID 수정
+                        String result = commonMapper.updateRsvStatus(intRsvID, 148, Constants.rsvStatus_cancel_wait, dateCanceled, strCancelDatas, strIP);
+                        if(result.equals("")){
+                            message = "취소주문 목록 조회 완료";
+                        }
 
                     }else if(cancelStatus.equals("4")){ // 취소 철회
 
