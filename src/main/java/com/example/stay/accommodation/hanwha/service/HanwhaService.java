@@ -554,6 +554,7 @@ public class HanwhaService {
         String statusCode = "200";
         String message = "";
         String result = "";
+        String dataType = "jsonp";
 
         try {
 
@@ -566,7 +567,7 @@ public class HanwhaService {
             // 100일 추가
             LocalDate date100DaysLater = currentDate.plusDays(100);
             String strEndDate = date100DaysLater.format(dateFormatter);
-            String dataType = "jsonp";
+
 
             // intAID 구하기
             List<Integer> intAIDList = hanwhaMapper.getIntAID();
@@ -603,7 +604,7 @@ public class HanwhaService {
             e.printStackTrace();
         }
 
-        return commonFunction.makeReturn("jsonp", statusCode, message);
+        return commonFunction.makeReturn(dataType, statusCode, message);
 
     }
 

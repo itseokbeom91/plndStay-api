@@ -27,6 +27,12 @@
         where acm.intAID = ${intAID}
           and ali.strFlag = '02'
         group by ali.strLocalCode
+
+        SELECT * FROM ACM_LOCAL_INFO A WITH(NOLOCK)
+        LEFT JOIN ACCOMM_ACM_LOCAL B WITH(NOLOCK) ON A.intIdx = B.intALIIdx
+        WHERE A.strFlag = '02' AND A.strDeleteYn = 'N' AND A.strUsageYn = 'Y'
+          AND B.intAID = ${intAID}
+        GROUP BY A.strLocalCode
     </select>
 
     <select id="getRsvInfo" resultType="RsvStayDto">
